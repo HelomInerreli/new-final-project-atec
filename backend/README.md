@@ -2,8 +2,8 @@
 
 #### Entre na backend do projeto e execute os seguintes passos:
 
-1. Criar a VENV - `python -m venv venv`
-2. Ativando a VENV - `venv\Scripts\activate`
+1. Criar a VENV - `python -m venv .venv`
+2. Ativando a VENV - `.venv\Scripts\activate` para Windows ou `source .venv/bin/activate` para MacOS
 3. Importar as Bibliotecas - `pip install -r requirements.txt`
 4. Executar a API com Uvicorn - `uvicorn app.main:app --reload`
    (Este é o comando recomendado, pois funciona corretamente com a estrutura de módulos do projeto.)
