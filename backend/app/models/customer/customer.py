@@ -1,5 +1,7 @@
-from sqlalchemy import Column, Integer, String
+import datetime
+from sqlalchemy import Boolean, Column, DateTime, Integer, String
 from app.database import Base
+from datetime import datetime
 
 class Customer(Base):
     __tablename__ = "customers"
@@ -10,3 +12,6 @@ class Customer(Base):
     phone = Column(String, index=True, nullable=False)
     address = Column(String, index=True, nullable=False)
     age = Column(Integer, index=True, nullable=False)
+    is_active = Column(Boolean, default=True, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
