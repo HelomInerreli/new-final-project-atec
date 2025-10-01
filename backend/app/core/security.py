@@ -1,29 +1,33 @@
 import time
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import Depends, HTTPException, status
+from passlib.context import CryptContext
+from datetime import datetime, timedelta
 import jwt
-from pwdlib import Password
 
 # OAuth2 scheme for FastAPI
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/token")
 
-# JWT settings
-SECRET_KEY = "your-secret-key"  # Change this to a secure value!
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_SECONDS = 3600
+# Password hashing context
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-def create_access_token(data: dict, expires_delta: int = ACCESS_TOKEN_EXPIRE_SECONDS):
+# Secret key and algorithm for JWT
+SECRET_KEY = "your_secret_key"  # Change this to a secure value!
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
+
+def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode = data.copy()
-    expire = int(time.time()) + expires_delta
+    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return Password.verify(plain_password, hashed_password)
+def verify_password(plain_password: str, password_hash: str) -> bool:
+    return pwd_context.verify(plain_password, password_hash)
 
 def get_password_hash(password: str) -> str:
-    return Password.hash(password)
+    return pwd_context.hash(password)
 
 def decode_access_token(token: str):
     try:
