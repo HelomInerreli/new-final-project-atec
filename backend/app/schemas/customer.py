@@ -1,18 +1,22 @@
 from pydantic import BaseModel
+from datetime import date, datetime
+from typing import List, Optional
 
 class CustomerBase(BaseModel):
     name: str
-    email: str
     phone: str
     address: str
-    age: int
-
+    city: str
+    postal_code: str
+    birth_date: date
 
 class CustomerCreate(CustomerBase):
-    pass
+    id_user: int
 
 class CustomerResponse(CustomerBase):
     id: int
+    id_user: int
+    created_at: datetime
 
     class Config:
         orm_mode = True
