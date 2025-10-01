@@ -21,7 +21,7 @@ class AppointmentUpdate(BaseModel):
     service_date: Optional[datetime] = None  # Data do serviço agendado adicionada(Henrique)
     description: Optional[str] = None
     scheduled_date: Optional[datetime] = None
-    status: Optional[str] = None
+    status: str="Requirement Registered"  
     estimated_price: Optional[float] = None
     
     model_config = ConfigDict(extra ='ignore')  # Ignorar campos extras

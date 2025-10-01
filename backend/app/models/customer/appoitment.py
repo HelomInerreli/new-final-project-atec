@@ -10,7 +10,7 @@ class Appointment(Base):
     service_name = Column(String(100), nullable=False)
     service_date = Column(DateTime, nullable=False) # Data do serviço agendado adicionada(Henrique)
     description = Column(Text)
-    status = Column(String(20), default="scheduled")  # scheduled, in_progress, completed, cancelled
+    status = Column(String, default="Requirement Registered")
     estimated_price = Column(Float)
     created_at = Column(DateTime, default=datetime.utcnow)
     reminder_sent = Column(Integer, default=0)  # 0 = Não enviado, 1 = Enviado
