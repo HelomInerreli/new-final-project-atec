@@ -8,10 +8,10 @@ load_dotenv()
 
 class EmailService:
     def __init__(self):
-        self.smtp_server = os.getenv('SMTP_SERVER', 'smtp.example.com')
-        self.smtp_port = int(os.getenv('SMTP_PORT', 587))
-        self.email_user = os.getenv('EMAIL_USER')
-        self.email_password = os.getenv('EMAIL_PASSWORD')
+        self.smtp_server = os.getenv('EMAIL_HOST')
+        self.smtp_port = int(os.getenv('EMAIL_PORT', 587))
+        self.email_user = os.getenv('EMAIL_HOST_USER')
+        self.email_password = os.getenv('EMAIL_HOST_PASSWORD')
         self.email_from = os.getenv('EMAIL_FROM')
         
     def send_email(self, to_email: str, subject: str, body: str):

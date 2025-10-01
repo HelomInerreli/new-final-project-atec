@@ -11,8 +11,6 @@ class AppointmentBase(BaseModel):
     service_name: str
     service_date: datetime  # Data do serviço agendado adicionada(Henrique)
     description: Optional[str] = None
-    estimated_price: Optional[float] = None
-    
     model_config = ConfigDict(extra ='ignore')  # Ignorar campos extras
 
 class AppointmentCreate(AppointmentBase):

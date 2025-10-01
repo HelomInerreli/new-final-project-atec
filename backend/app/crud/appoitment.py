@@ -10,13 +10,13 @@ from datetime import datetime
 def create(
     db: Session, 
     appointment_in: AppointmentCreate,
-    email_service: EmailService # Novo Argumento
+    email_service: EmailService 
 ) -> Appointment:
     
 
     db_obj = Appointment(
         **appointment_in.model_dump(),
-        scheduled_date=datetime.utcnow()
+        
     )
     
     db.add(db_obj)

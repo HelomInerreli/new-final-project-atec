@@ -17,7 +17,7 @@ class NotificationScheduler:
         self.scheduler.add_job(
             func=self.check_and_send_reminders,
             trigger='interval',
-            minutes=2,
+            hours=1,
             id='reminder_job',
             replace_existing=True
         )    
@@ -34,12 +34,12 @@ class NotificationScheduler:
         try:
             now = datetime.now()
             # Para teste: envia para appointments nos próximos 2-5 minutos
-            start_window = now + timedelta(minutes=2)
-            end_window = now + timedelta(minutes=5)
+            #start_window = now + timedelta(minutes=2)
+            #end_window = now + timedelta(minutes=5)
             
             # Para produção: envia 24h antes
-            # start_window = now + timedelta(hours=23, minutes=30)
-            # end_window = now + timedelta(hours=24, minutes=30)
+            start_window = now + timedelta(hours=23)
+            end_window = now + timedelta(hours=25)
             
             # Query SEM join (já que não temos relationship)
             appointments = db.query(Appointment).filter(

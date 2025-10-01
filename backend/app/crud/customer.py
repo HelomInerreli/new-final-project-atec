@@ -18,3 +18,6 @@ def get_customers(db: Session, skip: int = 0, limit: int = 10):
 
 def get_by_email(db: Session, email: str):
     return db.query(Customer).filter(Customer.email == email).first()
+
+def get_by_id(db: Session, id: int):
+    return db.query(Customer).filter(Customer.id == id).first()

@@ -2,11 +2,15 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import Base, engine
 from app.api.v1.api import api_router as api_v1_router
+from app.scheduler.scheduler import NotificationScheduler
 
 # Cria tabelas
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="FastAPI ORM Example")
+
+scheduler = NotificationScheduler()
+scheduler.start()
 
 # Lista de origens permitidas (endereços do seu frontend)
 origins = [
