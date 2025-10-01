@@ -1,0 +1,123 @@
+# ========================================
+# Workshop Management System - .gitignore
+# ========================================
+
+# === Dependencies ===
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# === Python ===
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+ENV/
+#.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# === Build outputs ===
+dist/
+build/
+*.tsbuildinfo
+.next/
+out/
+
+# === Logs ===
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# === Runtime data ===
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# === Coverage directory used by tools like istanbul ===
+coverage/
+*.lcov
+.nyc_output/
+
+# === IDE & Editors ===
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.settings/
+.classpath
+
+# === OS generated files ===
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# === Database files ===
+#*.db
+*.sqlite
+*.sqlite3
+
+# === Docker ===
+.dockerignore
+
+# === Temporary files ===
+*.tmp
+*.temp
+/tmp/
+temp/
+
+# === Testing ===
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# === TypeScript ===
+*.tsbuildinfo
+
+# === React/Vite specific ===
+.vite/
+*.local
+
+# === Backup files ===
+*.bak
+*.backup
+*.orig
+
+# === Development script outputs ===
+/tmp/*.log
+/tmp/*.pid
+
+# === Local development overrides ===
+docker-compose.override.yml
+.env.override
+
+# === Certificate files ===
+*.pem
+*.key
+*.crt
