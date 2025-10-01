@@ -29,6 +29,57 @@ function App() {
   return (
     <>
       <div className="container">
+        <div className="bg-white p-6 shadow-xl rounded-xl transition hover:shadow-2xl">
+          <h2 className="text-xl font-bold text-center mb-4 text-atec-cinza-chumbo"></h2>
+          <div className="logo-container bg-gray-100 rounded-lg p-4">
+            <svg viewBox="0 0 400 100" className="w-full h-full">
+              <g
+                transform="translate(45, 50)"
+                fill="none"
+                stroke-linecap="round"
+              >
+                <circle
+                  cx="0"
+                  cy="0"
+                  r="30"
+                  stroke="#4F4F4F"
+                  stroke-width="6"
+                />
+                <circle
+                  cx="0"
+                  cy="0"
+                  r="40"
+                  stroke="#FFD700"
+                  stroke-width="6"
+                />
+                <path
+                  d="M -50 0 A 50 50 0 1 1 45 0"
+                  stroke="#4F4F4F"
+                  stroke-width="6"
+                />
+              </g>
+              <text
+                x="110"
+                y="65"
+                font-size="50"
+                fill="#4F4F4F"
+                font-style="italic"
+                className="svg-text"
+              >
+                Rod
+              </text>
+              <text
+                x="190"
+                y="65"
+                font-size="50"
+                fill="#2614c4ff"
+                className="svg-text"
+              >
+                Atec
+              </text>
+            </svg>
+          </div>
+        </div>
         <h1 className="text-center mt-5 title">
           Lista de Clientes - Página Agendamento
         </h1>
