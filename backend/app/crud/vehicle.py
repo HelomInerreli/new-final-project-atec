@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from app.models.vehicle import Vehicle
-from app.schemas.vehicle import VehicleCreate, VehicleUpdate
-from typing import List, Optional
+from app.schemas.vehicle import VehicleCreate
+from typing import List, Optional, Dict, Any
 
 
 class VehicleRepository:
@@ -37,12 +37,11 @@ class VehicleRepository:
         self.db.refresh(db_vehicle)
         return db_vehicle
 
-    def update(self, vehicle_id: int, vehicle_data: VehicleUpdate) -> Optional[Vehicle]:
+    def update(self, vehicle_id: int, vehicle_data: Dict[str, Any]) -> Optional[Vehicle]:
         """Updates a vehicle's data."""
         db_vehicle = self.get_by_id(vehicle_id)
         if db_vehicle:
-            update_data = vehicle_data.model_dump(exclude_unset=True)
-            for field, value in update_data.items():
+            for field, value in vehicle_data.items():
                 setattr(db_vehicle, field, value)
             self.db.commit()
             self.db.refresh(db_vehicle)

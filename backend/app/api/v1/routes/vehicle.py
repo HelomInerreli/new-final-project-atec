@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
+from pydantic import BaseModel
 
 from app.database import get_db
 from app.crud.vehicle import VehicleRepository
-from app.schemas.vehicle import Vehicle, VehicleCreate, VehicleUpdate
+from app.schemas.vehicle import Vehicle, VehicleCreate
 from app.schemas.appointment import Appointment
 
 router = APIRouter()
@@ -13,6 +14,11 @@ router = APIRouter()
 def get_vehicle_repo(db: Session = Depends(get_db)) -> VehicleRepository:
     """Dependency to provide a VehicleRepository instance."""
     return VehicleRepository(db)
+
+
+class VehicleKilometersUpdate(BaseModel):
+    """Schema for updating only the vehicle's kilometers."""
+    kilometers: int
 
 
 @router.post("/", response_model=Vehicle, status_code=status.HTTP_201_CREATED)
@@ -74,13 +80,13 @@ def get_service_history(
 @router.put("/{vehicle_id}", response_model=Vehicle)
 def update_vehicle_details(
     vehicle_id: int,
-    vehicle_in: VehicleUpdate,
+    vehicle_in: VehicleKilometersUpdate,
     repo: VehicleRepository = Depends(get_vehicle_repo)
 ):
     """
-    Update vehicle by ID (e.g., atualizarQuilometragem).
+    Update vehicle's kilometers by ID (atualizarQuilometragem).
     """
-    db_vehicle = repo.update(vehicle_id, vehicle_data=vehicle_in)
+    db_vehicle = repo.update(vehicle_id, vehicle_data=vehicle_in.model_dump())
     if not db_vehicle:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vehicle not found")
     return db_vehicle
