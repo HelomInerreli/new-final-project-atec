@@ -3,6 +3,7 @@ from app.models.customer import Customer
 from app.models.appointment import Appointment
 from app.schemas.customer import CustomerCreate, CustomerUpdate
 from typing import List, Optional
+from datetime import datetime
 
 
 class CustomerRepository:
@@ -14,11 +15,11 @@ class CustomerRepository:
 
     def get_by_id(self, customer_id: int) -> Optional[Customer]:
         """Gets a single customer by their ID."""
-        return self.db.query(Customer).filter(Customer.id == customer_id).first()
+        return self.db.query(Customer).filter(Customer.id == customer_id, Customer.deleted_at.is_(None)).first()
 
     def get_all(self, skip: int = 0, limit: int = 100) -> List[Customer]:
         """Gets a list of all customers."""
-        return self.db.query(Customer).order_by(Customer.id).offset(skip).limit(limit).all()
+        return self.db.query(Customer).filter(Customer.deleted_at.is_(None)).order_by(Customer.id).offset(skip).limit(limit).all()
 
     def create(self, customer: CustomerCreate) -> Customer:
         """Creates a new customer."""
@@ -40,17 +41,18 @@ class CustomerRepository:
         return db_customer
 
     def delete(self, customer_id: int) -> bool:
-        """Deletes a customer from the database."""
+        """
+        Soft deletes a customer from the database by setting the 'deleted_at' timestamp.
+        The customer's 'is_active' flag is also set to False.
+        """
         db_customer = self.get_by_id(customer_id)
         if db_customer:
-            self.db.delete(db_customer)
+            db_customer.deleted_at = datetime.utcnow()
+            db_customer.is_active = False
             self.db.commit()
             return True
         return False
 
     def get_appointments_by_customer(self, customer_id: int) -> List[Appointment]:
         """Gets all appointments associated with a specific customer."""
-        db_customer = self.get_by_id(customer_id)
-        if db_customer:
-            return db_customer.appointments
-        return []
+        return self.db.query(Appointment).filter(Appointment.customer_id == customer_id).all()

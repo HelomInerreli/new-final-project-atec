@@ -52,3 +52,4 @@ def get_extra_service_details(
     if not db_extra_service:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Extra service not found")
     return db_extra_service
+

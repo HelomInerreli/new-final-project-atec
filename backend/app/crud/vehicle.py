@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from app.models.vehicle import Vehicle
 from app.schemas.vehicle import VehicleCreate
 from typing import List, Optional, Dict, Any
-
+from datetime import datetime
 
 class VehicleRepository:
     """
@@ -48,10 +48,13 @@ class VehicleRepository:
         return db_vehicle
 
     def delete(self, vehicle_id: int) -> bool:
-        """Deletes a vehicle from the database."""
+        """
+        Soft deletes a vehicle from the database by setting the 'deleted_at' timestamp.
+        """
         db_vehicle = self.get_by_id(vehicle_id)
         if db_vehicle:
-            self.db.delete(db_vehicle)
+            db_vehicle.deleted_at = datetime.utcnow()
             self.db.commit()
             return True
         return False
+        

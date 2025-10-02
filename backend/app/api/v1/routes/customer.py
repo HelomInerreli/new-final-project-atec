@@ -65,3 +65,17 @@ def list_customer_appointments(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Customer not found")
     # The Customer model has a 'appointments' relationship, so we can directly access it
     return db_customer.appointments
+
+
+@router.delete("/{customer_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_customer(
+    customer_id: int,
+    repo: CustomerRepository = Depends(get_customer_repo)
+):
+    """
+    Soft delete a customer by their ID.
+    """
+    # The repo.delete method handles finding the customer and returns False if not found.
+    if not repo.delete(customer_id=customer_id):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Customer not found")
+    # A 204 No Content response is returned automatically on success.
