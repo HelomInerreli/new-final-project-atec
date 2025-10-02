@@ -16,3 +16,6 @@ class Customer(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     is_active = Column(Boolean, default=True)
+
+    vehicles = relationship("Vehicle", back_populates="owner", cascade="all, delete")
+    appointments = relationship("Appointment", back_populates="customer", cascade="all, delete")

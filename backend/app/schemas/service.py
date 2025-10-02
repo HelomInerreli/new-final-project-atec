@@ -7,6 +7,7 @@ class ServiceBase(BaseModel):
     description: Optional[str] = None
     price: float
     duration_minutes: Optional[int] = None
+    is_active: Optional[bool] = True
 
 class ServiceCreate(ServiceBase):
     pass
@@ -20,7 +21,9 @@ class ServiceUpdate(BaseModel):
 
 class Service(ServiceBase):
     id: int
+    description: Optional[str] = None
+    duration_minutes: Optional[int] = None
     is_active: bool
-    
+
     class Config:
         from_attributes = True

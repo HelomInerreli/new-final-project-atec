@@ -1,27 +1,67 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from app.crud import customer as crud_customer
-from app.schemas import customer as customer_schema
-from app.deps import get_db
+from typing import List
+
+from app.database import get_db
+from app.crud.customer import CustomerRepository
+from app.schemas.customer import Customer, CustomerCreate, CustomerUpdate
+from app.schemas.appointment import Appointment
 
 router = APIRouter()
 
-@router.get("/test")
-def customer_test():
-    return {"message": "Customer test endpoint is working!"}
 
-#Adicionar as rotas genericas sempre por ultimo.
-@router.post("/", response_model=customer_schema.CustomerResponse)
-def create_customer(customer: customer_schema.CustomerCreate, db: Session = Depends(get_db)):
-    return crud_customer.create_customer(db=db, customer=customer)
+def get_customer_repo(db: Session = Depends(get_db)) -> CustomerRepository:
+    """Dependency to provide a CustomerRepository instance."""
+    return CustomerRepository(db)
 
-@router.get("/{customer_id}", response_model=customer_schema.CustomerResponse)
-def read_customer(customer_id: int, db: Session = Depends(get_db)):
-    db_customer = crud_customer.get_customer(db=db, customer_id=customer_id)
+
+@router.post("/", response_model=Customer, status_code=status.HTTP_201_CREATED)
+def create_customer(
+    customer_in: CustomerCreate,
+    repo: CustomerRepository = Depends(get_customer_repo)
+):
+    """
+    Create a new customer.
+    """
+    return repo.create(customer=customer_in)
+
+
+@router.get("/", response_model=List[Customer])
+def list_customers(
+    skip: int = 0,
+    limit: int = 100,
+    repo: CustomerRepository = Depends(get_customer_repo)
+):
+    """
+    Retrieve a list of customers.
+    """
+    return repo.get_all(skip=skip, limit=limit)
+
+
+@router.get("/{customer_id}", response_model=Customer)
+def read_customer(
+    customer_id: int,
+    repo: CustomerRepository = Depends(get_customer_repo)
+):
+    """
+    Get a specific customer by their ID.
+    """
+    db_customer = repo.get_by_id(customer_id=customer_id)
     if db_customer is None:
-        raise HTTPException(status_code=404, detail="Cliente não encontrado")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Customer not found")
     return db_customer
 
-@router.get("/", response_model=list[customer_schema.CustomerResponse])
-def list_customers(db: Session = Depends(get_db)):
-    return crud_customer.get_customers(db=db)
+
+@router.get("/{customer_id}/appointments", response_model=List[Appointment])
+def list_customer_appointments(
+    customer_id: int,
+    repo: CustomerRepository = Depends(get_customer_repo)
+):
+    """
+    List all appointments for a specific customer.
+    """
+    db_customer = repo.get_by_id(customer_id=customer_id)
+    if not db_customer:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Customer not found")
+    # The Customer model has a 'appointments' relationship, so we can directly access it
+    return db_customer.appointments
