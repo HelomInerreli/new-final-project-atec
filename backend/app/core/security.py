@@ -22,7 +22,7 @@ def verify_password(plain_password: str, password_hash: str) -> bool:
     return pwd_context.verify(plain_password, password_hash)
 
 def get_password_hash(password: str) -> str:
-    password = password[:72]  # Truncate password to 72 characters for bcrypt limit
+    password = password[:72]
     return pwd_context.hash(password)
 
 
