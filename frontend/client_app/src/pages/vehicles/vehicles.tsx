@@ -5,6 +5,8 @@ const Vehicles: React.FC = () => {
     <div>
       <h1>Meus Veículos</h1>
 
+      <p className="subtitle">Gerencie os seus veículos cadastrados</p>
+
     </div>
   );
 };

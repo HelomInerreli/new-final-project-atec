@@ -5,6 +5,8 @@ const Profile: React.FC = () => {
     <div>
       <h1>Meu Perfil</h1>
 
+      <p className="subtitle">Gerencie as informações do seu perfil</p>
+
     </div>
   );
 };
