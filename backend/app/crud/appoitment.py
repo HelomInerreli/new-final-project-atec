@@ -4,6 +4,7 @@ from app.schemas.appoitment import AppointmentCreate
 from app.email_service.email_service import EmailService # Importamos o serviço de email
 from app.crud import customer as crud_customer # Importamos o CRUD de cliente
 from datetime import datetime
+from typing import List
 
 # A função de criação agora recebe uma instância do EmailService
 # e uma instância da sessão DB para buscar o cliente
@@ -41,3 +42,6 @@ def create(
 
 def get_by_id(db: Session, id: int) -> Appointment | None:
     return db.query(Appointment).filter(Appointment.id == id).first()
+
+def get_all(db: Session) -> List[Appointment]:
+    return db.query(Appointment).all()

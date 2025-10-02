@@ -23,6 +23,14 @@ def customer_test():
 def create_customer(customer: customer_schema.CustomerCreate, db: Session = Depends(get_db)):
     return crud_customer.create_customer(db=db, customer=customer)
 
+@router.get(
+    "/appointments", 
+    response_model=list[appointment_schema.Appointment]
+)
+def get_appointments_list(db: Session = Depends(get_db)):
+   
+    return crud_appointment.get_all(db=db)
+
 #@router.get("/{customer_id}", response_model=customer_schema.CustomerResponse)
 # Linha CORRIGIDA:
 @router.get("/{customer_id}", response_model=customer_schema.Customer)
@@ -37,6 +45,7 @@ def read_customer(customer_id: int, db: Session = Depends(get_db)):
 @router.get("/", response_model=list[customer_schema.Customer])
 def list_customers(db: Session = Depends(get_db)):
     return crud_customer.get_customers(db=db)
+
 
 
 @router.post("/appointments/notifications")
@@ -83,5 +92,3 @@ def create_appointment_route(
         email_service=email_service 
     )
     return new_appointment
-
-       
