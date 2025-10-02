@@ -7,7 +7,7 @@ class CustomerAuthBase(BaseModel):
 
 class CustomerAuthCreate(CustomerAuthBase):
     id_customer: int
-    password_hash: Optional[str] = None
+    password: Optional[str] = None
     google_id: Optional[str] = None
     facebook_id: Optional[str] = None
     twitter_id: Optional[str] = None

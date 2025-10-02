@@ -16,18 +16,23 @@ SECRET_KEY = "your_secret_key"  # Change this to a secure value!
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
+
+def verify_password(plain_password: str, password_hash: str) -> bool:
+    plain_password = plain_password[:72]  # Truncate password to 72 characters for bcrypt limit
+    return pwd_context.verify(plain_password, password_hash)
+
+def get_password_hash(password: str) -> str:
+    password = password[:72]  # Truncate password to 72 characters for bcrypt limit
+    return pwd_context.hash(password)
+
+
+#Still testing
 def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode = data.copy()
     expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
-
-def verify_password(plain_password: str, password_hash: str) -> bool:
-    return pwd_context.verify(plain_password, password_hash)
-
-def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
 
 def decode_access_token(token: str):
     try:

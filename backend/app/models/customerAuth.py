@@ -4,7 +4,7 @@ from datetime import datetime
 from app.database import Base
 
 class CustomerAuth(Base):
-    __tablename__ = "users"
+    __tablename__ = "customersAuth"
 
     id = Column(Integer, primary_key=True, index=True)
     id_customer = Column(Integer, ForeignKey("customers.id"), nullable=False)  # ID_User
@@ -23,3 +23,5 @@ class CustomerAuth(Base):
     failed_login_attempts = Column(Integer, default=0)
     last_login = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.now)
+
+    customer = relationship("Customer", back_populates="customerauth")

@@ -7,7 +7,7 @@ def create_customer_auth(db: Session, customer_auth: CustomerAuthCreate):
     db_customer_auth = CustomerAuth(
         id_customer=customer_auth.id_customer,
         email=customer_auth.email,
-        password_hash=get_password_hash(customer_auth.password_hash) if customer_auth.password_hash else None,
+        password_hash=get_password_hash(customer_auth.password) if customer_auth.password else None,
         google_id=customer_auth.google_id,
         facebook_id=customer_auth.facebook_id,
         twitter_id=customer_auth.twitter_id

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Date, DateTime
+from sqlalchemy import Column, Integer, String, Date, DateTime
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.database import Base
@@ -15,4 +15,4 @@ class Customer(Base):
     birth_date = Column(Date, nullable=False)  # DataNascimento
     created_at = Column(DateTime, default=datetime.now)  # Created_At
 
-    user = relationship("User", back_populates="customers")
+    customerauth = relationship("CustomerAuth", back_populates="customer")
