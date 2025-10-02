@@ -8,11 +8,19 @@ from app.crud.customer import CustomerRepository
 from app.crud.vehicle import VehicleRepository
 from app.crud.appointment import AppointmentRepository
 from app.crud.service import ServiceRepository
+from app.crud.extra_service import ExtraServiceRepository
 from app.schemas.customer import CustomerCreate
 from app.schemas.vehicle import VehicleCreate
 from app.schemas.appointment import AppointmentCreate
 from app.schemas.service import ServiceCreate
 from app.schemas.extra_service import ExtraServiceCreate
+# Import all models to ensure they are registered with Base.metadata before table creation
+from app.models.customer import Customer
+from app.models.vehicle import Vehicle
+from app.models.appointment import Appointment
+from app.models.status import Status
+from app.models.service import Service
+from app.models.extra_service import ExtraService
 
 # Configuration
 NUM_CUSTOMERS = 15
@@ -49,6 +57,14 @@ EXTRA_SERVICE_DESCRIPTIONS = [
     {"description": "Troca de escovas limpa-vidros", "cost": 25.0},
 ]
 
+STATUSES = [
+    "Pendente",
+    "Canceled",
+    "Finalized",
+    "In Repair",
+    "Awaiting Approval"
+]
+
 def seed_data(db: Session):
     """
     Main function to seed the database with sample data.
@@ -59,6 +75,15 @@ def seed_data(db: Session):
     vehicle_repo = VehicleRepository(db)
     appointment_repo = AppointmentRepository(db)
     service_repo = ServiceRepository(db)
+
+    # Create Statuses
+    for status_name in STATUSES:
+        db_status = db.query(Status).filter(Status.name == status_name).first()
+        if not db_status:
+            new_status = Status(name=status_name)
+            db.add(new_status)
+    db.commit()
+    print(f"Created/verified {len(STATUSES)} statuses.")
 
     # Create Main Services
     services = []
@@ -131,7 +156,11 @@ def seed_data(db: Session):
                         description=extra_service_details["description"],
                         cost=extra_service_details["cost"]
                     )
-                    appointment_repo.add_extra_service(appointment.id, extra_service_in)
+                    # The logic for adding extra services is now simpler
+                    extra_service = appointment_repo.add_extra_service(appointment.id, extra_service_in)
+                    # Randomly approve some of them for more realistic data
+                    if random.choice([True, False]) and extra_service:
+                        ExtraServiceRepository(db).approve(extra_service.id)
 
     print(f"Created {len(appointments)} appointments with some extra services.")
     print("Seeding finished successfully!")

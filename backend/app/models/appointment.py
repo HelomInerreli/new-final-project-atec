@@ -1,26 +1,27 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Text
+from sqlalchemy import Column, Integer, String, DateTime, Float, ForeignKey
 from sqlalchemy.orm import relationship
-from datetime import datetime
+
 from app.database import Base
+
 
 class Appointment(Base):
     __tablename__ = "appointments"
-    
+
     id = Column(Integer, primary_key=True, index=True)
-    appointment_date = Column(DateTime, nullable=False, default=datetime.utcnow)
-    description = Column(Text)
-    status = Column(String(50), default="Pendente")
+    appointment_date = Column(DateTime, nullable=False)
+    description = Column(String, nullable=False)
     estimated_budget = Column(Float, default=0.0)
-    actual_budget = Column(Float, default=0)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    actual_budget = Column(Float, default=0.0)
 
-    service_id = Column(Integer, nullable=True) # ID from management DB
-    service_name = Column(String(255), nullable=True)
-    service_price = Column(Float, nullable=True)
-
+    # Foreign Keys
     vehicle_id = Column(Integer, ForeignKey("vehicles.id"))
     customer_id = Column(Integer, ForeignKey("customers.id"))
+    service_id = Column(Integer, ForeignKey("services.id"))
+    status_id = Column(Integer, ForeignKey("statuses.id"))
 
-    customer = relationship("Customer", back_populates="appointments")
+    # Relationships
     vehicle = relationship("Vehicle", back_populates="appointments")
-    extra_services = relationship("ExtraService", back_populates="appointment", cascade="all, delete-orphan")
+    customer = relationship("Customer", back_populates="appointments")
+    service = relationship("Service", back_populates="appointments")
+    extra_services = relationship("ExtraService", back_populates="appointment")
+    status = relationship("Status", back_populates="appointments")

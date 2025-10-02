@@ -1,13 +1,17 @@
-from sqlalchemy import Column, Integer, String, Float, Text, Boolean
-from datetime import datetime
+from sqlalchemy import Column, Integer, String, Float, Boolean
+from sqlalchemy.orm import relationship
+
 from app.database import Base
+
 
 class Service(Base):
     __tablename__ = "services"
-    
+
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(100), nullable=False)
-    description = Column(Text)
+    name = Column(String(100), unique=True, index=True, nullable=False)
+    description = Column(String, nullable=True)
     price = Column(Float, nullable=False)
-    duration_minutes = Column(Integer)  
+    duration_minutes = Column(Integer, nullable=False)
     is_active = Column(Boolean, default=True)
+
+    appointments = relationship("Appointment", back_populates="service")

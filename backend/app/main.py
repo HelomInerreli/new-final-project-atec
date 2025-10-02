@@ -6,7 +6,7 @@ from app.api.v1.api import api_router as api_v1_router
 # IMPORTANTE: Importe aqui todos os seus modelos.
 # O SQLAlchemy precisa que eles sejam carregados na memória para saber
 # que tabelas deve criar com o `create_all`.
-from app.models import user, customer, vehicle, appointment, extra_service, service
+from app.models import *
 
 
 # Cria tabelas

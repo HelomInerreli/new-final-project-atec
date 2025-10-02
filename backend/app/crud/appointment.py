@@ -1,15 +1,15 @@
 from sqlalchemy.orm import Session
 from app.models.appointment import Appointment
 from app.models.extra_service import ExtraService
+from app.models.status import Status
 from app.schemas.appointment import AppointmentCreate, AppointmentUpdate
 from app.schemas.extra_service import ExtraServiceCreate
 from typing import List, Optional
 
 # Define status constants locally to avoid magic strings
-APPOINTMENT_STATUS_PENDING = "Pendente" # Assuming this is the default from your model
+APPOINTMENT_STATUS_PENDING = "Pendente"
 APPOINTMENT_STATUS_CANCELED = "Canceled"
 APPOINTMENT_STATUS_FINALIZED = "Finalized"
-APPOINTMENT_STATUS_IN_REPAIR = "In Repair" # Added for consistency with extra_service logic
 
 
 class AppointmentRepository:
@@ -29,12 +29,14 @@ class AppointmentRepository:
 
     def create(self, appointment: AppointmentCreate) -> Appointment:
         """Creates a new appointment."""
-        # Ensure default status is set if not provided
+        # Get the default "Pendente" status from the database
+        pending_status = self.db.query(Status).filter(Status.name == APPOINTMENT_STATUS_PENDING).first()
+        if not pending_status:
+            # This is a critical configuration error if the status doesn't exist
+            raise RuntimeError(f"Default status '{APPOINTMENT_STATUS_PENDING}' not found in the database.")
+
         appointment_data = appointment.model_dump()
-        if "status" not in appointment_data or appointment_data["status"] is None:
-            appointment_data["status"] = APPOINTMENT_STATUS_PENDING
-            
-        db_appointment = Appointment(**appointment_data)
+        db_appointment = Appointment(**appointment_data, status_id=pending_status.id)
         self.db.add(db_appointment)
         self.db.commit()
         self.db.refresh(db_appointment)
@@ -56,12 +58,20 @@ class AppointmentRepository:
 
     def cancel(self, appointment_id: int) -> Optional[Appointment]:
         """Cancels an appointment by updating its status."""
-        update_data = AppointmentUpdate(status=APPOINTMENT_STATUS_CANCELED)
+        canceled_status = self.db.query(Status).filter(Status.name == APPOINTMENT_STATUS_CANCELED).first()
+        if not canceled_status:
+            raise RuntimeError(f"Status '{APPOINTMENT_STATUS_CANCELED}' not found in the database.")
+
+        update_data = AppointmentUpdate(status_id=canceled_status.id)
         return self.update(appointment_id=appointment_id, appointment_data=update_data)
 
     def finalize(self, appointment_id: int) -> Optional[Appointment]:
         """Finalizes an appointment by updating its status."""
-        update_data = AppointmentUpdate(status=APPOINTMENT_STATUS_FINALIZED)
+        finalized_status = self.db.query(Status).filter(Status.name == APPOINTMENT_STATUS_FINALIZED).first()
+        if not finalized_status:
+            raise RuntimeError(f"Status '{APPOINTMENT_STATUS_FINALIZED}' not found in the database.")
+
+        update_data = AppointmentUpdate(status_id=finalized_status.id)
         return self.update(appointment_id=appointment_id, appointment_data=update_data)
 
     def add_extra_service(self, appointment_id: int, extra_service_data: ExtraServiceCreate) -> Optional[ExtraService]:
