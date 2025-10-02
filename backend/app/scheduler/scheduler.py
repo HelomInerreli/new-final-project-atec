@@ -17,7 +17,7 @@ class NotificationScheduler:
         self.scheduler.add_job(
             func=self.check_and_send_reminders,
             trigger='interval',
-            hours=1,
+            minutes=1,
             id='reminder_job',
             replace_existing=True
         )    
