@@ -2,17 +2,19 @@ from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
 
-class UserBase(BaseModel):
+class CustomerAuthBase(BaseModel):
     email: str
 
-class UserCreate(UserBase):
+class CustomerAuthCreate(CustomerAuthBase):
+    id_customer: int
     password_hash: Optional[str] = None
     google_id: Optional[str] = None
     facebook_id: Optional[str] = None
     twitter_id: Optional[str] = None
 
-class UserResponse(UserBase):
+class CustomerAuthResponse(CustomerAuthBase):
     id: int
+    id_customer: int
     email_verified: bool
     google_id: Optional[str] = None
     facebook_id: Optional[str] = None

@@ -11,11 +11,10 @@ class CustomerBase(BaseModel):
     birth_date: date
 
 class CustomerCreate(CustomerBase):
-    id_user: int
+    pass
 
 class CustomerResponse(CustomerBase):
     id: int
-    id_user: int
     created_at: datetime
 
     class Config:

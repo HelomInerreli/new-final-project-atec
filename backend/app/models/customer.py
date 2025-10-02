@@ -7,7 +7,6 @@ class Customer(Base):
     __tablename__ = "customers"
 
     id = Column(Integer, primary_key=True, index=True)  # ID_Cliente
-    id_user = Column(Integer, ForeignKey("users.id"), nullable=False)  # ID_User
     name = Column(String, index=True, nullable=False)  # Nome
     phone = Column(String, index=True, nullable=False)  # ContactoTelefonico
     address = Column(String, index=True, nullable=False)  # Morada
@@ -17,4 +16,3 @@ class Customer(Base):
     created_at = Column(DateTime, default=datetime.now)  # Created_At
 
     user = relationship("User", back_populates="customers")
-    #vehicles = relationship("Vehicle", back_populates="customer")  # ListaDeVeiculos

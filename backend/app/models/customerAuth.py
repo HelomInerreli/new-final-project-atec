@@ -1,11 +1,13 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Date, ForeignKey
+from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.database import Base
 
-class User(Base):
+class CustomerAuth(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
+    id_customer = Column(Integer, ForeignKey("customers.id"), nullable=False)  # ID_User
     email = Column(String, unique=True, index=True, nullable=False)
     email_verified = Column(Boolean, default=False)
     password_hash = Column(String, nullable=True) 

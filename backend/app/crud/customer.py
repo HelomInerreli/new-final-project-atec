@@ -4,7 +4,6 @@ from app.schemas.customer import CustomerCreate
 
 def create_customer(db: Session, customer: CustomerCreate):
     db_customer = Customer(
-        id_user=customer.id_user,
         name=customer.name,
         phone=customer.phone,
         address=customer.address,
