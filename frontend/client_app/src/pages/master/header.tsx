@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 import { Logo } from "../../components/Logo";
 
 interface HeaderProps {
@@ -7,18 +8,25 @@ interface HeaderProps {
 
 export function Header({ className = "" }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
   const menuItems = [
-    { label: "Home", href: "/", active: true },
+    { label: "Home", href: "/" },
+    { label: "Lista de Clientes", href: "/clients" },
     { label: "Serviços", href: "/services" },
     { label: "Agendamento", href: "/booking" },
     { label: "Sobre", href: "/about" },
     { label: "Contato", href: "/contact" },
   ];
+
+  // Função para verificar se a rota está ativa
+  const isActiveRoute = (href: string) => {
+    return location.pathname === href;
+  };
 
   return (
     <header
@@ -54,12 +62,14 @@ export function Header({ className = "" }: HeaderProps) {
               <li key={item.label} className="nav-item">
                 <a
                   className={`nav-link ${
-                    item.active ? "active text-danger fw-bold" : ""
+                    isActiveRoute(item.href) ? "active text-danger fw-bold" : ""
                   }`}
                   href={item.href}
                   onClick={() => setIsMenuOpen(false)}
                   style={
-                    item.active ? { borderBottom: "2px solid #dc3545" } : {}
+                    isActiveRoute(item.href)
+                      ? { borderBottom: "2px solid #dc3545" }
+                      : {}
                   }
                 >
                   {item.label}

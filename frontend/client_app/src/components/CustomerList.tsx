@@ -26,32 +26,42 @@ export function CustomerList() {
   }, []);
 
   return (
-    <div className="container py-4">
-      <div className="row justify-content-center">
-        <div className="col-12">
-          <h1 className="text-center my-5 display-6 fw-bold text-dark">
-            Lista de Clientes - Página Agendamento
-          </h1>
+    <>
+      <div className="text-center mb-5">
+        <h1 className="display-4 fw-bold text-dark mb-3">Lista de Clientes</h1>
+        <p className="lead text-muted">
+          Gestão completa dos clientes da Mecatec
+        </p>
+      </div>
 
-          {loading && (
-            <div className="text-center">
-              <div className="spinner-border text-primary" role="status">
-                <span className="visually-hidden">A carregar...</span>
-              </div>
-              <p className="mt-2 text-primary">A carregar...</p>
+      {loading && (
+        <div className="text-center my-5">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">A carregar...</span>
+          </div>
+          <p className="mt-3 text-primary">A carregar clientes...</p>
+        </div>
+      )}
+
+      {error && (
+        <div className="alert alert-danger" role="alert">
+          <i className="bi bi-exclamation-triangle me-2"></i>
+          {error}
+        </div>
+      )}
+
+      {!loading && !error && (
+        <>
+          <div className="card shadow-sm">
+            <div className="card-header bg-dark text-white">
+              <h5 className="mb-0">
+                <i className="bi bi-people me-2"></i>
+                Clientes Cadastrados ({customers.length})
+              </h5>
             </div>
-          )}
-
-          {error && (
-            <div className="alert alert-danger text-center" role="alert">
-              {error}
-            </div>
-          )}
-
-          <div className="card shadow">
             <div className="table-responsive">
               <table className="table table-striped table-hover mb-0">
-                <thead className="table-dark">
+                <thead className="table-light">
                   <tr>
                     <th scope="col">ID</th>
                     <th scope="col">Nome</th>
@@ -62,28 +72,55 @@ export function CustomerList() {
                   </tr>
                 </thead>
                 <tbody>
-                  {customers.map((customer) => (
-                    <tr key={customer.id}>
-                      <td>{customer.id}</td>
-                      <td>{customer.name}</td>
-                      <td>{customer.email}</td>
-                      <td>{customer.phone}</td>
-                      <td>{customer.address}</td>
-                      <td>{customer.age}</td>
+                  {customers.length > 0 ? (
+                    customers.map((customer) => (
+                      <tr key={customer.id}>
+                        <td className="fw-bold">{customer.id}</td>
+                        <td>{customer.name}</td>
+                        <td>
+                          <a
+                            href={`mailto:${customer.email}`}
+                            className="text-decoration-none"
+                          >
+                            {customer.email}
+                          </a>
+                        </td>
+                        <td>
+                          <a
+                            href={`tel:${customer.phone}`}
+                            className="text-decoration-none"
+                          >
+                            {customer.phone}
+                          </a>
+                        </td>
+                        <td className="text-muted small">{customer.address}</td>
+                        <td>
+                          <span className="badge bg-secondary">
+                            {customer.age} anos
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={7} className="text-center text-muted py-4">
+                        <i className="bi bi-inbox display-1 d-block mb-3 text-muted"></i>
+                        Nenhum cliente cadastrado ainda.
+                      </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>
           </div>
 
-          <div className="alert alert-success text-center mt-4" role="alert">
+          <div className="alert alert-success mt-4" role="alert">
             <i className="bi bi-check-circle me-2"></i>
-            Se estiver vendo uma lista de clientes, a API está funcionando
-            corretamente.
+            <strong>API Conectada!</strong> Se estiver vendo esta lista, a
+            comunicação com o backend está funcionando corretamente.
           </div>
-        </div>
-      </div>
-    </div>
+        </>
+      )}
+    </>
   );
 }
