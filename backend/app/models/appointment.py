@@ -12,6 +12,7 @@ class Appointment(Base):
     description = Column(String, nullable=False)
     estimated_budget = Column(Float, default=0.0)
     actual_budget = Column(Float, default=0.0)
+    reminder_sent = Column(Integer, default=0)
 
     # Foreign Keys
     vehicle_id = Column(Integer, ForeignKey("vehicles.id"))

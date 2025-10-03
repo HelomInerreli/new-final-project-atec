@@ -56,3 +56,9 @@ class CustomerRepository:
     def get_appointments_by_customer(self, customer_id: int) -> List[Appointment]:
         """Gets all appointments associated with a specific customer."""
         return self.db.query(Appointment).filter(Appointment.customer_id == customer_id).all()
+    
+    def get_by_email(self, email: str) -> Optional[Customer]:
+        """Gets a single customer by their email."""
+        return self.db.query(Customer).filter(Customer.email == email, Customer.deleted_at.is_(None)).first()
+    
+    

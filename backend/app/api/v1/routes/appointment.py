@@ -6,6 +6,8 @@ from app.database import get_db
 from app.crud.appointment import AppointmentRepository
 from app.schemas.appointment import Appointment, AppointmentCreate, AppointmentUpdate
 from app.schemas.extra_service import ExtraService, ExtraServiceCreate
+from app.scheduler.scheduler import NotificationScheduler
+from app.email_service.email_service import EmailService
 
 router = APIRouter()
 
@@ -35,7 +37,27 @@ def create_appointment(
     """
     Create a new appointment.
     """
-    return repo.create(appointment=appointment_in)
+    # Create the appointment in the database
+    new_appointment = repo.create(appointment=appointment_in)
+
+    # Instantiate services
+    email_service = EmailService()
+
+    # 1. Send immediate confirmation email
+    # The method expects specific arguments, not the whole object.
+    # We need to pass the customer's email, service name, and appointment date.
+    # The service relationship must be loaded for this to work.
+    email_service.send_confirmation_email(
+        new_appointment.customer.email,
+        service_name=new_appointment.service.name,
+        service_date=new_appointment.appointment_date
+    )
+
+    # 2. The reminder email is handled by the background scheduler.
+    # The scheduler periodically checks for upcoming appointments, so we don't
+    # need to do anything here besides creating the appointment itself.
+
+    return new_appointment
 
 
 @router.patch("/{appointment_id}/cancel", response_model=Appointment)
