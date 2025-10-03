@@ -2,6 +2,7 @@ from datetime import datetime
 from pydantic import BaseModel, computed_field
 from typing import List, Optional
 from .extra_service import ExtraService as ExtraServiceSchema
+from .service import Service as ServiceSchema
 from .status import Status as StatusSchema
 
 class AppointmentBase(BaseModel):
@@ -25,6 +26,7 @@ class AppointmentUpdate(BaseModel):
 class Appointment(AppointmentBase):
     id: int
     status: StatusSchema
+    service: ServiceSchema
     service_id: int
     extra_services: List[ExtraServiceSchema] = []
 
