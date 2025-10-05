@@ -8,8 +8,8 @@ export default function Home() {
 
   return (
     <>
-      <div className="text-center mb-5">
-        <h1 className="display-4 fw-bold text-dark mb-3">
+      <div className="text-center mb-2">
+        <h1 className="display-4 fw-bold text-dark mb-1">
           {t('welcome')} {t('toMecatec')}
         </h1>
         <p className="lead text-muted">

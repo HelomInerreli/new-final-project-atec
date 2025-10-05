@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Dropdown from 'react-bootstrap/Dropdown';
+import NavDropdown from "react-bootstrap/esm/NavDropdown";
 
 interface HeaderProps {
   className?: string;
@@ -87,20 +88,16 @@ export function Header({ className = "" }: HeaderProps) {
           {/* Botões de Ação */}
           <div className="d-flex flex-column flex-lg-row gap-2">
             {/* Adicionar seletor de idioma com bandeiras */}
-            <Dropdown as={ButtonGroup}>
-              {/* Show current language with flag on the main button */}
-              <Button variant="outline-secondary">
-                {(() => {
+            <NavDropdown
+              className="mb-lg-1 px-2"
+              id="nav-dropdown-dark-example"
+              title={(() => {
                   const lng = i18n.language || 'en';
-                  const flag = lng.startsWith('pt') ? '🇵🇹' : '🇬🇧';
-                  const label = lng.startsWith('pt') ? 'Português' : 'English';
+                  const flag = lng.startsWith('pt') ? '🇵🇹' : lng.startsWith('es') ? '🇪🇸' : lng.startsWith('fr') ? '🇫🇷' : '🇬🇧';
+                  const label = lng.startsWith('pt') ? 'Português' : lng.startsWith('es') ? 'Espanhol' : lng.startsWith('fr') ? 'Francês' : 'English';
                   return <>{flag} {label}</>;
                 })()}
-              </Button>
-
-              <Dropdown.Toggle split variant="outline-secondary" id="dropdown-split-basic" />
-
-              <Dropdown.Menu>
+            >
                 <Dropdown.Item
                   onClick={() => {
                     i18n.changeLanguage('en');
@@ -117,12 +114,27 @@ export function Header({ className = "" }: HeaderProps) {
                 >
                   🇵🇹 Português
                 </Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
+                <Dropdown.Item
+                  onClick={() => {
+                    i18n.changeLanguage('es');
+                    try { localStorage.setItem('i18nextLng', 'es'); } catch (err) {}
+                  }}
+                >
+                  🇪🇸 Espanhol
+                </Dropdown.Item>
+                <Dropdown.Item
+                  onClick={() => {
+                    i18n.changeLanguage('fr');
+                    try { localStorage.setItem('i18nextLng', 'fr'); } catch (err) {}
+                  }}
+                >
+                  🇫🇷 Francês
+                </Dropdown.Item>
+            </NavDropdown>
             <button className="btn btn-outline-success btn-sm me-sm-2">
               {t('login')}
             </button>
-            <button className="btn btn-danger btn-sm">
+            <button className="btn btn-secondary btn-sm">
               {t('register')}
             </button>
           </div>
