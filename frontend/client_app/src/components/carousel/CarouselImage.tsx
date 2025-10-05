@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
 import Carousel from "react-bootstrap/Carousel";
 import ExampleCarouselImage from "./ExampleCarouselImage";
+import '../../i18n';
+import { useTranslation } from "react-i18next";
 
 function CarouselImage() {
   const [index, setIndex] = useState(0);
+  const { t } = useTranslation();
 
   const handleSelect = (selectedIndex: number) => {
     setIndex(selectedIndex);
@@ -30,34 +33,34 @@ function CarouselImage() {
         >
           <Carousel.Item>
             <ExampleCarouselImage
-              text="Oficina Mecânica Profissional"
+              text={t("carousel.textImage1")}
               src="https://images.pexels.com/photos/279949/pexels-photo-279949.jpeg?cs=srgb&dl=pexels-pixabay-279949.jpg&fm=jpg"
-              alt="Oficina mecânica com equipamentos profissionais"
+              alt={t("carousel.altImage1")}
             />
             <Carousel.Caption>
-              <h3>Mecatec - Sua Oficina de Confiança</h3>
+              <h3>{t("carousel.captionImage1")}</h3>
             </Carousel.Caption>
           </Carousel.Item>
 
           <Carousel.Item>
             <ExampleCarouselImage
-              text="Oficina Organizada"
+              text={t("carousel.textImage2")}
               src="https://quatrorodas.abril.com.br/wp-content/uploads/2019/06/foto-1-e1561482583234.jpg?quality=70&strip=info"
-              alt="Oficina mecânica bem organizada"
+              alt={t("carousel.altImage2")}
             />
             <Carousel.Caption>
-              <h3>Organização e Qualidade</h3>
+              <h3>{t("carousel.captionImage2")}</h3>
             </Carousel.Caption>
           </Carousel.Item>
 
           <Carousel.Item>
             <ExampleCarouselImage
-              text="Serviços Especializados"
+              text={t("carousel.textImage3")}
               src="https://images.pexels.com/photos/3806249/pexels-photo-3806249.jpeg?cs=srgb&dl=pexels-olly-3806249.jpg&fm=jpg"
-              alt="Mecânico trabalhando em veículo"
+              alt={t("carousel.altImage3")}
             />
             <Carousel.Caption>
-              <h3>Serviços Especializados</h3>
+              <h3>{t("carousel.captionImage3")}</h3>
             </Carousel.Caption>
           </Carousel.Item>
         </Carousel>

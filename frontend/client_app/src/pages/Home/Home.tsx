@@ -1,16 +1,19 @@
 import CarouselImage from "../../components/carousel/CarouselImage";
 import { FloatingWhatsApp } from "../../components/FloatingWhatsApp";
+import '../../i18n';
+import { useTranslation } from "react-i18next";
 
 export default function Home() {
+  const { t, i18n } = useTranslation();
+
   return (
     <>
       <div className="text-center mb-5">
         <h1 className="display-4 fw-bold text-dark mb-3">
-          Bem-vindo à Mecatec
+          {t('welcome')} {t('toMecatec')}
         </h1>
         <p className="lead text-muted">
-          Sua oficina mecânica de confiança - Tecnologia e qualidade a seu
-          serviço
+          {t('yourTrustedAutoShop')} - {t('technologyAndQuality')}
         </p>
       </div>
 
@@ -24,10 +27,10 @@ export default function Home() {
           <div className="card h-100 shadow-sm">
             <div className="card-body text-center">
               <h5 className="card-title text-danger">
-                🔧 Manutenção Preventiva
+                🔧 {t('preventiveMaintenance')}
               </h5>
               <p className="card-text">
-                Mantenha seu veículo sempre em perfeito estado.
+                {t('preventiveMaintenanceDescription')}
               </p>
             </div>
           </div>
@@ -35,9 +38,9 @@ export default function Home() {
         <div className="col-md-4">
           <div className="card h-100 shadow-sm">
             <div className="card-body text-center">
-              <h5 className="card-title text-danger">⚡ Diagnóstico Rápido</h5>
+              <h5 className="card-title text-danger">⚡ {t('quickDiagnosis')}</h5>
               <p className="card-text">
-                Identificamos problemas com precisão e agilidade.
+                {t('quickDiagnosisDescription')}
               </p>
             </div>
           </div>
@@ -46,10 +49,10 @@ export default function Home() {
           <div className="card h-100 shadow-sm">
             <div className="card-body text-center">
               <h5 className="card-title text-danger">
-                🛠️ Reparos Especializados
+                🛠️ {t('specializedRepair')}
               </h5>
               <p className="card-text">
-                Técnicos experientes para qualquer tipo de reparo.
+                {t('specializedRepairDescription')}
               </p>
             </div>
           </div>

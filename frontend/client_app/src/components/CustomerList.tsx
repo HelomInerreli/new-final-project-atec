@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import { getCustomers } from "../services/customerService";
 import type { Customer } from "../interfaces/customer";
+import '../i18n';
+import { useTranslation } from "react-i18next";
 
 export function CustomerList() {
+  const { t } = useTranslation();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -15,7 +18,7 @@ export function CustomerList() {
         setCustomers(data);
         setError(null);
       } catch (err) {
-        setError("Falha ao buscar os clientes.");
+        setError(t('errorLoadingCustomers'));
         console.error(err);
       } finally {
         setLoading(false);
@@ -28,18 +31,18 @@ export function CustomerList() {
   return (
     <>
       <div className="text-center mb-5">
-        <h1 className="display-4 fw-bold text-dark mb-3">Lista de Clientes</h1>
+        <h1 className="display-4 fw-bold text-dark mb-3">{t('customerList')}</h1>
         <p className="lead text-muted">
-          Gestão completa dos clientes da Mecatec
+          {t('customerManagementDescription')}
         </p>
       </div>
 
       {loading && (
         <div className="text-center my-5">
           <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">A carregar...</span>
+            <span className="visually-hidden">{t('loading')}...</span>
           </div>
-          <p className="mt-3 text-primary">A carregar clientes...</p>
+          <p className="mt-3 text-primary">{t('loadingCustomers')}...</p>
         </div>
       )}
 
@@ -56,7 +59,7 @@ export function CustomerList() {
             <div className="card-header bg-dark text-white">
               <h5 className="mb-0">
                 <i className="bi bi-people me-2"></i>
-                Clientes Cadastrados ({customers.length})
+                {t('registeredCustomers')} ({customers.length})
               </h5>
             </div>
             <div className="table-responsive">
@@ -64,11 +67,11 @@ export function CustomerList() {
                 <thead className="table-light">
                   <tr>
                     <th scope="col">ID</th>
-                    <th scope="col">Nome</th>
-                    <th scope="col">Email</th>
-                    <th scope="col">Telefone</th>
-                    <th scope="col">Endereço</th>
-                    <th scope="col">Idade</th>
+                    <th scope="col">{t('name')}</th>
+                    <th scope="col">{t('email')}</th>
+                    <th scope="col">{t('phone')}</th>
+                    <th scope="col">{t('address')}</th>
+                    <th scope="col">{t('age')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -96,7 +99,7 @@ export function CustomerList() {
                         <td className="text-muted small">{customer.address}</td>
                         <td>
                           <span className="badge bg-secondary">
-                            {customer.age} anos
+                            {customer.age} {t('years')}
                           </span>
                         </td>
                       </tr>
@@ -105,7 +108,7 @@ export function CustomerList() {
                     <tr>
                       <td colSpan={7} className="text-center text-muted py-4">
                         <i className="bi bi-inbox display-1 d-block mb-3 text-muted"></i>
-                        Nenhum cliente cadastrado ainda.
+                        {t('noCustomersFound')}
                       </td>
                     </tr>
                   )}
@@ -116,8 +119,7 @@ export function CustomerList() {
 
           <div className="alert alert-success mt-4" role="alert">
             <i className="bi bi-check-circle me-2"></i>
-            <strong>API Conectada!</strong> Se estiver vendo esta lista, a
-            comunicação com o backend está funcionando corretamente.
+            <strong>{t('apiConnected')}</strong> - {t('customerDataFetchedSuccessfully')}
           </div>
         </>
       )}

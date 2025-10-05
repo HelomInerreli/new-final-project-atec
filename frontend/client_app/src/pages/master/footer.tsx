@@ -1,4 +1,8 @@
+import { useTranslation } from "react-i18next";
+
 export function Footer() {
+  const { t } = useTranslation();
+
   return (
     <footer
       className="bg-dark text-light py-3 w-100"
@@ -12,10 +16,10 @@ export function Footer() {
       <div className="container">
         <div className="d-flex justify-content-center align-items-center position-relative">
           <p className="mb-0">
-            &copy; 2025 Mecatec. Todos os direitos reservados.
+            &copy; 2025 Mecatec. {t('allRightsReserved')}
           </p>
           <p className="mb-0 small position-absolute end-0">
-            Desenvolvido pela equipa DGHHN
+            {t('developedBy')} DGHHN
           </p>
         </div>
       </div>
