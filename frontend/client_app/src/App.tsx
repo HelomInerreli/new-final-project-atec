@@ -4,9 +4,7 @@ import { Layout } from "./pages/master/Layout";
 import { CustomerList } from "./components/CustomerList";
 import Home from "./pages/Home/Home";
 
-
 function App() {
-
   return (
     <BrowserRouter>
       <Layout>

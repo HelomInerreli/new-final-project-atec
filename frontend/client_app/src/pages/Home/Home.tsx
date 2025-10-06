@@ -1,19 +1,19 @@
 import CarouselImage from "../../components/carousel/CarouselImage";
 import { FloatingWhatsApp } from "../../components/FloatingWhatsApp";
-import '../../i18n';
+import "../../i18n";
 import { useTranslation } from "react-i18next";
 
 export default function Home() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   return (
     <>
       <div className="text-center mb-2">
         <h1 className="display-4 fw-bold text-dark mb-1">
-          {t('welcome')} {t('toMecatec')}
+          {t("welcome")} {t("toMecatec")}
         </h1>
         <p className="lead text-muted">
-          {t('yourTrustedAutoShop')} - {t('technologyAndQuality')}
+          {t("yourTrustedAutoShop")} - {t("technologyAndQuality")}
         </p>
       </div>
 
@@ -27,20 +27,10 @@ export default function Home() {
           <div className="card h-100 shadow-sm">
             <div className="card-body text-center">
               <h5 className="card-title text-danger">
-                🔧 {t('preventiveMaintenance')}
+                🔧 {t("preventiveMaintenance")}
               </h5>
               <p className="card-text">
-                {t('preventiveMaintenanceDescription')}
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-4">
-          <div className="card h-100 shadow-sm">
-            <div className="card-body text-center">
-              <h5 className="card-title text-danger">⚡ {t('quickDiagnosis')}</h5>
-              <p className="card-text">
-                {t('quickDiagnosisDescription')}
+                {t("preventiveMaintenanceDescription")}
               </p>
             </div>
           </div>
@@ -49,11 +39,19 @@ export default function Home() {
           <div className="card h-100 shadow-sm">
             <div className="card-body text-center">
               <h5 className="card-title text-danger">
-                🛠️ {t('specializedRepair')}
+                ⚡ {t("quickDiagnosis")}
               </h5>
-              <p className="card-text">
-                {t('specializedRepairDescription')}
-              </p>
+              <p className="card-text">{t("quickDiagnosisDescription")}</p>
+            </div>
+          </div>
+        </div>
+        <div className="col-md-4">
+          <div className="card h-100 shadow-sm">
+            <div className="card-body text-center">
+              <h5 className="card-title text-danger">
+                🛠️ {t("specializedRepair")}
+              </h5>
+              <p className="card-text">{t("specializedRepairDescription")}</p>
             </div>
           </div>
         </div>
