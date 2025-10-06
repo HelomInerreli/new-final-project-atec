@@ -1,11 +1,17 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.sessions import SessionMiddleware
 from app.database import Base, engine
 from app.api.v1.api import api_router as api_v1_router
+from app.core.security import SECRET_KEY
+
 # Cria tabelas
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="FastAPI ORM Example")
+
+# Add SessionMiddleware for OAuth2
+app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
 
 # Lista de origens permitidas (endereços do seu frontend)
 origins = [
