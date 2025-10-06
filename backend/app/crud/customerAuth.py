@@ -10,16 +10,16 @@ def create_customer_auth(db: Session, customer_auth: CustomerAuthCreate):
         id_customer=customer_auth.id_customer,
         email=customer_auth.email,
         password_hash=get_password_hash(customer_auth.password) if customer_auth.password else None,
-        email_verified=customer_auth.email_verified,
-        google_id=customer_auth.google_id,
-        facebook_id=customer_auth.facebook_id,
-        twitter_id=customer_auth.twitter_id,
-        access_token=customer_auth.access_token,
-        refresh_token=customer_auth.refresh_token,
-        token_expires_at=customer_auth.token_expires_at,
-        is_active=customer_auth.is_active,
-        failed_login_attempts=customer_auth.failed_login_attempts,
-        last_login=customer_auth.last_login,
+        email_verified=getattr(customer_auth, 'email_verified', False),  # Use getattr with default
+        google_id=getattr(customer_auth, 'google_id', None),
+        facebook_id=getattr(customer_auth, 'facebook_id', None),
+        twitter_id=getattr(customer_auth, 'twitter_id', None),
+        access_token=getattr(customer_auth, 'access_token', None),
+        refresh_token=getattr(customer_auth, 'refresh_token', None),
+        token_expires_at=getattr(customer_auth, 'token_expires_at', None),
+        is_active=getattr(customer_auth, 'is_active', True),
+        failed_login_attempts=getattr(customer_auth, 'failed_login_attempts', 0),
+        last_login=getattr(customer_auth, 'last_login', None),
     )
     db.add(db_customer_auth)
     db.commit()

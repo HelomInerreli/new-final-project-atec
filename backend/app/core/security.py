@@ -14,7 +14,7 @@ from sqlalchemy.orm import joinedload
 from app.deps import get_db
 
 # OAuth2 scheme for FastAPI
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/customersauth/token")
 
 # Password hashing context
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -38,20 +38,6 @@ oauth.register(
     }
 )
 
-# Add Facebook to your existing OAuth config
-oauth.register(
-    name='facebook',
-    client_id='852745794579007',
-    client_secret='536755a9adf4aaa56be9776c3f3a1cd7',
-    server_metadata_url=None,  # Explicitly set to None
-    authorize_url='https://www.facebook.com/dialog/oauth',
-    access_token_url='https://graph.facebook.com/oauth/access_token',
-    userinfo_url='https://graph.facebook.com/me?fields=id,name,email',
-    client_kwargs={
-        'scope': 'public_profile',
-    }
-)
-
 def get_google_oauth():
     """Get Google OAuth client."""
     return oauth.google
@@ -66,25 +52,21 @@ def create_google_user_data(user_info: dict) -> dict:
 
 # Password functions
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Verify a plain password against its hash."""
-    plain_password = plain_password[:72]  # Truncate for bcrypt limit
+    plain_password = plain_password[:72] 
     return pwd_context.verify(plain_password, hashed_password)
 
 def get_password_hash(password: str) -> str:
-    """Hash a password for storing."""
-    password = password[:72]  # Truncate for bcrypt limit
-    print("Password received for hashing:", password)  # Debug log
+    password = password[:72] 
     return pwd_context.hash(password)
 
 # JWT Token functions
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+def create_access_token(data: dict, expires_delta: timedelta = None):
     """Create a JWT access token."""
     to_encode = data.copy()
     if expires_delta:
-        expire = datetime.now() + expires_delta
+        expire = datetime.utcnow() + expires_delta
     else:
-        expire = datetime.now() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    
+        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
@@ -97,22 +79,25 @@ def verify_token(token: str) -> Optional[dict]:
     except JWTError:
         return None
 
-def get_current_user_id(token: str = Depends(oauth2_scheme)) -> str:
+def get_current_user_id(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     """Get current user ID from JWT token."""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    
-    payload = verify_token(token)
-    if payload is None:
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            raise credentials_exception
+    except JWTError:
         raise credentials_exception
     
-    user_id: str = payload.get("sub")
-    if user_id is None:
+    from app.models.customerAuth import CustomerAuth
+    user = db.query(CustomerAuth).filter(CustomerAuth.id == int(user_id)).first()
+    if user is None:
         raise credentials_exception
-    
     return user_id
 
 def get_current_user_with_customer(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):

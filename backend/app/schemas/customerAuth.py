@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from datetime import datetime
 from typing import Optional
 
@@ -29,3 +29,12 @@ class CustomerAuthResponse(CustomerAuthBase):
 
     class Config:
         orm_mode = True
+
+class CustomerAuthRegister(BaseModel):
+    email: EmailStr  # or just str if you don't have email-validator installed
+    password: str
+    name: str
+
+class CustomerAuthLogin(BaseModel):
+    email: str
+    password: str
