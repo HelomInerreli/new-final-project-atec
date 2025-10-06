@@ -24,4 +24,4 @@ class CustomerAuth(Base):
     last_login = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.now)
 
-    customer = relationship("Customer", back_populates="customerauth")
+    customer = relationship("Customer", back_populates="auth")

@@ -7,6 +7,11 @@ from passlib.context import CryptContext
 from jose import JWTError, jwt
 from authlib.integrations.starlette_client import OAuth
 from starlette.config import Config
+from sqlalchemy.orm import Session
+from sqlalchemy.orm import joinedload
+
+# Import get_db from the correct location
+from app.deps import get_db
 
 # OAuth2 scheme for FastAPI
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/token")
@@ -27,10 +32,23 @@ oauth.register(
     name='google',
     client_id='636659541977-1n8hp3c1sbv2220nr2gtn1v5pus8rr4h.apps.googleusercontent.com',
     client_secret='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',
-    # Try this URL instead
     server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
     client_kwargs={
-        'scope': 'openid email profile'
+        'scope': 'openid email profile https://www.googleapis.com/auth/user.birthday.read'
+    }
+)
+
+# Add Facebook to your existing OAuth config
+oauth.register(
+    name='facebook',
+    client_id='852745794579007',
+    client_secret='536755a9adf4aaa56be9776c3f3a1cd7',
+    server_metadata_url=None,  # Explicitly set to None
+    authorize_url='https://www.facebook.com/dialog/oauth',
+    access_token_url='https://graph.facebook.com/oauth/access_token',
+    userinfo_url='https://graph.facebook.com/me?fields=id,name,email',
+    client_kwargs={
+        'scope': 'public_profile',
     }
 )
 
@@ -96,4 +114,21 @@ def get_current_user_id(token: str = Depends(oauth2_scheme)) -> str:
         raise credentials_exception
     
     return user_id
+
+def get_current_user_with_customer(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    """Get current user with customer data using relationships."""
+    from app.models.customerAuth import CustomerAuth
+    
+    # Get user ID from token
+    user_id = get_current_user_id(token)
+    
+    # Get CustomerAuth with Customer data using relationship
+    customer_auth = db.query(CustomerAuth).options(
+        joinedload(CustomerAuth.customer)
+    ).filter(CustomerAuth.id == user_id).first()
+    
+    if not customer_auth:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return customer_auth
 
