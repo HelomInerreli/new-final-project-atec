@@ -159,7 +159,6 @@ export function AppointmentDetailsModal({
               </div>
             </div>
 
-            {/* Extra Services Section - melhorada */}
             <div className="row mt-3">
               <div className="col-12">
                 <div className="card">
@@ -180,6 +179,8 @@ export function AppointmentDetailsModal({
                         <table className="table table-sm table-striped">
                           <thead>
                             <tr>
+                              <th style={{ width: '70%' }}>{t("description")}</th>
+                              <th style={{ width: '30%' }}>{t("cost")}</th>  
                               
                             </tr>
                           </thead>
@@ -193,11 +194,7 @@ export function AppointmentDetailsModal({
                                 <td className="fw-bold text-success">
                                   €{Math.round(service.cost)}
                                 </td>
-                                <td>
-                                  <span className="badge bg-success">
-                                    {service.approved ? t("approved") : t("pending")}
-                                  </span>
-                                </td>
+                              
                               </tr>
                             ))}
                           </tbody>

@@ -19,7 +19,7 @@ useEffect(() => {
         setLoading(true);
         const data = await getServices();
     
-        // Filter only FINALIZED appointments (status.id === 3)
+        
         const completedAppointments = data
             .filter((appointment: Appointment) => appointment.status?.id === 3)
             .sort((a: Appointment, b: Appointment) => a.id - b.id);
@@ -41,16 +41,7 @@ const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString();
 };
 
-  const getBudgetVariance = (estimated: number, actual: number) => {
-    const variance = actual - estimated;
-    if (variance === 0) return { text: t("completed"), class: "text-success" };
-    if (variance > 0)
-      return { text: `+€${Math.round(variance)}`, class: "text-danger" };
-    return {
-      text: `-€${Math.round(Math.abs(variance))}`,
-      class: "text-success",
-    };
-  };
+
 
   const handleShowDetails = (appointment: Appointment) => {
     setSelectedAppointment(appointment);
@@ -106,20 +97,12 @@ const formatDate = (dateString: string) => {
                     <th scope="col">{t("appointmentDate")}</th>
                     <th scope="col">{t("serviceType")}</th>
                     <th scope="col">{t("description")}</th>
-                    <th scope="col">{t("estimatedBudget")}</th>
-                    <th scope="col">{t("actualBudget")}</th>
-                    <th scope="col">{t("variance")}</th>
-                    <th scope="col">{t("status")}</th>
-                    <th scope="col">{t("actions")}</th>
+                    <th scope="col">{t("Actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {appointments.length > 0 ? (
                     appointments.map((appointment) => {
-                      const variance = getBudgetVariance(
-                        appointment.estimated_budget,
-                        appointment.actual_budget
-                      );
                       return (
                         <tr key={appointment.id}>
                           <td className="fw-bold">{appointment.id}</td>
@@ -135,20 +118,7 @@ const formatDate = (dateString: string) => {
                               ? `${appointment.description.substring(0, 40)}...`
                               : appointment.description || t("noDescription")}
                           </td>
-                          <td className="fw-bold text-info">
-                            €{Math.round(appointment.estimated_budget)}
-                          </td>
-                          <td className="fw-bold">
-                            €{Math.round(appointment.actual_budget)}
-                          </td>
-                          <td className={variance.class}>
-                            <small className="fw-bold">{variance.text}</small>
-                          </td>
-                          <td>
-                            <span className="badge bg-success">
-                              {appointment.status?.name || t("completed")}
-                            </span>
-                          </td>
+                          
                           <td>
                             <button
                               className="btn btn-outline-primary btn-sm"

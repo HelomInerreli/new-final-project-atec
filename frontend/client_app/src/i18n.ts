@@ -91,6 +91,27 @@ i18next.use(initReactI18next).init({
         completedServices: "Completed Services",
         serviceType: "Service Type",
         noDescription: "No description",
+        details: "Details",
+
+        actions: "Actions",
+        viewDetails: "View Details",
+        appointmentDetails: "Appointment Details",
+        generalInfo: "General Information",
+        serviceInfo: "Service Information", 
+        budgetInfo: "Budget Information",
+        appointmentDescription: "Appointment Description",
+        extraServices: "Extra Services",
+        duration: "Duration",
+        minutes: "minutes",
+        serviceDescription: "Service Description", 
+        cost: "Cost",
+        sent: "Sent",
+        notSent: "Not Sent",
+        close: "Close",
+        approved: "Approved",
+        totalExtraServices: "Total Extra Services",
+        noExtraServices: "No extra services were added to this appointment",
+
 
         // Status translations
         pending: "Pending",
@@ -159,6 +180,7 @@ i18next.use(initReactI18next).init({
         dashboard: "Painel",
         profile: "Perfil",
         settings: "Configurações",
+        details: "Detalhes",
 
         // Service History translations
         serviceHistory: "Histórico de Serviços",
@@ -180,6 +202,27 @@ i18next.use(initReactI18next).init({
         completedServices: "Serviços Concluídos",
         serviceType: "Tipo de Serviço",
         noDescription: "Sem descrição",
+
+
+        actions: "Ações",
+        viewDetails: "Ver Detalhes", 
+        appointmentDetails: "Detalhes do Agendamento",
+        generalInfo: "Informações Gerais",
+        serviceInfo: "Informações do Serviço",
+        budgetInfo: "Informações do Orçamento", 
+        appointmentDescription: "Descrição do Agendamento",
+        extraServices: "Serviços Extras",
+        duration: "Duração",
+        minutes: "minutos",
+        serviceDescription: "Descrição do Serviço",
+        cost: "Custo", 
+        sent: "Enviado",
+        notSent: "Não Enviado",
+        close: "Fechar",
+        approved: "Aprovado",
+        totalExtraServices: "Total Serviços Extras",
+        noExtraServices: "Nenhum serviço extra foi adicionado a este agendamento",
+
 
         // Status translations
         pending: "Pendente",
@@ -249,6 +292,8 @@ i18next.use(initReactI18next).init({
         dashboard: "Panel",
         profile: "Perfil",
         settings: "Configuraciones",
+        details: "Detalles",
+
 
         // Service History translations
         serviceHistory: "Historial de Servicios",
@@ -270,6 +315,25 @@ i18next.use(initReactI18next).init({
         completedServices: "Servicios Completados",
         serviceType: "Tipo de Servicio",
         noDescription: "Sin descripción",
+
+        actions: "Acciones",
+        viewDetails: "Ver Detalles",
+        appointmentDetails: "Detalles de la Cita", 
+        generalInfo: "Información General",
+        serviceInfo: "Información del Servicio",
+        budgetInfo: "Información del Presupuesto",
+        appointmentDescription: "Descripción de la Cita",
+        extraServices: "Servicios Extras",
+        duration: "Duración",
+        minutes: "minutos",
+        serviceDescription: "Descripción del Servicio",
+        cost: "Costo",
+        sent: "Enviado", 
+        notSent: "No Enviado",
+        close: "Cerrar",
+        approved: "Aprobado",
+        totalExtraServices: "Total Servicios Extras", 
+        noExtraServices: "No se agregaron servicios extra a esta cita",
 
         // Status translations
         completed: "Completado",
@@ -338,6 +402,26 @@ i18next.use(initReactI18next).init({
         dashboard: "Tableau de Bord",
         profile: "Profil",
         settings: "Paramètres",
+        details: "Détails",
+
+        actions: "Actions",
+        viewDetails: "Voir Détails",
+        appointmentDetails: "Détails du Rendez-vous",
+        generalInfo: "Informations Générales", 
+        serviceInfo: "Informations du Service",
+        budgetInfo: "Informations du Budget",
+        appointmentDescription: "Description du Rendez-vous",
+        extraServices: "Services Supplémentaires",
+        duration: "Durée",
+        minutes: "minutes",
+        serviceDescription: "Description du Service",
+        cost: "Coût",
+        sent: "Envoyé",
+        notSent: "Non Envoyé", 
+        close: "Fermer",
+        approved: "Approuvé",
+        totalExtraServices: "Total Services Supplémentaires",
+        noExtraServices: "Aucun service supplémentaire n'a été ajouté à ce rendez-vous",
 
 
         // Service History translations
