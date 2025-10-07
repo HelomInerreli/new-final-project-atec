@@ -1,21 +1,44 @@
+
 .square-card {
-  width: 22rem;
-  height: 22rem;
+  width: 12rem;
+  height: 12rem;
+  padding: 0.75rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
-  border-radius: 1rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 1rem;
+  border-radius: 0.8rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+  margin: 0.5rem auto;
+  background-color: #fff;
+  font-size: 0.95rem;
+  overflow: hidden;
 }
 
-.profile {
-  margin-top: 1rem;
+.square-card:hover {
+  transform: translateY(-5px);
 }
 
-.avatar {
-  border-radius: 50%;
-  margin: 0.5rem 0;
+/* responsive: maior em ecrãs grandes, menor em telemóveis */
+@media (min-width: 1200px) {
+  .square-card {
+    width: 14rem;
+    height: 14rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .square-card {
+    width: 9rem;
+    height: 9rem;
+    font-size: 0.85rem;
+    padding: 0.5rem;
+  }
+
+  .avatar {
+    max-width: 60%;
+    height: auto;
+  }
 }

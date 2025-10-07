@@ -1,0 +1,48 @@
+/* === Layout geral === */
+.app {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f5f7fa; /* fundo base */
+}
+
+/* === Sidebar (menu lateral) === */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 250px; /* largura do menu */
+  height: 100vh;
+  background-color: #fff;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+}
+
+/* === Conteúdo principal === */
+.dashboard {
+  margin-left: 250px; /* reserva espaço do menu lateral */
+  flex: 1;
+  min-height: 100vh; /* ocupa toda a altura do ecrã */
+  background-color: #f9f9f9; /* fundo da área principal */
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* centra horizontalmente */
+}
+
+/* === Cabeçalho === */
+.dashboard-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+/* === Container dos cards === */
+.card-container {
+  display: flex;
+  justify-content: center; /* centra os cards na horizontal */
+  align-items: flex-start;
+  flex-wrap: wrap; /* permite quebrar linhas */
+  gap: 2rem; /* espaçamento entre cards */
+  width: 100%;
+  max-width: 1200px; /* impede que se espalhem demais */
+  margin: 0 auto;
+}
