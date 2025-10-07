@@ -70,6 +70,34 @@ i18next.use(initReactI18next).init({
         dashboard: "Dashboard",
         profile: "Profile",
         settings: "Settings",
+
+        // Service History translations
+        serviceHistory: "Service History",
+        serviceHistoryDescription: "View all completed and scheduled services",
+        errorLoadingServices: "Error loading services",
+        loadingServices: "Loading services",
+        serviceRecords: "Service Records",
+        appointmentDate: "Appointment Date",
+        description: "Description",
+        estimatedBudget: "Estimated Budget",
+        actualBudget: "Actual Budget",
+        variance: "Variance",
+        status: "Status",
+        reminder: "Reminder",
+        noServicesFound: "No services found",
+        serviceDataFetchedSuccessfully: "Service data fetched successfully",
+        completedServicesHistory: "Completed Services History",
+        completedServicesDescription: "View all successfully completed services",
+        completedServices: "Completed Services",
+        serviceType: "Service Type",
+        noDescription: "No description",
+
+        // Status translations
+        pending: "Pending",
+        inProgress: "In Progress",
+        completed: "Completed",
+        cancelled: "Cancelled",
+        scheduled: "Scheduled",
       },
     },
     pt: {
@@ -131,6 +159,34 @@ i18next.use(initReactI18next).init({
         dashboard: "Painel",
         profile: "Perfil",
         settings: "Configurações",
+
+        // Service History translations
+        serviceHistory: "Histórico de Serviços",
+        serviceHistoryDescription: "Visualize todos os serviços concluídos e agendados",
+        errorLoadingServices: "Erro ao carregar serviços",
+        loadingServices: "Carregando serviços",
+        serviceRecords: "Registos de Serviços",
+        appointmentDate: "Data do Agendamento",
+        description: "Descrição",
+        estimatedBudget: "Orçamento Estimado",
+        actualBudget: "Orçamento Real",
+        variance: "Variação",
+        status: "Estado",
+        reminder: "Lembrete",
+        noServicesFound: "Nenhum serviço encontrado",
+        serviceDataFetchedSuccessfully: "Dados de serviços carregados com sucesso",
+        completedServicesHistory: "Histórico de Serviços Concluídos",
+        completedServicesDescription: "Visualize todos os serviços concluídos com sucesso",
+        completedServices: "Serviços Concluídos",
+        serviceType: "Tipo de Serviço",
+        noDescription: "Sem descrição",
+
+        // Status translations
+        pending: "Pendente",
+        inProgress: "Em Progresso",
+        completed: "Concluído",
+        cancelled: "Cancelado",
+        scheduled: "Agendado",
       },
     },
 
@@ -193,6 +249,34 @@ i18next.use(initReactI18next).init({
         dashboard: "Panel",
         profile: "Perfil",
         settings: "Configuraciones",
+
+        // Service History translations
+        serviceHistory: "Historial de Servicios",
+        serviceHistoryDescription: "Ver todos los servicios completados y programados",
+        errorLoadingServices: "Error al cargar servicios",
+        loadingServices: "Cargando servicios",
+        serviceRecords: "Registros de Servicios",
+        appointmentDate: "Fecha de Cita",
+        description: "Descripción",
+        estimatedBudget: "Presupuesto Estimado",
+        actualBudget: "Presupuesto Real",
+        variance: "Varianza",
+        status: "Estado",
+        reminder: "Recordatorio",
+        noServicesFound: "No se encontraron servicios",
+        serviceDataFetchedSuccessfully: "Datos de servicios cargados exitosamente",
+        completedServicesHistory: "Historial de Servicios Completados",
+        completedServicesDescription: "Ver todos los servicios completados exitosamente",
+        completedServices: "Servicios Completados",
+        serviceType: "Tipo de Servicio",
+        noDescription: "Sin descripción",
+
+        // Status translations
+        completed: "Completado",
+        pending: "Pendiente",
+        cancelled: "Cancelado",
+        scheduled: "Programado",
+        inProgress: "En Progreso",
       },
     },
     fr: {
@@ -254,11 +338,39 @@ i18next.use(initReactI18next).init({
         dashboard: "Tableau de Bord",
         profile: "Profil",
         settings: "Paramètres",
+
+
+        // Service History translations
+        serviceHistory: "Historique des Services",
+        serviceHistoryDescription: "Voir tous les services terminés et programmés",
+        errorLoadingServices: "Erreur lors du chargement des services",
+        loadingServices: "Chargement des services",
+        serviceRecords: "Enregistrements de Services",
+        appointmentDate: "Date de Rendez-vous",
+        description: "Description",
+        estimatedBudget: "Budget Estimé",
+        actualBudget: "Budget Réel",
+        variance: "Variance",
+        status: "Statut",
+        reminder: "Rappel",
+        noServicesFound: "Aucun service trouvé",
+        serviceDataFetchedSuccessfully: "Données de services chargées avec succès",
+        completedServicesHistory: "Historique des Services Terminés",
+        completedServicesDescription: "Voir tous les services terminés avec succès",
+        completedServices: "Services Terminés",
+        serviceType: "Type de Service",
+        noDescription: "Aucune description",
+
+        // Status translations
+        completed: "Terminé",
+        pending: "En Attente",
+        cancelled: "Annulé",
+        scheduled: "Programmé",
+        inProgress: "En Cours",
       },
     },
   },
 });
-
 
 
 
