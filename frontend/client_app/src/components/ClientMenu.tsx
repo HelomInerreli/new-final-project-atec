@@ -18,7 +18,7 @@ const ClientMenu: React.FC = () => (
           
           <nav className="client-menu" aria-label="Menu do cliente">
             <ul>
-              <li><Link to="/dashboard"><h2>Dashboard</h2></Link></li>
+              <li><Link to="/dashboard"><h2> Dashboard</h2></Link></li>
               <li><Link to="/appointments"><h2>Meus Agendamentos</h2></Link></li>
               <li><Link to="/vehicles"><h2>Meus Veiculos</h2></Link></li>
               <li><Link to="/schedule"><h2>Agendar novo serviço</h2></Link></li>
