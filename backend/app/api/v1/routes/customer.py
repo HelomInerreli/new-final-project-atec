@@ -3,9 +3,9 @@ from sqlalchemy.orm import Session
 from app.crud import customer as crud_customer
 from app.schemas import customer as customer_schema
 from app.deps import get_db
-from pydantic import BaseModel
-from datetime import date
 from app.core.security import get_current_user_id
+from app.models.customerAuth import CustomerAuth
+from app.models.customer import Customer
 
 router = APIRouter()
 
@@ -13,7 +13,6 @@ router = APIRouter()
 def customer_test():
     return {"message": "Customer test endpoint is working!"}
 
-#Adicionar as rotas genericas sempre por ultimo.
 @router.post("/", response_model=customer_schema.CustomerResponse)
 def create_customer(customer: customer_schema.CustomerCreate, db: Session = Depends(get_db)):
     return crud_customer.create_customer(db=db, customer=customer)
@@ -29,28 +28,17 @@ def read_customer(customer_id: int, db: Session = Depends(get_db)):
 def list_customers(db: Session = Depends(get_db)):
     return crud_customer.get_customers(db=db)
 
-class CustomerProfileUpdate(BaseModel):
-    phone: str = None
-    address: str = None
-    city: str = None
-    postal_code: str = None
-    birth_date: date = None
-
 @router.put("/profile")
 def update_customer_profile(
-    profile_data: CustomerProfileUpdate,
+    profile_data: customer_schema.CustomerProfileUpdate,  # Use schema from schemas file
     current_user_id: str = Depends(get_current_user_id),
     db: Session = Depends(get_db)
 ):
-    """Update customer profile information."""
-    from app.models.customerAuth import CustomerAuth
-    from app.models.customer import Customer
-    
-    # Get the customer through auth
+    # Fetch the authenticated user's CustomerAuth record
     customer_auth = db.query(CustomerAuth).filter(CustomerAuth.id == current_user_id).first()
     if not customer_auth:
         raise HTTPException(status_code=404, detail="User not found")
-    
+    # Fetch the associated customer
     customer = db.query(Customer).filter(Customer.id == customer_auth.id_customer).first()
     if not customer:
         raise HTTPException(status_code=404, detail="Customer not found")

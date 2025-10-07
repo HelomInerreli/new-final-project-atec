@@ -4,18 +4,25 @@ from typing import Optional
 
 class CustomerBase(BaseModel):
     name: str
-    phone: Optional[str] = None  # Make optional
-    address: Optional[str] = None  # Make optional
-    city: Optional[str] = None  # Make optional
-    postal_code: Optional[str] = None  # Make optional
-    birth_date: Optional[date] = None  # Make optional
+    phone: Optional[str] = None
+    address: Optional[str] = None
+    city: Optional[str] = None
+    postal_code: Optional[str] = None
+    birth_date: Optional[date] = None
 
 class CustomerCreate(CustomerBase):
     pass
+
+class CustomerProfileUpdate(BaseModel):  # Add this here
+    phone: Optional[str] = None
+    address: Optional[str] = None
+    city: Optional[str] = None
+    postal_code: Optional[str] = None
+    birth_date: Optional[date] = None
 
 class CustomerResponse(CustomerBase):
     id: int
     created_at: datetime
     
     class Config:
-        from_attributes = True  # For Pydantic v2, or use orm_mode = True for v1
+        from_attributes = True

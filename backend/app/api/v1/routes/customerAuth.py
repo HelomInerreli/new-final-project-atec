@@ -315,3 +315,48 @@ def debug_check_user(email: str, db: Session = Depends(get_db)):
         "is_active": user.is_active
     }
 
+@router.get("/me")
+def get_current_user_profile(
+    current_user_id: str = Depends(get_current_user_id), 
+    db: Session = Depends(get_db)
+):
+    """Get current user's complete profile with auth and customer data."""
+    # Get CustomerAuth
+    customer_auth = db.query(CustomerAuth).filter(CustomerAuth.id == current_user_id).first()
+    if not customer_auth:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Get Customer data
+    customer = db.query(Customer).filter(Customer.id == customer_auth.id_customer).first()
+    
+    return {
+        "auth_info": {
+            "id": customer_auth.id,
+            "email": customer_auth.email,
+            "email_verified": customer_auth.email_verified,
+            "google_id": customer_auth.google_id,
+            "facebook_id": customer_auth.facebook_id,
+            "twitter_id": customer_auth.twitter_id,
+            "is_active": customer_auth.is_active,
+            "failed_login_attempts": customer_auth.failed_login_attempts,
+            "last_login": customer_auth.last_login,
+            "created_at": customer_auth.created_at
+        },
+        "customer_info": {
+            "id": customer.id if customer else None,
+            "name": customer.name if customer else None,
+            "phone": customer.phone if customer else None,
+            "address": customer.address if customer else None,
+            "city": customer.city if customer else None,
+            "postal_code": customer.postal_code if customer else None,
+            "birth_date": customer.birth_date if customer else None,
+            "created_at": customer.created_at if customer else None
+        } if customer else None,
+        "linked_accounts": {
+            "google": customer_auth.google_id is not None,
+            "facebook": customer_auth.facebook_id is not None,
+            "twitter": customer_auth.twitter_id is not None,
+            "has_password": customer_auth.password_hash is not None
+        }
+    }
+
