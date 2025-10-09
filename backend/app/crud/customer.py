@@ -5,6 +5,21 @@ from app.schemas.customer import CustomerCreate, CustomerUpdate
 from typing import List, Optional
 from datetime import datetime
 
+from app.schemas.customer import CustomerCreate
+
+def create_customer(db: Session, customer: CustomerCreate):
+    db_customer = Customer(
+        name=customer.name,
+        phone=customer.phone,
+        address=customer.address,
+        city=customer.city,
+        postal_code=customer.postal_code,
+        birth_date=customer.birth_date
+    )
+    db.add(db_customer)
+    db.commit()
+    db.refresh(db_customer)
+    return db_customer
 
 class CustomerRepository:
     """
@@ -62,3 +77,5 @@ class CustomerRepository:
         return self.db.query(Customer).filter(Customer.email == email, Customer.deleted_at.is_(None)).first()
     
     
+def get_customers(db: Session, skip: int = 0, limit: int = 100):
+    return db.query(Customer).offset(skip).limit(limit).all()

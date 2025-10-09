@@ -1,10 +1,10 @@
 from fastapi import APIRouter
-from app.api.v1.routes import user, customer, vehicle, appointment, extra_service
+from app.api.v1.routes import user, customer, vehicle, appointment, extra_service, customerAuth
 
 api_router = APIRouter()
 
-# Inclui as rotas de utilizador com o seu prefixo e tags
-api_router.include_router(user.router, prefix="/users", tags=["users"])
+# Rotas do Cliente
+api_router.include_router(customerAuth.router, prefix="/customersauth", tags=["customersauth"])
 api_router.include_router(customer.router, prefix="/customers", tags=["customers"])
 api_router.include_router(vehicle.router, prefix="/vehicles", tags=["vehicles"])
 api_router.include_router(appointment.router, prefix="/appointments", tags=["appointments"])

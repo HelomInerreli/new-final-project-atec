@@ -1,27 +1,38 @@
-from pydantic import BaseModel
 from pydantic import BaseModel, EmailStr
 from typing import List, Optional
 from .vehicle import Vehicle
+from datetime import date, datetime
 
 class CustomerBase(BaseModel):
     name: str
-    email: EmailStr
-    phone: str
-    address: str
-    age: int
-    is_active: bool
+    phone: Optional[str] = None
+    address: Optional[str] = None
+    city: Optional[str] = None
+    postal_code: Optional[str] = None
+    birth_date: Optional[date] = None
 
 class CustomerUpdate(BaseModel):
     name: Optional[str] = None 
-    email: Optional[str] = None 
     phone: Optional[str] = None 
     address: Optional[str] = None
-    age: Optional[int] = None
-    is_active: Optional[bool] = None
+    city: Optional[str] = None
+    postal_code: Optional[str] = None
+    birth_date: Optional[date] = None
+
+class CustomerCreate(CustomerBase):
+    pass
+
+class CustomerProfileUpdate(BaseModel):  # Add this here
+    phone: Optional[str] = None
+    address: Optional[str] = None
+    city: Optional[str] = None
+    postal_code: Optional[str] = None
+    birth_date: Optional[date] = None
 
 class CustomerResponse(CustomerBase):
     id: int
-
+    created_at: datetime
+    
     class Config:
         from_attributes = True
 
