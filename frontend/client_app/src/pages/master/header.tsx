@@ -30,11 +30,11 @@ export function Header({ className = "" }: HeaderProps) {
 
   const menuItems = [
     { label: "Home", href: "/" },
-    { label: t('clientList'), href: "/clients" },
-    { label: t('serviceList'), href: "/services" },
-    { label: t('appointmentList'), href: "/appointments" },
-    { label: t('about'), href: "/about" },
-    { label: t('contact'), href: "/contact" },
+    { label: t("clientList"), href: "/clients" },
+    { label: t("serviceList"), href: "/services" },
+    { label: t("appointmentList"), href: "/appointments" },
+    { label: t("about"), href: "/about" },
+    { label: t("contact"), href: "/contact" },
   ];
 
   // Função para verificar se a rota está ativa
@@ -77,7 +77,9 @@ export function Header({ className = "" }: HeaderProps) {
                 <li key={item.label} className="nav-item">
                   <a
                     className={`nav-link ${
-                      isActiveRoute(item.href) ? "active text-danger fw-bold" : ""
+                      isActiveRoute(item.href)
+                        ? "active text-danger fw-bold"
+                        : ""
                     }`}
                     href={item.href}
                     onClick={() => setIsMenuOpen(false)}
@@ -93,11 +95,11 @@ export function Header({ className = "" }: HeaderProps) {
               ))}
             </ul>
 
-          {/* Botões de Ação */}
-          <div className="d-flex flex-column flex-lg-row gap-2">
-            {/* BOTÃO AGENDAR SERVIÇO (só aparece se logado) */}
+            {/* Botões de Ação */}
+            <div className="d-flex flex-column flex-lg-row gap-2">
+              {/* BOTÃO AGENDAR SERVIÇO (só aparece se logado) */}
               {isLoggedIn && (
-                <button 
+                <button
                   className="btn btn-success btn-sm"
                   onClick={() => setShowCreateModal(true)}
                   title="Agendar Novo Serviço"
@@ -107,147 +109,148 @@ export function Header({ className = "" }: HeaderProps) {
                   <span className="d-lg-none">Agendar</span>
                 </button>
               )}
-            {/* Seletor de idioma com bandeiras */}
-            <Dropdown>
-              <Dropdown.Toggle
-                variant="outline-secondary"
-                id="dropdown-language"
-                size="sm"
-                style={{
-                  border: "none",
-                  backgroundColor: "transparent",
-                  color: "#6c757d",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  padding: "0.375rem 0.75rem",
-                }}
-              >
-                {(() => {
-                  const lng = i18n.language || "en";
-                  const countryCode = lng.startsWith("pt")
-                    ? "PT"
-                    : lng.startsWith("es")
-                    ? "ES"
-                    : lng.startsWith("fr")
-                    ? "FR"
-                    : "GB";
-                  const label = lng.startsWith("pt")
-                    ? "Português"
-                    : lng.startsWith("es")
-                    ? "Espanhol"
-                    : lng.startsWith("fr")
-                    ? "Francês"
-                    : "English";
-                  return (
-                    <>
+              {/* Seletor de idioma com bandeiras */}
+              <Dropdown>
+                <Dropdown.Toggle
+                  variant="outline-secondary"
+                  id="dropdown-language"
+                  size="sm"
+                  style={{
+                    border: "none",
+                    backgroundColor: "transparent",
+                    color: "#6c757d",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    padding: "0.375rem 0.75rem",
+                  }}
+                >
+                  {(() => {
+                    const lng = i18n.language || "en";
+                    const countryCode = lng.startsWith("pt")
+                      ? "PT"
+                      : lng.startsWith("es")
+                      ? "ES"
+                      : lng.startsWith("fr")
+                      ? "FR"
+                      : "GB";
+                    const label = lng.startsWith("pt")
+                      ? "Português"
+                      : lng.startsWith("es")
+                      ? "Espanhol"
+                      : lng.startsWith("fr")
+                      ? "Francês"
+                      : "English";
+                    return (
+                      <>
+                        <ReactCountryFlag
+                          countryCode={countryCode}
+                          svg
+                          style={{
+                            width: "20px",
+                            height: "15px",
+                          }}
+                        />
+                        <span className="d-none d-lg-inline">{label}</span>
+                      </>
+                    );
+                  })()}
+                </Dropdown.Toggle>
+
+                <Dropdown.Menu>
+                  <Dropdown.Item
+                    onClick={() => {
+                      i18n.changeLanguage("en");
+                      try {
+                        localStorage.setItem("i18nextLng", "en");
+                      } catch (err) {}
+                    }}
+                  >
+                    <span className="d-flex align-items-center">
                       <ReactCountryFlag
-                        countryCode={countryCode}
+                        countryCode="GB"
                         svg
                         style={{
                           width: "20px",
                           height: "15px",
+                          marginRight: "8px",
                         }}
                       />
-                      <span className="d-none d-lg-inline">{label}</span>
-                    </>
-                  );
-                })()}
-              </Dropdown.Toggle>
-
-              <Dropdown.Menu>
-                <Dropdown.Item
-                  onClick={() => {
-                    i18n.changeLanguage("en");
-                    try {
-                      localStorage.setItem("i18nextLng", "en");
-                    } catch (err) {}
-                  }}
-                >
-                  <span className="d-flex align-items-center">
-                    <ReactCountryFlag
-                      countryCode="GB"
-                      svg
-                      style={{
-                        width: "20px",
-                        height: "15px",
-                        marginRight: "8px",
-                      }}
-                    />
-                    English
-                  </span>
-                </Dropdown.Item>
-                <Dropdown.Item
-                  onClick={() => {
-                    i18n.changeLanguage("pt");
-                    try {
-                      localStorage.setItem("i18nextLng", "pt");
-                    } catch (err) {}
-                  }}
-                >
-                  <span className="d-flex align-items-center">
-                    <ReactCountryFlag
-                      countryCode="PT"
-                      svg
-                      style={{
-                        width: "20px",
-                        height: "15px",
-                        marginRight: "8px",
-                      }}
-                    />
-                    Português
-                  </span>
-                </Dropdown.Item>
-                <Dropdown.Item
-                  onClick={() => {
-                    i18n.changeLanguage("es");
-                    try {
-                      localStorage.setItem("i18nextLng", "es");
-                    } catch (err) {}
-                  }}
-                >
-                  <span className="d-flex align-items-center">
-                    <ReactCountryFlag
-                      countryCode="ES"
-                      svg
-                      style={{
-                        width: "20px",
-                        height: "15px",
-                        marginRight: "8px",
-                      }}
-                    />
-                    Espanhol
-                  </span>
-                </Dropdown.Item>
-                <Dropdown.Item
-                  onClick={() => {
-                    i18n.changeLanguage("fr");
-                    try {
-                      localStorage.setItem("i18nextLng", "fr");
-                    } catch (err) {}
-                  }}
-                >
-                  <span className="d-flex align-items-center">
-                    <ReactCountryFlag
-                      countryCode="FR"
-                      svg
-                      style={{
-                        width: "20px",
-                        height: "15px",
-                        marginRight: "8px",
-                      }}
-                    />
-                    Francês
-                  </span>
-                </Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
-            <button className="btn btn-outline-success btn-sm me-sm-2">
-              {t("login")}
-            </button>
-            <button className="btn btn-secondary btn-sm">
-              {t("register")}
-            </button>
+                      English
+                    </span>
+                  </Dropdown.Item>
+                  <Dropdown.Item
+                    onClick={() => {
+                      i18n.changeLanguage("pt");
+                      try {
+                        localStorage.setItem("i18nextLng", "pt");
+                      } catch (err) {}
+                    }}
+                  >
+                    <span className="d-flex align-items-center">
+                      <ReactCountryFlag
+                        countryCode="PT"
+                        svg
+                        style={{
+                          width: "20px",
+                          height: "15px",
+                          marginRight: "8px",
+                        }}
+                      />
+                      Português
+                    </span>
+                  </Dropdown.Item>
+                  <Dropdown.Item
+                    onClick={() => {
+                      i18n.changeLanguage("es");
+                      try {
+                        localStorage.setItem("i18nextLng", "es");
+                      } catch (err) {}
+                    }}
+                  >
+                    <span className="d-flex align-items-center">
+                      <ReactCountryFlag
+                        countryCode="ES"
+                        svg
+                        style={{
+                          width: "20px",
+                          height: "15px",
+                          marginRight: "8px",
+                        }}
+                      />
+                      Espanhol
+                    </span>
+                  </Dropdown.Item>
+                  <Dropdown.Item
+                    onClick={() => {
+                      i18n.changeLanguage("fr");
+                      try {
+                        localStorage.setItem("i18nextLng", "fr");
+                      } catch (err) {}
+                    }}
+                  >
+                    <span className="d-flex align-items-center">
+                      <ReactCountryFlag
+                        countryCode="FR"
+                        svg
+                        style={{
+                          width: "20px",
+                          height: "15px",
+                          marginRight: "8px",
+                        }}
+                      />
+                      Francês
+                    </span>
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+              <button className="btn btn-outline-success btn-sm me-sm-2">
+                {t("login")}
+              </button>
+              <button className="btn btn-secondary btn-sm">
+                {t("register")}
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -260,11 +263,11 @@ export function Header({ className = "" }: HeaderProps) {
           customerId={loggedInCustomerId}
           onSuccess={() => {
             setShowCreateModal(false);
-            alert('Agendamento criado com sucesso!');
-            if (location.pathname !== '/appointments') {
-              window.location.href = '/appointments';
+            alert("Agendamento criado com sucesso!");
+            if (location.pathname !== "/appointments") {
+              window.location.href = "/appointments";
             } else {
-              window.location.reload(); 
+              window.location.reload();
             }
           }}
         />

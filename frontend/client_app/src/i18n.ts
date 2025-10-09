@@ -130,8 +130,6 @@ i18next.use(initReactI18next).init({
         service: "Service",
         date: "Date",
         time: "Time",
-        status: "Status",
-        description: "Description",
         customer: "Customer",
         noAppointmentsFound: "No appointments found yet.",
         appointmentDataFetchedSuccessfully:
@@ -258,8 +256,6 @@ i18next.use(initReactI18next).init({
         service: "Serviço",
         date: "Data",
         time: "Hora",
-        status: "Status",
-        description: "Descrição",
         customer: "Cliente",
         noAppointmentsFound: "Nenhum agendamento encontrado ainda.",
         appointmentDataFetchedSuccessfully:
@@ -386,8 +382,6 @@ i18next.use(initReactI18next).init({
         service: "Servicio",
         date: "Fecha",
         time: "Hora",
-        status: "Estado",
-        description: "Descripción",
         customer: "Cliente",
         noAppointmentsFound: "No se encontraron citas aún.",
         appointmentDataFetchedSuccessfully:
