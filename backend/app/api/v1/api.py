@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.routes import user, customer, vehicle, appointment, extra_service, customerAuth
+from app.api.v1.routes import customer, vehicle, appointment, extra_service, customerAuth
 
 api_router = APIRouter()
 

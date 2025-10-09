@@ -103,11 +103,11 @@ def seed_data(db: Session):
     for _ in range(NUM_CUSTOMERS):
         customer_in = CustomerCreate(
             name=fake.name(),
-            email=fake.unique.email(),
             phone=fake.phone_number(),
             address=fake.address(),
-            age=random.randint(18, 70),
-            is_active=True  # Add the missing required field
+            city=fake.city(),
+            postal_code=fake.postcode(),
+            birth_date=fake.date_of_birth(minimum_age=18, maximum_age=70)
         )
         customer = customer_repo.create(customer_in)
         customers.append(customer)

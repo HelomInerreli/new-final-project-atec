@@ -11,7 +11,7 @@ from app.schemas import customer as customer_schema
 from app.deps import get_db
 from app.core.security import get_current_user_id
 from app.models.customerAuth import CustomerAuth
-from app.models.customer import Customer
+from app.models.customer import Customer as CustomerModel
 
 router = APIRouter()
 
@@ -37,16 +37,16 @@ def create_customer(
     return repo.create(customer=customer_in)
 
 
-@router.get("/", response_model=List[Customer])
-def list_customers(
-    skip: int = 0,
-    limit: int = 100,
-    repo: CustomerRepository = Depends(get_customer_repo)
-):
-    """
-    Retrieve a list of customers.
-    """
-    return repo.get_all(skip=skip, limit=limit)
+# @router.get("/", response_model=List[Customer])
+# def list_customers(
+#     skip: int = 0,
+#     limit: int = 100,
+#     repo: CustomerRepository = Depends(get_customer_repo)
+# ):
+#     """
+#     Retrieve a list of customers.
+#     """
+#     return repo.get_all(skip=skip, limit=limit)
 
 
 @router.get("/{customer_id}", response_model=Customer)
@@ -92,9 +92,9 @@ def delete_customer(
     # A 204 No Content response is returned automatically on success.
 
 # The original implementation by Nuno
-# @router.get("/", response_model=list[customer_schema.CustomerResponse])
-# def list_customers(db: Session = Depends(get_db)):
-#     return crud_customer.get_customers(db=db)
+@router.get("/", response_model=list[customer_schema.CustomerResponse])
+def list_customers(db: Session = Depends(get_db)):
+    return crud_customer.get_customers(db=db)
 
 @router.put("/profile")
 def update_customer_profile(
@@ -107,7 +107,7 @@ def update_customer_profile(
     if not customer_auth:
         raise HTTPException(status_code=404, detail="User not found")
     # Fetch the associated customer
-    customer = db.query(Customer).filter(Customer.id == customer_auth.id_customer).first()
+    customer = db.query(CustomerModel).filter(CustomerModel.id == customer_auth.id_customer).first()
     if not customer:
         raise HTTPException(status_code=404, detail="Customer not found")
     
