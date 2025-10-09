@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from app.models.service import Service
 from app.schemas.service import ServiceCreate, ServiceUpdate
 from typing import List, Optional
+from app.models.appointment import Appointment
 
 
 class ServiceRepository:
@@ -14,6 +15,16 @@ class ServiceRepository:
     def get_by_id(self, service_id: int) -> Optional[Service]:
         """Gets a single service by its ID."""
         return self.db.query(Service).filter(Service.id == service_id).first()
+    
+    def get_by_customer_id(self, customer_id: int) -> List[Service]:
+        """Gets services used by a specific customer through appointments."""
+        return (
+            self.db.query(Service)
+            .join(Appointment, Service.id == Appointment.service_id)
+            .filter(Appointment.customer_id == customer_id)
+            .distinct()
+            .all()
+        )
 
     def get_all(self, skip: int = 0, limit: int = 100) -> List[Service]:
         """Gets a list of all services."""

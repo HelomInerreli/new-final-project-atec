@@ -1,0 +1,116 @@
+:root {
+  --primary-red: #dc3545;
+  --text-dark: #343a40;
+  --text-gray: #6c757d;
+}
+
+.services-header {
+  background-color: #f8f9fa;
+  padding-top: 80px;
+  min-height: 40vh;
+}
+
+.services-title {
+  color: var(--text-dark);
+  font-weight: 700;
+}
+
+.services-subtitle {
+  color: var(--text-gray);
+  font-size: 1.1rem;
+  font-weight: 400;
+}
+
+.services-main {
+  background-color: white;
+  min-height: 60vh;
+}
+
+/* Carousel styles */
+.carousel-indicators button {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: var(--text-gray);
+  border: none;
+}
+.carousel-indicators .active {
+  background-color: var(--primary-red);
+}
+
+.service-card {
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.service-icon-area {
+  background: linear-gradient(135deg, var(--primary-red), #f86f7a);
+  border-radius: 0.5rem 0 0 0.5rem;
+}
+
+.service-icon-large {
+  font-size: 4rem;
+}
+
+.price-tag {
+  color: var(--primary-red);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.service-title {
+  color: var(--primary-red);
+  font-weight: 700;
+  font-size: 1.75rem;
+}
+
+.service-description {
+  color: var(--text-gray);
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.feature-item {
+  color: #495057;
+  margin-bottom: 0.4rem;
+}
+
+/* Overview grid */
+.overview-card {
+  border-radius: 0.5rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+.overview-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+.overview-icon {
+  font-size: 3rem;
+  color: var(--primary-red);
+}
+.overview-title {
+  color: var(--text-dark);
+  font-weight: 600;
+}
+.price-tag-small {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* Call to Action */
+.cta-title {
+  color: var(--primary-red);
+  font-weight: 700;
+}
+.cta-text {
+  color: var(--text-gray);
+  font-size: 1.1rem;
+}
+
+/* Footer */
+.services-footer {
+  background-color: var(--text-dark);
+  color: white;
+}
