@@ -1,186 +1,50 @@
-body {
-  font-family: "Inter", sans-serif;
-  background: linear-gradient(135deg, #eef2ff, #f9fafc);
-  margin: 0;
-  padding: 0;
-  color: #1f1f1f;
-}
-
-/* Container principal */
-.schedule-container {
-  max-width: 750px;
-  margin: 60px auto;
-  padding: 40px 50px;
-  background: rgba(255, 255, 255, 0.85);
-  border-radius: 24px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
-  backdrop-filter: blur(8px);
-}
-
-.title {
-  text-align: center;
-  font-size: 36px;
-  font-weight: 700;
-  color: #121212;
-  margin-bottom: 40px;
-}
-
-/* Secções do formulário */
 .form-section {
-  margin-bottom: 35px;
-}
-
-.section-title {
-  font-size: 20px;
-  font-weight: 600;
-  color: #065ee3;
-  margin-bottom: 15px;
-}
-
-/* Estrutura do formulário */
-.schedule-form {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  background: #f6f9ff;
+  border-radius: 10px;
+  padding: 32px 24px;
+  margin-bottom: 32px;
+  box-shadow: 0 2px 12px rgba(11, 42, 95, 0.06);
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  margin-bottom: 20px;
 }
 
-label {
-  font-weight: 600;
-  color: #222;
-  font-size: 15px;
+.form-group label {
+  font-weight: 700;
+  color: #0b2a5f;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
 }
 
-/* Campos */
-input,
-select,
-textarea {
-  border: 1px solid #ddd;
-  border-radius: 10px;
+.form-group input,
+.form-group select {
   padding: 10px 14px;
-  font-size: 15px;
-  font-family: "Inter", sans-serif;
-  background-color: #ffffff;
-  color: #111;
-  transition: all 0.2s ease;
-  appearance: none;
-}
-
-/* Select com seta custom */
-select {
-  background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='18' viewBox='0 0 24 24' width='18' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 16px;
-  padding-right: 35px;
-}
-
-input:focus,
-select:focus,
-textarea:focus {
-  outline: none;
-  border-color: #065ee3;
-  box-shadow: 0 0 0 3px rgba(6, 94, 227, 0.1);
-}
-
-/* Campos lado a lado */
-.form-row {
-  display: flex;
-  gap: 20px;
-}
-
-.form-row .form-group {
-  flex: 1;
-}
-
-/* Serviços disponíveis */
-.services-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 10px;
-}
-
-.service-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  border: 1.5px solid #b3c6ff;
+  border-radius: 6px;
+  font-size: 16px;
   background: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 10px;
-  padding: 10px 14px;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  transition: border-color 0.2s;
+  outline: none;
 }
 
-.service-item:hover {
+.form-group input:focus,
+.form-group select:focus {
   border-color: #065ee3;
-  background-color: #f5f9ff;
+  box-shadow: 0 0 0 2px #e3eaff;
 }
 
-.service-item input[type="checkbox"] {
-  accent-color: #065ee3;
-}
-
-/* Botões */
-.form-buttons {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 30px;
-  gap: 20px;
-}
-
-.btn {
-  border: none;
-  padding: 12px 22px;
-  border-radius: 30px;
-  font-weight: 600;
-  font-size: 15px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn.primary {
-  background-color: #065ee3;
-  color: white;
-  box-shadow: 0 4px 10px rgba(6, 94, 227, 0.25);
-}
-
-.btn.primary:hover {
-  background-color: #004bcc;
-  transform: translateY(-1px);
-}
-
-.btn.secondary {
-  background-color: white;
-  color: #065ee3;
-  border: 2px solid #065ee3;
-}
-
-.btn.secondary:hover {
-  background-color: #ebf2ff;
-}
-
-/* Responsivo */
 @media (max-width: 768px) {
-  .schedule-container {
-    margin: 40px 20px;
-    padding: 30px 25px;
+  .form-section {
+    padding: 18px 10px;
   }
-
-  .form-row {
-    flex-direction: column;
-  }
-
-  .form-buttons {
-    flex-direction: column;
-  }
-
-  .btn {
-    width: 100%;
+  .form-group input,
+  .form-group select {
+    font-size: 14px;
+    padding: 8px 10px;
   }
 }
+
+
