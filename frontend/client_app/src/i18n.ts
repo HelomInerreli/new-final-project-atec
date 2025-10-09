@@ -3,8 +3,9 @@ import { initReactI18next } from "react-i18next";
 
 // Try to read the user's preferred language from localStorage so the selection
 // persists across page navigation and reloads. Fall back to 'en' otherwise.
-const storedLng = typeof window !== 'undefined' ? localStorage.getItem('i18nextLng') : null;
-const initialLng = storedLng || 'en';
+const storedLng =
+  typeof window !== "undefined" ? localStorage.getItem("i18nextLng") : null;
+const initialLng = storedLng || "en";
 
 i18next.use(initReactI18next).init({
   debug: true,
@@ -59,7 +60,8 @@ i18next.use(initReactI18next).init({
         years: "years",
         noCustomersFound: "No customers registered yet.",
         apiConnected: "API Connected!",
-        customerDataFetchedSuccessfully: "If you see this list, the communication with the backend is working correctly.",
+        customerDataFetchedSuccessfully:
+          "If you see this list, the communication with the backend is working correctly.",
         login: "Login",
         logout: "Logout",
         register: "Register",
@@ -87,7 +89,8 @@ i18next.use(initReactI18next).init({
         noServicesFound: "No services found",
         serviceDataFetchedSuccessfully: "Service data fetched successfully",
         completedServicesHistory: "Completed Services History",
-        completedServicesDescription: "View all successfully completed services",
+        completedServicesDescription:
+          "View all successfully completed services",
         completedServices: "Completed Services",
         serviceType: "Service Type",
         noDescription: "No description",
@@ -97,13 +100,13 @@ i18next.use(initReactI18next).init({
         viewDetails: "View Details",
         appointmentDetails: "Appointment Details",
         generalInfo: "General Information",
-        serviceInfo: "Service Information", 
+        serviceInfo: "Service Information",
         budgetInfo: "Budget Information",
         appointmentDescription: "Appointment Description",
         extraServices: "Extra Services",
         duration: "Duration",
         minutes: "minutes",
-        serviceDescription: "Service Description", 
+        serviceDescription: "Service Description",
         cost: "Cost",
         sent: "Sent",
         notSent: "Not Sent",
@@ -112,13 +115,27 @@ i18next.use(initReactI18next).init({
         totalExtraServices: "Total Extra Services",
         noExtraServices: "No extra services were added to this appointment",
 
-
         // Status translations
         pending: "Pending",
         inProgress: "In Progress",
         completed: "Completed",
         cancelled: "Cancelled",
         scheduled: "Scheduled",
+        errorLoadingAppointments: "Error loading appointments",
+        appointmentList: "Appointment List",
+        appointmentManagementDescription:
+          "Comprehensive management of appointments",
+        loadingAppointments: "Loading appointments",
+        registeredAppointments: "Registered Appointments",
+        service: "Service",
+        date: "Date",
+        time: "Time",
+        status: "Status",
+        description: "Description",
+        customer: "Customer",
+        noAppointmentsFound: "No appointments found yet.",
+        appointmentDataFetchedSuccessfully:
+          "Appointment data fetched successfully.",
       },
     },
     pt: {
@@ -169,7 +186,8 @@ i18next.use(initReactI18next).init({
         years: "anos",
         noCustomersFound: "Nenhum cliente cadastrado ainda.",
         apiConnected: "API Conectada!",
-        customerDataFetchedSuccessfully: "Se estiver vendo esta lista, a comunicação com o backend está funcionando corretamente.",
+        customerDataFetchedSuccessfully:
+          "Se estiver vendo esta lista, a comunicação com o backend está funcionando corretamente.",
         login: "Entrar",
         logout: "Sair",
         register: "Registrar",
@@ -184,7 +202,8 @@ i18next.use(initReactI18next).init({
 
         // Service History translations
         serviceHistory: "Histórico de Serviços",
-        serviceHistoryDescription: "Visualize todos os serviços concluídos e agendados",
+        serviceHistoryDescription:
+          "Visualize todos os serviços concluídos e agendados",
         errorLoadingServices: "Erro ao carregar serviços",
         loadingServices: "Carregando serviços",
         serviceRecords: "Registos de Serviços",
@@ -196,33 +215,34 @@ i18next.use(initReactI18next).init({
         status: "Estado",
         reminder: "Lembrete",
         noServicesFound: "Nenhum serviço encontrado",
-        serviceDataFetchedSuccessfully: "Dados de serviços carregados com sucesso",
+        serviceDataFetchedSuccessfully:
+          "Dados de serviços carregados com sucesso",
         completedServicesHistory: "Histórico de Serviços Concluídos",
-        completedServicesDescription: "Visualize todos os serviços concluídos com sucesso",
+        completedServicesDescription:
+          "Visualize todos os serviços concluídos com sucesso",
         completedServices: "Serviços Concluídos",
         serviceType: "Tipo de Serviço",
         noDescription: "Sem descrição",
 
-
         actions: "Ações",
-        viewDetails: "Ver Detalhes", 
+        viewDetails: "Ver Detalhes",
         appointmentDetails: "Detalhes do Agendamento",
         generalInfo: "Informações Gerais",
         serviceInfo: "Informações do Serviço",
-        budgetInfo: "Informações do Orçamento", 
+        budgetInfo: "Informações do Orçamento",
         appointmentDescription: "Descrição do Agendamento",
         extraServices: "Serviços Extras",
         duration: "Duração",
         minutes: "minutos",
         serviceDescription: "Descrição do Serviço",
-        cost: "Custo", 
+        cost: "Custo",
         sent: "Enviado",
         notSent: "Não Enviado",
         close: "Fechar",
         approved: "Aprovado",
         totalExtraServices: "Total Serviços Extras",
-        noExtraServices: "Nenhum serviço extra foi adicionado a este agendamento",
-
+        noExtraServices:
+          "Nenhum serviço extra foi adicionado a este agendamento",
 
         // Status translations
         pending: "Pendente",
@@ -230,6 +250,20 @@ i18next.use(initReactI18next).init({
         completed: "Concluído",
         cancelled: "Cancelado",
         scheduled: "Agendado",
+        errorLoadingAppointments: "Erro ao carregar agendamentos",
+        appointmentList: "Lista de Agendamentos",
+        appointmentManagementDescription: "Gestão completa dos agendamentos",
+        loadingAppointments: "Carregando agendamentos",
+        registeredAppointments: "Agendamentos Registrados",
+        service: "Serviço",
+        date: "Data",
+        time: "Hora",
+        status: "Status",
+        description: "Descrição",
+        customer: "Cliente",
+        noAppointmentsFound: "Nenhum agendamento encontrado ainda.",
+        appointmentDataFetchedSuccessfully:
+          "Dados dos agendamentos carregados com sucesso.",
       },
     },
 
@@ -281,7 +315,8 @@ i18next.use(initReactI18next).init({
         years: "años",
         noCustomersFound: "No hay clientes registrados aún.",
         apiConnected: "¡API Conectada!",
-        customerDataFetchedSuccessfully: "Si ves esta lista, la comunicación con el backend está funcionando correctamente.",
+        customerDataFetchedSuccessfully:
+          "Si ves esta lista, la comunicación con el backend está funcionando correctamente.",
         login: "Iniciar Sesión",
         logout: "Cerrar Sesión",
         register: "Registrarse",
@@ -294,10 +329,10 @@ i18next.use(initReactI18next).init({
         settings: "Configuraciones",
         details: "Detalles",
 
-
         // Service History translations
         serviceHistory: "Historial de Servicios",
-        serviceHistoryDescription: "Ver todos los servicios completados y programados",
+        serviceHistoryDescription:
+          "Ver todos los servicios completados y programados",
         errorLoadingServices: "Error al cargar servicios",
         loadingServices: "Cargando servicios",
         serviceRecords: "Registros de Servicios",
@@ -309,16 +344,18 @@ i18next.use(initReactI18next).init({
         status: "Estado",
         reminder: "Recordatorio",
         noServicesFound: "No se encontraron servicios",
-        serviceDataFetchedSuccessfully: "Datos de servicios cargados exitosamente",
+        serviceDataFetchedSuccessfully:
+          "Datos de servicios cargados exitosamente",
         completedServicesHistory: "Historial de Servicios Completados",
-        completedServicesDescription: "Ver todos los servicios completados exitosamente",
+        completedServicesDescription:
+          "Ver todos los servicios completados exitosamente",
         completedServices: "Servicios Completados",
         serviceType: "Tipo de Servicio",
         noDescription: "Sin descripción",
 
         actions: "Acciones",
         viewDetails: "Ver Detalles",
-        appointmentDetails: "Detalles de la Cita", 
+        appointmentDetails: "Detalles de la Cita",
         generalInfo: "Información General",
         serviceInfo: "Información del Servicio",
         budgetInfo: "Información del Presupuesto",
@@ -328,11 +365,11 @@ i18next.use(initReactI18next).init({
         minutes: "minutos",
         serviceDescription: "Descripción del Servicio",
         cost: "Costo",
-        sent: "Enviado", 
+        sent: "Enviado",
         notSent: "No Enviado",
         close: "Cerrar",
         approved: "Aprobado",
-        totalExtraServices: "Total Servicios Extras", 
+        totalExtraServices: "Total Servicios Extras",
         noExtraServices: "No se agregaron servicios extra a esta cita",
 
         // Status translations
@@ -341,6 +378,20 @@ i18next.use(initReactI18next).init({
         cancelled: "Cancelado",
         scheduled: "Programado",
         inProgress: "En Progreso",
+        errorLoadingAppointments: "Error al cargar citas",
+        appointmentList: "Lista de Citas",
+        appointmentManagementDescription: "Gestión completa de las citas",
+        loadingAppointments: "Cargando citas",
+        registeredAppointments: "Citas Registradas",
+        service: "Servicio",
+        date: "Fecha",
+        time: "Hora",
+        status: "Estado",
+        description: "Descripción",
+        customer: "Cliente",
+        noAppointmentsFound: "No se encontraron citas aún.",
+        appointmentDataFetchedSuccessfully:
+          "Datos de las citas cargados exitosamente.",
       },
     },
     fr: {
@@ -391,7 +442,8 @@ i18next.use(initReactI18next).init({
         years: "ans",
         noCustomersFound: "Aucun client enregistré pour le moment.",
         apiConnected: "API Connectée !",
-        customerDataFetchedSuccessfully: "Si vous voyez cette liste, la communication avec le backend fonctionne correctement.",
+        customerDataFetchedSuccessfully:
+          "Si vous voyez cette liste, la communication avec le backend fonctionne correctement.",
         login: "Connexion",
         logout: "Déconnexion",
         register: "S'inscrire",
@@ -407,7 +459,7 @@ i18next.use(initReactI18next).init({
         actions: "Actions",
         viewDetails: "Voir Détails",
         appointmentDetails: "Détails du Rendez-vous",
-        generalInfo: "Informations Générales", 
+        generalInfo: "Informations Générales",
         serviceInfo: "Informations du Service",
         budgetInfo: "Informations du Budget",
         appointmentDescription: "Description du Rendez-vous",
@@ -417,16 +469,17 @@ i18next.use(initReactI18next).init({
         serviceDescription: "Description du Service",
         cost: "Coût",
         sent: "Envoyé",
-        notSent: "Non Envoyé", 
+        notSent: "Non Envoyé",
         close: "Fermer",
         approved: "Approuvé",
         totalExtraServices: "Total Services Supplémentaires",
-        noExtraServices: "Aucun service supplémentaire n'a été ajouté à ce rendez-vous",
-
+        noExtraServices:
+          "Aucun service supplémentaire n'a été ajouté à ce rendez-vous",
 
         // Service History translations
         serviceHistory: "Historique des Services",
-        serviceHistoryDescription: "Voir tous les services terminés et programmés",
+        serviceHistoryDescription:
+          "Voir tous les services terminés et programmés",
         errorLoadingServices: "Erreur lors du chargement des services",
         loadingServices: "Chargement des services",
         serviceRecords: "Enregistrements de Services",
@@ -438,9 +491,11 @@ i18next.use(initReactI18next).init({
         status: "Statut",
         reminder: "Rappel",
         noServicesFound: "Aucun service trouvé",
-        serviceDataFetchedSuccessfully: "Données de services chargées avec succès",
+        serviceDataFetchedSuccessfully:
+          "Données de services chargées avec succès",
         completedServicesHistory: "Historique des Services Terminés",
-        completedServicesDescription: "Voir tous les services terminés avec succès",
+        completedServicesDescription:
+          "Voir tous les services terminés avec succès",
         completedServices: "Services Terminés",
         serviceType: "Type de Service",
         noDescription: "Aucune description",
@@ -451,11 +506,21 @@ i18next.use(initReactI18next).init({
         cancelled: "Annulé",
         scheduled: "Programmé",
         inProgress: "En Cours",
+        errorLoadingAppointments: "Erreur lors du chargement des rendez-vous",
+        appointmentList: "Liste des Rendez-vous",
+        appointmentManagementDescription: "Gestion complète des rendez-vous",
+        loadingAppointments: "Chargement des rendez-vous",
+        registeredAppointments: "Rendez-vous Enregistrés",
+        service: "Service",
+        date: "Date",
+        time: "Heure",
+        customer: "Client",
+        noAppointmentsFound: "Aucun rendez-vous trouvé pour le moment.",
+        appointmentDataFetchedSuccessfully:
+          "Données des rendez-vous chargées avec succès.",
       },
     },
   },
 });
-
-
 
 export default i18next;
