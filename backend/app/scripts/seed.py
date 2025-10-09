@@ -76,12 +76,18 @@ def seed_data(db: Session):
     appointment_repo = AppointmentRepository(db)
     service_repo = ServiceRepository(db)
 
-    # Create Statuses
+    # Create Statuses and store them in a dictionary for easy access
+    status_objects = {}
     for status_name in STATUSES:
         db_status = db.query(Status).filter(Status.name == status_name).first()
         if not db_status:
             new_status = Status(name=status_name)
             db.add(new_status)
+            db.commit()
+            status_objects[status_name] = new_status
+        else:
+            status_objects[status_name] = db_status
+    
     db.commit()
     print(f"Created/verified {len(STATUSES)} statuses.")
 
@@ -130,12 +136,62 @@ def seed_data(db: Session):
             vehicles.append(vehicle)
     print(f"Created {len(vehicles)} vehicles.")
 
-    # Create Appointments
+    # Create Appointments with realistic status distribution
     appointments = []
     for vehicle in vehicles:
         for _ in range(random.randint(0, MAX_APPOINTMENTS_PER_VEHICLE)):
             main_service = random.choice(services)
-            appointment_date = datetime.now() - timedelta(days=random.randint(0, 365))
+            
+            # Create appointments in the past for more realistic data
+            days_ago = random.randint(1, 365)
+            appointment_date = datetime.now() - timedelta(days=days_ago)
+            
+            # Assign status based on how old the appointment is
+            if days_ago > 30:  # Older appointments are more likely to be completed
+                status_weights = {
+                    "Finalized": 70,      # 70% chance - completed
+                    "Canceled": 20,       # 20% chance - cancelled
+                    "Pendente": 5,        # 5% chance - still pending
+                    "In Repair": 3,       # 3% chance - still in repair
+                    "Awaiting Approval": 2  # 2% chance - awaiting approval
+                }
+            elif days_ago > 7:  # Recent appointments
+                status_weights = {
+                    "Finalized": 40,
+                    "In Repair": 30,
+                    "Awaiting Approval": 15,
+                    "Pendente": 10,
+                    "Canceled": 5
+                }
+            else:  # Very recent appointments
+                status_weights = {
+                    "Pendente": 50,
+                    "In Repair": 30,
+                    "Awaiting Approval": 15,
+                    "Finalized": 3,
+                    "Canceled": 2
+                }
+            
+            # Choose status based on weights
+            status_choices = []
+            for status, weight in status_weights.items():
+                status_choices.extend([status] * weight)
+            chosen_status = random.choice(status_choices)
+            
+            # Set actual budget for finalized appointments
+            estimated_budget = main_service.price
+            actual_budget = 0.0
+            
+            if chosen_status == "Finalized":
+                # Add some variance to actual budget for completed services
+                variance_factor = random.uniform(0.8, 1.3)  # -20% to +30% variance
+                actual_budget = round(estimated_budget * variance_factor, 2)
+                # Ensure maximum reasonable value
+                actual_budget = min(actual_budget, 500.0)  # Cap at 500€
+            elif chosen_status in ["In Repair", "Awaiting Approval"]:
+                # Partial budget for ongoing services
+                actual_budget = round(estimated_budget * random.uniform(0.3, 0.7), 2)
+                actual_budget = min(actual_budget, 300.0)
             
             appointment_in = AppointmentCreate(
                 appointment_date=appointment_date,
@@ -143,26 +199,38 @@ def seed_data(db: Session):
                 vehicle_id=vehicle.id,
                 customer_id=vehicle.customer_id,
                 service_id=main_service.id,
-                estimated_budget=main_service.price
+                estimated_budget=estimated_budget,
+                actual_budget=actual_budget,
+                status_id=status_objects[chosen_status].id
             )
             appointment = appointment_repo.create(appointment_in)
             appointments.append(appointment)
 
-            # Add extra services to some appointments
-            if random.choice([True, False]):
+            # Add extra services to some finalized appointments
+            if chosen_status == "Finalized" and random.choice([True, False]):
                 for _ in range(random.randint(1, MAX_EXTRA_SERVICES_PER_APPOINTMENT)):
                     extra_service_details = random.choice(EXTRA_SERVICE_DESCRIPTIONS)
                     extra_service_in = ExtraServiceCreate(
                         description=extra_service_details["description"],
                         cost=extra_service_details["cost"]
                     )
-                    # The logic for adding extra services is now simpler
                     extra_service = appointment_repo.add_extra_service(appointment.id, extra_service_in)
-                    # Randomly approve some of them for more realistic data
-                    if random.choice([True, False]) and extra_service:
+                    if extra_service:
                         ExtraServiceRepository(db).approve(extra_service.id)
 
-    print(f"Created {len(appointments)} appointments with some extra services.")
+    # Print statistics
+    finalized_count = sum(1 for apt in appointments if apt.status_id == status_objects["Finalized"].id)
+    in_repair_count = sum(1 for apt in appointments if apt.status_id == status_objects["In Repair"].id)
+    pending_count = sum(1 for apt in appointments if apt.status_id == status_objects["Pendente"].id)
+    canceled_count = sum(1 for apt in appointments if apt.status_id == status_objects["Canceled"].id)
+    awaiting_count = sum(1 for apt in appointments if apt.status_id == status_objects["Awaiting Approval"].id)
+    
+    print(f"Created {len(appointments)} appointments:")
+    print(f"  - {finalized_count} Finalized (completed)")
+    print(f"  - {in_repair_count} In Repair")
+    print(f"  - {pending_count} Pending")
+    print(f"  - {canceled_count} Canceled")
+    print(f"  - {awaiting_count} Awaiting Approval")
     print("Seeding finished successfully!")
 
 
