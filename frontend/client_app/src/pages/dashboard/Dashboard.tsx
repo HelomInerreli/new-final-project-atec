@@ -12,6 +12,7 @@ const Dashboard: React.FC = () => {
     <Container fluid className="dashboard">
       <header className="dashboard-header text-center mb-4">
         <h1>Dashboard</h1>
+        
         <p className="subtitle">Resumo rápido da sua atividade</p>
       </header>
 

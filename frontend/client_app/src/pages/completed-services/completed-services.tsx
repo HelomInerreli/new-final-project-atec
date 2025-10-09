@@ -1,4 +1,5 @@
 import React from "react";
+import "../../styles/completed-services.css";
 
 const CompletedServices: React.FC = () => {
   return (

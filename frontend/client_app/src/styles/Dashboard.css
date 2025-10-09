@@ -1,8 +1,11 @@
+/* Dashboard.css - Visual moderno inspirado no appointments.css */
+
 /* === Layout geral === */
 .app {
   display: flex;
   min-height: 100vh;
-  background-color: #f5f7fa; /* fundo base */
+  background: linear-gradient(135deg, #e0e7ff 0%, #f6f8fa 100%);
+  font-family: 'Segoe UI', Arial, sans-serif;
 }
 
 /* === Sidebar (menu lateral) === */
@@ -10,39 +13,116 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 250px; /* largura do menu */
+  width: 250px;
   height: 100vh;
-  background-color: #fff;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  padding: 1rem;
+  background: #fff;
+  box-shadow: 2px 0 16px rgba(37, 99, 235, 0.07), 0 1.5px 4px rgba(0,0,0,0.04);
+  padding: 1.5rem 1rem;
+  border-right: 1.5px solid #e0e7ff;
+  z-index: 10;
 }
 
 /* === Conteúdo principal === */
 .dashboard {
-  margin-left: 250px; /* reserva espaço do menu lateral */
+  margin-left: 250px;
   flex: 1;
-  min-height: 100vh; /* ocupa toda a altura do ecrã */
-  background-color: #f9f9f9; /* fundo da área principal */
-  padding: 2rem;
+  min-height: 100vh;
+  background: transparent;
+  padding: 3rem 2rem;
   display: flex;
   flex-direction: column;
-  align-items: center; /* centra horizontalmente */
+  align-items: center;
 }
 
 /* === Cabeçalho === */
 .dashboard-header {
-  text-align: center;
-  margin-bottom: 2rem;
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: #2563eb;
+  margin-bottom: 2.5rem;
+  letter-spacing: -1.5px;
+  text-shadow: 0 2px 8px rgba(37,99,235,0.07);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.dashboard-header::before {
+  content: "📊";
+  font-size: 2.1rem;
 }
 
 /* === Container dos cards === */
 .card-container {
   display: flex;
-  justify-content: center; /* centra os cards na horizontal */
+  justify-content: center;
   align-items: flex-start;
-  flex-wrap: wrap; /* permite quebrar linhas */
-  gap: 2rem; /* espaçamento entre cards */
+  flex-wrap: wrap;
+  gap: 2rem;
   width: 100%;
-  max-width: 1200px; /* impede que se espalhem demais */
+  max-width: 1200px;
   margin: 0 auto;
+}
+
+/* === Card individual === */
+.dashboard-card {
+  background: linear-gradient(90deg, #f1f5f9 80%, #e0e7ff 100%);
+  border-radius: 18px;
+  box-shadow: 0 8px 36px rgba(37, 99, 235, 0.10), 0 1.5px 4px rgba(0,0,0,0.04);
+  border: 1.5px solid #e0e7ff;
+  padding: 38px 44px;
+  min-width: 260px;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: box-shadow 0.2s, transform 0.18s, background 0.18s;
+  position: relative;
+}
+
+.dashboard-card:hover {
+  box-shadow: 0 12px 32px rgba(37,99,235,0.13);
+  background: linear-gradient(90deg, #e0e7ff 80%, #f1f5f9 100%);
+  transform: translateY(-2px) scale(1.02);
+}
+
+/* === Conteúdo do card === */
+.dashboard-card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+}
+
+.dashboard-card-value {
+  font-size: 2.1rem;
+  font-weight: 800;
+  color: #2563eb;
+  margin-bottom: 6px;
+}
+
+.dashboard-card-desc {
+  font-size: 1rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* Responsivo */
+@media (max-width: 900px) {
+  .dashboard {
+    padding: 1.5rem 0.5rem;
+  }
+  .card-container {
+    gap: 1rem;
+    max-width: 98vw;
+  }
+  .dashboard-card {
+    padding: 22px 10px;
+    min-width: 180px;
+  }
+  .dashboard-header {
+    font-size: 1.5rem;
+    gap: 8px;
+  }
 }
