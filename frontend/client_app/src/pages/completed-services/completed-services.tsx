@@ -29,11 +29,14 @@ const servicosRealizados: Service[] = [
   },
 ];
 
+const currency = new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" });
+
 const CompletedServices: React.FC = () => {
   return (
-    <div>
+    <div className="completed-services">
       <h1>Serviços realizados</h1>
       <p className="subtitle">Veja os serviços que já foram realizados</p>
+
       <table className="completed-services-table">
         <thead>
           <tr>
@@ -41,17 +44,17 @@ const CompletedServices: React.FC = () => {
             <th>Data</th>
             <th>Cliente</th>
             <th>Descrição</th>
-            <th>Valor (R$)</th>
+            <th className="right">Valor (€)</th>
           </tr>
         </thead>
         <tbody>
           {servicosRealizados.map((servico) => (
             <tr key={servico.id}>
-              <td>{servico.nome}</td>
-              <td>{servico.data}</td>
-              <td>{servico.cliente}</td>
-              <td>{servico.descricao}</td>
-              <td>{servico.valor.toFixed(2)}</td>
+              <td data-label="Serviço">{servico.nome}</td>
+              <td data-label="Data">{new Date(servico.data).toLocaleDateString("pt-PT")}</td>
+              <td data-label="Cliente">{servico.cliente}</td>
+              <td data-label="Descrição">{servico.descricao}</td>
+              <td data-label="Valor" className="right">{currency.format(servico.valor)}</td>
             </tr>
           ))}
         </tbody>

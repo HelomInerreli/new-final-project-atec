@@ -1,93 +1,104 @@
-/* completed-services.css */
-
-h1 {
-    font-size: 2rem;
-    margin-bottom: 0.2em;
-    color: #22223b;
-    font-weight: 700;
+/* ===== Completed Services (scoped) ===== */
+.completed-services{
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px;
+  color: #22223b;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans";
 }
 
-.subtitle {
-    color: #4a4e69;
-    margin-bottom: 1.5em;
-    font-size: 1.1rem;
+.completed-services *{ box-sizing: border-box; }
+
+/* Títulos */
+.completed-services h1{
+  font-size: 2rem;
+  margin-bottom: 0.2em;
+  color: #22223b;
+  font-weight: 700;
+}
+.completed-services .subtitle{
+  color: #4a4e69;
+  margin-bottom: 1.5em;
+  font-size: 1.1rem;
 }
 
-.completed-services-table {
+/* Tabela */
+.completed-services .completed-services-table{
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(34, 34, 59, 0.07);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.completed-services .completed-services-table th,
+.completed-services .completed-services-table td{
+  padding: 0.9em 1.2em;
+  text-align: left;
+  font-size: 1rem;
+  color: #22223b;
+}
+
+.completed-services .completed-services-table thead th{
+  background: #22223b;
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.completed-services .completed-services-table tbody tr{
+  border-bottom: 1px solid #e9ecef;
+  transition: background 0.2s;
+}
+.completed-services .completed-services-table tbody tr:hover{
+  background: #f2e9e4;
+}
+
+.completed-services .right{ text-align: right; }
+
+/* Mobile: tabela → cartões */
+@media (max-width: 700px){
+  .completed-services .completed-services-table,
+  .completed-services .completed-services-table thead,
+  .completed-services .completed-services-table tbody,
+  .completed-services .completed-services-table th,
+  .completed-services .completed-services-table td,
+  .completed-services .completed-services-table tr{
+    display: block;
     width: 100%;
-    border-collapse: collapse;
+  }
+
+  .completed-services .completed-services-table thead{ display: none; }
+
+  .completed-services .completed-services-table tr{
+    margin-bottom: 1.2em;
     background: #fff;
-    box-shadow: 0 2px 8px rgba(34, 34, 59, 0.07);
     border-radius: 8px;
-    overflow: hidden;
-}
+    box-shadow: 0 2px 8px rgba(34, 34, 59, 0.07);
+    padding: 0.8em 0.5em;
+    border: 1px solid #e9ecef;
+  }
 
-.completed-services-table th,
-.completed-services-table td {
-    padding: 0.9em 1.2em;
-    text-align: left;
-}
+  .completed-services .completed-services-table td{
+    position: relative;
+    min-height: 2.5em;
+    border: none;
+    display: flex;
+    align-items: center;
+    padding: 0.9em 1.2em 0.9em calc(1.2em + 45%);
+  }
 
-.completed-services-table th {
-    background: #22223b;
-    color: #fff;
+  .completed-services .completed-services-table td::before{
+    position: absolute;
+    left: 1em;
+    width: 45%;
+    white-space: nowrap;
     font-weight: 600;
-    letter-spacing: 0.03em;
-}
+    color: #4a4e69;
+    content: attr(data-label);
+  }
 
-.completed-services-table tbody tr {
-    border-bottom: 1px solid #e9ecef;
-    transition: background 0.2s;
-}
-
-.completed-services-table tbody tr:hover {
-    background: #f2e9e4;
-}
-
-.completed-services-table td {
-    color: #22223b;
-    font-size: 1rem;
-}
-
-@media (max-width: 700px) {
-    .completed-services-table,
-    .completed-services-table thead,
-    .completed-services-table tbody,
-    .completed-services-table th,
-    .completed-services-table td,
-    .completed-services-table tr {
-        display: block;
-        width: 100%;
-    }
-
-    .completed-services-table thead {
-        display: none;
-    }
-
-    .completed-services-table tr {
-        margin-bottom: 1.2em;
-        background: #fff;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(34, 34, 59, 0.07);
-        padding: 0.8em 0.5em;
-    }
-
-    .completed-services-table td {
-        position: relative;
-        padding-left: 50%;
-        min-height: 2.5em;
-        border: none;
-        display: flex;
-        align-items: center;
-    }
-
-    .completed-services-table td:before {
-        position: absolute;
-        left: 1em;
-        width: 45%;
-        white-space: nowrap;
-        font-weight: 600;
-        color: #4a4e69;
-        content: attr(data-label);
-    }
+  .completed-services .right{ text-align: left; }
 }
