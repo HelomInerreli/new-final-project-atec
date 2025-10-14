@@ -147,20 +147,6 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
               </div>
               
               <div>
-                <label htmlFor="country" className="block text-sm font-bold text-black">
-                  Country
-                </label>
-                <input
-                  type="text"
-                  id="country"
-                  name="country"
-                  value={formData.country}
-                  onChange={handleChange}
-                  className="mt-1 block w-full px-3 py-2 border border-black rounded bg-white text-black focus:outline-none focus:ring-2 focus:ring-green-600"
-                />
-              </div>
-              
-              <div>
                 <label htmlFor="postal_code" className="block text-sm font-bold text-black">
                   Postal Code
                 </label>

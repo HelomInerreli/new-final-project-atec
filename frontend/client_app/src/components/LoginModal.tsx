@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, Button, Form, Alert, Spinner } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { loginWithCredentials, setAuthToken, type LoginData } from '../api/auth';
+import { loginWithCredentials, useAuth } from '../api/auth'; // Import from auth.ts
 
 interface LoginModalProps {
   show: boolean;
@@ -20,6 +20,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
   const [error, setError] = useState('');
   
   const navigate = useNavigate();
+  const { login } = useAuth(); // Use the auth hook
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,10 +37,21 @@ const LoginModal: React.FC<LoginModalProps> = ({
       const response = await loginWithCredentials({ email, password });
       
       if (response.access_token) {
-        setAuthToken(response.access_token);
-        onClose(); // Close modal
-        navigate('/dashboard');
+        login(response.access_token);
+        onClose();
+        
         // Clear form
+        setEmail('');
+        setPassword('');
+        
+        // Navigate to home or dashboard
+        navigate('/');
+
+        // Reload page after successful login
+        setTimeout(() => {
+          window.location.reload();
+        }, 10); // Small delay to ensure modal closes first
+        
         setEmail('');
         setPassword('');
       } else {

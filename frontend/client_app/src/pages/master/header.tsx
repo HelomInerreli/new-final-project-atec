@@ -10,6 +10,8 @@ import ReactCountryFlag from "react-country-flag";
 import NavDropdown from "react-bootstrap/esm/NavDropdown";
 import { CreateAppointmentModal } from "../../components/CreateAppointmentModal";
 import LoginModal from "../../components/LoginModal";
+import { useAuth } from '../../api/auth';
+
 interface HeaderProps {
   className?: string;
 }
@@ -23,9 +25,23 @@ export function Header({ className = "" }: HeaderProps) {
   const [showLoginModal, setShowLoginModal] = useState(false);
 
 
-  // Simulação de usuário logado (depois virá do contexto de auth)
-  const isLoggedIn = true; // Temporário
-  const loggedInCustomerId = 1; // Temporário
+
+  const { isLoggedIn, loggedInCustomerId, logout, /*checkAuth*/ } = useAuth();
+
+
+  // const debugAuth = () => {
+  //   console.log('=== AUTH DEBUG ===');
+  //   console.log('Is Logged In:', isLoggedIn);
+  //   console.log('Customer ID:', loggedInCustomerId);
+  //   console.log('Token in localStorage:', localStorage.getItem('access_token'));
+  //   console.log('Re-checking auth:', checkAuth());
+  //   console.log('==================');
+  // };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -247,24 +263,46 @@ export function Header({ className = "" }: HeaderProps) {
                   </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
-              <button className="btn btn-outline-success btn-sm me-sm-2" onClick={() => setShowLoginModal(true)}
->
-                
-                {t("login")}
-              </button>
-              <button 
-                className="btn btn-secondary btn-sm"
-                onClick={() => navigate('/register')}
+              
+              
+              {/* <button
+                className="btn btn-warning btn-sm"
+                onClick={debugAuth}
+                title="Debug Auth"
               >
-                {t("register")}
-              </button>
+                Debug Auth
+              </button> */}
+
+              {!isLoggedIn ? (
+          <>
+            <button 
+              className="btn btn-outline-success btn-sm me-sm-2" 
+              onClick={() => setShowLoginModal(true)}
+            >
+              {t("login")}
+            </button>
+            <button 
+              className="btn btn-secondary btn-sm"
+              onClick={() => navigate('/register')}
+            >
+              {t("register")}
+            </button>
+          </>
+        ) : (
+          <button 
+                  className="btn btn-outline-danger btn-sm"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </button>
+        )}
             </div>
           </div>
         </div>
       </header>
 
       {/* MODAL PARA CRIAR APPOINTMENT - SINTAXE CORRIGIDA */}
-      {isLoggedIn && (
+      {isLoggedIn && loggedInCustomerId && (
         <CreateAppointmentModal
           show={showCreateModal}
           onClose={() => setShowCreateModal(false)}
