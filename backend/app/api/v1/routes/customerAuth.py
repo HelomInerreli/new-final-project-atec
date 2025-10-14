@@ -25,13 +25,13 @@ async def login_for_access_token(
     db: Session = Depends(get_db)
 ):
     """Login with email and password to get access token."""
-    print(f"Login attempt for: {form_data.username}")  # Debug log
+    print(f"Login attempt for: {form_data.username}")
     
     # Find user by email
     user = db.query(CustomerAuth).filter(CustomerAuth.email == form_data.username).first()
     
     if not user:
-        print(f"User not found: {form_data.username}")  # Debug log
+        print(f"User not found: {form_data.username}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
@@ -39,26 +39,26 @@ async def login_for_access_token(
         )
     
     if not user.password_hash:
-        print(f"User has no password: {form_data.username}")  # Debug log
+        print(f"User has no password: {form_data.username}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="This account uses social login only",
+            detail="Account not set up for email login",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
     # Verify password
     if not verify_password(form_data.password, user.password_hash):
-        print(f"Invalid password for: {form_data.username}")  # Debug log
+        print(f"Invalid password for: {form_data.username}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password", 
+            detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    print(f"Login successful for: {form_data.username}")  # Debug log
-    
     # Create access token
-    access_token = create_access_token(data={"sub": str(user.id)})
+    access_token = create_access_token(data={"sub": str(user.id_customer)})
+    
+    print(f"Login successful for: {form_data.username}")
     
     return {
         "access_token": access_token,

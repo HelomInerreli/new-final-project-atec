@@ -9,8 +9,7 @@ import Dropdown from "react-bootstrap/Dropdown";
 import ReactCountryFlag from "react-country-flag";
 import NavDropdown from "react-bootstrap/esm/NavDropdown";
 import { CreateAppointmentModal } from "../../components/CreateAppointmentModal";
-
-
+import LoginModal from "../../components/LoginModal";
 interface HeaderProps {
   className?: string;
 }
@@ -21,6 +20,8 @@ export function Header({ className = "" }: HeaderProps) {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+
 
   // Simulação de usuário logado (depois virá do contexto de auth)
   const isLoggedIn = true; // Temporário
@@ -246,7 +247,9 @@ export function Header({ className = "" }: HeaderProps) {
                   </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
-              <button className="btn btn-outline-success btn-sm me-sm-2">
+              <button className="btn btn-outline-success btn-sm me-sm-2" onClick={() => setShowLoginModal(true)}
+>
+                
                 {t("login")}
               </button>
               <button 
@@ -277,6 +280,10 @@ export function Header({ className = "" }: HeaderProps) {
           }}
         />
       )}
+      <LoginModal
+        show={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+      />
     </>
   );
 }
