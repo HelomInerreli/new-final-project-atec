@@ -6,6 +6,7 @@ import { ServiceHistory } from "./components/ServiceHistory";
 import Home from "./pages/Home/Home";
 import { AppointmentList } from "./components/AppointmentList";
 import { ServicesList } from "./components/ServicesList";
+import { FutureAppointments } from "./components/FutureAppointement";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/clients" element={<CustomerList />} />
           <Route path="/service-history" element={<ServiceHistory />} />
+          <Route path="/future-appointments" element={<FutureAppointments />} />
           <Route path="/appointments" element={<AppointmentList />} />
           <Route
             path="/appointments/:customerId"
