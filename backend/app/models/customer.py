@@ -21,5 +21,4 @@ class Customer(Base):
     vehicles = relationship("Vehicle", back_populates="customer")
     appointments = relationship("Appointment", back_populates="customer")
 
-    customerauth = relationship("CustomerAuth", back_populates="customer")
-    auth = relationship("CustomerAuth", back_populates="customer")
+    auth = relationship("CustomerAuth", back_populates="customer", uselist=False)

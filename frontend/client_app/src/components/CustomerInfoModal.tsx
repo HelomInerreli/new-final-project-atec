@@ -14,7 +14,6 @@ interface CustomerInfo {
   phone?: string;
   address?: string;
   city?: string;
-  country?: string;
   postal_code?: string;
   birth_date?: string; // Add this
 }
@@ -31,7 +30,6 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
     phone: '',
     address: '',
     city: '',
-    country: '',
     postal_code: '',
     birth_date: '' // Initialize birth_date
   });

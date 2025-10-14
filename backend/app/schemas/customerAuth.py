@@ -29,6 +29,7 @@ class CustomerAuthResponse(CustomerAuthBase):
 
     class Config:
         orm_mode = True
+        
 
 class CustomerAuthRegister(BaseModel):
     email: EmailStr

@@ -9,6 +9,7 @@ from app.schemas import customerAuth as customer_auth_schema
 from app.models.customerAuth import CustomerAuth
 from app.models.customer import Customer 
 from app.deps import get_db
+from app.schemas.customerAuth import CustomerAuthRegister, GoogleAuthRegister
 
 router = APIRouter()
 
@@ -246,55 +247,109 @@ def read_customer_auth(customer_auth_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
     return db_customer_auth
 
-from app.schemas.customerAuth import CustomerAuthRegister  # Add this import
-
 @router.post("/register")
-def register_user(
-    user_data: CustomerAuthRegister,
+async def register(
+    customer_data: CustomerAuthRegister,
     db: Session = Depends(get_db)
 ):
-    """Register new user with email and password."""
-    print(f"Registration attempt for: {user_data.email}, name: {user_data.name}")  # Debug log
+    print(f"Registration attempt for: {customer_data.email}, name: {customer_data.name}")
     
-    # Check if user already exists
-    existing_user = db.query(CustomerAuth).filter(CustomerAuth.email == user_data.email).first()
-    if existing_user:
-        raise HTTPException(status_code=400, detail="User with this email already exists")
+    existing_customer = db.query(CustomerAuth).filter(CustomerAuth.email == customer_data.email).first()
+    if existing_customer:
+        raise HTTPException(status_code=400, detail="Email already registered")
     
-    # Create Customer first - CERTIFIQUE-SE QUE O NOME ESTÁ SENDO PASSADO
-    print(f"Creating customer with name: '{user_data.name}'")  # Debug log
-    new_customer = Customer(name=user_data.name)  # ← Verificar se isto está correto
-    db.add(new_customer)
-    db.flush()  # Obter o ID
+    # Hash password
+    hashed_password = get_password_hash(customer_data.password)
     
-    print(f"Customer created - ID: {new_customer.id}, Name: '{new_customer.name}'")  # Debug log
+    # Create customer
+    db_customer = Customer(
+        name=customer_data.name,
+        phone=customer_data.phone,
+        address=customer_data.address,
+        city=customer_data.city,
+        postal_code=customer_data.postal_code,
+        birth_date=customer_data.birth_date
+    )
+    db.add(db_customer)
+    db.commit()
+    db.refresh(db_customer)
     
-    # Create CustomerAuth
+    print(f"Customer created - ID: {db_customer.id}, Name: '{db_customer.name}'")
+    
+    # Create customer auth record with email
     db_customer_auth = CustomerAuth(
-        id_customer=new_customer.id,
-        email=user_data.email,
-        password_hash=get_password_hash(user_data.password),
-        email_verified=False,
-        is_active=True
+        id_customer=db_customer.id,
+        email=customer_data.email,
+        password_hash=hashed_password
     )
     db.add(db_customer_auth)
     db.commit()
     db.refresh(db_customer_auth)
-    db.refresh(new_customer)  # Refresh customer também
     
-    print(f"Registration completed - Customer ID: {new_customer.id}, Auth ID: {db_customer_auth.id}")
+    print(f"Registration completed - Customer ID: {db_customer.id}, Auth ID: {db_customer_auth.id}")
     
-    # Create access token
-    access_token = create_access_token(data={"sub": str(db_customer_auth.id)})
+    # Generate token and return response
+    access_token = create_access_token(data={"sub": str(db_customer.id)})
+    
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "customer": {
+            "id": db_customer.id,
+            "name": db_customer.name,
+            "email": customer_data.email,  # Include email in response
+            "phone": db_customer.phone,
+            "address": db_customer.address,
+            "city": db_customer.city,
+            "postal_code": db_customer.postal_code,
+            "birth_date": db_customer.birth_date
+        }
+    }
+
+@router.post("/google/register")
+async def google_register(
+    google_data: GoogleAuthRegister,
+    db: Session = Depends(get_db)
+):
+    # Similar logic but for Google registration
+    # Make sure to include all the fields here too
+    db_customer = Customer(
+        name=google_data.name,
+        phone=google_data.phone,
+        address=google_data.address,
+        city=google_data.city,
+        postal_code=google_data.postal_code,
+        birth_date=google_data.birth_date
+    )
+    db.add(db_customer)
+    db.commit()
+    db.refresh(db_customer)
+    
+    # Create customer auth record with email and Google ID
+    db_customer_auth = CustomerAuth(
+        id_customer=db_customer.id,
+        email=google_data.email,
+        google_id=google_data.token
+    )
+    db.add(db_customer_auth)
+    db.commit()
+    
+    # Generate token and return response
+    access_token = create_access_token(data={"sub": str(db_customer.id)})
     
     return {
         "message": "User registered successfully",
         "access_token": access_token,
         "token_type": "bearer",
-        "user_info": {
-            "id": db_customer_auth.id,
-            "email": user_data.email,
-            "name": new_customer.name  # ← Retornar o nome do customer
+        "customer": {
+            "id": db_customer.id,
+            "name": db_customer.name,
+            "email": google_data.email,
+            "phone": db_customer.phone,
+            "address": db_customer.address,
+            "city": db_customer.city,
+            "postal_code": db_customer.postal_code,
+            "birth_date": db_customer.birth_date
         }
     }
 

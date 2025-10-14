@@ -98,7 +98,7 @@ def list_customers(db: Session = Depends(get_db)):
 
 @router.put("/profile")
 def update_customer_profile(
-    profile_data: customer_schema.CustomerProfileUpdate,  # Use schema from schemas file
+    profile_data: customer_schema.CustomerUpdate,  # Use schema from schemas file
     current_user_id: str = Depends(get_current_user_id),
     db: Session = Depends(get_db)
 ):

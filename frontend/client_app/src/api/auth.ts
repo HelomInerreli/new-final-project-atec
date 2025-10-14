@@ -7,14 +7,19 @@ export interface RegisterData {
   phone?: string;
   address?: string;
   city?: string;
-  country?: string;
   postal_code?: string;
+  birth_date?: string;
 }
 
 export interface GoogleAuthData {
   token: string;
   email: string;
   name: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  postal_code?: string;
+  birth_date?: string;
 }
 
 export interface LoginData {
