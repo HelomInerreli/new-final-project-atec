@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr
-from datetime import datetime
+from datetime import datetime, date
 from typing import Optional
 
 class CustomerAuthBase(BaseModel):
@@ -31,10 +31,25 @@ class CustomerAuthResponse(CustomerAuthBase):
         orm_mode = True
 
 class CustomerAuthRegister(BaseModel):
-    email: EmailStr  # or just str if you don't have email-validator installed
+    email: EmailStr
     password: str
     name: str
+    phone: Optional[str] = None
+    address: Optional[str] = None
+    city: Optional[str] = None
+    postal_code: Optional[str] = None
+    birth_date: Optional[date] = None
 
 class CustomerAuthLogin(BaseModel):
     email: str
     password: str
+
+class GoogleAuthRegister(BaseModel):
+    token: str
+    email: EmailStr
+    name: str
+    phone: Optional[str] = None
+    address: Optional[str] = None
+    city: Optional[str] = None
+    postal_code: Optional[str] = None
+    birth_date: Optional[date] = None

@@ -11,18 +11,11 @@ class CustomerBase(BaseModel):
     postal_code: Optional[str] = None
     birth_date: Optional[date] = None
 
-class CustomerUpdate(BaseModel):
-    name: Optional[str] = None 
-    phone: Optional[str] = None 
-    address: Optional[str] = None
-    city: Optional[str] = None
-    postal_code: Optional[str] = None
-    birth_date: Optional[date] = None
-
 class CustomerCreate(CustomerBase):
-    pass
+    email: EmailStr
 
-class CustomerProfileUpdate(BaseModel):  # Add this here
+class CustomerUpdate(BaseModel):
+    name: Optional[str] = None
     phone: Optional[str] = None
     address: Optional[str] = None
     city: Optional[str] = None
@@ -31,13 +24,13 @@ class CustomerProfileUpdate(BaseModel):  # Add this here
 
 class CustomerResponse(CustomerBase):
     id: int
+    email: str
+    is_active: bool
     created_at: datetime
-    
-    class Config:
-        from_attributes = True
+    updated_at: Optional[datetime] = None
 
-class CustomerCreate(CustomerBase):
-    pass
+    class Config:
+        orm_mode = True
 
 class Customer(CustomerBase):
     id: int

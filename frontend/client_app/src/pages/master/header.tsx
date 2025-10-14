@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Logo } from "../../components/Logo";
 import "../../i18n";
 import { useTranslation } from "react-i18next";
@@ -10,6 +10,7 @@ import ReactCountryFlag from "react-country-flag";
 import NavDropdown from "react-bootstrap/esm/NavDropdown";
 import { CreateAppointmentModal } from "../../components/CreateAppointmentModal";
 
+
 interface HeaderProps {
   className?: string;
 }
@@ -17,6 +18,7 @@ interface HeaderProps {
 export function Header({ className = "" }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const [showCreateModal, setShowCreateModal] = useState(false);
 
@@ -247,7 +249,10 @@ export function Header({ className = "" }: HeaderProps) {
               <button className="btn btn-outline-success btn-sm me-sm-2">
                 {t("login")}
               </button>
-              <button className="btn btn-secondary btn-sm">
+              <button 
+                className="btn btn-secondary btn-sm"
+                onClick={() => navigate('/register')}
+              >
                 {t("register")}
               </button>
             </div>
