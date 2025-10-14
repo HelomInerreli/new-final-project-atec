@@ -10,6 +10,7 @@ import Register from "./components/Register";
 import AuthCallback from "./components/AuthCallback";
 
 import { FutureAppointments } from "./components/FutureAppointement";
+import { SobrePage } from "./pages/Sobre/SobrePage";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
           <Route path="/services" element={<ServicesList />} />
           <Route path="/register" element={<Register />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/about" element={<SobrePage />} />
         </Routes>
       </Layout>
     </BrowserRouter>

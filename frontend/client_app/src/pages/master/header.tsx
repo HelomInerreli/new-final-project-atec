@@ -10,7 +10,7 @@ import ReactCountryFlag from "react-country-flag";
 import NavDropdown from "react-bootstrap/esm/NavDropdown";
 import { CreateAppointmentModal } from "../../components/CreateAppointmentModal";
 import LoginModal from "../../components/LoginModal";
-import { useAuth } from '../../api/auth';
+import { useAuth } from "../../api/auth";
 
 interface HeaderProps {
   className?: string;
@@ -24,10 +24,7 @@ export function Header({ className = "" }: HeaderProps) {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
-
-
-  const { isLoggedIn, loggedInCustomerId, logout, /*checkAuth*/ } = useAuth();
-
+  const { isLoggedIn, loggedInCustomerId, logout /*checkAuth*/ } = useAuth();
 
   // const debugAuth = () => {
   //   console.log('=== AUTH DEBUG ===');
@@ -40,7 +37,7 @@ export function Header({ className = "" }: HeaderProps) {
 
   const handleLogout = () => {
     logout();
-    navigate('/');
+    navigate("/");
   };
 
   const toggleMenu = () => {
@@ -117,7 +114,7 @@ export function Header({ className = "" }: HeaderProps) {
             {/* Botões de Ação */}
             <div className="d-flex flex-column flex-lg-row gap-2">
               {/* BOTÃO AGENDAR SERVIÇO (só aparece se logado) */}
-              {isLoggedIn && (
+              {/* {isLoggedIn && (
                 <button
                   className="btn btn-success btn-sm"
                   onClick={() => setShowCreateModal(true)}
@@ -127,7 +124,7 @@ export function Header({ className = "" }: HeaderProps) {
                   <span className="d-none d-lg-inline">Schedule Service</span>
                   <span className="d-lg-none">Agendar</span>
                 </button>
-              )}
+              )} */}
               {/* Seletor de idioma com bandeiras */}
               <Dropdown>
                 <Dropdown.Toggle
@@ -263,8 +260,7 @@ export function Header({ className = "" }: HeaderProps) {
                   </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
-              
-              
+
               {/* <button
                 className="btn btn-warning btn-sm"
                 onClick={debugAuth}
@@ -274,35 +270,35 @@ export function Header({ className = "" }: HeaderProps) {
               </button> */}
 
               {!isLoggedIn ? (
-          <>
-            <button 
-              className="btn btn-outline-success btn-sm me-sm-2" 
-              onClick={() => setShowLoginModal(true)}
-            >
-              {t("login")}
-            </button>
-            <button 
-              className="btn btn-secondary btn-sm"
-              onClick={() => navigate('/register')}
-            >
-              {t("register")}
-            </button>
-          </>
-        ) : (
-          <button 
+                <>
+                  <button
+                    className="btn btn-outline-success btn-sm me-sm-2"
+                    onClick={() => setShowLoginModal(true)}
+                  >
+                    {t("login")}
+                  </button>
+                  <button
+                    className="btn btn-secondary btn-sm"
+                    onClick={() => navigate("/register")}
+                  >
+                    {t("register")}
+                  </button>
+                </>
+              ) : (
+                <button
                   className="btn btn-outline-danger btn-sm"
                   onClick={handleLogout}
                 >
                   Logout
                 </button>
-        )}
+              )}
             </div>
           </div>
         </div>
       </header>
 
       {/* MODAL PARA CRIAR APPOINTMENT - SINTAXE CORRIGIDA */}
-      {isLoggedIn && loggedInCustomerId && (
+      {/* {isLoggedIn && (
         <CreateAppointmentModal
           show={showCreateModal}
           onClose={() => setShowCreateModal(false)}
@@ -317,11 +313,7 @@ export function Header({ className = "" }: HeaderProps) {
             }
           }}
         />
-      )}
-      <LoginModal
-        show={showLoginModal}
-        onClose={() => setShowLoginModal(false)}
-      />
+      )} */}
     </>
   );
 }
