@@ -74,6 +74,23 @@ def test_google_config():
         "auth_url": "/api/v1/customersauth/google"
     }
 
+@router.get("/google/url")
+async def get_google_auth_url():
+    """Get Google OAuth URL for frontend"""
+    # Generate Google OAuth URL
+    google_auth_url = "https://accounts.google.com/oauth/authorize"
+    params = {
+        "client_id": "your_google_client_id",
+        "redirect_uri": "your_redirect_uri",
+        "scope": "openid email profile",
+        "response_type": "code",
+        "access_type": "offline"
+    }
+    
+    url = f"{google_auth_url}?" + "&".join([f"{k}={v}" for k, v in params.items()])
+    
+    return {"url": url}
+
 @router.get("/google")
 async def login_google(request: Request):
     """Initiate Google OAuth2 login."""
@@ -81,57 +98,47 @@ async def login_google(request: Request):
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
 @router.get("/google/callback")
-async def auth_google_callback(request: Request, db: Session = Depends(get_db)):
-    """Handle Google OAuth2 callback."""
+async def google_callback(request: Request, db: Session = Depends(get_db)):
+    """Handle Google OAuth callback"""
     try:
         token = await oauth.google.authorize_access_token(request)
         user_info = token.get('userinfo')
         
-        if user_info:
-            email = user_info.get("email")
-            google_id = user_info.get("sub")
-            name = user_info.get("name")
-            
-            # Check if user already exists
-            existing_user = db.query(CustomerAuth).filter(
-                (CustomerAuth.email == email) | (CustomerAuth.google_id == google_id)
-            ).first()
-            
-            if existing_user:
-                if not existing_user.google_id and google_id:
-                    existing_user.google_id = google_id
-                    existing_user.email_verified = True
-                    db.commit()
-                    db.refresh(existing_user)
-                
-                user_id = str(existing_user.id)
-                message = "Existing user logged in"
-            else:
-                # Create both Customer and CustomerAuth (only when user doesn't exist)
-                new_user = crud_customer_auth.create_customer_and_auth_google(
-                    db, email=email, google_id=google_id, name=name
-                )
-                user_id = str(new_user.id)
-                message = "New customer and user created with Google account"
-            
-            # Create access token
-            access_token = create_access_token(data={"sub": user_id})
-            
-            return {
-                "message": message,
-                "access_token": access_token,
-                "token_type": "bearer",
-                "user_info": {
-                    "email": email,
-                    "name": name,
-                    "google_id": google_id
-                }
-            }
-        else:
+        if not user_info:
             raise HTTPException(status_code=400, detail="Failed to get user info from Google")
+        
+        email = user_info.get('email')
+        name = user_info.get('name')
+        google_id = user_info.get('sub')
+        
+        # Check if user already exists
+        existing_user = db.query(CustomerAuth).filter(CustomerAuth.email == email).first()
+        
+        if existing_user:
+            # User exists, log them in
+            access_token = create_access_token(data={"sub": str(existing_user.id_customer)})
+            
+            # Redirect to frontend with token
+            frontend_url = f"http://localhost:3000/auth/callback?token={access_token}&type=login"
+            return RedirectResponse(url=frontend_url)
+        else:
+            # New user, redirect to frontend with Google data for registration
+            import urllib.parse
+            google_data = {
+                "token": google_id,
+                "email": email,
+                "name": name
+            }
+            
+            # Encode the data for URL
+            encoded_data = urllib.parse.urlencode(google_data)
+            frontend_url = f"http://localhost:3000/auth/callback?{encoded_data}&type=register"
+            return RedirectResponse(url=frontend_url)
             
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Authentication failed: {str(e)}")
+        # Redirect to frontend with error
+        frontend_url = f"http://localhost:3000/auth/callback?error={str(e)}"
+        return RedirectResponse(url=frontend_url)
 
 @router.get("/link/google")
 async def link_google_init(
@@ -297,7 +304,7 @@ async def register(
         "customer": {
             "id": db_customer.id,
             "name": db_customer.name,
-            "email": customer_data.email,  # Include email in response
+            "email": customer_data.email,
             "phone": db_customer.phone,
             "address": db_customer.address,
             "city": db_customer.city,

@@ -38,7 +38,7 @@ export const registerWithGoogle = async (data: GoogleAuthData) => {
 };
 
 export const initiateGoogleAuth = async () => {
-  const response = await http.get('/customersauth/google/url');
+  const response = await http.get('/customersauth/google/');
   return response.data;
 };
 

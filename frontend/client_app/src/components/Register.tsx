@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { registerWithCredentials, registerWithGoogle, initiateGoogleAuth, type RegisterData, type GoogleAuthData, setAuthToken } from '../api/auth';
 import CustomerInfoModal from './CustomerInfoModal';
 
@@ -13,6 +13,21 @@ const Register: React.FC = () => {
   const [error, setError] = useState('');
   
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // Check for Google auth data on component mount
+  useEffect(() => {
+    const isGoogleAuth = searchParams.get('google');
+    if (isGoogleAuth) {
+      const storedGoogleData = localStorage.getItem('googleAuthData');
+      if (storedGoogleData) {
+        const googleData = JSON.parse(storedGoogleData);
+        setGoogleData(googleData);
+        setShowModal(true);
+        localStorage.removeItem('googleAuthData'); // Clean up
+      }
+    }
+  }, [searchParams]);
 
   const handleEmailRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,22 +50,8 @@ const Register: React.FC = () => {
   const handleGoogleRegister = async () => {
     try {
       setLoading(true);
-      const { url } = await initiateGoogleAuth();
-      
-      const popup = window.open(url, 'google-auth', 'width=500,height=600');
-      
-      const handleMessage = (event: MessageEvent) => {
-        if (event.origin !== window.location.origin) return;
-        
-        if (event.data.type === 'GOOGLE_AUTH_SUCCESS') {
-          popup?.close();
-          setGoogleData(event.data.data);
-          setShowModal(true);
-          window.removeEventListener('message', handleMessage);
-        }
-      };
-      
-      window.addEventListener('message', handleMessage);
+      // Redirect to backend Google OAuth
+      window.location.href = 'http://localhost:8000/api/v1/customersauth/google';
     } catch (err) {
       setError('Failed to initiate Google authentication');
     } finally {

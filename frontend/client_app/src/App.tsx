@@ -7,6 +7,8 @@ import Home from "./pages/Home/Home";
 import { AppointmentList } from "./components/AppointmentList";
 import { ServicesList } from "./components/ServicesList";
 import Register from "./components/Register";
+import AuthCallback from './components/AuthCallback';
+
 
 
 function App() {
@@ -24,6 +26,7 @@ function App() {
           />
           <Route path="/services" element={<ServicesList />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
         </Routes>
       </Layout>
     </BrowserRouter>
