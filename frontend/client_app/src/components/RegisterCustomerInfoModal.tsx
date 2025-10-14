@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { type GoogleAuthData } from '../api/auth';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { Modal, Button, Form, Alert, Spinner } from 'react-bootstrap';
 
 interface CustomerInfoModalProps {
   isOpen: boolean;
@@ -15,7 +18,7 @@ interface CustomerInfo {
   address?: string;
   city?: string;
   postal_code?: string;
-  birth_date?: string; // Add this
+  birth_date?: string;
 }
 
 const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
@@ -25,13 +28,15 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
   googleData,
   loading
 }) => {
+  const [error, setError] = useState('');
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [formData, setFormData] = useState<CustomerInfo>({
     name: '',
     phone: '',
     address: '',
     city: '',
     postal_code: '',
-    birth_date: '' // Initialize birth_date
+    birth_date: ''
   });
 
   // Auto-fill form with Google data when available
@@ -46,7 +51,21 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    
+    // Basic validation
+    if (!formData.name.trim()) {
+      setError('Name is required');
+      return;
+    }
+    
+    // Convert selected date to string format and include in form data
+    const finalFormData = {
+      ...formData,
+      birth_date: selectedDate ? selectedDate.toISOString().split('T')[0] : ''
+    };
+    
+    setError(''); // Clear any previous errors
+    onSubmit(finalFormData); // Submit the updated form data with the date
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,145 +76,168 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
     }));
   };
 
-  if (!isOpen) return null;
+  const handleDateChange = (date: Date | null) => {
+    setSelectedDate(date);
+    // Also update the formData for consistency
+    setFormData(prev => ({
+      ...prev,
+      birth_date: date ? date.toISOString().split('T')[0] : ''
+    }));
+  };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div className="relative top-20 mx-auto p-6 border border-black w-11/12 max-w-2xl shadow-lg rounded-md bg-white">
-        <div className="mt-3">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold text-black">
-              Complete Your Registration
-            </h3>
-            <button
-              onClick={onClose}
-              className="text-black hover:text-red-600"
-              disabled={loading}
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-          
-          {googleData && (
-            <div className="mb-4 p-3 bg-green-100 border border-green-400 rounded-md">
-              <p className="text-sm text-green-700 font-semibold">
-                ✓ Successfully authenticated with Google as {googleData.email}
-              </p>
-            </div>
+    <Modal show={isOpen} onHide={onClose} centered>
+      <Modal.Header closeButton>
+        <Modal.Title className="fw-bold">Complete Your Registration</Modal.Title>
+      </Modal.Header>
+
+      <Modal.Body>
+        <Form onSubmit={handleSubmit}>
+          {error && (
+            <Alert variant="danger" className="text-center">
+              {error}
+            </Alert>
           )}
           
-          <form onSubmit={handleSubmit} className="space-y-4">
+          {googleData && (
+            <Alert variant="success" className="mb-3">
+              <small>✓ Successfully authenticated with Google as {googleData.email}</small>
+            </Alert>
+          )}
+          
+          <Form.Group className="mb-3">
+            <Form.Label htmlFor='name'>Full Name *</Form.Label>
+            <Form.Control
+              type="text"
+              id="name"
+              name="name"
+              required
+              value={formData.name}
+              onChange={handleChange}
+              disabled={!!googleData || loading}
+              placeholder="Enter your full name"
+            />
+          </Form.Group>
+          
+          <Form.Group className="mb-3">
+            <Form.Label htmlFor='phone'>Phone Number</Form.Label>
+            <Form.Control
+              type="tel"
+              id="phone"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              disabled={loading}
+              placeholder="Enter your phone number"
+            />
+          </Form.Group>
+          
+          <Form.Group className="mb-3">
+            <Form.Label htmlFor='address'>Address</Form.Label>
+            <Form.Control 
+              type="text"
+              id="address"
+              name="address"
+              value={formData.address}
+              onChange={handleChange}
+              disabled={loading}
+              placeholder="Enter your address"
+            />
+          </Form.Group>
+          
+          <Form.Group className="mb-3">
+            <Form.Label htmlFor='city'>City</Form.Label>
+            <Form.Control
+              type="text"
+              id="city"
+              name="city"
+              value={formData.city}
+              onChange={handleChange}
+              disabled={loading}
+              placeholder="Enter your city"
+            />
+          </Form.Group>
+          
+          <Form.Group className="mb-3">
+            <Form.Label htmlFor='postal_code'>Postal Code</Form.Label>
+            <Form.Control
+              type="text"
+              id="postal_code"
+              name="postal_code"
+              value={formData.postal_code}
+              onChange={handleChange}
+              disabled={loading}
+              placeholder="Enter your postal code"
+            />
+          </Form.Group>
+          
+          <Form.Group className="mb-3">
+            <Form.Label>Birth Date</Form.Label>
             <div>
-              <label htmlFor="name" className="block text-sm font-bold text-black">
-                Full Name *
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                required
-                value={formData.name}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-black rounded bg-white text-black focus:outline-none focus:ring-2 focus:ring-green-600"
-                disabled={!!googleData} // Disable if Google data exists
+              <DatePicker
+                selected={selectedDate}
+                onChange={handleDateChange}
+                dateFormat="dd/MM/yyyy"
+                placeholderText="Select your birth date"
+                showPopperArrow={false}
+                maxDate={new Date()} 
+                minDate={new Date(1924, 0, 1)} 
+                showYearDropdown
+                showMonthDropdown
+                dropdownMode="select"
+                yearDropdownItemNumber={100}
+                scrollableYearDropdown
+                className="form-control"
+                disabled={loading}
+                popperPlacement="bottom-start"
+                autoComplete="off"
+                isClearable
+                wrapperClassName="d-block" 
               />
             </div>
-            
-            <div>
-              <label htmlFor="phone" className="block text-sm font-bold text-black">
-                Phone Number
-              </label>
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-black rounded bg-white text-black focus:outline-none focus:ring-2 focus:ring-green-600"
-              />
-            </div>
-            
-            <div>
-              <label htmlFor="address" className="block text-sm font-bold text-black">
-                Address
-              </label>
-              <input
-                type="text"
-                id="address"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-black rounded bg-white text-black focus:outline-none focus:ring-2 focus:ring-green-600"
-              />
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label htmlFor="city" className="block text-sm font-bold text-black">
-                  City
-                </label>
-                <input
-                  type="text"
-                  id="city"
-                  name="city"
-                  value={formData.city}
-                  onChange={handleChange}
-                  className="mt-1 block w-full px-3 py-2 border border-black rounded bg-white text-black focus:outline-none focus:ring-2 focus:ring-green-600"
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="postal_code" className="block text-sm font-bold text-black">
-                  Postal Code
-                </label>
-                <input
-                  type="text"
-                  id="postal_code"
-                  name="postal_code"
-                  value={formData.postal_code}
-                  onChange={handleChange}
-                  className="mt-1 block w-full px-3 py-2 border border-black rounded bg-white text-black focus:outline-none focus:ring-2 focus:ring-green-600"
-                />
-              </div>
-            </div>
+            {selectedDate && (
+              <Form.Text className="text-muted">
+                Selected: {selectedDate.toLocaleDateString('en-GB')}
+              </Form.Text>
+            )}
+          </Form.Group>
 
-            <div>
-              <label htmlFor="birth_date" className="block text-sm font-bold text-black">
-                Birth Date
-              </label>
-              <input
-                type="date"
-                id="birth_date"
-                name="birth_date"
-                value={formData.birth_date}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-black rounded bg-white text-black focus:outline-none focus:ring-2 focus:ring-green-600"
-              />
-            </div>
+          <div className="d-grid gap-2">
+            <Button 
+              type="submit" 
+              variant="dark" 
+              disabled={loading}
+              className="mb-2"
+            >
+              {loading ? (
+                <>
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                    className="me-2"
+                  />
+                  Creating Account...
+                </>
+              ) : (
+                'Complete Registration'
+              )}
+            </Button>
             
-            <div className="flex justify-end space-x-3 pt-4">
-              <button
-                type="button"
-                onClick={onClose}
-                disabled={loading}
-                className="px-4 py-2 border border-red-600 rounded text-sm font-bold text-red-600 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className="px-4 py-2 border border-transparent rounded text-sm font-bold text-white bg-black hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-600 disabled:opacity-50"
-              >
-                {loading ? 'Creating Account...' : 'Create Account'}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
+            <Button 
+              type="button" 
+              variant="outline-secondary" 
+              onClick={onClose}
+              disabled={loading}
+            >
+              Cancel
+            </Button>
+          </div>
+        </Form>
+      </Modal.Body>
+    </Modal>
   );
 };
 
