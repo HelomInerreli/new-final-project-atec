@@ -98,7 +98,7 @@ export function Header({ className = "" }: HeaderProps) {
             {/* Botões de Ação */}
             <div className="d-flex flex-column flex-lg-row gap-2">
               {/* BOTÃO AGENDAR SERVIÇO (só aparece se logado) */}
-              {isLoggedIn && (
+              {/* {isLoggedIn && (
                 <button
                   className="btn btn-success btn-sm"
                   onClick={() => setShowCreateModal(true)}
@@ -108,7 +108,7 @@ export function Header({ className = "" }: HeaderProps) {
                   <span className="d-none d-lg-inline">Schedule Service</span>
                   <span className="d-lg-none">Agendar</span>
                 </button>
-              )}
+              )} */}
               {/* Seletor de idioma com bandeiras */}
               <Dropdown>
                 <Dropdown.Toggle
@@ -256,7 +256,7 @@ export function Header({ className = "" }: HeaderProps) {
       </header>
 
       {/* MODAL PARA CRIAR APPOINTMENT - SINTAXE CORRIGIDA */}
-      {isLoggedIn && (
+      {/* {isLoggedIn && (
         <CreateAppointmentModal
           show={showCreateModal}
           onClose={() => setShowCreateModal(false)}
@@ -271,7 +271,7 @@ export function Header({ className = "" }: HeaderProps) {
             }
           }}
         />
-      )}
+      )} */}
     </>
   );
 }

@@ -6,6 +6,7 @@ import { ServiceHistory } from "./components/ServiceHistory";
 import Home from "./pages/Home/Home";
 import { AppointmentList } from "./components/AppointmentList";
 import { ServicesList } from "./components/ServicesList";
+import { SobrePage } from "./pages/Sobre/SobrePage";
 
 function App() {
   return (
@@ -21,6 +22,8 @@ function App() {
             element={<AppointmentList />}
           />
           <Route path="/services" element={<ServicesList />} />
+          <Route path="/about" element={<SobrePage />} />
+
         </Routes>
       </Layout>
     </BrowserRouter>

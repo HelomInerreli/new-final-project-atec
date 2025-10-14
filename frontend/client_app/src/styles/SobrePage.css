@@ -1,0 +1,64 @@
+.sobre-container {
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+.sobre-header {
+  background: linear-gradient(90deg, #dc3545 0%, #dc3545 100%);
+  color: #fff;
+  padding-bottom: 2rem;
+}
+
+.sobre-title {
+  font-size: 2.8rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.sobre-subtitle {
+  font-size: 1.3rem;
+  color: #ffeaea;
+}
+
+.sobre-main {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+  margin-top: -40px;
+  padding: 2rem 0;
+}
+
+.sobre-section {
+  margin-bottom: 2.5rem;
+}
+
+.sobre-section h2 {
+  color: #dc3545;
+  font-weight: 600;
+}
+
+.sobre-section ul {
+  list-style: disc inside;
+  padding-left: 1.5rem;
+}
+
+.sobre-section li {
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.sobre-gallery {
+  background: #fff;
+  padding: 2rem 0 1rem 0;
+}
+.sobre-gallery-img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  transition: transform 0.2s;
+}
+.sobre-gallery-img:hover {
+  transform: scale(1.04);
+}
