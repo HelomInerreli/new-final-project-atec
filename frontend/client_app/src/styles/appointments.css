@@ -1,0 +1,102 @@
+/* ===== Appointments (scoped) ===== */
+
+/* Container principal (card) */
+.appointments-container{
+  max-width: 700px;
+  margin: 48px auto;
+  background: #fff;
+  border-radius: 22px;
+  box-shadow: 0 8px 36px rgba(37, 99, 235, 0.10), 0 1.5px 4px rgba(0,0,0,0.04);
+  padding: 40px 48px;
+  border: 1.5px solid #e0e7ff;
+  position: relative;
+  overflow: hidden;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+.appointments-container *{ box-sizing: border-box; }
+
+/* Título */
+.appointments-title{
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #2563eb;
+  margin: 0 0 10px 0;
+  letter-spacing: -1px;
+  text-shadow: 0 2px 8px rgba(37,99,235,0.07);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.appointments-title::before{
+  content: "📅";
+  font-size: 1.9rem;
+}
+
+/* Lista de agendamentos */
+.appointments-list{
+  display: grid;
+  gap: 16px;
+  margin: 12px 0 0 0;
+  padding: 0;
+}
+
+/* Item */
+.appointment-item{
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  background: linear-gradient(90deg, #f1f5f9 80%, #e0e7ff 100%);
+  border-radius: 14px;
+  padding: 18px 20px;
+  transition: box-shadow .2s, transform .18s, background .18s;
+  box-shadow: 0 2px 10px rgba(37,99,235,0.04);
+  border: 1px solid #e0e7ff;
+}
+.appointment-item:hover{
+  box-shadow: 0 6px 24px rgba(37,99,235,0.10);
+  background: linear-gradient(90deg, #e0e7ff 80%, #f1f5f9 100%);
+  transform: translateY(-2px);
+}
+
+/* Linhas dentro do item */
+.appointment-item > div{
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+  color: #1e293b;
+  font-size: 1rem;
+}
+.appointment-item strong{
+  color: #0f172a;
+  min-width: 90px; /* alinhamento dos rótulos */
+}
+
+/* “Status” como chip simples se quiseres destacar */
+.appointment-item .status-chip{
+  display: inline-block;
+  padding: .25rem .6rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: .85rem;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  background: #f8fafc;
+}
+.status-chip.ok{ color:#16a34a; border-color:#bbf7d0; background:#f0fdf4; }
+.status-chip.warn{ color:#d97706; border-color:#fde68a; background:#fffbeb; }
+
+/* Responsivo */
+@media (max-width: 600px){
+  .appointments-container{
+    padding: 18px 12px;
+    margin: 24px auto;
+  }
+  .appointments-title{
+    font-size: 1.6rem;
+    gap: 8px;
+  }
+  .appointment-item{
+    padding: 14px 12px;
+  }
+}

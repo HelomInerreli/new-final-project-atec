@@ -1,0 +1,192 @@
+/* ===== Invoices (estilo semelhante a completed-services) ===== */
+.invoices{
+  color: #22223b;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans";
+  width: 100%;
+  min-height: 100vh;
+  padding: 16px;
+}
+
+.invoices *{ box-sizing: border-box; }
+
+/* Títulos / subtítulo */
+.invoices h2{
+  font-size: 2rem;             /* como no completed-services h1 */
+  margin-bottom: .2em;
+  color: #22223b;
+  font-weight: 700;
+}
+
+.invoices .subtitle{
+  color: #4a4e69;
+  margin-bottom: 1.2em;
+  font-size: 1.05rem;
+}
+
+/* Toolbar (inputs e selects com look claro) */
+.invoices .inv-toolbar{
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.invoices .inv-input{
+  appearance: none;
+  background: #fff;
+  border: 1px solid #e9ecef;
+  color: #22223b;
+  padding: 9px 12px;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.invoices .inv-input::placeholder{ color: #8a8fa3; }
+.invoices .inv-input:focus{
+  border-color: #4a4e69;
+  box-shadow: 0 0 0 3px rgba(74, 78, 105, .15);
+}
+
+/* Botões */
+.invoices .btn{
+  background: #fff;
+  border: 1px solid #e9ecef;
+  color: #22223b;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(34,34,59,.07);
+  transition: background .15s ease, border-color .15s ease, transform .08s ease;
+}
+.invoices .btn:hover{
+  background: #f2e9e4; /* mesmo hover suave */
+  border-color: #e9ecef;
+}
+.invoices .btn:active{ transform: translateY(1px); }
+.invoices .btn:disabled{ opacity: .55; cursor: not-allowed; }
+
+.invoices .btn.primary{
+  background: #22223b;   /* cabeçalho escuro */
+  border-color: #22223b;
+  color: #fff;
+}
+.invoices .btn.primary:hover{
+  background: #2c2c4d;
+  border-color: #2c2c4d;
+}
+
+/* Card da tabela (branco com sombra, cantos 8px) */
+.invoices .inv-card{
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(34, 34, 59, 0.07);
+}
+
+/* Tabela “completed-services-like” */
+.invoices .inv-table{
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.invoices .inv-table th,
+.invoices .inv-table td{
+  padding: .9em 1.2em;
+  text-align: left;
+  font-size: 1rem;
+  color: #22223b;
+}
+
+.invoices .inv-table thead th{
+  background: #22223b;  /* header escuro */
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: .03em;
+  border-bottom: none;
+}
+
+.invoices .inv-table tbody tr{
+  border-bottom: 1px solid #e9ecef;
+  transition: background .2s ease;
+}
+.invoices .inv-table tbody tr:hover{
+  background: #f2e9e4; /* hover suave igual ao services */
+}
+
+.invoices .right{ text-align: right; }
+
+.invoices .empty{
+  text-align: center;
+  color: #4a4e69;
+  padding: 20px 0;
+}
+
+/* Estado (pílulas discretas – seguem paleta) */
+.invoices .status-pill{
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid #e9ecef;
+  background: #fff;
+  color: #22223b;
+}
+.invoices .status-pill.paga{
+  border-color: #27c686; color: #27c686; background: #eafaf4;
+}
+.invoices .status-pill.pendente{
+  border-color: #ffb020; color: #ffb020; background: #fff6e8;
+}
+.invoices .status-pill.vencida{
+  border-color: #ff5d5d; color: #ff5d5d; background: #ffecec;
+}
+
+/* Responsivo: layout tipo “cartão” por linha (como completed-services) */
+@media (max-width: 700px){
+  .invoices .inv-table,
+  .invoices .inv-table thead,
+  .invoices .inv-table tbody,
+  .invoices .inv-table th,
+  .invoices .inv-table td,
+  .invoices .inv-table tr{
+    display: block;
+    width: 100%;
+  }
+
+  .invoices .inv-table thead{ display: none; }
+
+  .invoices .inv-table tr{
+    margin-bottom: 1.2em;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(34, 34, 59, 0.07);
+    padding: .8em .5em;
+    border: 1px solid #e9ecef;
+  }
+
+  .invoices .inv-table td{
+    position: relative;
+    padding: .9em 1.2em .9em calc(1.2em + 45%);
+    min-height: 2.5em;
+    border: none;
+    display: flex;
+    align-items: center;
+  }
+
+  .invoices .inv-table td:before{
+    position: absolute;
+    left: 1em;
+    width: 45%;
+    white-space: nowrap;
+    font-weight: 600;
+    color: #4a4e69;
+    content: attr(data-label);
+  }
+
+  
+
+  .invoices .right{ text-align: left; } /* em mobile, tudo alinhado à esquerda */
+}

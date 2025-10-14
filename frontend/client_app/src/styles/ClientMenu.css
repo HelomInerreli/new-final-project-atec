@@ -1,0 +1,32 @@
+.sidemenu {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 260px;
+  background: #ffffff;
+  box-shadow: 10px 0 6px rgba(0,0,0,0.08);
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.sidemenu-wrapper {
+  padding: 1rem;
+}
+
+.client-menu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.client-menu li + li {
+  margin-top: 0.5rem;
+}
+
+.client-menu h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.6rem 0.8rem;
+}

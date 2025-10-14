@@ -1,0 +1,187 @@
+/* Fundo moderno */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Inter", sans-serif;
+  background: linear-gradient(135deg, #eef2ff, #f9fafc);
+  color: #1f1f1f;
+}
+
+/* Container principal */
+.vehicles-container {
+  max-width: 1200px;
+  margin: 60px auto;
+  padding: 0 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 50px;
+}
+
+/* Cabeçalho com título e botão */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  font-size: 38px;
+  font-weight: 700;
+  color: #121212;
+}
+
+/* Botão moderno */
+.add-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #065ee3;
+  border: 1px solid #e0e0e0;
+  border-radius: 40px;
+  padding: 10px 22px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.add-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.plus {
+  background-color: #065ee3;
+  color: #fff;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+/* Card com efeito glassmorphism */
+.vehicle-card {
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+  width: 380px;
+  padding: 28px;
+  transition: all 0.3s ease;
+}
+
+.vehicle-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+}
+
+/* Header dentro do card */
+.vehicle-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.vehicle-name {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  color: #111;
+}
+
+.vehicle-plate {
+  color: #6c6c6c;
+  margin-top: 5px;
+  font-size: 15px;
+}
+
+.status-dot {
+  width: 14px;
+  height: 14px;
+  background-color: #ffcc00;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(255, 204, 0, 0.5);
+}
+
+/* Lista de opções */
+.vehicle-options {
+  border-top: 1px solid #e8e8e8;
+  border-bottom: 1px solid #e8e8e8;
+  margin-top: 10px;
+}
+
+.option {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #f3f3f3;
+  color: #111;
+  font-weight: 500;
+  font-size: 15px;
+  transition: color 0.2s;
+}
+
+.option:last-child {
+  border-bottom: none;
+}
+
+.option:hover:not(.disabled) {
+  color: #e30613;
+  cursor: pointer;
+}
+
+.option.disabled {
+  color: #bdbdbd;
+  pointer-events: none;
+}
+
+.count {
+  color: #aaa;
+}
+
+/* Botões inferiores */
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.btn {
+  border: none;
+  padding: 10px 20px;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn.primary {
+  background-color: #065ee3;
+  color: white;
+  box-shadow: 0 4px 10px rgba(6, 94, 227, 0.3);
+}
+
+.btn.primary:hover {
+  background-color: #065ee3;
+  transform: translateY(-1px);
+}
+
+.btn.secondary {
+  background-color: white;
+  color: #065ee3;
+  border: 2px solid #065ee3;
+}
+
+.btn.secondary:hover {
+  background-color: #ffecec;
+  transform: translateY(-1px);
+}

@@ -1,0 +1,159 @@
+/* === Grade de KPIs (apenas layout) === */
+.kpi-grid{
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto 0.5rem auto;
+}
+
+/* Card estável, sem links/ação */
+.dashboard-card{
+  background: linear-gradient(90deg, #f1f5f9 80%, #e0e7ff 100%);
+  border-radius: 18px;
+  box-shadow: 0 8px 36px rgba(37, 99, 235, 0.10), 0 1.5px 4px rgba(0,0,0,0.04);
+  border: 1.5px solid #e0e7ff;
+
+  /* layout sólido sem overlap */
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 14px;
+
+  padding: 22px 20px;
+  min-height: 140px;
+  min-width: 260px;
+  transition: none;            /* nada de tremer no hover */
+}
+
+/* Badge de ícone sem position absolute */
+.icon-badge{
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1.5px solid #e0e7ff;
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.08);
+  font-size: 1.5rem;
+}
+.card-text{ min-width: 0; }
+
+.dashboard-card-title{
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.2px;
+}
+.dashboard-card-value{
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #2563eb;
+  margin: 0 0 4px 0;
+  line-height: 1.1;
+}
+.dashboard-card-desc{
+  font-size: .95rem;
+  color: #64748b;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* Atividade recente (mantém a tua linha visual) */
+.recent-card{
+  background: #fff;
+  border-radius: 14px;
+  border: 1.5px solid #e0e7ff;
+  box-shadow: 0 8px 36px rgba(37, 99, 235, 0.08), 0 1.5px 4px rgba(0,0,0,0.04);
+  padding: 16px 14px;
+}
+
+.recent-header{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 8px;
+}
+
+.recent-table{
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+.recent-table thead th{
+  text-align: left;
+  font-size: .9rem;
+  letter-spacing: .02em;
+  color: #334155;
+  padding: .8rem 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+.recent-table tbody td{
+  padding: .8rem 1rem;
+  border-bottom: 1px solid #eef2f7;
+  color: #1f2937;
+  font-size: .95rem;
+}
+.recent-table tbody tr:hover{ background: #f8fafc; }
+.recent-table .right{ text-align: right; }
+
+/* Chips */
+.chip{
+  display: inline-block;
+  padding: .25rem .6rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: .8rem;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  background: #f8fafc;
+}
+.chip.ok   { color:#16a34a; border-color:#bbf7d0; background:#f0fdf4; }
+.chip.warn { color:#d97706; border-color:#fde68a; background:#fffbeb; }
+
+/* Mobile: tabela → cartões */
+@media (max-width: 760px){
+  .recent-table,
+  .recent-table thead,
+  .recent-table tbody,
+  .recent-table th,
+  .recent-table td,
+  .recent-table tr{
+    display: block;
+    width: 100%;
+  }
+  .recent-table thead{ display: none; }
+  .recent-table tr{
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.07);
+    margin: .7rem 0;
+    padding: .4rem .2rem;
+  }
+  .recent-table td{
+    position: relative;
+    padding: .75rem 1rem .75rem calc(1rem + 42%);
+    border: none;
+    display: flex;
+    align-items: center;
+  }
+  .recent-table td::before{
+    content: attr(data-label);
+    position: absolute;
+    left: 1rem;
+    width: 40%;
+    white-space: nowrap;
+    color: #64748b;
+    font-weight: 700;
+  }
+  .recent-table .right{ text-align: left; }
+}
+
+/* Responsivo existente (mantido) */
+@media (max-width: 900px){
+  .dashboard { padding: 1.5rem 0.5rem; }
+  .dashboard-card{ min-width: unset; }
+}
