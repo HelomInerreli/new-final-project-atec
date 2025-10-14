@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button, Form, Alert, Spinner } from 'react-bootstrap';
 
 import { registerWithCredentials, registerWithGoogle, initiateGoogleAuth, type RegisterData, type GoogleAuthData, useAuth } from '../api/auth';
-import CustomerInfoModal from './CustomerInfoModal';
+import RegisterCustomerInfoModal from './RegisterCustomerInfoModal';
 import LoginModal from './LoginModal';
 
 const Register: React.FC = () => {
@@ -210,11 +210,10 @@ const Register: React.FC = () => {
               </Button>
             </div>
           </Form.Group>
-
         </Form>
         
         {showModal && (
-          <CustomerInfoModal
+          <RegisterCustomerInfoModal
             isOpen={showModal}
             onClose={() => setShowModal(false)}
             onSubmit={handleCompleteRegistration}
