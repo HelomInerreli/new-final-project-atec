@@ -11,6 +11,7 @@ import AuthCallback from "./components/AuthCallback";
 
 import { FutureAppointments } from "./components/FutureAppointement";
 import { SobrePage } from "./pages/Sobre/SobrePage";
+import ClientMenu from "./components/ClientMenu";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/about" element={<SobrePage />} />
+          <Route path="/contact" element={<ClientMenu/>} />
         </Routes>
       </Layout>
     </BrowserRouter>
