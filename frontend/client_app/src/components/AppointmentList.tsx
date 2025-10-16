@@ -3,6 +3,7 @@ import { getCustomerAppointments } from "../services/customerService";
 import '../i18n';
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
+import { useAuth } from '../api/auth';
 
 interface Appointment {
   id: number;
@@ -11,24 +12,22 @@ interface Appointment {
   estimated_budget: number;
   actual_budget: number;
   service_id: number;
-  status:{
+  status: {
     id: number;
     name: string;
   }
 }
 
 export function AppointmentList() {
-  console.log("Renderizando AppointmentList component");
   const { t } = useTranslation();
   const { customerId } = useParams();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
-  
-  // ← SIMULAÇÃO DE CLIENTE LOGADO (mude este valor para testar diferentes clientes)
-  const [loggedInCustomerId] = useState(1); // ← Cliente 1 logado
-  const [userRole] = useState<'customer' | 'admin'>('customer'); // ← ou 'admin'
+
+  // Usa o sistema de autenticação real
+  const { loggedInCustomerId, isLoggedIn } = useAuth();
 
   useEffect(() => {
     setMounted(true);
@@ -36,37 +35,32 @@ export function AppointmentList() {
 
   useEffect(() => {
     if (!mounted) return;
-    
+
     const fetchAppointments = async () => {
       try {
         setLoading(true);
-        console.log("Tentando buscar agendamentos...");
-        
-        let customerIdToUse: number;
-        
-        if (userRole === 'admin') {
-          // Admin pode ver qualquer cliente
-          customerIdToUse = customerId ? parseInt(customerId) : loggedInCustomerId;
-          console.log("Admin acessando cliente:", customerIdToUse);
-        } else {
-          // Cliente só pode ver seus próprios appointments
-          if (customerId && parseInt(customerId) !== loggedInCustomerId) {
-            setError(`❌ Acesso Negado! Você só pode ver seus próprios agendamentos. (Você é o cliente ${loggedInCustomerId})`);
-            setLoading(false);
-            return;
-          }
-          customerIdToUse = loggedInCustomerId;
-          console.log(`Cliente ${loggedInCustomerId} acessando seus próprios agendamentos`);
+
+        // Garante que o utilizador está autenticado e tem ID válido
+        if (!isLoggedIn || loggedInCustomerId == null) {
+          setError("Por favor, faça login para ver os seus agendamentos.");
+          setLoading(false);
+          return;
         }
-        
-        console.log("Customer ID usado:", customerIdToUse);
-        
+
+        let customerIdToUse: number;
+
+        // Cliente só pode ver os próprios appointments
+        if (customerId && parseInt(customerId) !== loggedInCustomerId) {
+          setError(` Acesso Negado! Você só pode ver seus próprios agendamentos. (Você é o cliente ${loggedInCustomerId})`);
+          setLoading(false);
+          return;
+        }
+        customerIdToUse = loggedInCustomerId;
+
         const data = await getCustomerAppointments(customerIdToUse);
-        console.log("Dados recebidos:", data);
         setAppointments(data);
         setError(null);
       } catch (err) {
-        console.error("Erro detalhado:", err);
         setError(t('errorLoadingAppointments'));
       } finally {
         setLoading(false);
@@ -74,10 +68,19 @@ export function AppointmentList() {
     };
 
     fetchAppointments();
-  }, [mounted, t, customerId, loggedInCustomerId, userRole]); // ← Fechamento correto do useEffect
+  }, [mounted, t, customerId, loggedInCustomerId, isLoggedIn]);
 
   if (!mounted) {
     return <div>Loading...</div>;
+  }
+
+  if (!isLoggedIn || loggedInCustomerId == null) {
+    return (
+      <div className="alert alert-warning text-center my-5">
+        <i className="bi bi-exclamation-triangle me-2"></i>
+        Por favor, faça login para ver os seus agendamentos.
+      </div>
+    );
   }
 
   const getStatusColor = (status: string | any): string => {
@@ -94,12 +97,9 @@ export function AppointmentList() {
     <>
       <div className="text-center mb-5">
         <h1 className="display-4 fw-bold text-dark mb-3">{t('appointmentList')}</h1>
-        
-        {/* ← INFO DO USUÁRIO SIMULADO */}
         <div className="alert alert-info">
-          <strong>Simulação:</strong> {userRole === 'admin' ? 'Admin' : `Cliente ${loggedInCustomerId}`} logado
+          <strong>Utilizador:</strong> Cliente {loggedInCustomerId} logado
         </div>
-        
         <p className="lead text-muted">
           {t('appointmentManagementDescription')}
         </p>
@@ -182,7 +182,3 @@ export function AppointmentList() {
     </>
   );
 }
-
-
-
-
