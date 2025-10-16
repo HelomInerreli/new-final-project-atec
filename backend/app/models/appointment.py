@@ -16,6 +16,7 @@ class Appointment(Base):
 
     # Foreign Keys
     vehicle_id = Column(Integer, ForeignKey("vehicles.id"))
+    
     customer_id = Column(Integer, ForeignKey("customers.id"))
     service_id = Column(Integer, ForeignKey("services.id"))
     status_id = Column(Integer, ForeignKey("statuses.id"))
