@@ -1,16 +1,20 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
+from typing import Optional
 
 class ExtraServiceBase(BaseModel):
-    description: str
-    cost: float
+    name: str
+    description: Optional[str] = None
+    price: float
+    duration_minutes: Optional[int] = None
+
+    model_config = ConfigDict(extra='ignore')
+
 
 class ExtraServiceCreate(ExtraServiceBase):
     pass
 
+
 class ExtraService(ExtraServiceBase):
     id: int
-    status: str
-    appointment_id: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True, extra='ignore')

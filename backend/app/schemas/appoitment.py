@@ -1,35 +1,39 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
-from typing import Optional
-from pydantic import BaseModel, ConfigDict # H
+from typing import List, Optional
 
+from .appointment_extra_service import AppointmentExtraService as AppointmentExtraServiceSchema
 
-
-# Schemas base
+# Schema base para criação — NÃO inclui extras
 class AppointmentBase(BaseModel):
     customer_id: int
     service_name: str
-    service_date: datetime  # Data do serviço agendado adicionada(Henrique)
+    service_date: datetime
     description: Optional[str] = None
-    model_config = ConfigDict(extra ='ignore')  # Ignorar campos extras
+
+    model_config = ConfigDict(extra='ignore')
+
 
 class AppointmentCreate(AppointmentBase):
-    pass
+    pass  # não aceitar extra services aqui
+
 
 class AppointmentUpdate(BaseModel):
     service_name: Optional[str] = None
-    service_date: Optional[datetime] = None  # Data do serviço agendado adicionada(Henrique)
+    service_date: Optional[datetime] = None
     description: Optional[str] = None
-    scheduled_date: Optional[datetime] = None
-    status: str="Requirement Registered"  
+    status: Optional[str] = None
     estimated_price: Optional[float] = None
-    
-    model_config = ConfigDict(extra ='ignore')  # Ignorar campos extras
+
+    model_config = ConfigDict(extra='ignore')
+
 
 class Appointment(AppointmentBase):
     id: int
     status: str
     created_at: datetime
-    
-    class Config:
-        from_attributes = True
+
+    # Expor os pedidos de extra services (association objects)
+    extra_service_requests: List[AppointmentExtraServiceSchema] = []
+
+    model_config = ConfigDict(from_attributes=True, extra='ignore')

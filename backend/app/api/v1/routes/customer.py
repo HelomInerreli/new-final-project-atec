@@ -92,7 +92,7 @@ def delete_customer(
     # A 204 No Content response is returned automatically on success.
 
 # The original implementation by Nuno
-@router.get("/", response_model=list[customer_schema.CustomerResponse])
+@router.get("/", response_model=list[Customer])
 def list_customers(db: Session = Depends(get_db)):
     return crud_customer.get_customers(db=db)
 

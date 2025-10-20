@@ -25,9 +25,9 @@ class AppointmentUpdate(BaseModel):
 
 class Appointment(AppointmentBase):
     id: int
-    status: StatusSchema
-    service: ServiceSchema
-    service_id: int
+    status: Optional[StatusSchema]
+    service: Optional[ServiceSchema]
+    service_id: Optional[int]
     extra_services: List[ExtraServiceSchema] = []
 
     class Config:

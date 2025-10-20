@@ -1,54 +1,56 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
+
 from app.database import get_db
-from app.crud.extra_service import ExtraServiceRepository
-from app.schemas.extra_service import ExtraService
+from app.crud.appoitment import AppointmentRepository
+from app.models.appoitment_extra_service import AppointmentExtraService as AppointmentExtraServiceModel
+from app.schemas.appointment_extra_service import AppointmentExtraService as AppointmentExtraServiceSchema
 
 router = APIRouter()
 
 
-def get_extra_service_repo(db: Session = Depends(get_db)) -> ExtraServiceRepository:
-    """Dependency to provide an ExtraServiceRepository instance."""
-    return ExtraServiceRepository(db)
+def get_appointment_repo(db: Session = Depends(get_db)) -> AppointmentRepository:
+    """Dependency to provide an AppointmentRepository instance."""
+    return AppointmentRepository(db)
 
 
-@router.patch("/{extra_service_id}/approve", response_model=ExtraService)
-def approve_extra_service(
-    extra_service_id: int,
-    repo: ExtraServiceRepository = Depends(get_extra_service_repo)
+@router.patch("/requests/{request_id}/approve", response_model=AppointmentExtraServiceSchema)
+def approve_extra_service_request(
+    request_id: int,
+    repo: AppointmentRepository = Depends(get_appointment_repo)
 ):
     """
-    Approve an extra service and update the associated appointment's status and budget.
+    Approve an extra-service request (marks request approved and updates appointment.actual_budget).
     """
-    db_extra_service = repo.approve(extra_service_id=extra_service_id)
-    if not db_extra_service:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Extra service not found")
-    return db_extra_service
+    db_req = repo.approve_extra_service_request(request_id=request_id)
+    if not db_req:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Request not found")
+    return db_req
 
 
-@router.patch("/{extra_service_id}/reject", response_model=ExtraService)
-def reject_extra_service(
-    extra_service_id: int,
-    repo: ExtraServiceRepository = Depends(get_extra_service_repo)
+@router.patch("/requests/{request_id}/reject", response_model=AppointmentExtraServiceSchema)
+def reject_extra_service_request(
+    request_id: int,
+    repo: AppointmentRepository = Depends(get_appointment_repo)
 ):
     """
-    Reject an extra service and update the associated appointment's status if no other pending services.
+    Reject an extra-service request (marks request rejected).
     """
-    db_extra_service = repo.reject(extra_service_id=extra_service_id)
-    if not db_extra_service:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Extra service not found")
-    return db_extra_service
+    db_req = repo.reject_extra_service_request(request_id=request_id)
+    if not db_req:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Request not found")
+    return db_req
 
 
-@router.get("/{extra_service_id}", response_model=ExtraService)
-def get_extra_service_details(
-    extra_service_id: int,
-    repo: ExtraServiceRepository = Depends(get_extra_service_repo)
+@router.get("/requests/{request_id}", response_model=AppointmentExtraServiceSchema)
+def get_extra_service_request_details(
+    request_id: int,
+    repo: AppointmentRepository = Depends(get_appointment_repo)
 ):
-    """Get details of a specific extra service."""
-    db_extra_service = repo.get_by_id(extra_service_id=extra_service_id)
-    if not db_extra_service:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Extra service not found")
-    return db_extra_service
-
+    """Get details of a specific extra-service request."""
+    # usamos o db do repo para fazer a query direta — idealmente podes adicionar um método get_request_by_id ao repo
+    db_req = repo.db.query(AppointmentExtraServiceModel).filter(AppointmentExtraServiceModel.id == request_id).first()
+    if not db_req:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Request not found")
+    return db_req
