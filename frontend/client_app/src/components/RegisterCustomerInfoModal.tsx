@@ -3,6 +3,7 @@ import { type GoogleAuthData } from '../api/auth';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Modal, Button, Form, Alert, Spinner } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 
 interface CustomerInfoModalProps {
   isOpen: boolean;
@@ -39,6 +40,8 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
     birth_date: ''
   });
 
+  const { t } = useTranslation();
+
   // Auto-fill form with Google data when available
   useEffect(() => {
     if (googleData) {
@@ -54,7 +57,7 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
     
     // Basic validation
     if (!formData.name.trim()) {
-      setError('Name is required');
+      setError(`${t('name')} ${t('is')} ${t('required')}`);
       return;
     }
     
@@ -88,7 +91,9 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
   return (
     <Modal show={isOpen} onHide={onClose} centered>
       <Modal.Header closeButton>
-        <Modal.Title className="fw-bold">Complete Your Registration</Modal.Title>
+        <Modal.Title className="fw-bold">
+          {t('complete')} {t('your')} {t('registration')}
+        </Modal.Title>
       </Modal.Header>
 
       <Modal.Body>
@@ -101,12 +106,12 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
           
           {googleData && (
             <Alert variant="success" className="mb-3">
-              <small>✓ Successfully authenticated with Google as {googleData.email}</small>
+              <small>✓ {t('successfully')} {t('authenticated')} {t('with')} {t('google')} {t('as')} {googleData.email}</small>
             </Alert>
           )}
           
           <Form.Group className="mb-3">
-            <Form.Label htmlFor='name'>Full Name *</Form.Label>
+            <Form.Label htmlFor='name'>{t('full')} {t('name')} *</Form.Label>
             <Form.Control
               type="text"
               id="name"
@@ -115,70 +120,70 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
               value={formData.name}
               onChange={handleChange}
               disabled={!!googleData || loading}
-              placeholder="Enter your full name"
+              placeholder={`${t('enter')} ${t('your')} ${t('full')} ${t('name')}`}
             />
           </Form.Group>
           
           <Form.Group className="mb-3">
-            <Form.Label htmlFor='phone'>Phone Number</Form.Label>
+            <Form.Label htmlFor='phone'>{t('phone')} {t('number')}</Form.Label>
             <Form.Control
               type="tel"
               id="phone"
               name="phone"
-              value={formData.phone}
+              value={formData.phone || ''}
               onChange={handleChange}
               disabled={loading}
-              placeholder="Enter your phone number"
+              placeholder={`${t('enter')} ${t('your')} ${t('phone')} ${t('number')}`}
             />
           </Form.Group>
           
           <Form.Group className="mb-3">
-            <Form.Label htmlFor='address'>Address</Form.Label>
+            <Form.Label htmlFor='address'>{t('address')}</Form.Label>
             <Form.Control 
               type="text"
               id="address"
               name="address"
-              value={formData.address}
+              value={formData.address || ''}
               onChange={handleChange}
               disabled={loading}
-              placeholder="Enter your address"
+              placeholder={`${t('enter')} ${t('your')} ${t('address')}`}
             />
           </Form.Group>
           
           <Form.Group className="mb-3">
-            <Form.Label htmlFor='city'>City</Form.Label>
+            <Form.Label htmlFor='city'>{t('city')}</Form.Label>
             <Form.Control
               type="text"
               id="city"
               name="city"
-              value={formData.city}
+              value={formData.city || ''}
               onChange={handleChange}
               disabled={loading}
-              placeholder="Enter your city"
+              placeholder={`${t('enter')} ${t('your')} ${t('city')}`}
             />
           </Form.Group>
           
           <Form.Group className="mb-3">
-            <Form.Label htmlFor='postal_code'>Postal Code</Form.Label>
+            <Form.Label htmlFor='postal_code'>{t('postal')} {t('code')}</Form.Label>
             <Form.Control
               type="text"
               id="postal_code"
               name="postal_code"
-              value={formData.postal_code}
+              value={formData.postal_code || ''}
               onChange={handleChange}
               disabled={loading}
-              placeholder="Enter your postal code"
+              placeholder={`${t('enter')} ${t('your')} ${t('postal')} ${t('code')}`}
             />
           </Form.Group>
           
           <Form.Group className="mb-3">
-            <Form.Label>Birth Date</Form.Label>
+            <Form.Label>{t('birth')} {t('date')}</Form.Label>
             <div>
               <DatePicker
                 selected={selectedDate}
                 onChange={handleDateChange}
                 dateFormat="dd/MM/yyyy"
-                placeholderText="Select your birth date"
+                placeholderText={`${t('select')} ${t('your')} ${t('birth')} ${t('date')}`}
                 showPopperArrow={false}
                 maxDate={new Date()} 
                 minDate={new Date(1924, 0, 1)} 
@@ -197,7 +202,7 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
             </div>
             {selectedDate && (
               <Form.Text className="text-muted">
-                Selected: {selectedDate.toLocaleDateString('en-GB')}
+                {t('select')}ed: {selectedDate.toLocaleDateString('en-GB')}
               </Form.Text>
             )}
           </Form.Group>
@@ -219,10 +224,10 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
                     aria-hidden="true"
                     className="me-2"
                   />
-                  Creating Account...
+                  {t('creating')} {t('account')}...
                 </>
               ) : (
-                'Complete Registration'
+                `${t('complete')} ${t('registration')}`
               )}
             </Button>
             
@@ -232,7 +237,7 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
               onClick={onClose}
               disabled={loading}
             >
-              Cancel
+              {t('cancel')}
             </Button>
           </div>
         </Form>

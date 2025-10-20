@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Modal, Button, Form, Alert, Spinner } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { loginWithCredentials, useAuth } from '../api/auth'; // Import from auth.ts
+import { useTranslation } from 'react-i18next';
+import { loginWithCredentials, useAuth } from '../api/auth';
 
 interface LoginModalProps {
   show: boolean;
@@ -20,13 +21,14 @@ const LoginModal: React.FC<LoginModalProps> = ({
   const [error, setError] = useState('');
   
   const navigate = useNavigate();
-  const { login } = useAuth(); // Use the auth hook
+  const { login } = useAuth();
+  const { t } = useTranslation();
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!email || !password) {
-      setError('Please enter both email and password');
+      setError(`${t('please')} ${t('enter')} ${t('email')} ${t('and')} ${t('password')}`);
       return;
     }
     
@@ -50,15 +52,13 @@ const LoginModal: React.FC<LoginModalProps> = ({
         // Reload page after successful login
         setTimeout(() => {
           window.location.reload();
-        }, 10); // Small delay to ensure modal closes first
+        }, 10);
         
-        setEmail('');
-        setPassword('');
       } else {
-        setError('Invalid response from server');
+        setError(`${t('invalid')} ${t('response')} ${t('from')} ${t('server')}`);
       }
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Login failed. Please check your credentials.');
+      setError(err.response?.data?.detail || `${t('login')} ${t('failed')}`);
     } finally {
       setLoading(false);
     }
@@ -67,10 +67,9 @@ const LoginModal: React.FC<LoginModalProps> = ({
   const handleGoogleLogin = async () => {
     try {
       setLoading(true);
-      // Redirect to backend Google OAuth
       window.location.href = 'http://localhost:8000/api/v1/customersauth/google';
     } catch (err) {
-      setError('Failed to initiate Google authentication');
+      setError(`${t('failed')} ${t('to')} initiate ${t('google')} ${t('authentication')}`);
     } finally {
       setLoading(false);
     }
@@ -96,7 +95,9 @@ const LoginModal: React.FC<LoginModalProps> = ({
   return (
     <Modal show={show} onHide={handleClose} centered>
       <Modal.Header closeButton>
-        <Modal.Title className="fw-bold">Sign in to your account</Modal.Title>
+        <Modal.Title className="fw-bold">
+          {t('signIn')} {t('to')} {t('your')} {t('account')}
+        </Modal.Title>
       </Modal.Header>
       
       <Modal.Body>
@@ -108,10 +109,10 @@ const LoginModal: React.FC<LoginModalProps> = ({
           )}
           
           <Form.Group className="mb-3">
-            <Form.Label>Email address</Form.Label>
+            <Form.Label>{t('email')} {t('address')}</Form.Label>
             <Form.Control
               type="email"
-              placeholder="Enter your email"
+              placeholder={`${t('enter')} ${t('your')} ${t('email')}`}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -120,10 +121,10 @@ const LoginModal: React.FC<LoginModalProps> = ({
           </Form.Group>
           
           <Form.Group className="mb-3">
-            <Form.Label>Password</Form.Label>
+            <Form.Label>{t('password')}</Form.Label>
             <Form.Control
               type="password"
-              placeholder="Enter your password"
+              placeholder={`${t('enter')} ${t('your')} ${t('password')}`}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -148,15 +149,15 @@ const LoginModal: React.FC<LoginModalProps> = ({
                     aria-hidden="true"
                     className="me-2"
                   />
-                  Signing in...
+                  {t('signingIn')}...
                 </>
               ) : (
-                'Sign in with Email'
+                `${t('signIn')} ${t('with')} ${t('email')}`
               )}
             </Button>
             
             <div className="text-center my-2">
-              <span className="text-muted">or</span>
+              <span className="text-muted">{t('or')}</span>
             </div>
             
             <Button
@@ -171,7 +172,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
                 alt="Google logo"
                 style={{ width: '20px', height: '20px', marginRight: '8px' }}
               />
-              Sign in with Google
+              {t('signIn')} {t('with')} {t('google')}
             </Button>
           </div>
           
@@ -181,20 +182,20 @@ const LoginModal: React.FC<LoginModalProps> = ({
               onClick={() => navigate('/forgot-password')}
               className="text-decoration-none p-0 me-3"
             >
-              Forgot your password?
+              {t('forgot')} {t('your')} {t('password')}?
             </Button>
           </div>
           
           <hr />
           
           <div className="text-center">
-            <span className="text-muted">Don't have an account? </span>
+            <span className="text-muted">{t('dontHave')} {t('account')}? </span>
             <Button 
               variant="link" 
               onClick={handleSwitchToRegister}
               className="text-decoration-none p-0 fw-bold"
             >
-              Create one here
+              {t('create')} {t('one')} {t('here')}
             </Button>
           </div>
         </Form>
