@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
-import { Header } from "./header";
-import { Footer } from "./footer";
+import SideBarMenu from "../../components/SideBarMenu";
 
 interface LayoutProps {
   children: ReactNode;
@@ -17,8 +16,7 @@ export function Layout({ children, className = "" }: LayoutProps) {
         backgroundColor: "#f8f9fa",
       }}
     >
-      <Header />
-
+      <SideBarMenu />
       {/* Conteúdo Principal com padding para compensar header e footer fixos */}
       <main
         className="flex-grow-1"
@@ -26,6 +24,8 @@ export function Layout({ children, className = "" }: LayoutProps) {
           paddingTop: "90px", // Espaço para header fixo
           paddingBottom: "80px", // Espaço para footer fixo
           minHeight: "calc(100vh - 170px)",
+          // push content to the right of the fixed sidebar. --sidebar-width is updated by the sidebar component
+          marginLeft: 'var(--sidebar-width, 260px)',
         }}
       >
         {/* Container responsivo que ocupa 80% da largura */}
@@ -38,7 +38,6 @@ export function Layout({ children, className = "" }: LayoutProps) {
         </div>
       </main>
 
-      <Footer />
     </div>
   );
 }

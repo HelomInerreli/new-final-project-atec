@@ -34,8 +34,8 @@ export function Logo({
   const finalHeight = logoOnlyHeight * scale;
 
   // Calcular posições proporcionalmente
-  const textXMec = (110 / 400) * finalWidth;
-  const textXAtec = (195 / 400) * finalWidth;
+  const textXMec = (10 / 200) * finalWidth;
+  const textXAtec = (76/ 200) * finalWidth;
   const textY = showSubtitle
     ? (70 / 100) * finalHeight
     : (50 / 70) * finalHeight; // Posição Y ajustada
@@ -48,18 +48,7 @@ export function Logo({
 
   return (
     <>
-      <style>
-        {`
-          .font-staatliches {
-            font-family: "Staatliches", cursive;
-          }
-          .font-bold {
-            font-family: "Staatliches", cursive;
-            font-weight: 900;
-            stroke-width: 0.8;
-          }
-        `}
-      </style>
+
       <svg
         viewBox={`0 0 ${finalWidth} ${finalHeight}`}
         width={finalWidth}
@@ -71,25 +60,21 @@ export function Logo({
           x={textXMec}
           y={textY}
           fontSize={mainFontSize}
-          fill="#D82E2F"
-          stroke="#D82E2F"
-          strokeWidth="0.8"
+          fill="#fff"
           fontWeight="900"
           className="font-bold"
         >
-          Mec
+          MEC
         </text>
         <text
           x={textXAtec}
           y={textY}
           fontSize={mainFontSize}
-          fill="#4F4F4F"
-          stroke="#4F4F4F"
-          strokeWidth="0.8"
+          fill="#0f0f0f"
           fontWeight="900"
           className="font-bold"
         >
-          atec
+          ATEC
         </text>
         {/* Texto abaixo da Logo - só renderiza se showSubtitle for true */}
         {showSubtitle && (
