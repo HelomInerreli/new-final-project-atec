@@ -92,7 +92,7 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
     <Modal show={isOpen} onHide={onClose} centered>
       <Modal.Header closeButton>
         <Modal.Title className="fw-bold">
-          {t('complete')} {t('your')} {t('registration')}
+          {t('completeRegistration')}
         </Modal.Title>
       </Modal.Header>
 
@@ -111,7 +111,7 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
           )}
           
           <Form.Group className="mb-3">
-            <Form.Label htmlFor='name'>{t('full')} {t('name')} *</Form.Label>
+            <Form.Label htmlFor='name'>{t('fullName')}</Form.Label>
             <Form.Control
               type="text"
               id="name"
@@ -120,12 +120,12 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
               value={formData.name}
               onChange={handleChange}
               disabled={!!googleData || loading}
-              placeholder={`${t('enter')} ${t('your')} ${t('full')} ${t('name')}`}
+              placeholder={t('enterFullName')}
             />
           </Form.Group>
           
           <Form.Group className="mb-3">
-            <Form.Label htmlFor='phone'>{t('phone')} {t('number')}</Form.Label>
+            <Form.Label htmlFor='phone'>{t('phoneNumber')}</Form.Label>
             <Form.Control
               type="tel"
               id="phone"
@@ -133,7 +133,7 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
               value={formData.phone || ''}
               onChange={handleChange}
               disabled={loading}
-              placeholder={`${t('enter')} ${t('your')} ${t('phone')} ${t('number')}`}
+              placeholder={t('enterPhoneNumber')}
             />
           </Form.Group>
           
@@ -146,7 +146,7 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
               value={formData.address || ''}
               onChange={handleChange}
               disabled={loading}
-              placeholder={`${t('enter')} ${t('your')} ${t('address')}`}
+              placeholder={t('enterAddress')}
             />
           </Form.Group>
           
@@ -159,12 +159,12 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
               value={formData.city || ''}
               onChange={handleChange}
               disabled={loading}
-              placeholder={`${t('enter')} ${t('your')} ${t('city')}`}
+              placeholder={t('enterCity')}
             />
           </Form.Group>
           
           <Form.Group className="mb-3">
-            <Form.Label htmlFor='postal_code'>{t('postal')} {t('code')}</Form.Label>
+            <Form.Label htmlFor='postal_code'>{t('postalCode')}</Form.Label>
             <Form.Control
               type="text"
               id="postal_code"
@@ -172,18 +172,18 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
               value={formData.postal_code || ''}
               onChange={handleChange}
               disabled={loading}
-              placeholder={`${t('enter')} ${t('your')} ${t('postal')} ${t('code')}`}
+              placeholder={t('enterPostalCode')}
             />
           </Form.Group>
           
           <Form.Group className="mb-3">
-            <Form.Label>{t('birth')} {t('date')}</Form.Label>
+            <Form.Label>{t('birthDate')}</Form.Label>
             <div>
               <DatePicker
                 selected={selectedDate}
                 onChange={handleDateChange}
                 dateFormat="dd/MM/yyyy"
-                placeholderText={`${t('select')} ${t('your')} ${t('birth')} ${t('date')}`}
+                placeholderText={t('selectBirthDate')}
                 showPopperArrow={false}
                 maxDate={new Date()} 
                 minDate={new Date(1924, 0, 1)} 
@@ -202,7 +202,7 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
             </div>
             {selectedDate && (
               <Form.Text className="text-muted">
-                {t('select')}ed: {selectedDate.toLocaleDateString('en-GB')}
+                {t('selectedDate')}: {selectedDate.toLocaleDateString()}
               </Form.Text>
             )}
           </Form.Group>
@@ -227,7 +227,7 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
                   {t('creating')} {t('account')}...
                 </>
               ) : (
-                `${t('complete')} ${t('registration')}`
+                t('completeRegistration')
               )}
             </Button>
             

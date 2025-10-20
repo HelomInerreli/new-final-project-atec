@@ -109,7 +109,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
           )}
           
           <Form.Group className="mb-3">
-            <Form.Label>{t('email')} {t('address')}</Form.Label>
+            <Form.Label>{t('email')}</Form.Label>
             <Form.Control
               type="email"
               placeholder={`${t('enter')} ${t('your')} ${t('email')}`}

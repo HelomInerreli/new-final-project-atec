@@ -297,6 +297,13 @@ export function Header({ className = "" }: HeaderProps) {
         </div>
       </header>
 
+      {/* MODAL DE LOGIN */}
+      {showLoginModal && (
+      <LoginModal
+        show={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+      />
+    )}
       {/* MODAL PARA CRIAR APPOINTMENT - SINTAXE CORRIGIDA */}
       {/* {isLoggedIn && (
         <CreateAppointmentModal
@@ -314,6 +321,8 @@ export function Header({ className = "" }: HeaderProps) {
           }}
         />
       )} */}
+      
     </>
+    
   );
 }

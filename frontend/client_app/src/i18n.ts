@@ -238,7 +238,19 @@ i18next.use(initReactI18next).init({
 
         // Compound phrases for better translations
         createAccount: "Create account",
-        signInToExistingAccount: "Sign in to your existing account"
+        signInToExistingAccount: "Sign in to your existing account",
+        completeRegistration: "Complete your registration",
+        fullName: "Full name",
+        phoneNumber: "Phone number", 
+        postalCode: "Postal code",
+        birthDate: "Birth date",
+        enterFullName: "Enter your full name",
+        enterPhoneNumber: "Enter your phone number",
+        enterAddress: "Enter your address", 
+        enterCity: "Enter your city",
+        enterPostalCode: "Enter your postal code",
+        selectBirthDate: "Select your birth date",
+        selectedDate: "Selected"
       },
     },
     pt: {
@@ -469,7 +481,19 @@ i18next.use(initReactI18next).init({
 
         // Compound phrases for better translations
         createAccount: "Criar conta",
-        signInToExistingAccount: "Iniciar sessão na sua conta existente"
+        signInToExistingAccount: "Iniciar sessão na sua conta existente",
+        completeRegistration: "Completar o seu registo",
+        fullName: "Nome completo",
+        phoneNumber: "Número de telefone",
+        postalCode: "Código postal",
+        birthDate: "Data de nascimento",
+        enterFullName: "Digite o seu nome completo",
+        enterPhoneNumber: "Digite o seu número de telefone",
+        enterAddress: "Digite o seu endereço",
+        enterCity: "Digite a sua cidade",
+        enterPostalCode: "Digite o seu código postal",
+        selectBirthDate: "Selecione a sua data de nascimento",
+        selectedDate: "Selecionado"
       },
     },
 
@@ -700,7 +724,19 @@ i18next.use(initReactI18next).init({
 
         // Compound phrases for better translations
         createAccount: "Crear cuenta",
-        signInToExistingAccount: "Iniciar sesión en tu cuenta existente"
+        signInToExistingAccount: "Iniciar sesión en tu cuenta existente",
+        completeRegistration: "Completar tu registro",
+        fullName: "Nombre completo",
+        phoneNumber: "Número de teléfono",
+        postalCode: "Código postal",
+        birthDate: "Fecha de nacimiento",
+        enterFullName: "Ingresa tu nombre completo",
+        enterPhoneNumber: "Ingresa tu número de teléfono",
+        enterAddress: "Ingresa tu dirección",
+        enterCity: "Ingresa tu ciudad",
+        enterPostalCode: "Ingresa tu código postal",
+        selectBirthDate: "Selecciona tu fecha de nacimiento",
+        selectedDate: "Seleccionado"
       },
     },
     fr: {
@@ -765,26 +801,6 @@ i18next.use(initReactI18next).init({
         settings: "Paramètres",
         details: "Détails",
 
-        actions: "Actions",
-        viewDetails: "Voir Détails",
-        appointmentDetails: "Détails du Rendez-vous",
-        generalInfo: "Informations Générales",
-        serviceInfo: "Informations du Service",
-        budgetInfo: "Informations du Budget",
-        appointmentDescription: "Description du Rendez-vous",
-        extraServices: "Services Supplémentaires",
-        duration: "Durée",
-        minutes: "minutes",
-        serviceDescription: "Description du Service",
-        cost: "Coût",
-        sent: "Envoyé",
-        notSent: "Non Envoyé",
-        close: "Fermer",
-        approved: "Approuvé",
-        totalExtraServices: "Total Services Supplémentaires",
-        noExtraServices:
-          "Aucun service supplémentaire n'a été ajouté à ce rendez-vous",
-
         // Service History translations
         serviceHistory: "Historique des Services",
         serviceHistoryDescription:
@@ -808,6 +824,26 @@ i18next.use(initReactI18next).init({
         completedServices: "Services Terminés",
         serviceType: "Type de Service",
         noDescription: "Aucune description",
+
+        actions: "Actions",
+        viewDetails: "Voir Détails",
+        appointmentDetails: "Détails du Rendez-vous",
+        generalInfo: "Informations Générales",
+        serviceInfo: "Informations du Service",
+        budgetInfo: "Informations du Budget",
+        appointmentDescription: "Description du Rendez-vous",
+        extraServices: "Services Supplémentaires",
+        duration: "Durée",
+        minutes: "minutes",
+        serviceDescription: "Description du Service",
+        cost: "Coût",
+        sent: "Envoyé",
+        notSent: "Non Envoyé",
+        close: "Fermer",
+        approved: "Approuvé",
+        totalExtraServices: "Total Services Supplémentaires",
+        noExtraServices:
+          "Aucun service supplémentaire n'a été ajouté à ce rendez-vous",
 
         // Status translations
         completed: "Terminé",
@@ -931,7 +967,19 @@ i18next.use(initReactI18next).init({
 
         // Compound phrases for better translations
         createAccount: "Créer un compte",
-        signInToExistingAccount: "Se connecter à votre compte existant"
+        signInToExistingAccount: "Se connecter à votre compte existant",
+        completeRegistration: "Terminer votre inscription",
+        fullName: "Nom complet",
+        phoneNumber: "Numéro de téléphone",
+        postalCode: "Code postal",
+        birthDate: "Date de naissance",
+        enterFullName: "Entrez votre nom complet",
+        enterPhoneNumber: "Entrez votre numéro de téléphone",
+        enterAddress: "Entrez votre adresse",
+        enterCity: "Entrez votre ville",
+        enterPostalCode: "Entrez votre code postal",
+        selectBirthDate: "Sélectionnez votre date de naissance",
+        selectedDate: "Sélectionné"
       },
     },
   },
