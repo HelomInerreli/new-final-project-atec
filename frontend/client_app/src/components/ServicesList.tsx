@@ -39,7 +39,7 @@ export function ServicesList() {
         t('servicesPage.features.detailedReport', 'Relatório detalhado')
       ],
       icon: 'bi-gear-wide-connected',
-      priceRange: '400€'
+      priceRange: 'Desde 200€'
     },
     {
       id: 2,
@@ -52,7 +52,7 @@ export function ServicesList() {
         t('servicesPage.features.visualEngine', 'Inspeção visual do motor')
       ],
       icon: 'bi-droplet-fill',
-      priceRange: '120€'
+      priceRange: 'Desde 40€'
     },
     {
       id: 3,
@@ -66,7 +66,7 @@ export function ServicesList() {
         t('servicesPage.features.technicalReport', 'Relatório técnico detalhado')
       ],
       icon: 'bi-cpu',
-      priceRange: '80€'
+      priceRange: 'Desde 50€'
     },
     {
       id: 4,
@@ -80,7 +80,7 @@ export function ServicesList() {
         t('servicesPage.features.safetyCertificate', 'Certificado de segurança')
       ],
       icon: 'bi-stop-circle',
-      priceRange: '250€'
+      priceRange: 'Desde 45€'
     },
     {
       id: 5,
@@ -94,7 +94,7 @@ export function ServicesList() {
         t('servicesPage.features.systemDisinfection', 'Desinfeção do sistema')
       ],
       icon: 'bi-snow',
-      priceRange: '140€'
+      priceRange: 'Desde 70€'
     },
     {
       id: 6,
@@ -108,7 +108,7 @@ export function ServicesList() {
         t('servicesPage.features.tireRotation', 'Rodízio de pneus')
       ],
       icon: 'bi-circle',
-      priceRange: '300€'
+      priceRange: 'Desde 35€'
     }
   ];
 
