@@ -218,6 +218,30 @@ i18next.use(initReactI18next).init({
           reason3: "Transparency and trust in all services",
           reason4: "Fast and personalized service",
           contactUs: "Contact us",
+          openingHoursTitle: "Opening Hours",
+          openingHours: {
+            mondayFriday: "Monday to Friday: 9am - 6pm",
+            saturday: "Saturday: 9am - 1pm",
+            sunday: "Sunday: Closed",
+          },
+          highlights: {
+            title: "What makes us different?",
+            transparency: {
+              icon: "🔍",
+              num: "100%",
+              label: "Service transparency",
+            },
+            technology: {
+              icon: "⚡",
+              num: "Technology",
+              label: "State-of-the-art equipment",
+            },
+            service: {
+              icon: "🤝",
+              num: "Service",
+              label: "Personalized and fast",
+            },
+          },
         },
 
         // Basic words for auth components
@@ -294,30 +318,6 @@ i18next.use(initReactI18next).init({
         selectedDate: "Selected",
       },
       contactUs: "Contact us",
-      openingHoursTitle: "Opening Hours",
-      openingHours: {
-        mondayFriday: "Monday to Friday: 9am - 6pm",
-        saturday: "Saturday: 9am - 1pm",
-        sunday: "Sunday: Closed",
-      },
-      highlights: {
-        title: "What makes us different?",
-        transparency: {
-          icon: "🔍",
-          num: "100%",
-          label: "Service transparency",
-        },
-        technology: {
-          icon: "⚡",
-          num: "Technology",
-          label: "State-of-the-art equipment",
-        },
-        service: {
-          icon: "🤝",
-          num: "Service",
-          label: "Personalized and fast",
-        },
-      },
     },
 
     pt: {
@@ -529,6 +529,30 @@ i18next.use(initReactI18next).init({
           reason3: "Transparência e confiança em todos os serviços",
           reason4: "Atendimento rápido e personalizado",
           contactUs: "Contacte-nos",
+          openingHoursTitle: "Horário de Funcionamento",
+          openingHours: {
+            mondayFriday: "Segunda a Sexta: 9h - 18h",
+            saturday: "Sábado: 9h - 13h",
+            sunday: "Domingo: Encerrado",
+          },
+          highlights: {
+            title: "O que nos torna diferentes?",
+            transparency: {
+              icon: "🔍",
+              num: "100%",
+              label: "Transparência nos serviços",
+            },
+            technology: {
+              icon: "⚡",
+              num: "Tecnologia",
+              label: "Equipamentos de última geração",
+            },
+            service: {
+              icon: "🤝",
+              num: "Atendimento",
+              label: "Personalizado e rápido",
+            },
+          },
         },
 
         // Basic words for auth components
@@ -605,30 +629,6 @@ i18next.use(initReactI18next).init({
         selectedDate: "Selecionado",
       },
       contactUs: "Contacte-nos",
-      openingHoursTitle: "Horário de Funcionamento",
-      openingHours: {
-        mondayFriday: "Segunda a Sexta: 9h - 18h",
-        saturday: "Sábado: 9h - 13h",
-        sunday: "Domingo: Encerrado",
-      },
-      highlights: {
-        title: "O que nos torna diferentes?",
-        transparency: {
-          icon: "🔍",
-          num: "100%",
-          label: "Transparência nos serviços",
-        },
-        technology: {
-          icon: "⚡",
-          num: "Tecnologia",
-          label: "Equipamentos de última geração",
-        },
-        service: {
-          icon: "🤝",
-          num: "Atendimento",
-          label: "Personalizado e rápido",
-        },
-      },
     },
 
     es: {
@@ -838,6 +838,30 @@ i18next.use(initReactI18next).init({
           reason3: "Transparencia y confianza en todos los servicios",
           reason4: "Atención rápida y personalizada",
           contactUs: "Contáctanos",
+          openingHoursTitle: "Horario de Atención",
+          openingHours: {
+            mondayFriday: "Lunes a Viernes: 9am - 6pm",
+            saturday: "Sábado: 9am - 1pm",
+            sunday: "Domingo: Cerrado",
+          },
+          highlights: {
+            title: "¿Qué nos hace diferentes?",
+            transparency: {
+              icon: "🔍",
+              num: "100%",
+              label: "Transparencia en los servicios",
+            },
+            technology: {
+              icon: "⚡",
+              num: "Tecnología",
+              label: "Equipos de última generación",
+            },
+            service: {
+              icon: "🤝",
+              num: "Atención",
+              label: "Personalizada y rápida",
+            },
+          },
         },
 
         // Basic words for auth components
@@ -914,30 +938,6 @@ i18next.use(initReactI18next).init({
         selectedDate: "Seleccionado",
       },
       contactUs: "Contáctanos",
-      openingHoursTitle: "Horario de Atención",
-      openingHours: {
-        mondayFriday: "Lunes a Viernes: 9am - 6pm",
-        saturday: "Sábado: 9am - 1pm",
-        sunday: "Domingo: Cerrado",
-      },
-      highlights: {
-        title: "¿Qué nos hace diferentes?",
-        transparency: {
-          icon: "🔍",
-          num: "100%",
-          label: "Transparencia en los servicios",
-        },
-        technology: {
-          icon: "⚡",
-          num: "Tecnología",
-          label: "Equipos de última generación",
-        },
-        service: {
-          icon: "🤝",
-          num: "Atención",
-          label: "Personalizada y rápida",
-        },
-      },
     },
 
     fr: {
@@ -1051,26 +1051,6 @@ i18next.use(initReactI18next).init({
         serviceType: "Type de Service",
         noDescription: "Aucune description",
 
-        actions: "Actions",
-        viewDetails: "Voir Détails",
-        appointmentDetails: "Détails du Rendez-vous",
-        generalInfo: "Informations Générales",
-        serviceInfo: "Informations du Service",
-        budgetInfo: "Informations du Budget",
-        appointmentDescription: "Description du Rendez-vous",
-        extraServices: "Services Supplémentaires",
-        duration: "Durée",
-        minutes: "minutes",
-        serviceDescription: "Description du Service",
-        cost: "Coût",
-        sent: "Envoyé",
-        notSent: "Non Envoyé",
-        close: "Fermer",
-        approved: "Approuvé",
-        totalExtraServices: "Total Services Supplémentaires",
-        noExtraServices:
-          "Aucun service supplémentaire n'a été ajouté à ce rendez-vous",
-
         // Status translations
         completed: "Terminé",
         pending: "En Attente",
@@ -1167,6 +1147,30 @@ i18next.use(initReactI18next).init({
           reason3: "Transparence et confiance dans tous les services",
           reason4: "Service rapide et personnalisé",
           contactUs: "Contactez-nous",
+          openingHoursTitle: "Heures d'Ouverture",
+          openingHours: {
+            mondayFriday: "Lundi au Vendredi : 9h - 18h",
+            saturday: "Samedi : 9h - 13h",
+            sunday: "Dimanche : Fermé",
+          },
+          highlights: {
+            title: "Qu'est-ce qui nous rend différents ?",
+            transparency: {
+              icon: "🔍",
+              num: "100%",
+              label: "Transparence des services",
+            },
+            technology: {
+              icon: "⚡",
+              num: "Technologie",
+              label: "Équipements de dernière génération",
+            },
+            service: {
+              icon: "🤝",
+              num: "Service",
+              label: "Personnalisé et rapide",
+            },
+          },
         },
 
         // Basic words for auth components
@@ -1241,32 +1245,6 @@ i18next.use(initReactI18next).init({
         enterPostalCode: "Entrez votre code postal",
         selectBirthDate: "Sélectionnez votre date de naissance",
         selectedDate: "Sélectionné",
-
-        contactUs: "Contactez-nous",
-        openingHoursTitle: "Heures d'Ouverture",
-        openingHours: {
-          mondayFriday: "Lundi au Vendredi : 9h - 18h",
-          saturday: "Samedi : 9h - 13h",
-          sunday: "Dimanche : Fermé",
-        },
-        highlights: {
-          title: "Qu'est-ce qui nous rend différents ?",
-          transparency: {
-            icon: "🔍",
-            num: "100%",
-            label: "Transparence des services",
-          },
-          technology: {
-            icon: "⚡",
-            num: "Technologie",
-            label: "Équipements de dernière génération",
-          },
-          service: {
-            icon: "🤝",
-            num: "Service",
-            label: "Personnalisé et rapide",
-          },
-        },
       },
     },
   },
