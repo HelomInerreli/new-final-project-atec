@@ -4,6 +4,7 @@ from typing import List, Optional
 from .extra_service import ExtraService as ExtraServiceSchema
 from .service import Service as ServiceSchema
 from .status import Status as StatusSchema
+from .appointment_extra_service import AppointmentExtraService
 
 class AppointmentBase(BaseModel):
     appointment_date: datetime
@@ -25,10 +26,10 @@ class AppointmentUpdate(BaseModel):
 
 class Appointment(AppointmentBase):
     id: int
-    status: StatusSchema
-    service: ServiceSchema
-    service_id: int
-    extra_services: List[ExtraServiceSchema] = []
+    status: Optional[StatusSchema]
+    service: Optional[ServiceSchema]
+    service_id: Optional[int]
+    extra_service_associations: List[AppointmentExtraService] = []
 
     class Config:
         from_attributes = True

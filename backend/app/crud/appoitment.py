@@ -1,0 +1,204 @@
+from typing import List, Optional, Union
+from datetime import datetime
+
+from sqlalchemy.orm import Session, joinedload
+
+from app.models.appoitment import Appointment
+from app.models.appoitment_extra_service import AppointmentExtraService
+from app.models.extra_service import ExtraService
+from app.models.status import Status
+
+from app.schemas.appointment import AppointmentCreate, AppointmentUpdate
+from app.schemas.appointment_extra_service import AppointmentExtraServiceCreate
+
+from app.email_service.email_service import EmailService
+from app.crud import customer as crud_customer
+
+
+# Define status constants locally to avoid magic strings
+APPOINTMENT_STATUS_PENDING = "Pendente"
+APPOINTMENT_STATUS_CANCELED = "Canceled"
+APPOINTMENT_STATUS_FINALIZED = "Finalized"
+
+
+class AppointmentRepository:
+    """
+    Repositório para operações sobre Appointment.
+    Integra:
+    - criação (com opção de enviar email de confirmação),
+    - leitura (get_by_id, get_all),
+    - update/cancel/finalize,
+    - gestão de pedidos de extra services (criar pedido, aprovar, rejeitar).
+    """
+    def __init__(self, db: Session):
+        self.db = db
+
+    def get_by_id(self, appointment_id: int) -> Optional[Appointment]:
+        """Obter uma appointment por id (sem joins extras)."""
+        return self.db.query(Appointment).filter(Appointment.id == appointment_id).first()
+
+    def get_by_id_with_relations(self, appointment_id: int) -> Optional[Appointment]:
+        """Obter appointment com relações úteis carregadas (customer, extra requests, service)."""
+        return (
+            self.db.query(Appointment)
+            .options(joinedload(Appointment.customer), joinedload(Appointment.extra_service_associations))
+            .filter(Appointment.id == appointment_id)
+            .first()
+        )
+
+    def get_all(self, skip: int = 0, limit: int = 100) -> List[Appointment]:
+        """Listar appointments, ordenadas do mais recente para o mais antigo."""
+        return self.db.query(Appointment).order_by(Appointment.id.desc()).offset(skip).limit(limit).all()
+
+    def create(self, appointment: AppointmentCreate, email_service: Optional[EmailService] = None) -> Appointment:
+        """
+        Cria uma nova appointment.
+        - Define o status default "Pendente" (procura-o na tabela statuses).
+        - Se for fornecido email_service, envia email de confirmação para o cliente (se houver email).
+        """
+        pending_status = self.db.query(Status).filter(Status.name == APPOINTMENT_STATUS_PENDING).first()
+        if not pending_status:
+            raise RuntimeError(f"Default status '{APPOINTMENT_STATUS_PENDING}' not found in the database.")
+
+        appointment_data = appointment.model_dump()
+        db_appointment = Appointment(**appointment_data, status_id=pending_status.id)
+        self.db.add(db_appointment)
+        self.db.commit()
+        self.db.refresh(db_appointment)
+
+        # Enviar email de confirmação se for solicitado (opcional)
+        if email_service:
+            try:
+                customer = crud_customer.get_by_id(db=self.db, id=db_appointment.customer_id)
+                if customer and getattr(customer, "email", None):
+                    email_service.send_confirmation_email(
+                        customer_email=customer.email,
+                        service_name=getattr(db_appointment, "service_name", None),
+                        service_date=getattr(db_appointment, "service_date", None),
+                    )
+                    print(f"Confirmação de agendamento enviada para {customer.email}.")
+            except Exception as e:
+                # Não abortar a criação por falha no envio de email; só log
+                print(f"ERRO ao enviar confirmação de agendamento: {e}")
+
+        return db_appointment
+
+    def update(self, appointment_id: int, appointment_data: AppointmentUpdate) -> Optional[Appointment]:
+        """Atualiza campos de uma appointment."""
+        db_appointment = self.get_by_id(appointment_id=appointment_id)
+        if not db_appointment:
+            return None
+
+        update_data = appointment_data.model_dump(exclude_unset=True)
+        for key, value in update_data.items():
+            setattr(db_appointment, key, value)
+
+        self.db.commit()
+        self.db.refresh(db_appointment)
+        return db_appointment
+
+    def cancel(self, appointment_id: int) -> Optional[Appointment]:
+        """Cancela uma appointment, definindo o status 'Canceled'."""
+        canceled_status = self.db.query(Status).filter(Status.name == APPOINTMENT_STATUS_CANCELED).first()
+        if not canceled_status:
+            raise RuntimeError(f"Status '{APPOINTMENT_STATUS_CANCELED}' not found in the database.")
+
+        update_data = AppointmentUpdate(status=canceled_status.name)
+        return self.update(appointment_id=appointment_id, appointment_data=update_data)
+
+    def finalize(self, appointment_id: int) -> Optional[Appointment]:
+        """Finaliza uma appointment, definindo o status 'Finalized'."""
+        finalized_status = self.db.query(Status).filter(Status.name == APPOINTMENT_STATUS_FINALIZED).first()
+        if not finalized_status:
+            raise RuntimeError(f"Status '{APPOINTMENT_STATUS_FINALIZED}' not found in the database.")
+
+        update_data = AppointmentUpdate(status=finalized_status.name)
+        return self.update(appointment_id=appointment_id, appointment_data=update_data)
+
+    #
+    # Extra service requests (association object pattern)
+    #
+    def add_extra_service_request(self, appointment_id: int, request_data: AppointmentExtraServiceCreate) -> Optional[AppointmentExtraService]:
+        """
+        Cria um pedido de extra service ligado a uma appointment (status 'pending').
+        Não atualiza actual_budget — apenas quando o pedido for aprovado.
+        """
+        db_appointment = self.get_by_id(appointment_id=appointment_id)
+        if not db_appointment:
+            return None
+
+        data = request_data.model_dump()
+        db_request = AppointmentExtraService(
+            appointment_id=appointment_id,
+            extra_service_id=data.get("extra_service_id"),
+            name=data.get("name"),
+            description=data.get("description"),
+            price=data.get("price"),
+            duration_minutes=data.get("duration_minutes"),
+            status="pending",
+        )
+        self.db.add(db_request)
+        self.db.commit()
+        self.db.refresh(db_request)
+        return db_request
+
+    def approve_extra_service_request(self, request_id: int) -> Optional[AppointmentExtraService]:
+        """
+        Aprova um pedido de extra service:
+          - determina o preço aplicado (override em request.price ou preço do catálogo),
+          - incrementa appointment.actual_budget,
+          - marca request.status = 'approved'.
+        """
+        req = self.db.query(AppointmentExtraService).filter(AppointmentExtraService.id == request_id).first()
+        if not req:
+            return None
+
+        if req.status == "approved":
+            return req  # já aprovado
+
+        # Determinar preço aplicado
+        applied_price = req.price
+        if applied_price is None and req.extra_service_id:
+            catalog = self.db.query(ExtraService).filter(ExtraService.id == req.extra_service_id).first()
+            applied_price = getattr(catalog, "price", 0.0) if catalog else 0.0
+
+        # Atualizar appointment.actual_budget
+        appointment = self.db.query(Appointment).filter(Appointment.id == req.appointment_id).first()
+        if appointment:
+            appointment.actual_budget = (appointment.actual_budget or 0.0) + (applied_price or 0.0)
+
+        req.status = "approved"
+        self.db.commit()
+        self.db.refresh(req)
+        return req
+
+    def reject_extra_service_request(self, request_id: int) -> Optional[AppointmentExtraService]:
+        """
+        Rejeita um pedido de extra service (marca status 'rejected').
+        Não altera actual_budget.
+        """
+        req = self.db.query(AppointmentExtraService).filter(AppointmentExtraService.id == request_id).first()
+        if not req:
+            return None
+
+        req.status = "rejected"
+        self.db.commit()
+        self.db.refresh(req)
+        return req
+
+
+#
+# Conveniências de módulo — mantêm compatibilidade com o snippet antigo que chamava funções top-level.
+#
+def create(db: Session, appointment_in: AppointmentCreate, email_service: Optional[EmailService] = None) -> Appointment:
+    """
+    Wrapper de conveniência: cria uma appointment usando AppointmentRepository e envia email
+    se um EmailService for fornecido.
+    """
+    repo = AppointmentRepository(db)
+    return repo.create(appointment=appointment_in, email_service=email_service)
+
+
+def get_by_id(db: Session, id: int) -> Optional[Appointment]:
+    repo = AppointmentRepository(db)
+    return repo.get_by_id(appointment_id=id)
