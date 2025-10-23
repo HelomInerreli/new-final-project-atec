@@ -73,6 +73,12 @@ i18next.use(initReactI18next).init({
         profile: "Profile",
         settings: "Settings",
 
+        // Contact Page translations
+        
+        contactSubtitle: "Contact us for questions or information.",
+        contactUs: "Contact Us",
+        companyLocation: "Company Location",
+
         // Service History translations
         serviceHistory: "Service History",
         serviceHistoryDescription: "View all completed and scheduled services",
@@ -163,6 +169,32 @@ i18next.use(initReactI18next).init({
           }
         },
 
+        servicesStrip: {
+          title: "Thinking of you!",
+          items: [
+            {
+              label: "Auto Health",
+              icon: "https://thumbs.dreamstime.com/b/s%C3%ADmbolo-do-logotipo-de-sa%C3%BAde-carro-design-logo-arte-linha-isolada-setor-autom%C3%B3veis-arquivo-vetorial-inclu%C3%ADdo-171175065.jpg"
+            },
+            {
+              label: "Pick-up & Delivery*",
+              icon: "https://static.vecteezy.com/ti/vetor-gratis/p1/17324579-entregar-a-ilustracao-do-esboco-do-do-icone-das-chaves-do-carro-vetor.jpg"
+            },
+            {
+              label: "Key Drop-off\n24H",
+              icon: "https://media.istockphoto.com/id/1548099001/pt/vetorial/24-hours-order-execution-or-delivery-service-icons.jpg?s=612x612&w=0&k=20&c=sFImJT0HRaRVnUQF_Eyv8bqMU57WqeQu4AvtsBodRqs="
+            },
+            {
+              label: "Digital Booking",
+              icon: "https://static.vecteezy.com/ti/vetor-gratis/p1/15101189-de-contorno-do-icone-do-ponto-de-toque-do-telefone-tela-digital-vetor.jpg"
+            },
+            {
+              label: "Sanitization",
+              icon: "https://thumbs.dreamstime.com/b/com-o-s%C3%ADmbolo-de-desinfec%C3%A7%C3%A3o-do-%C3%ADcone-vetor-limpeza-manual-em-fundo-branco-269606840.jpg"
+            }
+          ]
+        },
+
         // --- SOBRE PAGE ---
         sobrePage: {
           title: "About Mecatec",
@@ -176,9 +208,33 @@ i18next.use(initReactI18next).init({
           reason2: "Modern diagnostic equipment",
           reason3: "Transparency and trust in all services",
           reason4: "Fast and personalized service",
-          contactUs: "Contact us"
+          contactUs: "Contact us",
+          openingHoursTitle: "Opening Hours",
+          openingHours: {
+            mondayFriday: "Monday to Friday: 9am - 6pm",
+            saturday: "Saturday: 9am - 1pm",
+            sunday: "Sunday: Closed"
+          },
+          highlights: {
+            title: "What makes us different?",
+            transparency: {
+              icon: "🔍",
+              num: "100%",
+              label: "Service transparency"
+            },
+            technology: {
+              icon: "⚡",
+              num: "Technology",
+              label: "State-of-the-art equipment"
+            },
+            service: {
+              icon: "🤝",
+              num: "Service",
+              label: "Personalized and fast"
+            }
+          }
         }
-      },
+      }
     },
     pt: {
       translation: {
@@ -241,6 +297,12 @@ i18next.use(initReactI18next).init({
         profile: "Perfil",
         settings: "Configurações",
         details: "Detalhes",
+
+        // Contact Page translations
+        
+        contactSubtitle: "Entre em contacto connosco para dúvidas ou informações.",
+        contactUs: "Fale Conosco",
+        companyLocation: "Localização da Empresa",
 
         // Service History translations
         serviceHistory: "Histórico de Serviços",
@@ -333,6 +395,32 @@ i18next.use(initReactI18next).init({
           }
         },
 
+         servicesStrip: {
+          title: "A pensar em si!",
+          items: [
+            {
+              label: "Saúde Auto",
+              icon: "https://thumbs.dreamstime.com/b/s%C3%ADmbolo-do-logotipo-de-sa%C3%BAde-carro-design-logo-arte-linha-isolada-setor-autom%C3%B3veis-arquivo-vetorial-inclu%C3%ADdo-171175065.jpg"
+            },
+            {
+              label: "Recolha Entrega*",
+              icon: "https://static.vecteezy.com/ti/vetor-gratis/p1/17324579-entregar-a-ilustracao-do-esboco-do-do-icone-das-chaves-do-carro-vetor.jpg"
+            },
+            {
+              label: "Entrega chaves\n24H",
+              icon: "https://media.istockphoto.com/id/1548099001/pt/vetorial/24-hours-order-execution-or-delivery-service-icons.jpg?s=612x612&w=0&k=20&c=sFImJT0HRaRVnUQF_Eyv8bqMU57WqeQu4AvtsBodRqs="
+            },
+            {
+              label: "Marcação Digital",
+              icon: "https://static.vecteezy.com/ti/vetor-gratis/p1/15101189-de-contorno-do-icone-do-ponto-de-toque-do-telefone-tela-digital-vetor.jpg"
+            },
+            {
+              label: "Higienização",
+              icon: "https://thumbs.dreamstime.com/b/com-o-s%C3%ADmbolo-de-desinfec%C3%A7%C3%A3o-do-%C3%ADcone-vetor-limpeza-manual-em-fundo-branco-269606840.jpg"
+            }
+          ]
+        },
+
         // --- SOBRE PAGE ---
         sobrePage: {
           title: "Sobre a Mecatec",
@@ -346,11 +434,34 @@ i18next.use(initReactI18next).init({
           reason2: "Equipamentos modernos de diagnóstico",
           reason3: "Transparência e confiança em todos os serviços",
           reason4: "Atendimento rápido e personalizado",
-          contactUs: "Contacte-nos"
+          contactUs: "Contacte-nos",
+          openingHoursTitle: "Horário de Funcionamento",
+          openingHours: {
+            mondayFriday: "Segunda a Sexta: 9h - 18h",
+            saturday: "Sábado: 9h - 13h",
+            sunday: "Domingo: Encerrado"
+          },
+          highlights: {
+            title: "O que nos torna diferentes?",
+            transparency: {
+              icon: "🔍",
+              num: "100%",
+              label: "Transparência nos serviços"
+            },
+            technology: {
+              icon: "⚡",
+              num: "Tecnologia",
+              label: "Equipamentos de última geração"
+            },
+            service: {
+              icon: "🤝",
+              num: "Atendimento",
+              label: "Personalizado e rápido"
+            }
+          }
         }
-      },
+      }
     },
-
     es: {
       translation: {
         welcome: "Bienvenido",
@@ -412,6 +523,12 @@ i18next.use(initReactI18next).init({
         profile: "Perfil",
         settings: "Configuraciones",
         details: "Detalles",
+
+        // Contact Page translations
+       
+        contactSubtitle: "Contáctanos para dudas o información.",
+        contactUs: "Contáctanos",
+        companyLocation: "Ubicación de la Empresa",
 
         // Service History translations
         serviceHistory: "Historial de Servicios",
@@ -503,6 +620,32 @@ i18next.use(initReactI18next).init({
           }
         },
 
+        servicesStrip: {
+          title: "¡Pensando en ti!",
+          items: [
+            {
+              label: "Salud Auto",
+              icon: "https://thumbs.dreamstime.com/b/s%C3%ADmbolo-do-logotipo-de-sa%C3%BAde-carro-design-logo-arte-linha-isolada-setor-autom%C3%B3veis-arquivo-vetorial-inclu%C3%ADdo-171175065.jpg"
+            },
+            {
+              label: "Recogida Entrega*",
+              icon: "https://static.vecteezy.com/ti/vetor-gratis/p1/17324579-entregar-a-ilustracao-do-esboco-do-do-icone-das-chaves-do-carro-vetor.jpg"
+            },
+            {
+              label: "Entrega llaves\n24H",
+              icon: "https://media.istockphoto.com/id/1548099001/pt/vetorial/24-hours-order-execution-or-delivery-service-icons.jpg?s=612x612&w=0&k=20&c=sFImJT0HRaRVnUQF_Eyv8bqMU57WqeQu4AvtsBodRqs="
+            },
+            {
+              label: "Reserva Digital",
+              icon: "https://static.vecteezy.com/ti/vetor-gratis/p1/15101189-de-contorno-do-icone-do-ponto-de-toque-do-telefone-tela-digital-vetor.jpg"
+            },
+            {
+              label: "Higienización",
+              icon: "https://thumbs.dreamstime.com/b/com-o-s%C3%ADmbolo-de-desinfec%C3%A7%C3%A3o-do-%C3%ADcone-vetor-limpeza-manual-em-fundo-branco-269606840.jpg"
+            }
+          ]
+        },
+
         // --- SOBRE PAGE ---
         sobrePage: {
           title: "Sobre Mecatec",
@@ -516,9 +659,33 @@ i18next.use(initReactI18next).init({
           reason2: "Equipos modernos de diagnóstico",
           reason3: "Transparencia y confianza en todos los servicios",
           reason4: "Atención rápida y personalizada",
-          contactUs: "Contáctanos"
+          contactUs: "Contáctanos",
+          openingHoursTitle: "Horario de Atención",
+          openingHours: {
+            mondayFriday: "Lunes a Viernes: 9am - 6pm",
+            saturday: "Sábado: 9am - 1pm",
+            sunday: "Domingo: Cerrado"
+          },
+          highlights: {
+            title: "¿Qué nos hace diferentes?",
+            transparency: {
+              icon: "🔍",
+              num: "100%",
+              label: "Transparencia en los servicios"
+            },
+            technology: {
+              icon: "⚡",
+              num: "Tecnología",
+              label: "Equipos de última generación"
+            },
+            service: {
+              icon: "🤝",
+              num: "Atención",
+              label: "Personalizada y rápida"
+            }
+          }
         }
-      },
+      }
     },
     fr: {
       translation: {
@@ -581,6 +748,11 @@ i18next.use(initReactI18next).init({
         profile: "Profil",
         settings: "Paramètres",
         details: "Détails",
+
+        // Contact Page translations
+        contactSubtitle: "Contactez-nous pour toute question ou information.",
+        contactUs: "Contactez-nous",
+        companyLocation: "Localisation de l'entreprise",
 
         actions: "Actions",
         viewDetails: "Voir Détails",
@@ -673,6 +845,32 @@ i18next.use(initReactI18next).init({
           }
         },
 
+        servicesStrip: {
+          title: "À votre service !",
+          items: [
+            {
+              label: "Santé Auto",
+              icon: "https://thumbs.dreamstime.com/b/s%C3%ADmbolo-do-logotipo-de-sa%C3%BAde-carro-design-logo-arte-linha-isolada-setor-autom%C3%B3veis-arquivo-vetorial-inclu%C3%ADdo-171175065.jpg"
+            },
+            {
+              label: "Collecte Livraison*",
+              icon: "https://static.vecteezy.com/ti/vetor-gratis/p1/17324579-entregar-a-ilustracao-do-esboco-do-do-icone-das-chaves-do-carro-vetor.jpg"
+            },
+            {
+              label: "Remise des clés\n24H",
+              icon: "https://media.istockphoto.com/id/1548099001/pt/vetorial/24-hours-order-execution-or-delivery-service-icons.jpg?s=612x612&w=0&k=20&c=sFImJT0HRaRVnUQF_Eyv8bqMU57WqeQu4AvtsBodRqs="
+            },
+            {
+              label: "Prise de rendez-vous digitale",
+              icon: "https://static.vecteezy.com/ti/vetor-gratis/p1/15101189-de-contorno-do-icone-do-ponto-de-toque-do-telefone-tela-digital-vetor.jpg"
+            },
+            {
+              label: "Hygiénisation",
+              icon: "https://thumbs.dreamstime.com/b/com-o-s%C3%ADmbolo-de-desinfec%C3%A7%C3%A3o-do-%C3%ADcone-vetor-limpeza-manual-em-fundo-branco-269606840.jpg"
+            }
+          ]
+        },
+
         // --- SOBRE PAGE ---
         sobrePage: {
           title: "À propos de Mecatec",
@@ -686,532 +884,35 @@ i18next.use(initReactI18next).init({
           reason2: "Équipements de diagnostic modernes",
           reason3: "Transparence et confiance dans tous les services",
           reason4: "Service rapide et personnalisé",
-          contactUs: "Contactez-nous"
+          contactUs: "Contactez-nous",
+          openingHoursTitle: "Heures d'Ouverture",
+          openingHours: {
+            mondayFriday: "Lundi au Vendredi : 9h - 18h",
+            saturday: "Samedi : 9h - 13h",
+            sunday: "Dimanche : Fermé"
+          },
+          highlights: {
+            title: "Qu'est-ce qui nous rend différents ?",
+            transparency: {
+              icon: "🔍",
+              num: "100%",
+              label: "Transparence des services"
+            },
+            technology: {
+              icon: "⚡",
+              num: "Technologie",
+              label: "Équipements de dernière génération"
+            },
+            service: {
+              icon: "🤝",
+              num: "Service",
+              label: "Personnalisé et rapide"
+            }
+          }
         }
-      },
-    },
-  },
+      }
+    }
+  }
 });
 
 export default i18next;
-
-// import i18next from "i18next";
-// import { initReactI18next } from "react-i18next";
-
-// // Try to read the user's preferred language from localStorage so the selection
-// // persists across page navigation and reloads. Fall back to 'en' otherwise.
-// const storedLng =
-//   typeof window !== "undefined" ? localStorage.getItem("i18nextLng") : null;
-// const initialLng = storedLng || "en";
-
-// i18next.use(initReactI18next).init({
-//   debug: true,
-//   lng: initialLng,
-//   fallbackLng: "en",
-//   resources: {
-//     en: {
-//       translation: {
-//         welcome: "Welcome",
-//         toMecatec: "to Mecatec",
-//         yourTrustedAutoShop: "Your trusted auto shop",
-//         technologyAndQuality: "Technology and quality at your service",
-//         preventiveMaintenance: "Preventive Maintenance",
-//         preventiveMaintenanceDescription:
-//           "Keep your vehicle in perfect condition.",
-//         quickDiagnosis: "Quick Diagnosis",
-//         quickDiagnosisDescription:
-//           "We identify problems with precision and speed.",
-//         specializedRepair: "Specialized Repairs",
-//         specializedRepairDescription:
-//           "Experienced technicians for any type of repair.",
-//         clientList: "Client List",
-//         serviceList: "Services",
-//         appointment: "Appointment",
-//         about: "About",
-//         contact: "Contact",
-//         allRightsReserved: "All rights reserved",
-//         developedBy: "Developed by",
-//         carousel: {
-//           textImage1: "Professional Auto Shop",
-//           altImage1: "Auto shop with professional equipment",
-//           captionImage1: "Mecatec - Your Trusted Auto Shop",
-//           textImage2: "Organized Workshop",
-//           altImage2: "Well-organized auto repair shop",
-//           captionImage2: "Organization and Quality",
-//           textImage3: "Specialized Services",
-//           altImage3: "Mechanic working on a vehicle",
-//           captionImage3: "Specialized Services",
-//         },
-//         errorLoadingCustomers: "Error loading customers",
-//         customerList: "Customer List",
-//         customerManagementDescription:
-//           "Comprehensive management of Mecatec's customers",
-//         loading: "Loading",
-//         loadingCustomers: "Loading customers",
-//         registeredCustomers: "Registered Customers",
-//         name: "Name",
-//         email: "Email",
-//         phone: "Phone",
-//         address: "Address",
-//         age: "Age",
-//         years: "years",
-//         noCustomersFound: "No customers registered yet.",
-//         apiConnected: "API Connected!",
-//         customerDataFetchedSuccessfully:
-//           "If you see this list, the communication with the backend is working correctly.",
-//         login: "Login",
-//         logout: "Logout",
-//         register: "Register",
-//         username: "Username",
-//         password: "Password",
-//         confirmPassword: "Confirm Password",
-//         submit: "Submit",
-//         dashboard: "Dashboard",
-//         profile: "Profile",
-//         settings: "Settings",
-
-//         // Service History translations
-//         serviceHistory: "Service History",
-//         serviceHistoryDescription: "View all completed and scheduled services",
-//         errorLoadingServices: "Error loading services",
-//         loadingServices: "Loading services",
-//         serviceRecords: "Service Records",
-//         appointmentDate: "Appointment Date",
-//         description: "Description",
-//         estimatedBudget: "Estimated Budget",
-//         actualBudget: "Actual Budget",
-//         variance: "Variance",
-//         status: "Status",
-//         reminder: "Reminder",
-//         noServicesFound: "No services found",
-//         serviceDataFetchedSuccessfully: "Service data fetched successfully",
-//         completedServicesHistory: "Completed Services History",
-//         completedServicesDescription:
-//           "View all successfully completed services",
-//         completedServices: "Completed Services",
-//         serviceType: "Service Type",
-//         noDescription: "No description",
-//         details: "Details",
-
-//         actions: "Actions",
-//         viewDetails: "View Details",
-//         appointmentDetails: "Appointment Details",
-//         generalInfo: "General Information",
-//         serviceInfo: "Service Information",
-//         budgetInfo: "Budget Information",
-//         appointmentDescription: "Appointment Description",
-//         extraServices: "Extra Services",
-//         duration: "Duration",
-//         minutes: "minutes",
-//         serviceDescription: "Service Description",
-//         cost: "Cost",
-//         sent: "Sent",
-//         notSent: "Not Sent",
-//         close: "Close",
-//         approved: "Approved",
-//         totalExtraServices: "Total Extra Services",
-//         noExtraServices: "No extra services were added to this appointment",
-
-//         // Status translations
-//         pending: "Pending",
-//         inProgress: "In Progress",
-//         completed: "Completed",
-//         cancelled: "Cancelled",
-//         scheduled: "Scheduled",
-//         errorLoadingAppointments: "Error loading appointments",
-//         appointmentList: "Appointment List",
-//         appointmentManagementDescription:
-//           "Comprehensive management of appointments",
-//         loadingAppointments: "Loading appointments",
-//         registeredAppointments: "Registered Appointments",
-//         service: "Service",
-//         date: "Date",
-//         time: "Time",
-//         customer: "Customer",
-//         noAppointmentsFound: "No appointments found yet.",
-//         appointmentDataFetchedSuccessfully:
-//           "Appointment data fetched successfully.",
-//       },
-//     },
-//     pt: {
-//       translation: {
-//         welcome: "Bem-vindo",
-//         toMecatec: "à Mecatec",
-//         yourTrustedAutoShop: "Sua oficina mecânica de confiança",
-//         technologyAndQuality: "Tecnologia e qualidade a seu serviço",
-//         preventiveMaintenance: "Manutenção Preventiva",
-//         preventiveMaintenanceDescription:
-//           "Mantenha seu veículo sempre em perfeito estado.",
-//         quickDiagnosis: "Diagnóstico Rápido",
-//         quickDiagnosisDescription:
-//           "Identificamos problemas com precisão e agilidade.",
-//         specializedRepair: "Reparos Especializados",
-//         specializedRepairDescription:
-//           "Técnicos experientes para qualquer tipo de reparo.",
-//         clientList: "Lista de Clientes",
-//         serviceList: "Serviços",
-//         appointment: "Agendamento",
-//         about: "Sobre",
-//         contact: "Contato",
-//         allRightsReserved: "Todos os direitos reservados",
-//         developedBy: "Desenvolvido por",
-//         carousel: {
-//           textImage1: "Oficina Mecânica Profissional",
-//           altImage1: "Oficina mecânica com equipamentos profissionais",
-//           captionImage1: "Mecatec - Sua Oficina de Confiança",
-//           textImage2: "Oficina Organizada",
-//           altImage2: "Oficina mecânica bem organizada",
-//           captionImage2: "Organização e Qualidade",
-//           textImage3: "Serviços Especializados",
-//           altImage3: "Mecânico trabalhando em veículo",
-//           captionImage3: "Serviços Especializados",
-//         },
-//         errorLoadingCustomers: "Erro ao carregar os clientes",
-//         customerList: "Lista de Clientes",
-//         customerManagementDescription:
-//           "Gestão completa dos clientes da Mecatec",
-//         loading: "Carregando",
-//         loadingCustomers: "Carregando clientes",
-//         registeredCustomers: "Clientes Cadastrados",
-//         name: "Nome",
-//         email: "Email",
-//         phone: "Telefone",
-//         address: "Endereço",
-//         age: "Idade",
-//         years: "anos",
-//         noCustomersFound: "Nenhum cliente cadastrado ainda.",
-//         apiConnected: "API Conectada!",
-//         customerDataFetchedSuccessfully:
-//           "Se estiver vendo esta lista, a comunicação com o backend está funcionando corretamente.",
-//         login: "Entrar",
-//         logout: "Sair",
-//         register: "Registrar",
-//         username: "Nome de usuário",
-//         password: "Senha",
-//         confirmPassword: "Confirmar Senha",
-//         submit: "Enviar",
-//         dashboard: "Painel",
-//         profile: "Perfil",
-//         settings: "Configurações",
-//         details: "Detalhes",
-
-//         // Service History translations
-//         serviceHistory: "Histórico de Serviços",
-//         serviceHistoryDescription:
-//           "Visualize todos os serviços concluídos e agendados",
-//         errorLoadingServices: "Erro ao carregar serviços",
-//         loadingServices: "Carregando serviços",
-//         serviceRecords: "Registos de Serviços",
-//         appointmentDate: "Data do Agendamento",
-//         description: "Descrição",
-//         estimatedBudget: "Orçamento Estimado",
-//         actualBudget: "Orçamento Real",
-//         variance: "Variação",
-//         status: "Estado",
-//         reminder: "Lembrete",
-//         noServicesFound: "Nenhum serviço encontrado",
-//         serviceDataFetchedSuccessfully:
-//           "Dados de serviços carregados com sucesso",
-//         completedServicesHistory: "Histórico de Serviços Concluídos",
-//         completedServicesDescription:
-//           "Visualize todos os serviços concluídos com sucesso",
-//         completedServices: "Serviços Concluídos",
-//         serviceType: "Tipo de Serviço",
-//         noDescription: "Sem descrição",
-
-//         actions: "Ações",
-//         viewDetails: "Ver Detalhes",
-//         appointmentDetails: "Detalhes do Agendamento",
-//         generalInfo: "Informações Gerais",
-//         serviceInfo: "Informações do Serviço",
-//         budgetInfo: "Informações do Orçamento",
-//         appointmentDescription: "Descrição do Agendamento",
-//         extraServices: "Serviços Extras",
-//         duration: "Duração",
-//         minutes: "minutos",
-//         serviceDescription: "Descrição do Serviço",
-//         cost: "Custo",
-//         sent: "Enviado",
-//         notSent: "Não Enviado",
-//         close: "Fechar",
-//         approved: "Aprovado",
-//         totalExtraServices: "Total Serviços Extras",
-//         noExtraServices:
-//           "Nenhum serviço extra foi adicionado a este agendamento",
-
-//         // Status translations
-//         pending: "Pendente",
-//         inProgress: "Em Progresso",
-//         completed: "Concluído",
-//         cancelled: "Cancelado",
-//         scheduled: "Agendado",
-//         errorLoadingAppointments: "Erro ao carregar agendamentos",
-//         appointmentList: "Lista de Agendamentos",
-//         appointmentManagementDescription: "Gestão completa dos agendamentos",
-//         loadingAppointments: "Carregando agendamentos",
-//         registeredAppointments: "Agendamentos Registrados",
-//         service: "Serviço",
-//         date: "Data",
-//         time: "Hora",
-//         customer: "Cliente",
-//         noAppointmentsFound: "Nenhum agendamento encontrado ainda.",
-//         appointmentDataFetchedSuccessfully:
-//           "Dados dos agendamentos carregados com sucesso.",
-//       },
-//     },
-
-//     es: {
-//       translation: {
-//         welcome: "Bienvenido",
-//         toMecatec: "a Mecatec",
-//         yourTrustedAutoShop: "Tu taller mecánico de confianza",
-//         technologyAndQuality: "Tecnología y calidad a tu servicio",
-//         preventiveMaintenance: "Mantenimiento Preventivo",
-//         preventiveMaintenanceDescription:
-//           "Mantén tu vehículo siempre en perfecto estado.",
-//         quickDiagnosis: "Diagnóstico Rápido",
-//         quickDiagnosisDescription:
-//           "Identificamos problemas con precisión y agilidad.",
-//         specializedRepair: "Reparaciones Especializadas",
-//         specializedRepairDescription:
-//           "Técnicos experimentados para cualquier tipo de reparación.",
-//         clientList: "Lista de Clientes",
-//         serviceList: "Servicios",
-//         appointment: "Cita",
-//         about: "Acerca de",
-//         contact: "Contacto",
-//         allRightsReserved: "Todos los derechos reservados",
-//         developedBy: "Desarrollado por",
-//         carousel: {
-//           textImage1: "Taller Mecánico Profesional",
-//           altImage1: "Taller mecánico con equipos profesionales",
-//           captionImage1: "Mecatec - Tu Taller de Confianza",
-//           textImage2: "Taller Organizado",
-//           altImage2: "Taller mecánico bien organizado",
-//           captionImage2: "Organización y Calidad",
-//           textImage3: "Servicios Especializados",
-//           altImage3: "Mecánico trabajando en vehículo",
-//           captionImage3: "Servicios Especializados",
-//         },
-//         errorLoadingCustomers: "Error al cargar los clientes",
-//         customerList: "Lista de Clientes",
-//         customerManagementDescription:
-//           "Gestión completa de los clientes de Mecatec",
-//         loading: "Cargando",
-//         loadingCustomers: "Cargando clientes",
-//         registeredCustomers: "Clientes Registrados",
-//         name: "Nombre",
-//         email: "Correo electrónico",
-//         phone: "Teléfono",
-//         address: "Dirección",
-//         age: "Edad",
-//         years: "años",
-//         noCustomersFound: "No hay clientes registrados aún.",
-//         apiConnected: "¡API Conectada!",
-//         customerDataFetchedSuccessfully:
-//           "Si ves esta lista, la comunicación con el backend está funcionando correctamente.",
-//         login: "Iniciar Sesión",
-//         logout: "Cerrar Sesión",
-//         register: "Registrarse",
-//         username: "Nombre de usuario",
-//         password: "Contraseña",
-//         confirmPassword: "Confirmar Contraseña",
-//         submit: "Enviar",
-//         dashboard: "Panel",
-//         profile: "Perfil",
-//         settings: "Configuraciones",
-//         details: "Detalles",
-
-//         // Service History translations
-//         serviceHistory: "Historial de Servicios",
-//         serviceHistoryDescription:
-//           "Ver todos los servicios completados y programados",
-//         errorLoadingServices: "Error al cargar servicios",
-//         loadingServices: "Cargando servicios",
-//         serviceRecords: "Registros de Servicios",
-//         appointmentDate: "Fecha de Cita",
-//         description: "Descripción",
-//         estimatedBudget: "Presupuesto Estimado",
-//         actualBudget: "Presupuesto Real",
-//         variance: "Varianza",
-//         status: "Estado",
-//         reminder: "Recordatorio",
-//         noServicesFound: "No se encontraron servicios",
-//         serviceDataFetchedSuccessfully:
-//           "Datos de servicios cargados exitosamente",
-//         completedServicesHistory: "Historial de Servicios Completados",
-//         completedServicesDescription:
-//           "Ver todos los servicios completados exitosamente",
-//         completedServices: "Servicios Completados",
-//         serviceType: "Tipo de Servicio",
-//         noDescription: "Sin descripción",
-
-//         actions: "Acciones",
-//         viewDetails: "Ver Detalles",
-//         appointmentDetails: "Detalles de la Cita",
-//         generalInfo: "Información General",
-//         serviceInfo: "Información del Servicio",
-//         budgetInfo: "Información del Presupuesto",
-//         appointmentDescription: "Descripción de la Cita",
-//         extraServices: "Servicios Extras",
-//         duration: "Duración",
-//         minutes: "minutos",
-//         serviceDescription: "Descripción del Servicio",
-//         cost: "Costo",
-//         sent: "Enviado",
-//         notSent: "No Enviado",
-//         close: "Cerrar",
-//         approved: "Aprobado",
-//         totalExtraServices: "Total Servicios Extras",
-//         noExtraServices: "No se agregaron servicios extra a esta cita",
-
-//         // Status translations
-//         completed: "Completado",
-//         pending: "Pendiente",
-//         cancelled: "Cancelado",
-//         scheduled: "Programado",
-//         inProgress: "En Progreso",
-//         errorLoadingAppointments: "Error al cargar citas",
-//         appointmentList: "Lista de Citas",
-//         appointmentManagementDescription: "Gestión completa de las citas",
-//         loadingAppointments: "Cargando citas",
-//         registeredAppointments: "Citas Registradas",
-//         service: "Servicio",
-//         date: "Fecha",
-//         time: "Hora",
-//         customer: "Cliente",
-//         noAppointmentsFound: "No se encontraron citas aún.",
-//         appointmentDataFetchedSuccessfully:
-//           "Datos de las citas cargados exitosamente.",
-//       },
-//     },
-//     fr: {
-//       translation: {
-//         welcome: "Bienvenue",
-//         toMecatec: "chez Mecatec",
-//         yourTrustedAutoShop: "Votre atelier mécanique de confiance",
-//         technologyAndQuality: "Technologie et qualité à votre service",
-//         preventiveMaintenance: "Entretien Préventif",
-//         preventiveMaintenanceDescription:
-//           "Gardez votre véhicule en parfait état.",
-//         quickDiagnosis: "Diagnostic Rapide",
-//         quickDiagnosisDescription:
-//           "Nous identifions les problèmes avec précision et rapidité.",
-//         specializedRepair: "Réparations Spécialisées",
-//         specializedRepairDescription:
-//           "Des techniciens expérimentés pour tout type de réparation.",
-//         clientList: "Liste des Clients",
-//         serviceList: "Services",
-//         appointment: "Rendez-vous",
-//         about: "À propos",
-//         contact: "Contact",
-//         allRightsReserved: "Tous droits réservés",
-//         developedBy: "Développé par",
-//         carousel: {
-//           textImage1: "Atelier Mécanique Professionnel",
-//           altImage1: "Atelier mécanique avec équipements professionnels",
-//           captionImage1: "Mecatec - Votre Atelier de Confiance",
-//           textImage2: "Atelier Organisé",
-//           altImage2: "Atelier mécanique bien organisé",
-//           captionImage2: "Organisation et Qualité",
-//           textImage3: "Services Spécialisés",
-//           altImage3: "Mécanicien travaillant sur un véhicule",
-//           captionImage3: "Services Spécialisés",
-//         },
-//         errorLoadingCustomers: "Erreur lors du chargement des clients",
-//         customerList: "Liste des Clients",
-//         customerManagementDescription:
-//           "Gestion complète des clients de Mecatec",
-//         loading: "Chargement",
-//         loadingCustomers: "Chargement des clients",
-//         registeredCustomers: "Clients Enregistrés",
-//         name: "Nom",
-//         email: "Email",
-//         phone: "Téléphone",
-//         address: "Adresse",
-//         age: "Âge",
-//         years: "ans",
-//         noCustomersFound: "Aucun client enregistré pour le moment.",
-//         apiConnected: "API Connectée !",
-//         customerDataFetchedSuccessfully:
-//           "Si vous voyez cette liste, la communication avec le backend fonctionne correctement.",
-//         login: "Connexion",
-//         logout: "Déconnexion",
-//         register: "S'inscrire",
-//         username: "Nom d'utilisateur",
-//         password: "Mot de passe",
-//         confirmPassword: "Confirmer le Mot de Passe",
-//         submit: "Soumettre",
-//         dashboard: "Tableau de Bord",
-//         profile: "Profil",
-//         settings: "Paramètres",
-//         details: "Détails",
-
-//         actions: "Actions",
-//         viewDetails: "Voir Détails",
-//         appointmentDetails: "Détails du Rendez-vous",
-//         generalInfo: "Informations Générales",
-//         serviceInfo: "Informations du Service",
-//         budgetInfo: "Informations du Budget",
-//         appointmentDescription: "Description du Rendez-vous",
-//         extraServices: "Services Supplémentaires",
-//         duration: "Durée",
-//         minutes: "minutes",
-//         serviceDescription: "Description du Service",
-//         cost: "Coût",
-//         sent: "Envoyé",
-//         notSent: "Non Envoyé",
-//         close: "Fermer",
-//         approved: "Approuvé",
-//         totalExtraServices: "Total Services Supplémentaires",
-//         noExtraServices:
-//           "Aucun service supplémentaire n'a été ajouté à ce rendez-vous",
-
-//         // Service History translations
-//         serviceHistory: "Historique des Services",
-//         serviceHistoryDescription:
-//           "Voir tous les services terminés et programmés",
-//         errorLoadingServices: "Erreur lors du chargement des services",
-//         loadingServices: "Chargement des services",
-//         serviceRecords: "Enregistrements de Services",
-//         appointmentDate: "Date de Rendez-vous",
-//         description: "Description",
-//         estimatedBudget: "Budget Estimé",
-//         actualBudget: "Budget Réel",
-//         variance: "Variance",
-//         status: "Statut",
-//         reminder: "Rappel",
-//         noServicesFound: "Aucun service trouvé",
-//         serviceDataFetchedSuccessfully:
-//           "Données de services chargées avec succès",
-//         completedServicesHistory: "Historique des Services Terminés",
-//         completedServicesDescription:
-//           "Voir tous les services terminés avec succès",
-//         completedServices: "Services Terminés",
-//         serviceType: "Type de Service",
-//         noDescription: "Aucune description",
-
-//         // Status translations
-//         completed: "Terminé",
-//         pending: "En Attente",
-//         cancelled: "Annulé",
-//         scheduled: "Programmé",
-//         inProgress: "En Cours",
-//         errorLoadingAppointments: "Erreur lors du chargement des rendez-vous",
-//         appointmentList: "Liste des Rendez-vous",
-//         appointmentManagementDescription: "Gestion complète des rendez-vous",
-//         loadingAppointments: "Chargement des rendez-vous",
-//         registeredAppointments: "Rendez-vous Enregistrés",
-//         service: "Service",
-//         date: "Date",
-//         time: "Heure",
-//         customer: "Client",
-//         noAppointmentsFound: "Aucun rendez-vous trouvé pour le moment.",
-//         appointmentDataFetchedSuccessfully:
-//           "Données des rendez-vous chargées avec succès.",
-//       },
-//     },
-//   },
-// });
-
-// export default i18next;
