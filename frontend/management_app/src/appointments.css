@@ -1,0 +1,401 @@
+/* ===== 1. FONT & BASE ===== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #f7f8fa;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ===== 2. CALENDAR WRAPPER ===== */
+.calendar-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+  background: #fff;
+  border: 1px solid #e9edf0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+/* ===== 3. CONTROLS BAR ===== */
+.calendar-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  background: #fff;
+  border-bottom: 1px solid #e9edf0;
+  flex-shrink: 0;
+}
+
+.calendar-controls button,
+.calendar-controls select {
+  padding: 0.75rem 1.25rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid #e9edf0;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #262626;
+  min-width: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.calendar-controls button:hover {
+  background: #f5f5f5;
+  border-color: #40a9ff;
+  color: #40a9ff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.calendar-controls button:active {
+  background: #e6f7ff;
+  transform: translateY(1px);
+}
+
+.calendar-controls select {
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23262626' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 0.75rem center;
+  padding-right: 2.5rem;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.calendar-controls select:hover {
+  border-color: #40a9ff;
+  color: #40a9ff;
+}
+
+/* Add New Appointment Button */
+.add-appointment-btn {
+  background-color: #1890ff !important;
+  color: white !important;
+  border: none !important;
+  padding: 0.75rem 1.5rem !important;
+  margin-left: auto;
+  font-weight: 600;
+}
+
+.add-appointment-btn:hover {
+  background-color: #40a9ff !important;
+  color: white !important;
+  transform: translateY(-1px);
+}
+
+.add-appointment-btn:active {
+  background-color: #096dd9 !important;
+  transform: translateY(1px);
+}
+
+/* Current Date Display */
+.calendar-controls .current-date {
+  margin-left: 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #262626;
+  padding: 0.5rem 1rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+/* ===== 4. DAY/WEEK VIEW ===== */
+
+/* --- Header (Days) --- */
+.calendar-header {
+  display: grid;
+  /* Alterado para 5 dias + coluna de horas */
+  grid-template-columns: 70px repeat(5, 1fr);
+  background: #fafafa;
+  border-bottom: 1px solid #e9edf0;
+  flex-shrink: 0;
+}
+
+.day-header {
+  text-align: center;
+  padding: 12px 0;
+  font-weight: 500;
+  font-size: 13px;
+  color: #595959;
+  border-left: 1px solid #e9edf0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* --- Grid Body --- */
+.calendar-body {
+  display: grid;
+  grid-template-columns: 70px 1fr;
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+.hours-col {
+  background: #fafafa;
+  border-right: 1px solid #e9edf0;
+}
+
+.hour-cell {
+  height: 60px;
+  font-size: 12px;
+  color: #8c8c8c;
+  text-align: right;
+  padding-right: 10px;
+  border-bottom: 1px solid #e9edf0;
+}
+
+/* --- Days Grid & Events --- */
+.days-grid {
+  display: grid;
+  /* Alterado para 5 dias */
+  grid-template-columns: repeat(5, 1fr);
+  position: relative;
+  overflow-y: auto;
+  height: 100%;
+}
+
+.day-column {
+  position: relative;
+  border-left: 1px solid #e9edf0;
+}
+
+.day-cell {
+  height: 60px;
+  border-bottom: 1px solid #e9edf0;
+}
+
+/* --- Event Blocks --- */
+.event-block {
+  position: absolute;
+  left: 5px;
+  right: 5px;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 10;
+  border-left: 3px solid;
+}
+
+.event-block:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  z-index: 20;
+}
+
+.event-block.green {
+  background-color: #f6ffed;
+  border-color: #52c41a;
+  color: #254015;
+}
+
+.event-block.yellow {
+  background-color: #fffbe6;
+  border-color: #faad14;
+  color: #5c4c1a;
+}
+
+.event-time {
+  font-weight: 600;
+  font-size: 11px;
+}
+
+.event-title {
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ===== 5. MONTH VIEW ===== */
+
+.calendar-header.month {
+  /* Mantido com 7 dias para a vista de mês */
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.month-grid {
+  display: grid;
+  /* Mantido com 7 dias para a vista de mês */
+  grid-template-columns: repeat(7, 1fr);
+  grid-template-rows: repeat(6, 1fr);
+  flex-grow: 1;
+}
+
+.month-cell {
+  position: relative;
+  border-left: 1px solid #e9edf0;
+  border-bottom: 1px solid #e9edf0;
+  padding: 8px;
+  background: #fff;
+  transition: all 0.2s ease;
+}
+
+/* Adicione estes novos estilos */
+.month-cell:not(.weekend):not(.outside):hover {
+  background-color: #f0f7ff;
+  cursor: pointer;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.month-cell:not(.weekend):not(.outside):active {
+  transform: translateY(0);
+  background-color: #e6f7ff;
+}
+
+.month-cell.weekend {
+  background-color: #fdfdfd;
+  cursor: not-allowed;
+}
+
+.month-cell.outside .month-date {
+  color: #bfbfbf;
+}
+
+.month-date {
+  font-size: 13px;
+  font-weight: 500;
+  color: #595959;
+}
+
+.month-badge {
+  margin-top: 8px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  background-color: #e6f7ff;
+  color: #096dd9;
+  display: inline-block;
+}
+
+/* ===== 6. RESPONSIVE ===== */
+@media (max-width: 1024px) {
+  .calendar-controls {
+    padding: 0.75rem 1rem;
+    gap: 0.5rem;
+  }
+  .calendar-controls .current-date {
+    font-size: 1rem;
+  }
+  .day-header {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 768px) {
+  .calendar-controls {
+    flex-wrap: wrap;
+  }
+  .calendar-controls .current-date {
+    width: 100%;
+    text-align: center;
+    margin-top: 0.5rem;
+  }
+  .calendar-header, .calendar-body {
+    /* Alterado para 5 dias em mobile */
+    grid-template-columns: 50px repeat(5, 1fr);
+  }
+  .hour-cell {
+    font-size: 10px;
+    padding-right: 5px;
+  }
+}
+
+/* ===== 7. EVENT MODAL ===== */
+.event-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.event-modal {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.event-modal h2 {
+  margin: 0 0 20px 0;
+  color: #262626;
+  font-size: 1.5rem;
+}
+
+.event-modal h3 {
+  color: #595959;
+  font-size: 1rem;
+  margin: 0 0 8px 0;
+}
+
+.modal-section {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.modal-section:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.modal-section p {
+  margin: 4px 0;
+  color: #262626;
+}
+
+.close-button {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #595959;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.close-button:hover {
+  background: #f0f0f0;
+  color: #262626;
+}
+
+/* Add smooth entrance animation */
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.event-modal {
+  animation: modalFadeIn 0.3s ease-out;
+}
