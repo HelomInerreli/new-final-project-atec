@@ -3,10 +3,9 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from app.database import get_db
-from app.crud.appointment import AppointmentRepository
+from app.crud.appoitment import AppointmentRepository
 from app.schemas.appointment import Appointment, AppointmentCreate, AppointmentUpdate
-from app.schemas.extra_service import ExtraService, ExtraServiceCreate
-from app.scheduler.scheduler import NotificationScheduler
+from app.schemas.appointment_extra_service import AppointmentExtraService as AppointmentExtraServiceSchema, AppointmentExtraServiceCreate
 from app.email_service.email_service import EmailService
 
 router = APIRouter()
@@ -36,28 +35,25 @@ def create_appointment(
 ):
     """
     Create a new appointment.
+    Passes an EmailService instance to the repository so the repo can send confirmation.
     """
-    # Create the appointment in the database
-    new_appointment = repo.create(appointment=appointment_in)
-
-    # Instantiate services
     email_service = EmailService()
-
-    # 1. Send immediate confirmation email
-    # The method expects specific arguments, not the whole object.
-    # We need to pass the customer's email, service name, and appointment date.
-    # The service relationship must be loaded for this to work.
-    email_service.send_confirmation_email(
-        new_appointment.customer.email,
-        service_name=new_appointment.service.name,
-        service_date=new_appointment.appointment_date
-    )
-
-    # 2. The reminder email is handled by the background scheduler.
-    # The scheduler periodically checks for upcoming appointments, so we don't
-    # need to do anything here besides creating the appointment itself.
-
+    new_appointment = repo.create(appointment=appointment_in, email_service=email_service)
     return new_appointment
+
+
+@router.get("/{appointment_id}", response_model=Appointment)
+def get_appointment_details(
+    appointment_id: int,
+    repo: AppointmentRepository = Depends(get_appointment_repo)
+):
+    """
+    Get details of a specific appointment (with relations loaded).
+    """
+    db_appointment = repo.get_by_id_with_relations(appointment_id=appointment_id)
+    if not db_appointment:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Appointment not found")
+    return db_appointment
 
 
 @router.patch("/{appointment_id}/cancel", response_model=Appointment)
@@ -88,35 +84,33 @@ def finalize_appointment(
     return db_appointment
 
 
-@router.post("/{appointment_id}/extra_services", response_model=ExtraService, status_code=status.HTTP_201_CREATED)
-def add_extra_service_to_appointment(
+@router.post("/{appointment_id}/extra_services", response_model=AppointmentExtraServiceSchema, status_code=status.HTTP_201_CREATED)
+def add_extra_service_request(
     appointment_id: int,
-    extra_service_in: ExtraServiceCreate,
+    extra_service_request_in: AppointmentExtraServiceCreate,
     repo: AppointmentRepository = Depends(get_appointment_repo)
 ):
     """
-    Add an extra service to an existing appointment.
+    Create a pending extra-service request for an existing appointment.
+    This does NOT update appointment.actual_budget — approval endpoint handles that.
     """
-    db_extra_service = repo.add_extra_service(appointment_id=appointment_id, extra_service_data=extra_service_in)
-    if not db_extra_service:
+    db_request = repo.add_extra_service_request(appointment_id=appointment_id, request_data=extra_service_request_in)
+    if not db_request:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Appointment not found")
-    return db_extra_service
+    # Optional: trigger notification/email to client here
+    return db_request
 
 
-@router.get("/{appointment_id}", response_model=Appointment)
-def get_appointment_details(
+@router.get("/{appointment_id}/extra_service_requests", response_model=List[AppointmentExtraServiceSchema])
+def list_extra_service_requests(
     appointment_id: int,
     repo: AppointmentRepository = Depends(get_appointment_repo)
 ):
     """
-    Get details of a specific appointment.
+    List extra-service requests for an appointment.
+    Expects repo.get_by_id_with_relations to populate the association relationship.
     """
-    db_appointment = repo.get_by_id(appointment_id=appointment_id)
-    if not db_appointment:
+    appointment = repo.get_by_id_with_relations(appointment_id=appointment_id)
+    if not appointment:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Appointment not found")
-    return db_appointment
-
-# You might want to add PUT/PATCH for general appointment updates here as well
-# @router.put("/{appointment_id}", response_model=Appointment)
-# def update_appointment_details(...):
-#     pass
+    return getattr(appointment, "extra_service_associations", [])

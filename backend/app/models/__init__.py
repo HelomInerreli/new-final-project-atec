@@ -4,5 +4,7 @@ from .customer import Customer
 from .vehicle import Vehicle
 from .service import Service
 from .status import Status
-from .appointment import Appointment
+from .appoitment import Appointment
 from .extra_service import ExtraService
+from .appoitment_extra_service import AppointmentExtraService
+from .customerAuth import CustomerAuth

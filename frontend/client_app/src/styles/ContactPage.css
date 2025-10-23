@@ -1,0 +1,65 @@
+.contact-container {
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+.contact-header {
+  background: linear-gradient(90deg, #dc3545 0%, #dc3545 100%);
+  color: #fff;
+  padding-bottom: 2rem;
+}
+
+.contact-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.contact-subtitle {
+  font-size: 1.2rem;
+  color: #ffeaea;
+}
+
+.contact-main {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+  margin-top: -40px;
+  padding: 2rem 0;
+}
+
+.contact-section {
+  margin-bottom: 2.5rem;
+}
+
+.contact-section h2 {
+  color: #dc3545;
+  font-weight: 600;
+}
+
+.contact-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  background: #fff;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.contact-card-title {
+  color: #dc3545;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.contact-info {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.contact-map {
+  width: 100%;
+  height: 300px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  border: none;
+}
