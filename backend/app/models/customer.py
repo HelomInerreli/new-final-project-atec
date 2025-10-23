@@ -14,6 +14,7 @@ class Customer(Base):
     city = Column(String, nullable=True)  
     postal_code = Column(String, nullable=True)  
     birth_date = Column(Date, nullable=True)  
+    is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
     deleted_at = Column(DateTime, nullable=True, default=None) # Soft delete column

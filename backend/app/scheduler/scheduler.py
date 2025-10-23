@@ -1,7 +1,7 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 from sqlalchemy.orm import Session, joinedload
 from datetime import datetime, timedelta
-from app.models.appointment import Appointment
+from app.models.appoitment import Appointment
 from app.models.customer import Customer
 from app.email_service import EmailService
 from app.database import SessionLocal

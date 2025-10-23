@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from app.models.customer import Customer
-from app.models.appointment import Appointment
+from app.models.appoitment import Appointment
 from app.schemas.customer import CustomerCreate, CustomerUpdate
 from typing import List, Optional
 from datetime import datetime
@@ -78,4 +78,4 @@ class CustomerRepository:
     
     
 def get_customers(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(Customer).offset(skip).limit(limit).all()
+    return db.query(Customer).filter(Customer.deleted_at.is_(None)).offset(skip).limit(limit).all()

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button, Form, Alert, Spinner } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 
 import { registerWithCredentials, registerWithGoogle, initiateGoogleAuth, type RegisterData, type GoogleAuthData, useAuth } from '../api/auth';
 import RegisterCustomerInfoModal from './RegisterCustomerInfoModal';
@@ -16,14 +17,11 @@ const Register: React.FC = () => {
   const [error, setError] = useState('');
   const [showLoginModal, setShowLoginModal] = useState(false);
 
-  
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  
-  // Use the auth hook instead of setAuthToken
   const { login } = useAuth();
+  const { t } = useTranslation();
 
-  // Check for Google auth data on component mount
   useEffect(() => {
     const isGoogleAuth = searchParams.get('google');
     if (isGoogleAuth) {
@@ -41,12 +39,12 @@ const Register: React.FC = () => {
     e.preventDefault();
     
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError(`${t('passwords')} ${t('do')} ${t('not')} ${t('match')}`);
       return;
     }
     
     if (password.length < 6) {
-      setError('Password must be at least 6 characters');
+      setError(`${t('password')} ${t('must')} ${t('be')} ${t('at')} ${t('least')} 6 ${t('characters')}`);
       return;
     }
     
@@ -61,7 +59,7 @@ const Register: React.FC = () => {
       // Redirect to backend Google OAuth
       window.location.href = 'http://localhost:8000/api/v1/customersauth/google';
     } catch (err) {
-      setError('Failed to initiate Google authentication');
+      setError(`${t('failed')} ${t('to')} initiate ${t('google')} ${t('authentication')}`);
     } finally {
       setLoading(false);
     }
@@ -92,11 +90,11 @@ const Register: React.FC = () => {
       }
       
       if (response.access_token) {
-        login(response.access_token); // Use the auth hook's login function
+        login(response.access_token);
         navigate('/dashboard');
       }
     } catch (err: any) {
-      setError(err.response?.data?.detail || err.response?.data?.message || 'Registration failed');
+      setError(err.response?.data?.detail || err.response?.data?.message || `${t('registration')} ${t('failed')}`);
     } finally {
       setLoading(false);
       setShowModal(false);
@@ -108,108 +106,106 @@ const Register: React.FC = () => {
       <div className="">
         <div>
           <h2 className="text-center fw-bold">
-            Create account
+            {t('createAccount')}
           </h2>
         </div>
 
-          <Form onSubmit={handleEmailRegister}>
-            {error && (
-              <Alert variant="danger" className="text-center">
+        <Form onSubmit={handleEmailRegister}>
+          {error && (
+            <Alert variant="danger" className="text-center">
               {error}
-              </Alert>
-            )}
+            </Alert>
+          )}
+          
           <Form.Group className="mb-3">
-            <Form.Group className="mb-3">
-              <Form.Label htmlFor='email'>Email address</Form.Label>
-              <Form.Control
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                disabled={loading}
-                />
-            </Form.Group>
-            
-            <Form.Group className="mb-3">
-              <Form.Label htmlFor="password">Password</Form.Label>
-              <Form.Control
-                type="password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                disabled={loading}
-              />
-            </Form.Group>
+            <Form.Label htmlFor='email'>{t('email')}</Form.Label>
+            <Form.Control
+              type="email"
+              placeholder={`${t('enter')} ${t('your')} ${t('email')}`}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              disabled={loading}
+            />
+          </Form.Group>
+          
+          <Form.Group className="mb-3">
+            <Form.Label htmlFor="password">{t('password')}</Form.Label>
+            <Form.Control
+              type="password"
+              placeholder={`${t('enter')} ${t('your')} ${t('password')}`}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              disabled={loading}
+            />
+          </Form.Group>
 
-            <Form.Group className="mb-3">
-              <Form.Label htmlFor="confirmPassword">Confirm Password</Form.Label>
-              <Form.Control
-                type="password"
-                placeholder="Confirm your password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                disabled={loading}
-              />
-            </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label htmlFor="confirmPassword">{t('confirmPassword')}</Form.Label>
+            <Form.Control
+              type="password"
+              placeholder={`${t('confirmPassword')}`}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              disabled={loading}
+            />
+          </Form.Group>
 
-            <div className="d-grid gap-2">
-              <Button 
-                type="submit" 
-                variant="dark" 
-                disabled={loading}
-                className="mb-2"
-              >
+          <div className="d-grid gap-2">
+            <Button 
+              type="submit" 
+              variant="dark" 
+              disabled={loading}
+              className="mb-2"
+            >
               {loading ? (
-              <>
-              <Spinner
-                as="span"
-                animation="border"
-                size="sm"
-                role="status"
-                aria-hidden="true"
-                className="me-2"
-              />
-              Registering...
-              </>
+                <>
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                    className="me-2"
+                  />
+                  {t('registering')}...
+                </>
               ) : (
-                'Register with Email'
+                `${t('register')} ${t('with')} ${t('email')}`
               )}
-              </Button>
+            </Button>
 
-              <div className="text-center my-2">
-                <span className="text-muted">or</span>
-              </div>
+            <div className="text-center my-2">
+              <span className="text-muted">{t('or')}</span>
+            </div>
 
-              <Button
+            <Button
               type="button"
               variant="outline-dark"
               onClick={handleGoogleRegister}
               disabled={loading}
               className="d-flex align-items-center justify-content-center mb-3"
-              >
+            >
               <img
                 src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
                 alt="Google logo"
                 style={{ width: '20px', height: '20px', marginRight: '8px' }}
               />
-              Register with Google
+              {t('register')} {t('with')} {t('google')}
             </Button>
 
-             <Button 
-                type="button" 
-                variant="dark" 
-                disabled={loading}
-                className="mb-2"
-                onClick={() => setShowLoginModal(true)}
-
-              >
-              Sign in to your existing account
-              </Button>
-            </div>
-          </Form.Group>
+            <Button 
+              type="button" 
+              variant="dark" 
+              disabled={loading}
+              className="mb-2"
+              onClick={() => setShowLoginModal(true)}
+            >
+              {t('signInToExistingAccount')}
+            </Button>
+          </div>
         </Form>
         
         {showModal && (
@@ -221,13 +217,13 @@ const Register: React.FC = () => {
             loading={loading}
           />
         )}
+        
         <LoginModal
-        show={showLoginModal}
-        onClose={() => setShowLoginModal(false)}
-      />
+          show={showLoginModal}
+          onClose={() => setShowLoginModal(false)}
+        />
       </div>
     </div>
-
   );
 };
 

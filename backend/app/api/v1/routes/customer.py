@@ -92,9 +92,16 @@ def delete_customer(
     # A 204 No Content response is returned automatically on success.
 
 # The original implementation by Nuno
-@router.get("/", response_model=list[customer_schema.CustomerResponse])
-def list_customers(db: Session = Depends(get_db)):
-    return crud_customer.get_customers(db=db)
+@router.get("/", response_model=List[Customer])
+def list_customers(
+    skip: int = 0,
+    limit: int = 100,
+    repo: CustomerRepository = Depends(get_customer_repo)
+):
+    """
+    Retrieve a list of customers.
+    """
+    return repo.get_all(skip=skip, limit=limit)
 
 @router.put("/profile")
 def update_customer_profile(
