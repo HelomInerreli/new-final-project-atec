@@ -1,0 +1,136 @@
+/* Shared styles for Input, Select, TextArea components */
+.mb-input-wrapper {
+  width: 100%;
+  position: relative;
+}
+
+/* Input / Select / Textarea base */
+.mb-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px 44px 14px 14px; /* room for toggle/caret */
+  border: 2px solid #dc3545; /* projeto vermelho */
+  border-radius: 8px;
+  background: #ffffff;
+  font-size: 1rem;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease, padding 0.15s ease,
+    color 0.12s ease;
+  color: #111827;
+}
+
+.mb-input.placeholder {
+  color: #9ca3af;
+}
+
+/* Subtle focus ring */
+.mb-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 6px rgba(220, 53, 69, 0.06);
+  border-color: #b91c1c;
+  color: #111827;
+}
+
+/* Floating label */
+.mb-input-label {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: all 0.12s ease;
+  color: #6b7280;
+  pointer-events: none;
+  background: transparent;
+  padding: 0 6px;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.mb-input-label.shrunken {
+  top: -8px;
+  transform: none;
+  font-size: 0.75rem;
+  color: #b91c1c; /* vermelho quando ativo */
+  background: #ffffff;
+}
+
+/* Password toggle button */
+.mb-input-password-toggle {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  padding: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #6b7280;
+  font-size: 1.15rem;
+}
+.mb-input-password-toggle:focus {
+  outline: none;
+}
+
+/* Select: remove native arrow in some browsers, add caret via background */
+.mb-input.select {
+  padding-right: 40px; /* room for caret */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+.mb-input.select::placeholder {
+  color: #9ca3af;
+}
+.mb-input.select::-ms-expand {
+  display: none;
+}
+
+/* caret using background SVG */
+/* (no custom caret) */
+
+/* Textarea tweaks */
+.mb-input.textarea {
+  resize: vertical;
+  min-height: 48px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+/* caret element for custom select */
+.mb-select-caret {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+/* Radio/Checkbox minimal styling helper */
+.mb-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mb-radio {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (max-width: 576px) {
+  .mb-input {
+    padding: 12px 40px 12px 12px;
+    font-size: 0.95rem;
+  }
+  .mb-input-label {
+    left: 10px;
+  }
+  .mb-input-label.shrunken {
+    top: -7px;
+    font-size: 0.7rem;
+  }
+}
