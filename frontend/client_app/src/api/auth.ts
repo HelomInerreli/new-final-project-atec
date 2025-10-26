@@ -28,6 +28,17 @@ export interface LoginData {
   password: string;
 }
 
+export interface CustomerDetails {
+  id: number;
+  name: string;
+  email: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  postal_code?: string;
+  birth_date?: string;
+}
+
 //#region TOKEN UTILITIES
 export const setAuthToken = (token: string) => {
   localStorage.setItem('access_token', token); // Fixed: use consistent key
@@ -69,20 +80,61 @@ export const removeToken = () => {
 };
 //#endregion
 
+//#region 
+// Add function to fetch customer details
+export const getCustomerDetails = async (customerId: number): Promise<CustomerDetails> => {
+  const response = await http.get(`/customers/${customerId}`);
+  return response.data;
+};
+
+export const getCustomerEmail = async (customerId: number): Promise<string> => {
+  const response = await http.get(`/customersauth/email/${customerId}`);
+  return response.data.email;
+};
+
+export const getCustomerAuthDetails = async (customerId: number) => {
+  const response = await http.get(`/customersauth/customer/${customerId}`);
+  return response.data;
+};
+//#endregion
+
+
 //#region useAuth HOOK
 export const useAuth = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loggedInCustomerId, setLoggedInCustomerId] = useState<number | null>(null);
+  const [loggedInCustomerName, setLoggedInCustomerName] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
+
+  // Stored name from localStorage
+  const fetchCustomerName = async (customerId: number) => {
+    try {
+      const customerDetails = await getCustomerDetails(customerId);
+      setLoggedInCustomerName(customerDetails.name);
+      localStorage.setItem('customer_name', customerDetails.name);
+    } catch (error) {
+      console.error('Failed to fetch customer details:', error);
+      setLoggedInCustomerName(null);
+    }
+  };
+
 
   const checkAuth = () => {
     const storedToken = getStoredToken();
+    const storedName = localStorage.getItem('customer_name'); // Add this line
+
     
     if (storedToken && isTokenValid(storedToken)) {
       const customerId = getCustomerIdFromToken(storedToken);
       setToken(storedToken);
       setIsLoggedIn(true);
       setLoggedInCustomerId(customerId);
+      setLoggedInCustomerName(storedName);
+
+      if (customerId && !storedName) {
+        fetchCustomerName(customerId);
+      }
+
       return true;
     } else {
       // Token is invalid or expired
@@ -90,16 +142,21 @@ export const useAuth = () => {
       setToken(null);
       setIsLoggedIn(false);
       setLoggedInCustomerId(null);
+      setLoggedInCustomerName(null);
       return false;
     }
   };
 
-  const login = (newToken: string) => {
+  const login = async (newToken: string) => {
     setAuthToken(newToken);
     const customerId = getCustomerIdFromToken(newToken);
     setToken(newToken);
     setIsLoggedIn(true);
     setLoggedInCustomerId(customerId);
+
+    if (customerId) {
+      await fetchCustomerName(customerId);
+    }
   };
 
   const logout = () => {
@@ -107,6 +164,7 @@ export const useAuth = () => {
     setToken(null);
     setIsLoggedIn(false);
     setLoggedInCustomerId(null);
+    setLoggedInCustomerName(null);
   };
 
   useEffect(() => {
@@ -116,6 +174,7 @@ export const useAuth = () => {
   return {
     isLoggedIn,
     loggedInCustomerId,
+    loggedInCustomerName,
     token,
     login,
     logout,

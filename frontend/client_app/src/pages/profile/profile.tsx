@@ -1,110 +1,118 @@
-import React, { useMemo, useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import { useAuth } from "../../api/auth";
+import { getCustomerDetails } from "../../api/auth";
 import "../../styles/profile.css";
 
 type UserProfile = {
-  firstName: string;
-  lastName: string;
+  name: string;
   email: string;
   phone: string;
-  company: string;
-  taxId: string; 
-  address1: string;
+  address: string;
   city: string;
   postalCode: string;
+  birthDate: string;
   country: string;
-  newsletter: boolean;
-};
-
-const INITIAL_DATA: UserProfile = {
-  firstName: "Diogo",
-  lastName: "Silva",
-  email: "diogo@example.com",
-  phone: "+351 912 345 678",
-  company: "Exemplo Lda",
-  taxId: "123456789",
-  address1: "Rua das Flores 12",
-  city: "Lisboa",
-  postalCode: "1000-001",
-  country: "Portugal",
-  newsletter: true,
 };
 
 const Profile: React.FC = () => {
-  const [form, setForm] = useState<UserProfile>(INITIAL_DATA);
-  const [saving, setSaving] = useState(false);
-  const [savedAt, setSavedAt] = useState<Date | null>(null);
-
-  const dirty = useMemo(() => JSON.stringify(form) !== JSON.stringify(INITIAL_DATA), [form]);
+  const { loggedInCustomerId, isLoggedIn } = useAuth();
+  const [form, setForm] = useState<UserProfile>({
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+    city: "",
+    postalCode: "",
+    birthDate: "",
+    country: "",
+  });
+  const [loading, setLoading] = useState(true);
 
   const initials = useMemo(() => {
-    const a = form.firstName?.[0] ?? "";
-    const b = form.lastName?.[0] ?? "";
-    return (a + b).toUpperCase();
-  }, [form.firstName, form.lastName]);
+    if (!form.name) return "?";
+    const names = form.name.split(" ");
+    const firstInitial = names[0]?.[0] || "";
+    const lastInitial = names[names.length - 1]?.[0] || "";
+    return (firstInitial + lastInitial).toUpperCase();
+  }, [form.name]);
 
-  const onChange =
-    <K extends keyof UserProfile>(key: K) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-      const value = e.currentTarget.type === "checkbox"
-        ? (e.currentTarget as HTMLInputElement).checked
-        : e.currentTarget.value;
-      setForm((f) => ({ ...f, [key]: value } as UserProfile));
-    };
+  // Load customer data
+  useEffect(() => {
+    if (isLoggedIn && loggedInCustomerId) {
+      loadCustomerData();
+    }
+  }, [isLoggedIn, loggedInCustomerId]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
-    // Aqui ligarias à tua API (ex.: PUT /me)
-    await new Promise((r) => setTimeout(r, 600));
-    // Simular sucesso: normalmente atualizarias o estado base a partir da resposta
-    Object.assign(INITIAL_DATA, form);
-    setSaving(false);
-    setSavedAt(new Date());
+  const loadCustomerData = async () => {
+    try {
+      setLoading(true);
+      const customerData = await getCustomerDetails(loggedInCustomerId!);
+      
+      setForm({
+        name: customerData.name || "",
+        email: customerData.email || "",
+        phone: customerData.phone || "",
+        address: customerData.address || "",
+        city: customerData.city || "",
+        postalCode: customerData.postal_code || "",
+        birthDate: customerData.birth_date || "",
+        country: customerData.country || "",
+      });
+    } catch (error) {
+      console.error('Error loading customer data:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleReset = () => {
-    setForm({ ...INITIAL_DATA });
-    setSavedAt(null);
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("pt-PT");
   };
 
+  if (!isLoggedIn) {
+    return (
+      <div className="profile">
+        <div className="card">
+          <p>Por favor, faça login para ver o seu perfil.</p>
+        </div>
+      </div>
+    );
+  }
 
-  // VERIFICAR O PREENCHEMENTO AUTOMÁTICO, NÃO É PARA PREENCHER, É PARA FICAR TIPO SOMBRA
+  if (loading) {
+    return (
+      <div className="profile">
+        <div className="card">
+          <p>A carregar dados do perfil...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="profile">
       <header className="prof-header">
-        <div className="avatar" aria-hidden="true">{initials || "?"}</div>
+        <div className="avatar" aria-hidden="true">{initials}</div>
         <div>
           <h1>Meu Perfil</h1>
-          <p className="subtitle">Gerencie as informações do seu perfil</p>
-          {savedAt && <p className="saved-hint">Guardado em {savedAt.toLocaleTimeString("pt-PT")}</p>}
+          <p className="subtitle">Informações do seu perfil</p>
         </div>
       </header>
 
-      <form className="prof-form" onSubmit={handleSubmit}>
+      <div className="prof-form">
         <section className="card">
           <h2>Informação pessoal</h2>
           <div className="prof-grid">
             <div className="field">
-              <label htmlFor="firstName">Nome</label>
+              <label htmlFor="name">Nome Completo</label>
               <input
-                id="firstName"
+                id="name"
                 className="prof-input"
-                value={form.firstName}
-                onChange={onChange("firstName")}
-                placeholder="Nome"
-                autoComplete="given-name"
-              />
-            </div>
-            <div className="field">
-              <label htmlFor="lastName">Apelido</label>
-              <input
-                id="lastName"
-                className="prof-input"
-                value={form.lastName}
-                onChange={onChange("lastName")}
-                placeholder="Apelido"
-                autoComplete="family-name"
+                value={form.name}
+                placeholder="Nome completo"
+                readOnly
               />
             </div>
             <div className="field">
@@ -114,10 +122,8 @@ const Profile: React.FC = () => {
                 className="prof-input"
                 type="email"
                 value={form.email}
-                onChange={onChange("email")}
                 placeholder="email@exemplo.com"
-                autoComplete="email"
-                required
+                readOnly
               />
             </div>
             <div className="field">
@@ -126,48 +132,44 @@ const Profile: React.FC = () => {
                 id="phone"
                 className="prof-input"
                 value={form.phone}
-                onChange={onChange("phone")}
                 placeholder="+351 ..."
-                autoComplete="tel"
+                readOnly
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="birthDate">Data de Nascimento</label>
+              <input
+                id="birthDate"
+                className="prof-input"
+                value={formatDate(form.birthDate)}
+                placeholder="DD/MM/AAAA"
+                readOnly
               />
             </div>
           </div>
         </section>
 
         <section className="card">
-          <h2>Empresa & Faturação</h2>
+          <h2>Morada</h2>
           <div className="prof-grid">
             <div className="field">
-              <label htmlFor="company">Empresa</label>
+              <label htmlFor="address">Morada</label>
               <input
-                id="company"
+                id="address"
                 className="prof-input"
-                value={form.company}
-                onChange={onChange("company")}
-                placeholder="Nome da empresa"
-                autoComplete="organization"
+                value={form.address}
+                placeholder="Rua, nº, andar"
+                readOnly
               />
             </div>
             <div className="field">
-              <label htmlFor="taxId">NIF</label>
+              <label htmlFor="country">País</label>
               <input
-                id="taxId"
+                id="country"
                 className="prof-input"
-                value={form.taxId}
-                onChange={onChange("taxId")}
-                placeholder="123456789"
-                inputMode="numeric"
-              />
-            </div>
-            <div className="field field--full">
-              <label htmlFor="address1">Morada</label>
-              <input
-                id="address1"
-                className="prof-input"
-                value={form.address1}
-                onChange={onChange("address1")}
-                placeholder="Rua, nº, andar"
-                autoComplete="address-line1"
+                value={form.country}
+                placeholder="Portugal"
+                readOnly
               />
             </div>
             <div className="field">
@@ -176,9 +178,8 @@ const Profile: React.FC = () => {
                 id="city"
                 className="prof-input"
                 value={form.city}
-                onChange={onChange("city")}
                 placeholder="Cidade"
-                autoComplete="address-level2"
+                readOnly
               />
             </div>
             <div className="field">
@@ -187,58 +188,23 @@ const Profile: React.FC = () => {
                 id="postalCode"
                 className="prof-input"
                 value={form.postalCode}
-                onChange={onChange("postalCode")}
                 placeholder="0000-000"
-                autoComplete="postal-code"
+                readOnly
               />
             </div>
-            <div className="field">
-              <label htmlFor="country">País</label>
-              <select
-                id="country"
-                className="prof-input"
-                value={form.country}
-                onChange={onChange("country")}
-                autoComplete="country-name"
-              >
-                <option>Portugal</option>
-                <option>Espanha</option>
-                <option>França</option>
-                <option>Alemanha</option>
-                <option>Outro</option>
-              </select>
-            </div>
           </div>
-
-          <label className="checkbox">
-            <input
-              type="checkbox"
-              checked={form.newsletter}
-              onChange={onChange("newsletter")}
-            />
-            <span>Quero receber novidades por email</span>
-          </label>
         </section>
 
         <div className="actions">
           <button
             type="button"
-            className="btn"
-            onClick={handleReset}
-            disabled={!dirty || saving}
-          >
-            Repor
-          </button>
-          <button
-            type="submit"
             className="btn primary"
-            disabled={saving || !form.email}
-            aria-busy={saving}
+            onClick={() => alert("Funcionalidade de edição será implementada em breve")}
           >
-            {saving ? "A guardar..." : "Guardar alterações"}
+            Editar Perfil
           </button>
         </div>
-      </form>
+      </div>
     </div>
   );
 };

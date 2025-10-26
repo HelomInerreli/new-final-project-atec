@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { setAuthToken } from '../api/auth';
+import { setAuthToken, useAuth } from '../api/auth';
 
 const AuthCallback: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   useEffect(() => {
     const type = searchParams.get('type');
@@ -33,7 +34,7 @@ const AuthCallback: React.FC = () => {
       localStorage.setItem('googleAuthData', JSON.stringify(googleData));
       navigate('/register?google=true');
     }
-  }, [searchParams, navigate]);
+  }, [searchParams, navigate, login]);
 
   return (
     <div className="min-h-screen flex items-center justify-center">
