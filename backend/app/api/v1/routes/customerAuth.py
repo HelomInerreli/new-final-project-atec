@@ -3,7 +3,15 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from starlette.requests import Request
 from starlette.responses import RedirectResponse
-from app.core.security import oauth, create_google_user_data, create_access_token, verify_password, get_current_user_id, get_password_hash  
+
+from app.core.security import (
+    oauth, 
+    create_google_user_data, 
+    create_access_token, 
+    verify_password, 
+    get_current_user_id,
+    get_password_hash
+)
 from app.crud import customerAuth as crud_customer_auth  
 from app.schemas import customerAuth as customer_auth_schema
 from app.models.customerAuth import CustomerAuth
@@ -13,10 +21,66 @@ from app.schemas.customerAuth import CustomerAuthRegister, GoogleAuthRegister
 
 router = APIRouter()
 
+# =============================================================================
+# SPECIFIC ROUTES FIRST (before any path parameters)
+# =============================================================================
+
 # Test endpoint
 @router.get("/test")
 def customer_auth_test():
     return {"message": "CustomerAuth test endpoint is working!"}
+
+# MOVED /me TO THE TOP - BEFORE ANY /{parameter} ROUTES
+@router.get("/me")
+def get_current_user_profile(
+    current_user_id: str = Depends(get_current_user_id), 
+    db: Session = Depends(get_db)
+):
+    """Get current user's complete profile with auth and customer data."""
+    try:
+        customer_id = int(current_user_id)
+    except (ValueError, TypeError):
+        raise HTTPException(status_code=422, detail=f"Invalid user ID format: {current_user_id}")
+    
+    # Get CustomerAuth by customer ID
+    customer_auth = db.query(CustomerAuth).filter(CustomerAuth.id_customer == customer_id).first()
+    if not customer_auth:
+        raise HTTPException(status_code=404, detail="User authentication not found")
+    
+    # Get Customer data
+    customer = db.query(Customer).filter(Customer.id == customer_id).first()
+    if not customer:
+        raise HTTPException(status_code=404, detail="Customer not found")
+    
+    return {
+        "auth_info": {
+            "id": customer_auth.id,
+            "email": customer_auth.email,
+            "email_verified": customer_auth.email_verified,
+            "google_id": customer_auth.google_id,
+            "facebook_id": customer_auth.facebook_id,
+            "is_active": customer_auth.is_active,
+            "failed_login_attempts": customer_auth.failed_login_attempts,
+            "last_login": customer_auth.last_login,
+            "created_at": customer_auth.created_at,
+        },
+        "customer_info": {
+            "id": customer.id,
+            "name": customer.name,
+            "phone": customer.phone,
+            "address": customer.address,
+            "city": customer.city,
+            "postal_code": customer.postal_code,
+            "birth_date": customer.birth_date,
+            "created_at": customer.created_at,
+            "updated_at": customer.updated_at
+        },
+        "linked_accounts": {
+            "google": customer_auth.google_id is not None,
+            "facebook": customer_auth.facebook_id is not None,
+            "has_password": customer_auth.password_hash is not None
+        }
+    }
 
 # Authentication endpoint
 @router.post("/token")
@@ -63,6 +127,112 @@ async def login_for_access_token(
     return {
         "access_token": access_token,
         "token_type": "bearer"
+    }
+
+# Registration endpoints
+@router.post("/register")
+async def register(
+    customer_data: CustomerAuthRegister,
+    db: Session = Depends(get_db)
+):
+    print(f"Registration attempt for: {customer_data.email}, name: {customer_data.name}")
+    
+    existing_customer = db.query(CustomerAuth).filter(CustomerAuth.email == customer_data.email).first()
+    if existing_customer:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    # Hash password
+    hashed_password = get_password_hash(customer_data.password)
+    
+    # Create customer
+    db_customer = Customer(
+        name=customer_data.name,
+        phone=customer_data.phone,
+        address=customer_data.address,
+        city=customer_data.city,
+        postal_code=customer_data.postal_code,
+        birth_date=customer_data.birth_date
+    )
+    db.add(db_customer)
+    db.commit()
+    db.refresh(db_customer)
+    
+    print(f"Customer created - ID: {db_customer.id}, Name: '{db_customer.name}'")
+    
+    # Create customer auth record with email
+    db_customer_auth = CustomerAuth(
+        id_customer=db_customer.id,
+        email=customer_data.email,
+        password_hash=hashed_password
+    )
+    db.add(db_customer_auth)
+    db.commit()
+    db.refresh(db_customer_auth)
+    
+    print(f"Registration completed - Customer ID: {db_customer.id}, Auth ID: {db_customer_auth.id}")
+    
+    # Generate token and return response
+    access_token = create_access_token(data={"sub": str(db_customer.id)})
+    
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "customer": {
+            "id": db_customer.id,
+            "name": db_customer.name,
+            "email": customer_data.email,
+            "phone": db_customer.phone,
+            "address": db_customer.address,
+            "city": db_customer.city,
+            "postal_code": db_customer.postal_code,
+            "birth_date": db_customer.birth_date
+        }
+    }
+
+@router.post("/google/register")
+async def google_register(
+    google_data: GoogleAuthRegister,
+    db: Session = Depends(get_db)
+):
+    # Create customer
+    db_customer = Customer(
+        name=google_data.name,
+        phone=google_data.phone,
+        address=google_data.address,
+        city=google_data.city,
+        postal_code=google_data.postal_code,
+        birth_date=google_data.birth_date
+    )
+    db.add(db_customer)
+    db.commit()
+    db.refresh(db_customer)
+    
+    # Create customer auth record with email and Google ID
+    db_customer_auth = CustomerAuth(
+        id_customer=db_customer.id,
+        email=google_data.email,
+        google_id=google_data.token
+    )
+    db.add(db_customer_auth)
+    db.commit()
+    
+    # Generate token and return response
+    access_token = create_access_token(data={"sub": str(db_customer.id)})
+    
+    return {
+        "message": "User registered successfully",
+        "access_token": access_token,
+        "token_type": "bearer",
+        "customer": {
+            "id": db_customer.id,
+            "name": db_customer.name,
+            "email": google_data.email,
+            "phone": db_customer.phone,
+            "address": db_customer.address,
+            "city": db_customer.city,
+            "postal_code": db_customer.postal_code,
+            "birth_date": db_customer.birth_date
+        }
     }
 
 # Google OAuth2 routes
@@ -187,7 +357,6 @@ async def link_google_callback(
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Linking failed: {str(e)}")
 
-# Facebook OAuth2 routes
 @router.get("/link/facebook")
 async def link_facebook_init(
     request: Request,
@@ -238,128 +407,7 @@ async def link_facebook_callback(
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Linking failed: {str(e)}")
 
-# CRUD endpoints
-@router.post("/", response_model=customer_auth_schema.CustomerAuthResponse)
-def create_customer_auth(customer_auth: customer_auth_schema.CustomerAuthCreate, db: Session = Depends(get_db)):
-    return crud_customer_auth.create_customer_auth(db=db, customer_auth=customer_auth)
-
-@router.get("/", response_model=list[customer_auth_schema.CustomerAuthResponse])
-def list_customer_auths(db: Session = Depends(get_db)):
-    return crud_customer_auth.get_customer_auths(db=db)
-
-@router.get("/{customer_auth_id}", response_model=customer_auth_schema.CustomerAuthResponse)
-def read_customer_auth(customer_auth_id: int, db: Session = Depends(get_db)):
-    db_customer_auth = crud_customer_auth.get_customer_auth(db=db, customer_auth_id=customer_auth_id)
-    if db_customer_auth is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    return db_customer_auth
-
-@router.post("/register")
-async def register(
-    customer_data: CustomerAuthRegister,
-    db: Session = Depends(get_db)
-):
-    print(f"Registration attempt for: {customer_data.email}, name: {customer_data.name}")
-    
-    existing_customer = db.query(CustomerAuth).filter(CustomerAuth.email == customer_data.email).first()
-    if existing_customer:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    
-    # Hash password
-    hashed_password = get_password_hash(customer_data.password)
-    
-    # Create customer
-    db_customer = Customer(
-        name=customer_data.name,
-        phone=customer_data.phone,
-        address=customer_data.address,
-        city=customer_data.city,
-        postal_code=customer_data.postal_code,
-        birth_date=customer_data.birth_date
-    )
-    db.add(db_customer)
-    db.commit()
-    db.refresh(db_customer)
-    
-    print(f"Customer created - ID: {db_customer.id}, Name: '{db_customer.name}'")
-    
-    # Create customer auth record with email
-    db_customer_auth = CustomerAuth(
-        id_customer=db_customer.id,
-        email=customer_data.email,
-        password_hash=hashed_password
-    )
-    db.add(db_customer_auth)
-    db.commit()
-    db.refresh(db_customer_auth)
-    
-    print(f"Registration completed - Customer ID: {db_customer.id}, Auth ID: {db_customer_auth.id}")
-    
-    # Generate token and return response
-    access_token = create_access_token(data={"sub": str(db_customer.id)})
-    
-    return {
-        "access_token": access_token,
-        "token_type": "bearer",
-        "customer": {
-            "id": db_customer.id,
-            "name": db_customer.name,
-            "email": customer_data.email,
-            "phone": db_customer.phone,
-            "address": db_customer.address,
-            "city": db_customer.city,
-            "postal_code": db_customer.postal_code,
-            "birth_date": db_customer.birth_date
-        }
-    }
-
-@router.post("/google/register")
-async def google_register(
-    google_data: GoogleAuthRegister,
-    db: Session = Depends(get_db)
-):
-    # Similar logic but for Google registration
-    # Make sure to include all the fields here too
-    db_customer = Customer(
-        name=google_data.name,
-        phone=google_data.phone,
-        address=google_data.address,
-        city=google_data.city,
-        postal_code=google_data.postal_code,
-        birth_date=google_data.birth_date
-    )
-    db.add(db_customer)
-    db.commit()
-    db.refresh(db_customer)
-    
-    # Create customer auth record with email and Google ID
-    db_customer_auth = CustomerAuth(
-        id_customer=db_customer.id,
-        email=google_data.email,
-        google_id=google_data.token
-    )
-    db.add(db_customer_auth)
-    db.commit()
-    
-    # Generate token and return response
-    access_token = create_access_token(data={"sub": str(db_customer.id)})
-    
-    return {
-        "message": "User registered successfully",
-        "access_token": access_token,
-        "token_type": "bearer",
-        "customer": {
-            "id": db_customer.id,
-            "name": db_customer.name,
-            "email": google_data.email,
-            "phone": db_customer.phone,
-            "address": db_customer.address,
-            "city": db_customer.city,
-            "postal_code": db_customer.postal_code,
-            "birth_date": db_customer.birth_date
-        }
-    }
-
+# Debug endpoints
 @router.get("/debug/check-user/{email}")
 def debug_check_user(email: str, db: Session = Depends(get_db)):
     """Debug: Check if user exists and has password."""
@@ -377,48 +425,27 @@ def debug_check_user(email: str, db: Session = Depends(get_db)):
         "is_active": user.is_active
     }
 
-@router.get("/me")
-def get_current_user_profile(
-    current_user_id: str = Depends(get_current_user_id), 
-    db: Session = Depends(get_db)
-):
-    """Get current user's complete profile with auth and customer data."""
-    # Get CustomerAuth
-    customer_auth = db.query(CustomerAuth).filter(CustomerAuth.id == current_user_id).first()
-    if not customer_auth:
+# =============================================================================
+# CRUD ENDPOINTS WITH PATH PARAMETERS (MOVED TO BOTTOM)
+# =============================================================================
+
+# List all (no path parameter)
+@router.get("/", response_model=list[customer_auth_schema.CustomerAuthResponse])
+def list_customer_auths(db: Session = Depends(get_db)):
+    return crud_customer_auth.get_customer_auths(db=db)
+
+# Create (POST, no conflict)
+@router.post("/", response_model=customer_auth_schema.CustomerAuthResponse)
+def create_customer_auth(customer_auth: customer_auth_schema.CustomerAuthCreate, db: Session = Depends(get_db)):
+    return crud_customer_auth.create_customer_auth(db=db, customer_auth=customer_auth)
+
+# MOVED TO BOTTOM - This was causing the conflict!
+@router.get("/{customer_auth_id}", response_model=customer_auth_schema.CustomerAuthResponse)
+def read_customer_auth(customer_auth_id: int, db: Session = Depends(get_db)):
+    db_customer_auth = crud_customer_auth.get_customer_auth(db=db, customer_auth_id=customer_auth_id)
+    if db_customer_auth is None:
         raise HTTPException(status_code=404, detail="User not found")
-    
-    # Get Customer data
-    customer = db.query(Customer).filter(Customer.id == customer_auth.id_customer).first()
-    
-    return {
-        "auth_info": {
-            "id": customer_auth.id,
-            "email": customer_auth.email,
-            "email_verified": customer_auth.email_verified,
-            "google_id": customer_auth.google_id,
-            "facebook_id": customer_auth.facebook_id,
-            "twitter_id": customer_auth.twitter_id,
-            "is_active": customer_auth.is_active,
-            "failed_login_attempts": customer_auth.failed_login_attempts,
-            "last_login": customer_auth.last_login,
-            "created_at": customer_auth.created_at
-        },
-        "customer_info": {
-            "id": customer.id if customer else None,
-            "name": customer.name if customer else None,
-            "phone": customer.phone if customer else None,
-            "address": customer.address if customer else None,
-            "city": customer.city if customer else None,
-            "postal_code": customer.postal_code if customer else None,
-            "birth_date": customer.birth_date if customer else None,
-            "created_at": customer.created_at if customer else None
-        } if customer else None,
-        "linked_accounts": {
-            "google": customer_auth.google_id is not None,
-            "facebook": customer_auth.facebook_id is not None,
-            "twitter": customer_auth.twitter_id is not None,
-            "has_password": customer_auth.password_hash is not None
-        }
-    }
+    return db_customer_auth
+
+
 

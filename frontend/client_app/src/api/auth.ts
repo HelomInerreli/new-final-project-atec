@@ -37,6 +37,11 @@ export interface CustomerDetails {
   city?: string;
   postal_code?: string;
   birth_date?: string;
+  password_hash?: string | null;
+  google_id?: string | null;
+  facebook_id?: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 //#region TOKEN UTILITIES
@@ -80,21 +85,30 @@ export const removeToken = () => {
 };
 //#endregion
 
-//#region 
-// Add function to fetch customer details
+//#region CUSTOMER API
+// Update this function to properly use the /me endpoint
 export const getCustomerDetails = async (customerId: number): Promise<CustomerDetails> => {
-  const response = await http.get(`/customers/${customerId}`);
-  return response.data;
-};
-
-export const getCustomerEmail = async (customerId: number): Promise<string> => {
-  const response = await http.get(`/customersauth/email/${customerId}`);
-  return response.data.email;
-};
-
-export const getCustomerAuthDetails = async (customerId: number) => {
-  const response = await http.get(`/customersauth/customer/${customerId}`);
-  return response.data;
+  const response = await http.get(`/customersauth/me`);
+  
+  const data = response.data;
+  console.log('Raw /me response:', data); // Debug log
+  
+  return {
+    id: data.customer_info?.id || customerId,
+    name: data.customer_info?.name || "",
+    email: data.auth_info?.email || "",
+    phone: data.customer_info?.phone || "",
+    address: data.customer_info?.address || "",
+    city: data.customer_info?.city || "",
+    postal_code: data.customer_info?.postal_code || "",
+    birth_date: data.customer_info?.birth_date || "",
+    // Auth fields
+    password_hash: data.linked_accounts?.has_password ? "***" : undefined,
+    google_id: data.auth_info?.google_id || undefined,
+    facebook_id: data.auth_info?.facebook_id || undefined,
+    created_at: data.customer_info?.created_at || "",
+    updated_at: data.customer_info?.updated_at || ""
+  };
 };
 //#endregion
 

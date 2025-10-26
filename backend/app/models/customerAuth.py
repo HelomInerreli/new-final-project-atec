@@ -23,5 +23,6 @@ class CustomerAuth(Base):
     failed_login_attempts = Column(Integer, default=0)
     last_login = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.now)
-
+    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+    
     customer = relationship("Customer", back_populates="auth")

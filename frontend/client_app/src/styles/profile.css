@@ -154,13 +154,15 @@
 .profile .btn:disabled{ opacity: .5; cursor: not-allowed; }
 
 .profile .btn.primary{
-  background: #22223b;        /* cabeçalho da tabela */
-  border-color: #22223b;
-  color: #fff;
+  background: #000000;
+  border-color: #000000;
+  color: #FFFFFF
+  
 }
 .profile .btn.primary:hover{
-  background: #2c2c4d;
-  border-color: #2c2c4d;
+  background: #ffffff;        /* cabeçalho da tabela */
+  border-color: #000000;
+  color: #000000;
 }
 
 /* Estados de erro/sucesso opcionais */
@@ -173,6 +175,31 @@
   color: #4a4e69;
   opacity: .9;
 }
+
+/* Botão de conta conectada/desconectada */
+
+.connected-account-btn:hover {
+  background-color: #dc3545 !important;
+  border-color: #dc3545 !important;
+  color: white !important;
+}
+
+.connected-account-btn {
+  border-color: #dc3545 !important;
+  color: #dc3545 !important;
+}
+
+.unconnected-account-btn {
+  border-color: #198754 !important;
+  color: #198754 !important;
+}
+
+.unconnected-account-btn:hover {
+  background-color: #198754 !important;
+  border-color: #198754 !important;
+  color: white !important;
+}
+
 
 /* Responsivo — comportamento “cartão” em mobile similar ao da tabela */
 @media (max-width: 700px){
@@ -192,3 +219,4 @@
     padding: .1em 0;
   }
 }
+

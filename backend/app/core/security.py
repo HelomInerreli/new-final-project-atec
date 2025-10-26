@@ -88,17 +88,18 @@ def get_current_user_id(token: str = Depends(oauth2_scheme), db: Session = Depen
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id: str = payload.get("sub")
-        if user_id is None:
+        customer_id: str = payload.get("sub")  # This is the customer ID
+        if customer_id is None:
             raise credentials_exception
     except JWTError:
         raise credentials_exception
     
     from app.models.customerAuth import CustomerAuth
-    user = db.query(CustomerAuth).filter(CustomerAuth.id == int(user_id)).first()
+    # Fix: Look for CustomerAuth by customer ID, not auth ID
+    user = db.query(CustomerAuth).filter(CustomerAuth.id_customer == int(customer_id)).first()
     if user is None:
         raise credentials_exception
-    return user_id
+    return customer_id  # Return the customer ID (which is what the JWT contains)
 
 def get_current_user_with_customer(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     """Get current user with customer data using relationships."""
