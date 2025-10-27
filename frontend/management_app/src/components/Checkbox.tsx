@@ -42,7 +42,7 @@ export default function Checkbox({
           borderRadius: 4,
         }}
       />
-      <label htmlFor={id} style={{ userSelect: "none", color: "#111827" }}>
+      <label htmlFor={id} style={{ userSelect: "none", color: "#7c1c1c" }}>
         {label}
       </label>
     </div>

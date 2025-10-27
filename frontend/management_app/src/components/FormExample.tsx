@@ -72,6 +72,8 @@ export default function FormExample() {
           <div style={{ display: "flex", gap: 12 }}>
             <Radio name="payment" value="card" label="Card" />
             <Radio name="payment" value="cash" label="Cash" />
+            <Radio name="payment2" value="paypal" label="PayPal" />
+            <Radio name="payment2" value="bank" label="Bank Transfer" />
           </div>
         </div>
       </div>

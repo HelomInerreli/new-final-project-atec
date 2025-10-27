@@ -1,11 +1,16 @@
-import React, { useId, useState, type ChangeEvent } from "react";
+import React, { useId, useState, useRef, useEffect } from "react";
 import "./inputs.css";
+
+interface Option {
+  value: string;
+  label: string;
+}
 
 interface SelectProps {
   label: string;
-  options: { value: string; label: string }[];
+  options: Option[];
   value?: string;
-  onChange?: (e: ChangeEvent<HTMLSelectElement>) => void;
+  onChange?: (value: string) => void;
   name?: string;
   className?: string;
 }
@@ -22,40 +27,109 @@ export default function Select({
   const [value, setValue] = useState<string>(controlledValue ?? "");
   const isControlled = typeof controlledValue !== "undefined";
   const finalValue = isControlled ? (controlledValue as string) : value;
+  const [open, setOpen] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const ref = useRef<HTMLDivElement | null>(null);
 
-  const handleChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    if (!isControlled) setValue(e.target.value);
-    onChange?.(e);
-  };
+  useEffect(() => {
+    if (isControlled) setValue(controlledValue as string);
+  }, [controlledValue, isControlled]);
+
+  // close when clicking outside
+  useEffect(() => {
+    function onDoc(e: MouseEvent) {
+      if (!ref.current) return;
+      if (!ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, []);
+
+  const hasValue = finalValue !== undefined && finalValue !== "";
+
+  function handleSelect(val: string) {
+    if (!isControlled) setValue(val);
+    onChange?.(val);
+    setOpen(false);
+  }
+
+  function toggleOpen() {
+    setOpen((s) => !s);
+  }
 
   return (
     <div
-      className={`mb-input-wrapper ${className}`}
+      ref={ref}
+      className={`mb-input-wrapper mb-custom-select ${className}`}
       style={{ position: "relative" }}
     >
-      <select
+      <button
         id={id}
-        name={name}
-        className={`mb-input select ${finalValue === "" ? "placeholder" : ""}`}
-        value={finalValue}
-        onChange={handleChange}
-        aria-label={label}
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        className={`mb-input select mb-select-button ${
+          hasValue ? "has-value" : "placeholder"
+        }`}
+        onClick={toggleOpen}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
       >
-        {/* show visible placeholder option so the control displays text before selection */}
-        <option value="">{label}</option>
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
-      {/* custom caret element to ensure visible dropdown indicator across browsers */}
-      <span className="mb-select-caret" aria-hidden>
-        ▾
-      </span>
+        <span className={`mb-select-value ${!hasValue ? "placeholder" : ""}`}>
+          {hasValue
+            ? options.find((o) => o.value === finalValue)?.label ?? finalValue
+            : label}
+        </span>
+        <span className="mb-select-caret" aria-hidden>
+          {/* SVG caret to avoid encoding issues */}
+          <svg
+            width="12"
+            height="8"
+            viewBox="0 0 12 8"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden
+          >
+            <path
+              d="M1 1l5 5 5-5"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </span>
+      </button>
 
-      {/* For selects we keep the label shrunken to avoid overlapping the selected option/placeholder */}
-      <label htmlFor={id} className={`mb-input-label shrunken`}>
+      {open && (
+        <ul
+          className="mb-select-menu"
+          role="listbox"
+          aria-labelledby={id}
+          tabIndex={-1}
+        >
+          {options.map((opt) => (
+            <li
+              key={opt.value}
+              role="option"
+              aria-selected={opt.value === finalValue}
+              className={`mb-select-item ${
+                opt.value === finalValue ? "selected" : ""
+              }`}
+              onClick={() => handleSelect(opt.value)}
+            >
+              {opt.label}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <label
+        htmlFor={id}
+        className={`mb-input-label ${
+          hasValue || focused ? "shrunken" : "hidden"
+        }`}
+      >
         {label}
       </label>
     </div>
