@@ -54,3 +54,13 @@ class GoogleAuthRegister(BaseModel):
     city: Optional[str] = None
     postal_code: Optional[str] = None
     birth_date: Optional[date] = None
+
+class FacebookAuthRegister(BaseModel):
+    token: str
+    email: EmailStr
+    name: str
+    phone: Optional[str] = None
+    address: Optional[str] = None
+    city: Optional[str] = None
+    postal_code: Optional[str] = None
+    birth_date: Optional[date] = None

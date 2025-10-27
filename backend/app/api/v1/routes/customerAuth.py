@@ -17,12 +17,12 @@ from app.schemas import customerAuth as customer_auth_schema
 from app.models.customerAuth import CustomerAuth
 from app.models.customer import Customer 
 from app.deps import get_db
-from app.schemas.customerAuth import CustomerAuthRegister, GoogleAuthRegister
+from app.schemas.customerAuth import CustomerAuthRegister, GoogleAuthRegister, FacebookAuthRegister
 
 router = APIRouter()
 
 # =============================================================================
-# SPECIFIC ROUTES FIRST (before any path parameters)
+# SPECIFIC ROUTES FIRST 
 # =============================================================================
 
 # Test endpoint
@@ -189,6 +189,7 @@ async def register(
         }
     }
 
+# Google OAuth2 routes
 @router.post("/google/register")
 async def google_register(
     google_data: GoogleAuthRegister,
@@ -227,6 +228,72 @@ async def google_register(
             "id": db_customer.id,
             "name": db_customer.name,
             "email": google_data.email,
+            "phone": db_customer.phone,
+            "address": db_customer.address,
+            "city": db_customer.city,
+            "postal_code": db_customer.postal_code,
+            "birth_date": db_customer.birth_date
+        }
+    }
+
+# Facebook OAuth2 routes
+@router.post("/facebook/register")
+async def facebook_register(
+    facebook_data: FacebookAuthRegister,  # Use the specific Facebook schema
+    db: Session = Depends(get_db)
+):
+    """Register a new user with Facebook account."""
+    print(f"Facebook registration attempt for: {facebook_data.email}, name: {facebook_data.name}")
+    
+    # Check if Facebook ID already exists
+    existing_facebook_user = db.query(CustomerAuth).filter(CustomerAuth.facebook_id == facebook_data.token).first()
+    if existing_facebook_user:
+        raise HTTPException(status_code=400, detail="This Facebook account is already registered")
+    
+    # Check if email already exists
+    existing_email_user = db.query(CustomerAuth).filter(CustomerAuth.email == facebook_data.email).first()
+    if existing_email_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    # Create customer
+    db_customer = Customer(
+        name=facebook_data.name,
+        phone=facebook_data.phone,
+        address=facebook_data.address,
+        city=facebook_data.city,
+        postal_code=facebook_data.postal_code,
+        birth_date=facebook_data.birth_date
+    )
+    db.add(db_customer)
+    db.commit()
+    db.refresh(db_customer)
+    
+    print(f"Customer created - ID: {db_customer.id}, Name: '{db_customer.name}'")
+    
+    # Create customer auth record with email and Facebook ID
+    db_customer_auth = CustomerAuth(
+        id_customer=db_customer.id,
+        email=facebook_data.email,
+        facebook_id=facebook_data.token,
+        email_verified=True  # Assume Facebook emails are verified
+    )
+    db.add(db_customer_auth)
+    db.commit()
+    db.refresh(db_customer_auth)
+    
+    print(f"Facebook registration completed - Customer ID: {db_customer.id}, Auth ID: {db_customer_auth.id}")
+    
+    # Generate token and return response
+    access_token = create_access_token(data={"sub": str(db_customer.id)})
+    
+    return {
+        "message": "User registered successfully with Facebook",
+        "access_token": access_token,
+        "token_type": "bearer",
+        "customer": {
+            "id": db_customer.id,
+            "name": db_customer.name,
+            "email": facebook_data.email,
             "phone": db_customer.phone,
             "address": db_customer.address,
             "city": db_customer.city,
@@ -357,6 +424,144 @@ async def link_google_callback(
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Linking failed: {str(e)}")
 
+@router.get("/facebook")
+async def login_facebook(request: Request):
+    """Initiate Facebook OAuth2 login."""
+    redirect_uri = "http://localhost:8000/api/v1/customersauth/facebook/callback"
+    return await oauth.facebook.authorize_redirect(request, redirect_uri)
+
+@router.get("/facebook/callback")
+async def facebook_callback(request: Request, db: Session = Depends(get_db)):
+    """Handle Facebook OAuth callback"""
+    try:
+        token = await oauth.facebook.authorize_access_token(request)
+        
+        # Get user info from Facebook
+        import httpx
+        async with httpx.AsyncClient() as client:
+            user_response = await client.get(
+                'https://graph.facebook.com/me?fields=id,name,email',
+                headers={'Authorization': f'Bearer {token["access_token"]}'}
+            )
+            user_info = user_response.json()
+        
+        if not user_info:
+            raise HTTPException(status_code=400, detail="Failed to get user info from Facebook")
+        
+        email = user_info.get('email')
+        name = user_info.get('name')
+        facebook_id = user_info.get('id')
+        
+        # If no email from Facebook, create a placeholder
+        if not email:
+            email = f"facebook_{facebook_id}@placeholder.com"
+        
+        # Check if user already exists by email
+        existing_user = db.query(CustomerAuth).filter(CustomerAuth.email == email).first()
+        
+        # Also check if Facebook ID is already linked
+        existing_facebook_user = db.query(CustomerAuth).filter(CustomerAuth.facebook_id == facebook_id).first()
+        
+        if existing_user or existing_facebook_user:
+            # User exists, log them in
+            user_to_login = existing_user or existing_facebook_user
+            
+            # Update Facebook ID if not set
+            if not user_to_login.facebook_id:
+                user_to_login.facebook_id = facebook_id
+                db.commit()
+            
+            access_token = create_access_token(data={"sub": str(user_to_login.id_customer)})
+            
+            # Redirect to frontend with token
+            frontend_url = f"http://localhost:3000/auth/callback?token={access_token}&type=login"
+            return RedirectResponse(url=frontend_url)
+        else:
+            # New user, redirect to frontend with Facebook data for registration
+            import urllib.parse
+            facebook_data = {
+                "token": facebook_id,
+                "email": email,
+                "name": name,
+                "provider": "facebook"
+            }
+            
+            # Encode the data for URL
+            encoded_data = urllib.parse.urlencode(facebook_data)
+            frontend_url = f"http://localhost:3000/auth/callback?{encoded_data}&type=register"
+            return RedirectResponse(url=frontend_url)
+            
+    except Exception as e:
+        # Redirect to frontend with error
+        frontend_url = f"http://localhost:3000/auth/callback?error={str(e)}"
+        return RedirectResponse(url=frontend_url)
+
+@router.post("/facebook/register")
+async def facebook_register(
+    facebook_data: GoogleAuthRegister,  # Reuse the same schema, just different provider
+    db: Session = Depends(get_db)
+):
+    """Register a new user with Facebook account."""
+    # Check if Facebook ID already exists
+    existing_facebook_user = db.query(CustomerAuth).filter(CustomerAuth.facebook_id == facebook_data.token).first()
+    if existing_facebook_user:
+        raise HTTPException(status_code=400, detail="This Facebook account is already registered")
+    
+    # Check if email already exists
+    existing_email_user = db.query(CustomerAuth).filter(CustomerAuth.email == facebook_data.email).first()
+    if existing_email_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    # Create customer
+    db_customer = Customer(
+        name=facebook_data.name,
+        phone=facebook_data.phone,
+        address=facebook_data.address,
+        city=facebook_data.city,
+        postal_code=facebook_data.postal_code,
+        birth_date=facebook_data.birth_date
+    )
+    db.add(db_customer)
+    db.commit()
+    db.refresh(db_customer)
+    
+    # Create customer auth record with email and Facebook ID
+    db_customer_auth = CustomerAuth(
+        id_customer=db_customer.id,
+        email=facebook_data.email,
+        facebook_id=facebook_data.token,
+        email_verified=True  # Assume Facebook emails are verified
+    )
+    db.add(db_customer_auth)
+    db.commit()
+    
+    # Generate token and return response
+    access_token = create_access_token(data={"sub": str(db_customer.id)})
+    
+    return {
+        "message": "User registered successfully with Facebook",
+        "access_token": access_token,
+        "token_type": "bearer",
+        "customer": {
+            "id": db_customer.id,
+            "name": db_customer.name,
+            "email": facebook_data.email,
+            "phone": db_customer.phone,
+            "address": db_customer.address,
+            "city": db_customer.city,
+            "postal_code": db_customer.postal_code,
+            "birth_date": db_customer.birth_date
+        }
+    }
+
+@router.get("/facebook/test")
+def test_facebook_config():
+    """Test endpoint to check Facebook OAuth2 configuration."""
+    return {
+        "message": "Facebook OAuth2 is configured",
+        "auth_url": "/api/v1/customersauth/facebook"
+    }
+
 @router.get("/link/facebook")
 async def link_facebook_init(
     request: Request,
@@ -425,21 +630,31 @@ def debug_check_user(email: str, db: Session = Depends(get_db)):
         "is_active": user.is_active
     }
 
+# Check email existence
+@router.get("/check-email")
+def check_email_exists(email: str, db: Session = Depends(get_db)):
+    """Check if email already exists."""
+    existing_user = db.query(CustomerAuth).filter(CustomerAuth.email == email).first()
+    return {
+        "exists": existing_user is not None,
+        "email": email
+    }
+
 # =============================================================================
-# CRUD ENDPOINTS WITH PATH PARAMETERS (MOVED TO BOTTOM)
+# CRUD ENDPOINTS WITH PATH PARAMETERS
 # =============================================================================
 
-# List all (no path parameter)
+# List all
 @router.get("/", response_model=list[customer_auth_schema.CustomerAuthResponse])
 def list_customer_auths(db: Session = Depends(get_db)):
     return crud_customer_auth.get_customer_auths(db=db)
 
-# Create (POST, no conflict)
+# Create
 @router.post("/", response_model=customer_auth_schema.CustomerAuthResponse)
 def create_customer_auth(customer_auth: customer_auth_schema.CustomerAuthCreate, db: Session = Depends(get_db)):
     return crud_customer_auth.create_customer_auth(db=db, customer_auth=customer_auth)
 
-# MOVED TO BOTTOM - This was causing the conflict!
+# MOVED TO BOTTOM
 @router.get("/{customer_auth_id}", response_model=customer_auth_schema.CustomerAuthResponse)
 def read_customer_auth(customer_auth_id: int, db: Session = Depends(get_db)):
     db_customer_auth = crud_customer_auth.get_customer_auth(db=db, customer_auth_id=customer_auth_id)

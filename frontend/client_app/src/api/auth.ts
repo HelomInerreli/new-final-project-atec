@@ -23,6 +23,17 @@ export interface GoogleAuthData {
   birth_date?: string;
 }
 
+export interface FacebookAuthData {
+  token: string;
+  email: string;
+  name: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  postal_code?: string;
+  birth_date?: string;
+}
+
 export interface LoginData {
   email: string;
   password: string;
@@ -83,6 +94,12 @@ export const removeToken = () => {
   sessionStorage.removeItem('access_token');
   delete http.defaults.headers.common['Authorization']; // Also remove from axios
 };
+
+export const checkEmailExists = async (email: string) => {
+  const response = await http.get(`/customersauth/check-email?email=${encodeURIComponent(email)}`);
+  return response.data;
+};
+
 //#endregion
 
 //#region CUSTOMER API
@@ -208,8 +225,18 @@ export const registerWithGoogle = async (data: GoogleAuthData) => {
   return response.data;
 };
 
+export const registerWithFacebook = async (data: FacebookAuthData) => {
+  const response = await http.post('/customersauth/facebook/register', data);
+  return response.data;
+};
+
 export const initiateGoogleAuth = async () => {
   const response = await http.get('/customersauth/google/');
+  return response.data;
+};
+
+export const initiateFacebookAuth = async () => {
+  const response = await http.get('/customersauth/facebook/');
   return response.data;
 };
 //#endregion
@@ -232,5 +259,12 @@ export const loginWithGoogle = async (data: GoogleAuthData) => {
   const response = await http.post('/customersauth/google/login', data);
   return response.data;
 };
+
+export const loginWithFacebook = async (data: FacebookAuthData) => {
+  const response = await http.post('/customersauth/facebook/login', data);
+  return response.data;
+};
 //#endregion
+
+
 

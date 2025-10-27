@@ -75,6 +75,17 @@ const LoginModal: React.FC<LoginModalProps> = ({
     }
   };
 
+  const handleFacebookLogin = async () => {
+    try {
+      setLoading(true);
+      window.location.href = 'http://localhost:8000/api/v1/customersauth/facebook';
+    } catch (err) {
+      setError(`${t('failed')} ${t('to')} initiate ${t('facebook')} ${t('authentication')}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSwitchToRegister = () => {
     onClose();
     if (onSwitchToRegister) {
@@ -108,7 +119,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
             </Alert>
           )}
           
-          <Form.Group className="mb-3">
+          <Form.Group className="mb-2">
             <Form.Label>{t('email')}</Form.Label>
             <Form.Control
               type="email"
@@ -132,12 +143,11 @@ const LoginModal: React.FC<LoginModalProps> = ({
             />
           </Form.Group>
           
-          <div className="d-grid gap-2">
+          <div className="d-grid gap-1">
             <Button 
               type="submit" 
               variant="dark" 
               disabled={loading}
-              className="mb-2"
             >
               {loading ? (
                 <>
@@ -156,7 +166,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
               )}
             </Button>
             
-            <div className="text-center my-2">
+            <div className="text-center">
               <span className="text-muted">{t('or')}</span>
             </div>
             
@@ -165,7 +175,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
               variant="outline-dark"
               onClick={handleGoogleLogin}
               disabled={loading}
-              className="d-flex align-items-center justify-content-center mb-3"
+              className="d-flex align-items-center justify-content-center mb-1"
             >
               <img
                 src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
@@ -174,13 +184,28 @@ const LoginModal: React.FC<LoginModalProps> = ({
               />
               {t('signIn')} {t('with')} {t('google')}
             </Button>
+
+            <Button
+              type="button"
+              variant="outline-dark"
+              onClick={handleFacebookLogin}
+              disabled={loading}
+              className="d-flex align-items-center justify-content-center"
+            >
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg"
+                alt="Facebook logo"
+                style={{ width: '20px', height: '20px', marginRight: '8px' }}
+              />
+              {t('signIn')} {t('with')} {t('facebook')}
+            </Button>
           </div>
           
           <div className="text-center">
             <Button 
               variant="link" 
               onClick={() => navigate('/forgot-password')}
-              className="text-decoration-none p-0 me-3"
+              className="text-decoration-none p-0 me-2"
             >
               {t('forgot')} {t('your')} {t('password')}?
             </Button>

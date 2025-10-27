@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { type GoogleAuthData } from '../api/auth';
+import { type GoogleAuthData, type FacebookAuthData } from '../api/auth';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Modal, Button, Form, Alert, Spinner } from 'react-bootstrap';
@@ -9,7 +9,9 @@ interface CustomerInfoModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: CustomerInfo) => void;
-  googleData: GoogleAuthData | null;
+  googleData?: GoogleAuthData | null;
+  facebookData?: FacebookAuthData | null;
+  email?: string;
   loading: boolean;
 }
 
@@ -27,6 +29,8 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
   onClose,
   onSubmit,
   googleData,
+  facebookData,
+  email,
   loading
 }) => {
   const [error, setError] = useState('');
@@ -42,15 +46,20 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
 
   const { t } = useTranslation();
 
-  // Auto-fill form with Google data when available
+  // Auto-fill form with Google or Facebook data when available
   useEffect(() => {
     if (googleData) {
       setFormData(prev => ({
         ...prev,
         name: googleData.name || ''
       }));
+    } else if (facebookData) {
+      setFormData(prev => ({
+        ...prev,
+        name: facebookData.name || ''
+      }));
     }
-  }, [googleData]);
+  }, [googleData, facebookData]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,14 +97,19 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
     }));
   };
 
+  // Update email logic - use priority: Google > Facebook > Manual input
+  const displayEmail = googleData?.email || facebookData?.email || email || '';
+  const isEmailDisabled = !!(googleData?.email || facebookData?.email);
+
   return (
     <Modal show={isOpen} onHide={onClose} centered>
       <Modal.Header closeButton>
-        <Modal.Title className="fw-bold">
-          {t('completeRegistration')}
+        <Modal.Title>
+          {googleData ? 'Complete Google Registration' : 
+           facebookData ? 'Complete Facebook Registration' : 
+           'Complete Registration'}
         </Modal.Title>
       </Modal.Header>
-
       <Modal.Body>
         <Form onSubmit={handleSubmit}>
           {error && (
@@ -109,6 +123,12 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
               <small>✓ {t('successfully')} {t('authenticated')} {t('with')} {t('google')} {t('as')} {googleData.email}</small>
             </Alert>
           )}
+
+          {facebookData && (
+            <Alert variant="info" className="mb-3">
+              <small>✓ {t('successfully')} {t('authenticated')} {t('with')} {t('facebook')} {t('as')} {facebookData.name}</small>
+            </Alert>
+          )}
           
           <Form.Group className="mb-3">
             <Form.Label htmlFor='name'>{t('fullName')}</Form.Label>
@@ -119,9 +139,28 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
               required
               value={formData.name}
               onChange={handleChange}
-              disabled={!!googleData || loading}
+              disabled={!!(googleData || facebookData) || loading}
               placeholder={t('enterFullName')}
             />
+          </Form.Group>
+          
+          <Form.Group className="mb-3">
+            <Form.Label htmlFor='email'>{t('email')}</Form.Label>
+            <Form.Control
+              type="email"
+              id="email"
+              name="email"
+              value={displayEmail}
+              onChange={() => {}}
+              disabled={isEmailDisabled || loading}
+              placeholder={t('enterEmail')}
+              required
+            />
+            {isEmailDisabled && (
+              <Form.Text className="text-muted">
+                {t('email')} {t('from')} {googleData ? 'Google' : 'Facebook'} {t('authentication')}
+              </Form.Text>
+            )}
           </Form.Group>
           
           <Form.Group className="mb-3">
