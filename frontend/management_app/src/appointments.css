@@ -6,7 +6,7 @@ html, body, #root {
   padding: 0;
   width: 100%;
   height: 100%;
-  background-color: #f7f8fa;
+  background-color: #fef5f5;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -19,8 +19,8 @@ html, body, #root {
   width: 100%;
   height: 100vh;
   background: #fff;
-  border: 1px solid #e9edf0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid #ffe0e0;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.08);
   overflow: hidden;
 }
 
@@ -30,8 +30,8 @@ html, body, #root {
   align-items: center;
   gap: 0.75rem;
   padding: 1rem 1.5rem;
-  background: #fff;
-  border-bottom: 1px solid #e9edf0;
+  background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
+  border-bottom: 1px solid #ffe0e0;
   flex-shrink: 0;
 }
 
@@ -41,33 +41,33 @@ html, body, #root {
   font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 500;
-  border: 1px solid #e9edf0;
+  border: 1px solid #ffcccb;
   border-radius: 6px;
   background: #fff;
   cursor: pointer;
   transition: all 0.2s ease;
-  color: #262626;
+  color: #991b1b;
   min-width: 100px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.05);
 }
 
 .calendar-controls button:hover {
-  background: #f5f5f5;
-  border-color: #40a9ff;
-  color: #40a9ff;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background: #fef2f2;
+  border-color: #ef4444;
+  color: #dc2626;
+  box-shadow: 0 4px 8px rgba(220, 38, 38, 0.15);
 }
 
 .calendar-controls button:active {
-  background: #e6f7ff;
+  background: #fee2e2;
   transform: translateY(1px);
 }
 
 .calendar-controls select {
-  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23262626' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 0.75rem center;
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23991b1b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 0.75rem center;
   padding-right: 2.5rem;
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -75,28 +75,30 @@ html, body, #root {
 }
 
 .calendar-controls select:hover {
-  border-color: #40a9ff;
-  color: #40a9ff;
+  border-color: #ef4444;
+  color: #dc2626;
 }
 
 /* Add New Appointment Button */
 .add-appointment-btn {
-  background-color: #1890ff !important;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
   color: white !important;
   border: none !important;
   padding: 0.75rem 1.5rem !important;
   margin-left: auto;
   font-weight: 600;
+  box-shadow: 0 4px 8px rgba(220, 38, 38, 0.2);
 }
 
 .add-appointment-btn:hover {
-  background-color: #40a9ff !important;
+  background: linear-gradient(135deg, #f87171 0%, #ef4444 100%) !important;
   color: white !important;
   transform: translateY(-1px);
+  box-shadow: 0 6px 12px rgba(220, 38, 38, 0.3);
 }
 
 .add-appointment-btn:active {
-  background-color: #096dd9 !important;
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
   transform: translateY(1px);
 }
 
@@ -105,10 +107,11 @@ html, body, #root {
   margin-left: 1rem;
   font-size: 1.1rem;
   font-weight: 600;
-  color: #262626;
+  color: #991b1b;
   padding: 0.5rem 1rem;
-  background: #f8f9fa;
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
   border-radius: 6px;
+  border: 1px solid #fecaca;
 }
 
 /* ===== 4. DAY/WEEK VIEW ===== */
@@ -116,10 +119,9 @@ html, body, #root {
 /* --- Header (Days) --- */
 .calendar-header {
   display: grid;
-  /* Alterado para 5 dias + coluna de horas */
   grid-template-columns: 70px repeat(5, 1fr);
-  background: #fafafa;
-  border-bottom: 1px solid #e9edf0;
+  background: linear-gradient(135deg, #fff5f5 0%, #fef2f2 100%);
+  border-bottom: 1px solid #ffe0e0;
   flex-shrink: 0;
 }
 
@@ -128,8 +130,8 @@ html, body, #root {
   padding: 12px 0;
   font-weight: 500;
   font-size: 13px;
-  color: #595959;
-  border-left: 1px solid #e9edf0;
+  color: #991b1b;
+  border-left: 1px solid #ffe0e0;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -143,23 +145,22 @@ html, body, #root {
 }
 
 .hours-col {
-  background: #fafafa;
-  border-right: 1px solid #e9edf0;
+  background: linear-gradient(135deg, #fff5f5 0%, #fef2f2 100%);
+  border-right: 1px solid #ffe0e0;
 }
 
 .hour-cell {
   height: 60px;
   font-size: 12px;
-  color: #8c8c8c;
+  color: #b91c1c;
   text-align: right;
   padding-right: 10px;
-  border-bottom: 1px solid #e9edf0;
+  border-bottom: 1px solid #ffe0e0;
 }
 
 /* --- Days Grid & Events --- */
 .days-grid {
   display: grid;
-  /* Alterado para 5 dias */
   grid-template-columns: repeat(5, 1fr);
   position: relative;
   overflow-y: auto;
@@ -168,12 +169,12 @@ html, body, #root {
 
 .day-column {
   position: relative;
-  border-left: 1px solid #e9edf0;
+  border-left: 1px solid #ffe0e0;
 }
 
 .day-cell {
   height: 60px;
-  border-bottom: 1px solid #e9edf0;
+  border-bottom: 1px solid #ffe0e0;
 }
 
 /* --- Event Blocks --- */
@@ -193,20 +194,20 @@ html, body, #root {
 
 .event-block:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 6px 16px rgba(220, 38, 38, 0.15);
   z-index: 20;
 }
 
 .event-block.green {
-  background-color: #f6ffed;
-  border-color: #52c41a;
-  color: #254015;
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+  border-color: #22c55e;
+  color: #14532d;
 }
 
 .event-block.yellow {
-  background-color: #fffbe6;
-  border-color: #faad14;
-  color: #5c4c1a;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-color: #f59e0b;
+  color: #78350f;
 }
 
 .event-time {
@@ -224,13 +225,11 @@ html, body, #root {
 /* ===== 5. MONTH VIEW ===== */
 
 .calendar-header.month {
-  /* Mantido com 7 dias para a vista de mês */
   grid-template-columns: repeat(7, 1fr);
 }
 
 .month-grid {
   display: grid;
-  /* Mantido com 7 dias para a vista de mês */
   grid-template-columns: repeat(7, 1fr);
   grid-template-rows: repeat(6, 1fr);
   flex-grow: 1;
@@ -238,39 +237,38 @@ html, body, #root {
 
 .month-cell {
   position: relative;
-  border-left: 1px solid #e9edf0;
-  border-bottom: 1px solid #e9edf0;
+  border-left: 1px solid #ffe0e0;
+  border-bottom: 1px solid #ffe0e0;
   padding: 8px;
   background: #fff;
   transition: all 0.2s ease;
 }
 
-/* Adicione estes novos estilos */
 .month-cell:not(.weekend):not(.outside):hover {
-  background-color: #f0f7ff;
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
   cursor: pointer;
   transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.1);
 }
 
 .month-cell:not(.weekend):not(.outside):active {
   transform: translateY(0);
-  background-color: #e6f7ff;
+  background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
 }
 
 .month-cell.weekend {
-  background-color: #fdfdfd;
+  background-color: #fff5f5;
   cursor: not-allowed;
 }
 
 .month-cell.outside .month-date {
-  color: #bfbfbf;
+  color: #fca5a5;
 }
 
 .month-date {
   font-size: 13px;
   font-weight: 500;
-  color: #595959;
+  color: #991b1b;
 }
 
 .month-badge {
@@ -279,8 +277,8 @@ html, body, #root {
   border-radius: 12px;
   font-size: 11px;
   font-weight: 500;
-  background-color: #e6f7ff;
-  color: #096dd9;
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  color: #dc2626;
   display: inline-block;
 }
 
@@ -308,7 +306,6 @@ html, body, #root {
     margin-top: 0.5rem;
   }
   .calendar-header, .calendar-body {
-    /* Alterado para 5 dias em mobile */
     grid-template-columns: 50px repeat(5, 1fr);
   }
   .hour-cell {
@@ -324,7 +321,7 @@ html, body, #root {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(153, 27, 27, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -340,17 +337,18 @@ html, body, #root {
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
+  border: 1px solid #fecaca;
 }
 
 .event-modal h2 {
   margin: 0 0 20px 0;
-  color: #262626;
+  color: #991b1b;
   font-size: 1.5rem;
 }
 
 .event-modal h3 {
-  color: #595959;
+  color: #b91c1c;
   font-size: 1rem;
   margin: 0 0 8px 0;
 }
@@ -358,7 +356,7 @@ html, body, #root {
 .modal-section {
   margin-bottom: 20px;
   padding-bottom: 20px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid #fee2e2;
 }
 
 .modal-section:last-child {
@@ -369,7 +367,7 @@ html, body, #root {
 
 .modal-section p {
   margin: 4px 0;
-  color: #262626;
+  color: #991b1b;
 }
 
 .close-button {
@@ -379,15 +377,15 @@ html, body, #root {
   background: none;
   border: none;
   font-size: 24px;
-  color: #595959;
+  color: #b91c1c;
   cursor: pointer;
   padding: 4px 8px;
   border-radius: 4px;
 }
 
 .close-button:hover {
-  background: #f0f0f0;
-  color: #262626;
+  background: #fee2e2;
+  color: #991b1b;
 }
 
 /* Add smooth entrance animation */
@@ -418,24 +416,41 @@ html, body, #root {
   display: flex;
   flex-direction: column;
   font-weight: 500;
+  color: #991b1b;
 }
 
 .new-appointment-form input {
   padding: 6px;
   border-radius: 4px;
-  border: 1px solid #ccc;
+  border: 1px solid #fecaca;
+  transition: all 0.2s ease;
+}
+
+.new-appointment-form input:focus {
+  outline: none;
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 }
 
 .new-appointment-form button {
   margin-top: 10px;
   padding: 8px 12px;
-  background: #007bff;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   border: none;
   color: white;
   border-radius: 4px;
   cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
 .new-appointment-form button:hover {
-  background: #0056b3;
+  background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(220, 38, 38, 0.2);
+}
+
+.new-appointment-form button:active {
+  transform: translateY(0);
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
 }

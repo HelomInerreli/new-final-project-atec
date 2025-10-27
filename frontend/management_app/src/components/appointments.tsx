@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useEffect } from "react";
 import "../appointments.css";
+import "../NewAppointment.css";
 import NewAppointment from "./NewAppointment";
 
 type ViewType = "day" | "week" | "month";
@@ -28,7 +29,7 @@ interface CalendarEvent {
 }
 
 const daysMonFirst = ["Seg", "Ter", "Qua", "Qui", "Sex"];
-const hours = Array.from({ length: 17 }, (_, i) => 9 + i);
+const hours = Array.from({ length: 10 }, (_, i) => i + 9); // 9h to 19h
 
 const START_HOUR = 9;
 const HOUR_HEIGHT = 50;
@@ -185,6 +186,25 @@ const Appointments: React.FC = () => {
     setView("day");
   };
 
+  const handleNewAppointment = async (appointmentData: Omit<CalendarEvent, 'id'>) => {
+    try {
+      // Here you'll make your API call
+      console.log('Creating appointment:', appointmentData);
+      
+      // Temporary mock implementation
+      const newEvent: CalendarEvent = {
+        id: Date.now().toString(),
+        ...appointmentData
+      };
+      
+      setEvents(prev => [...prev, newEvent]);
+      setIsAddingAppointment(false);
+    } catch (error) {
+      console.error('Error creating appointment:', error);
+      alert('Erro ao criar agendamento. Tente novamente.');
+    }
+  };
+
   return (
     <div className={`calendar-wrapper ${view === "month" ? "view-month" : ""}`}>
       <div className="calendar-controls">
@@ -309,24 +329,19 @@ const Appointments: React.FC = () => {
 
       {/* ✅ Modal para adicionar novo agendamento */}
       {isAddingAppointment && (
-        <div
-          className="event-modal-overlay"
-          onClick={() => setIsAddingAppointment(false)}
-        >
-          <div
-            className="event-modal large"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              className="close-button"
-              onClick={() => setIsAddingAppointment(false)}
-            >
-              &times;
-            </button>
-            <NewAppointment onClose={() => setIsAddingAppointment(false)} />
-          </div>
-        </div>
-      )}
+  <div className="event-modal-overlay" onClick={() => setIsAddingAppointment(false)}>
+    <div className="event-modal large" onClick={(e) => e.stopPropagation()}>
+      <button className="close-button" onClick={() => setIsAddingAppointment(false)}>
+        &times;
+      </button>
+
+      <NewAppointment
+        onClose={() => setIsAddingAppointment(false)}
+        onSubmit={handleNewAppointment}
+      />
+    </div>
+  </div>
+)}
     </div>
   );
 };
