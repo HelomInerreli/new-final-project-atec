@@ -3,7 +3,8 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from starlette.requests import Request
 from starlette.responses import RedirectResponse
-
+from jose import JWTError, jwt
+from app.core.security import SECRET_KEY, ALGORITHM
 from app.core.security import (
     oauth, 
     create_google_user_data, 
@@ -22,7 +23,7 @@ from app.schemas.customerAuth import CustomerAuthRegister, GoogleAuthRegister, F
 router = APIRouter()
 
 # =============================================================================
-# SPECIFIC ROUTES FIRST 
+# SPECIFIC ROUTES FIRST (before any path parameters)
 # =============================================================================
 
 # Test endpoint
@@ -189,7 +190,6 @@ async def register(
         }
     }
 
-# Google OAuth2 routes
 @router.post("/google/register")
 async def google_register(
     google_data: GoogleAuthRegister,
@@ -236,10 +236,10 @@ async def google_register(
         }
     }
 
-# Facebook OAuth2 routes
+# Facebook registration endpoint
 @router.post("/facebook/register")
 async def facebook_register(
-    facebook_data: FacebookAuthRegister,  # Use the specific Facebook schema
+    facebook_data: FacebookAuthRegister,
     db: Session = Depends(get_db)
 ):
     """Register a new user with Facebook account."""
@@ -380,20 +380,42 @@ async def google_callback(request: Request, db: Session = Depends(get_db)):
 @router.get("/link/google")
 async def link_google_init(
     request: Request,
-    current_user_id: str = Depends(get_current_user_id)
-):
-    """Initiate Google linking for current user."""
-    redirect_uri = f"http://localhost:8000/api/v1/customersauth/link/google/callback?user_id={current_user_id}"
-    return await oauth.google.authorize_redirect(request, redirect_uri)
-
-@router.get("/link/google/callback")
-async def link_google_callback(
-    request: Request,
-    user_id: str,
+    token: str = None,
     db: Session = Depends(get_db)
 ):
+    """Initiate Google linking for current user."""
+    try:
+        # If token is provided as query param, verify it
+        if token:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            user_id = payload.get("sub")
+            if not user_id:
+                raise HTTPException(status_code=401, detail="Invalid token")
+        else:
+            # Fall back to standard authentication
+            current_user_id = Depends(get_current_user_id)
+            user_id = current_user_id
+        
+        # Store user ID in session for linking after OAuth
+        request.session['link_user_id'] = user_id
+        request.session['link_provider'] = 'google'
+        
+        redirect_uri = "http://localhost:8000/api/v1/customersauth/link/google/callback"
+        return await oauth.google.authorize_redirect(request, redirect_uri)
+        
+    except Exception as e:
+        print(f"Google linking init error: {e}")
+        return RedirectResponse(url="http://localhost:3000/profile?google_linked=error&reason=auth_failed")
+
+@router.get("/link/google/callback")
+async def link_google_callback(request: Request, db: Session = Depends(get_db)):
     """Complete Google linking."""
     try:
+        # Get user ID from session
+        user_id = request.session.get('link_user_id')
+        if not user_id:
+            return RedirectResponse(url="http://localhost:3000/profile?google_linked=error")
+        
         token = await oauth.google.authorize_access_token(request)
         user_info = token.get('userinfo')
         
@@ -401,28 +423,42 @@ async def link_google_callback(
             google_id = user_info.get("sub")
             email = user_info.get("email")
             
-            # Get current user
-            user = db.query(CustomerAuth).filter(CustomerAuth.id == user_id).first()
-            if not user:
-                raise HTTPException(status_code=404, detail="User not found")
-            
             # Check if Google account already linked elsewhere
             existing_google_user = db.query(CustomerAuth).filter(CustomerAuth.google_id == google_id).first()
-            if existing_google_user:
-                raise HTTPException(status_code=400, detail="This Google account is already linked")
+            if existing_google_user and str(existing_google_user.id_customer) != str(user_id):
+                return RedirectResponse(url="http://localhost:3000/profile?google_linked=error")
+            
+            # Get current user by customer ID (FIX: Use id_customer instead of id)
+            user_auth = db.query(CustomerAuth).filter(CustomerAuth.id_customer == int(user_id)).first()
+            if not user_auth:
+                return RedirectResponse(url="http://localhost:3000/profile?google_linked=error")
             
             # Link Google account
-            user.google_id = google_id
-            if not user.email or user.email.startswith('facebook_'):
-                user.email = email
-                user.email_verified = True
+            user_auth.google_id = google_id
+            if not user_auth.email or user_auth.email.startswith('facebook_'):
+                user_auth.email = email
+                user_auth.email_verified = True
             
             db.commit()
             
-            return {"message": "Google account linked successfully"}
+            # Clear session
+            request.session.pop('link_user_id', None)
+            request.session.pop('link_provider', None)
+            
+            return RedirectResponse(url="http://localhost:3000/profile?google_linked=success")
             
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Linking failed: {str(e)}")
+        print(f"Google linking error: {e}")
+        return RedirectResponse(url="http://localhost:3000/profile?google_linked=error")
+
+# Facebook OAuth2 routes
+@router.get("/facebook/test")
+def test_facebook_config():
+    """Test endpoint to check Facebook OAuth2 configuration."""
+    return {
+        "message": "Facebook OAuth2 is configured",
+        "auth_url": "/api/v1/customersauth/facebook"
+    }
 
 @router.get("/facebook")
 async def login_facebook(request: Request):
@@ -440,7 +476,7 @@ async def facebook_callback(request: Request, db: Session = Depends(get_db)):
         import httpx
         async with httpx.AsyncClient() as client:
             user_response = await client.get(
-                'https://graph.facebook.com/me?fields=id,name,email',
+                'https://graph.facebook.com/me?fields=id,name',
                 headers={'Authorization': f'Bearer {token["access_token"]}'}
             )
             user_info = user_response.json()
@@ -448,30 +484,18 @@ async def facebook_callback(request: Request, db: Session = Depends(get_db)):
         if not user_info:
             raise HTTPException(status_code=400, detail="Failed to get user info from Facebook")
         
-        email = user_info.get('email')
         name = user_info.get('name')
         facebook_id = user_info.get('id')
         
-        # If no email from Facebook, create a placeholder
-        if not email:
-            email = f"facebook_{facebook_id}@placeholder.com"
+        # Generate a placeholder email since we can't get real email
+        email = f"facebook_{facebook_id}@placeholder.com"
         
-        # Check if user already exists by email
-        existing_user = db.query(CustomerAuth).filter(CustomerAuth.email == email).first()
-        
-        # Also check if Facebook ID is already linked
+        # Check if user already exists by Facebook ID
         existing_facebook_user = db.query(CustomerAuth).filter(CustomerAuth.facebook_id == facebook_id).first()
         
-        if existing_user or existing_facebook_user:
+        if existing_facebook_user:
             # User exists, log them in
-            user_to_login = existing_user or existing_facebook_user
-            
-            # Update Facebook ID if not set
-            if not user_to_login.facebook_id:
-                user_to_login.facebook_id = facebook_id
-                db.commit()
-            
-            access_token = create_access_token(data={"sub": str(user_to_login.id_customer)})
+            access_token = create_access_token(data={"sub": str(existing_facebook_user.id_customer)})
             
             # Redirect to frontend with token
             frontend_url = f"http://localhost:3000/auth/callback?token={access_token}&type=login"
@@ -496,92 +520,51 @@ async def facebook_callback(request: Request, db: Session = Depends(get_db)):
         frontend_url = f"http://localhost:3000/auth/callback?error={str(e)}"
         return RedirectResponse(url=frontend_url)
 
-@router.post("/facebook/register")
-async def facebook_register(
-    facebook_data: GoogleAuthRegister,  # Reuse the same schema, just different provider
-    db: Session = Depends(get_db)
-):
-    """Register a new user with Facebook account."""
-    # Check if Facebook ID already exists
-    existing_facebook_user = db.query(CustomerAuth).filter(CustomerAuth.facebook_id == facebook_data.token).first()
-    if existing_facebook_user:
-        raise HTTPException(status_code=400, detail="This Facebook account is already registered")
-    
-    # Check if email already exists
-    existing_email_user = db.query(CustomerAuth).filter(CustomerAuth.email == facebook_data.email).first()
-    if existing_email_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    
-    # Create customer
-    db_customer = Customer(
-        name=facebook_data.name,
-        phone=facebook_data.phone,
-        address=facebook_data.address,
-        city=facebook_data.city,
-        postal_code=facebook_data.postal_code,
-        birth_date=facebook_data.birth_date
-    )
-    db.add(db_customer)
-    db.commit()
-    db.refresh(db_customer)
-    
-    # Create customer auth record with email and Facebook ID
-    db_customer_auth = CustomerAuth(
-        id_customer=db_customer.id,
-        email=facebook_data.email,
-        facebook_id=facebook_data.token,
-        email_verified=True  # Assume Facebook emails are verified
-    )
-    db.add(db_customer_auth)
-    db.commit()
-    
-    # Generate token and return response
-    access_token = create_access_token(data={"sub": str(db_customer.id)})
-    
-    return {
-        "message": "User registered successfully with Facebook",
-        "access_token": access_token,
-        "token_type": "bearer",
-        "customer": {
-            "id": db_customer.id,
-            "name": db_customer.name,
-            "email": facebook_data.email,
-            "phone": db_customer.phone,
-            "address": db_customer.address,
-            "city": db_customer.city,
-            "postal_code": db_customer.postal_code,
-            "birth_date": db_customer.birth_date
-        }
-    }
-
-@router.get("/facebook/test")
-def test_facebook_config():
-    """Test endpoint to check Facebook OAuth2 configuration."""
-    return {
-        "message": "Facebook OAuth2 is configured",
-        "auth_url": "/api/v1/customersauth/facebook"
-    }
-
 @router.get("/link/facebook")
 async def link_facebook_init(
     request: Request,
-    current_user_id: str = Depends(get_current_user_id)
-):
-    """Initiate Facebook linking for current user."""
-    redirect_uri = f"http://localhost:8000/api/v1/customersauth/link/facebook/callback?user_id={current_user_id}"
-    return await oauth.facebook.authorize_redirect(request, redirect_uri)
-
-@router.get("/link/facebook/callback")
-async def link_facebook_callback(
-    request: Request,
-    user_id: str,
+    token: str = None, 
     db: Session = Depends(get_db)
 ):
+    """Initiate Facebook linking for current user."""
+    try:
+        # If token is provided as query param, verify it
+        if token:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            user_id = payload.get("sub")
+            if not user_id:
+                raise HTTPException(status_code=401, detail="Invalid token")
+        else:
+            # Fall back to standard authentication
+            current_user_id = Depends(get_current_user_id)
+            user_id = current_user_id
+        
+        # Store user ID in session for linking after OAuth
+        request.session['link_user_id'] = user_id
+        request.session['link_provider'] = 'facebook'
+        
+        redirect_uri = "http://localhost:8000/api/v1/customersauth/link/facebook/callback"
+        return await oauth.facebook.authorize_redirect(request, redirect_uri)
+        
+    except Exception as e:
+        print(f"Facebook linking init error: {e}")
+        return RedirectResponse(url="http://localhost:3000/profile?facebook_linked=error&reason=auth_failed")
+
+@router.get("/link/facebook/callback")
+async def link_facebook_callback(request: Request, db: Session = Depends(get_db)):
     """Complete Facebook linking."""
     try:
+        # Get user ID from session
+        user_id = request.session.get('link_user_id')
+        if not user_id:
+            print("No linking session found")
+            return RedirectResponse(url="http://localhost:3000/profile?facebook_linked=error&reason=no_session")
+        
+        print(f"Linking Facebook for user ID: {user_id}")
+        
+        # Get Facebook token and user info
         token = await oauth.facebook.authorize_access_token(request)
         
-        # Get user info from Facebook
         import httpx
         async with httpx.AsyncClient() as client:
             user_response = await client.get(
@@ -590,27 +573,43 @@ async def link_facebook_callback(
             )
             user_info = user_response.json()
         
-        if user_info:
-            facebook_id = user_info.get("id")
-            
-            # Get current user
-            user = db.query(CustomerAuth).filter(CustomerAuth.id == user_id).first()
-            if not user:
-                raise HTTPException(status_code=404, detail="User not found")
-            
-            # Check if Facebook account already linked elsewhere
-            existing_facebook_user = db.query(CustomerAuth).filter(CustomerAuth.facebook_id == facebook_id).first()
-            if existing_facebook_user:
-                raise HTTPException(status_code=400, detail="This Facebook account is already linked")
-            
-            # Link Facebook account
-            user.facebook_id = facebook_id
-            db.commit()
-            
-            return {"message": "Facebook account linked successfully"}
-            
+        facebook_id = user_info.get('id')
+        if not facebook_id:
+            print("Failed to get Facebook ID")
+            return RedirectResponse(url="http://localhost:3000/profile?facebook_linked=error&reason=no_facebook_id")
+        
+        print(f"Facebook ID: {facebook_id}")
+        
+        # Check if Facebook ID is already linked to another account
+        existing_facebook_user = db.query(CustomerAuth).filter(CustomerAuth.facebook_id == facebook_id).first()
+        if existing_facebook_user and str(existing_facebook_user.id_customer) != str(user_id):
+            print(f"Facebook account already linked to another user: {existing_facebook_user.id_customer}")
+            return RedirectResponse(url="http://localhost:3000/profile?facebook_linked=error&reason=already_linked")
+        
+        # Get current user by customer ID (FIX: Use id_customer instead of id)
+        user_auth = db.query(CustomerAuth).filter(CustomerAuth.id_customer == int(user_id)).first()
+        if not user_auth:
+            print(f"User not found: {user_id}")
+            return RedirectResponse(url="http://localhost:3000/profile?facebook_linked=error&reason=user_not_found")
+        
+        # Link Facebook ID to current user
+        user_auth.facebook_id = facebook_id
+        db.commit()
+        
+        print(f"Facebook linked successfully for user: {user_id}")
+        
+        # Clear session
+        request.session.pop('link_user_id', None)
+        request.session.pop('link_provider', None)
+        
+        # Redirect to profile with success message
+        return RedirectResponse(url="http://localhost:3000/profile?facebook_linked=success")
+        
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Linking failed: {str(e)}")
+        print(f"Facebook linking error: {e}")
+        import traceback
+        traceback.print_exc()
+        return RedirectResponse(url="http://localhost:3000/profile?facebook_linked=error&reason=server_error")
 
 # Debug endpoints
 @router.get("/debug/check-user/{email}")
@@ -641,26 +640,25 @@ def check_email_exists(email: str, db: Session = Depends(get_db)):
     }
 
 # =============================================================================
-# CRUD ENDPOINTS WITH PATH PARAMETERS
+# CRUD ENDPOINTS WITH PATH PARAMETERS (MOVED TO BOTTOM)
 # =============================================================================
 
-# List all
+# List all (no path parameter)
 @router.get("/", response_model=list[customer_auth_schema.CustomerAuthResponse])
 def list_customer_auths(db: Session = Depends(get_db)):
     return crud_customer_auth.get_customer_auths(db=db)
 
-# Create
+# Create (POST, no conflict)
 @router.post("/", response_model=customer_auth_schema.CustomerAuthResponse)
 def create_customer_auth(customer_auth: customer_auth_schema.CustomerAuthCreate, db: Session = Depends(get_db)):
     return crud_customer_auth.create_customer_auth(db=db, customer_auth=customer_auth)
 
-# MOVED TO BOTTOM
+# MOVED TO BOTTOM - This was causing the conflict!
 @router.get("/{customer_auth_id}", response_model=customer_auth_schema.CustomerAuthResponse)
 def read_customer_auth(customer_auth_id: int, db: Session = Depends(get_db)):
     db_customer_auth = crud_customer_auth.get_customer_auth(db=db, customer_auth_id=customer_auth_id)
     if db_customer_auth is None:
         raise HTTPException(status_code=404, detail="User not found")
     return db_customer_auth
-
 
 

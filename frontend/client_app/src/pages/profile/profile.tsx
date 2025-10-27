@@ -194,7 +194,16 @@ const Profile: React.FC = () => {
       // Link Facebook account
       setLinkLoading('facebook');
       try {
-        window.location.href = 'http://localhost:8000/api/v1/customersauth/link/facebook';
+        // Get the token from localStorage
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+          alert("Erro: Não foi possível encontrar o token de autenticação");
+          return;
+        }
+        
+        // Include token as query parameter
+        const linkUrl = `http://localhost:8000/api/v1/customersauth/link/facebook?token=${token}`;
+        window.location.href = linkUrl;
       } catch (error) {
         console.error('Error linking Facebook:', error);
         alert("Erro ao conectar com Facebook");
