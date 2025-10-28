@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Button } from "react-bootstrap";
 import { useAuth } from "../../api/auth";
-import { getCustomerDetails } from "../../api/auth";
+import { getCustomerDetails, createPassword, changePassword } from "../../api/auth";
+import PasswordModal from '../../components/PasswordModal';
 import "../../styles/profile.css";
 
 type UserProfile = {
@@ -46,6 +47,8 @@ const Profile: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [linkLoading, setLinkLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passwordLoading, setPasswordLoading] = useState(false);
 
   // MOVE THE HOOK CALLS HERE - RIGHT AFTER STATE DECLARATIONS
   const passwordButton = useAccountButtonVariant(form.hasPassword);
@@ -132,12 +135,34 @@ const Profile: React.FC = () => {
   }
 
   const handlePasswordAction = () => {
-    if (form.hasPassword) {
-      // Navigate to change password page or show modal
-      alert("Funcionalidade para alterar palavra-passe será implementada em breve");
-    } else {
-      // Navigate to create password page or show modal
-      alert("Funcionalidade para criar palavra-passe será implementada em breve");
+    setShowPasswordModal(true);
+  };
+
+  const handlePasswordSubmit = async (passwordData: { currentPassword?: string; newPassword: string }) => {
+    try {
+      setPasswordLoading(true);
+      
+      if (form.hasPassword) {
+        // Change existing password
+        await changePassword({
+          currentPassword: passwordData.currentPassword!,
+          newPassword: passwordData.newPassword
+        });
+        alert('Palavra-passe alterada com sucesso!');
+      } else {
+        // Create new password
+        await createPassword({
+          newPassword: passwordData.newPassword
+        });
+        alert('Palavra-passe criada com sucesso!');
+        // Reload customer data to update the hasPassword status
+        await loadCustomerData();
+      }
+    } catch (error: any) {
+      console.error('Password error:', error);
+      throw new Error(error.response?.data?.detail || 'Erro ao processar palavra-passe');
+    } finally {
+      setPasswordLoading(false);
     }
   };
 
@@ -403,6 +428,14 @@ const Profile: React.FC = () => {
           </button>
         </div>
       </div>
+
+      <PasswordModal
+        isOpen={showPasswordModal}
+        onClose={() => setShowPasswordModal(false)}
+        onSubmit={handlePasswordSubmit}
+        isCreating={!form.hasPassword}
+        loading={passwordLoading}
+      />
     </div>
   );
 };

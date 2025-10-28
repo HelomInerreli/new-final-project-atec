@@ -639,6 +639,89 @@ def check_email_exists(email: str, db: Session = Depends(get_db)):
         "email": email
     }
 
+# Password management endpoints
+@router.post("/create-password")
+async def create_password(
+    password_data: dict,
+    current_user_id: str = Depends(get_current_user_id),
+    db: Session = Depends(get_db)
+):
+    """Create password for user who doesn't have one."""
+    try:
+        new_password = password_data.get("new_password")
+        if not new_password:
+            raise HTTPException(status_code=400, detail="New password is required")
+        
+        if len(new_password) < 6:
+            raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+        
+        # Get user
+        user_auth = db.query(CustomerAuth).filter(CustomerAuth.id_customer == int(current_user_id)).first()
+        if not user_auth:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Check if user already has a password
+        if user_auth.password_hash:
+            raise HTTPException(status_code=400, detail="User already has a password. Use change password instead.")
+        
+        # Create password hash
+        password_hash = get_password_hash(new_password)
+        user_auth.password_hash = password_hash
+        
+        db.commit()
+        
+        return {"message": "Password created successfully"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error creating password: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@router.put("/change-password")
+async def change_password(
+    password_data: dict,
+    current_user_id: str = Depends(get_current_user_id),
+    db: Session = Depends(get_db)
+):
+    """Change password for user who already has one."""
+    try:
+        current_password = password_data.get("current_password")
+        new_password = password_data.get("new_password")
+        
+        if not current_password or not new_password:
+            raise HTTPException(status_code=400, detail="Both current and new passwords are required")
+        
+        if len(new_password) < 6:
+            raise HTTPException(status_code=400, detail="New password must be at least 6 characters")
+        
+        # Get user
+        user_auth = db.query(CustomerAuth).filter(CustomerAuth.id_customer == int(current_user_id)).first()
+        if not user_auth:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Check if user has a password
+        if not user_auth.password_hash:
+            raise HTTPException(status_code=400, detail="User doesn't have a password. Use create password instead.")
+        
+        # Verify current password
+        if not verify_password(current_password, user_auth.password_hash):
+            raise HTTPException(status_code=400, detail="Current password is incorrect")
+        
+        # Update password
+        new_password_hash = get_password_hash(new_password)
+        user_auth.password_hash = new_password_hash
+        
+        db.commit()
+        
+        return {"message": "Password changed successfully"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error changing password: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
 # =============================================================================
 # CRUD ENDPOINTS WITH PATH PARAMETERS (MOVED TO BOTTOM)
 # =============================================================================

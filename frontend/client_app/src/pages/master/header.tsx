@@ -379,14 +379,14 @@ export function Header({ className = "" }: HeaderProps) {
 
                     <Dropdown.Divider />
 
-                    {/* Settings Section */}
+                    {/* Settings Section 
                     <Dropdown.Item
                       onClick={() => navigate("/account-settings")}
                       className="d-flex align-items-center py-2"
                     >
                       <i className="bi bi-gear me-2 text-secondary"></i>
                       {t("accountSettings")}
-                    </Dropdown.Item>
+                    </Dropdown.Item>*/}
 
                     <Dropdown.Item
                       onClick={() => navigate("/notifications")}

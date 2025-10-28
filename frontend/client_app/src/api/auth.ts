@@ -1,6 +1,7 @@
 import http from './http';
 import { useState, useEffect } from 'react';
 
+//#region INTERFACES
 export interface RegisterData {
   email: string;
   password: string;
@@ -55,6 +56,13 @@ export interface CustomerDetails {
   updated_at: string;
 }
 
+export interface PasswordData {
+  currentPassword?: string;
+  newPassword: string;
+}
+
+//#endregion
+
 //#region TOKEN UTILITIES
 export const setAuthToken = (token: string) => {
   localStorage.setItem('access_token', token); // Fixed: use consistent key
@@ -103,7 +111,6 @@ export const checkEmailExists = async (email: string) => {
 //#endregion
 
 //#region CUSTOMER API
-// Update this function to properly use the /me endpoint
 export const getCustomerDetails = async (customerId: number): Promise<CustomerDetails> => {
   const response = await http.get(`/customersauth/me`);
   
@@ -127,8 +134,22 @@ export const getCustomerDetails = async (customerId: number): Promise<CustomerDe
     updated_at: data.customer_info?.updated_at || ""
   };
 };
-//#endregion
 
+export const createPassword = async (data: { newPassword: string }) => {
+  const response = await http.post('/customersauth/create-password', {
+    new_password: data.newPassword
+  });
+  return response.data;
+};
+
+export const changePassword = async (data: { currentPassword: string; newPassword: string }) => {
+  const response = await http.put('/customersauth/change-password', {
+    current_password: data.currentPassword,
+    new_password: data.newPassword
+  });
+  return response.data;
+};
+//#endregion
 
 //#region useAuth HOOK
 export const useAuth = () => {
