@@ -149,6 +149,16 @@ export const changePassword = async (data: { currentPassword: string; newPasswor
   });
   return response.data;
 };
+
+export const unlinkGoogle = async () => {
+  const response = await http.delete('/customersauth/unlink/google');
+  return response.data;
+};
+
+export const unlinkFacebook = async () => {
+  const response = await http.delete('/customersauth/unlink/facebook');
+  return response.data;
+};
 //#endregion
 
 //#region useAuth HOOK

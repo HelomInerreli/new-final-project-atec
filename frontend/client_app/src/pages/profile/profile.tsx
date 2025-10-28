@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Button } from "react-bootstrap";
 import { useAuth } from "../../api/auth";
-import { getCustomerDetails, createPassword, changePassword } from "../../api/auth";
+import { getCustomerDetails, createPassword, changePassword, unlinkGoogle, unlinkFacebook } from "../../api/auth";
 import PasswordModal from '../../components/PasswordModal';
 import "../../styles/profile.css";
 
@@ -70,6 +70,42 @@ const Profile: React.FC = () => {
     }
   }, [isLoggedIn, loggedInCustomerId]);
 
+  // Handle OAuth linking callbacks
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const facebookLinked = urlParams.get('facebook_linked');
+    const googleLinked = urlParams.get('google_linked');
+    
+    if (facebookLinked === 'success') {
+      alert('Conta Facebook ligada com sucesso!');
+      loadCustomerData();
+      window.history.replaceState({}, '', '/profile');
+    } else if (facebookLinked === 'error') {
+      const reason = urlParams.get('reason');
+      let errorMessage = 'Erro ao ligar conta Facebook. Tente novamente.';
+      
+      if (reason === 'already_linked') {
+        errorMessage = 'Esta conta Facebook já está ligada a outro utilizador.';
+      } else if (reason === 'auth_failed') {
+        errorMessage = 'Falha na autenticação. Tente novamente.';
+      } else if (reason === 'no_session') {
+        errorMessage = 'Sessão expirada. Tente novamente.';
+      }
+      
+      alert(errorMessage);
+      window.history.replaceState({}, '', '/profile');
+    }
+    
+    if (googleLinked === 'success') {
+      alert('Conta Google ligada com sucesso!');
+      loadCustomerData();
+      window.history.replaceState({}, '', '/profile');
+    } else if (googleLinked === 'error') {
+      alert('Erro ao ligar conta Google. Tente novamente.');
+      window.history.replaceState({}, '', '/profile');
+    }
+  }, []);
+
   const loadCustomerData = async () => {
     try {
       setLoading(true);
@@ -103,6 +139,7 @@ const Profile: React.FC = () => {
       });
     } catch (error) {
       console.error('Error loading customer data:', error);
+      setError('Erro ao carregar dados do perfil');
     } finally {
       setLoading(false);
     }
@@ -174,13 +211,19 @@ const Profile: React.FC = () => {
         return;
       }
       
+      // Confirm action
+      const confirmUnlink = window.confirm("Tem a certeza de que deseja desligar a sua conta Google?");
+      if (!confirmUnlink) return;
+      
       setLinkLoading('google');
       try {
-        // TODO: Implement unlink Google API call
-        alert("Funcionalidade para desligar Google será implementada em breve");
-      } catch (error) {
+        await unlinkGoogle();
+        alert("Conta Google desligada com sucesso!");
+        await loadCustomerData();
+      } catch (error: any) {
         console.error('Error unlinking Google:', error);
-        alert("Erro ao desligar conta Google");
+        const errorMessage = error.response?.data?.detail || "Erro ao desligar conta Google";
+        alert(errorMessage);
       } finally {
         setLinkLoading(null);
       }
@@ -188,7 +231,15 @@ const Profile: React.FC = () => {
       // Link Google account
       setLinkLoading('google');
       try {
-        window.location.href = 'http://localhost:8000/api/v1/customersauth/link/google';
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+          alert("Erro: Não foi possível encontrar o token de autenticação");
+          setLinkLoading(null);
+          return;
+        }
+        
+        const linkUrl = `http://localhost:8000/api/v1/customersauth/link/google?token=${token}`;
+        window.location.href = linkUrl;
       } catch (error) {
         console.error('Error linking Google:', error);
         alert("Erro ao conectar com Google");
@@ -205,13 +256,19 @@ const Profile: React.FC = () => {
         return;
       }
       
+      // Confirm action
+      const confirmUnlink = window.confirm("Tem a certeza de que deseja desligar a sua conta Facebook?");
+      if (!confirmUnlink) return;
+      
       setLinkLoading('facebook');
       try {
-        // TODO: Implement unlink Facebook API call
-        alert("Funcionalidade para desligar Facebook será implementada em breve");
-      } catch (error) {
+        await unlinkFacebook();
+        alert("Conta Facebook desligada com sucesso!");
+        await loadCustomerData();
+      } catch (error: any) {
         console.error('Error unlinking Facebook:', error);
-        alert("Erro ao desligar conta Facebook");
+        const errorMessage = error.response?.data?.detail || "Erro ao desligar conta Facebook";
+        alert(errorMessage);
       } finally {
         setLinkLoading(null);
       }
@@ -219,10 +276,11 @@ const Profile: React.FC = () => {
       // Link Facebook account
       setLinkLoading('facebook');
       try {
-        // Get the token from localStorage
+          // Get the token from localStorage
         const token = localStorage.getItem('access_token');
         if (!token) {
           alert("Erro: Não foi possível encontrar o token de autenticação");
+          setLinkLoading(null);
           return;
         }
         
