@@ -4,9 +4,49 @@
   --text-gray: #6c757d;
 }
 
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+.services-hero {
+  display: block;
+  background: linear-gradient(180deg, var(--primary-red), #dc3545);
+  color: #fff;
+
+  padding: 150px;
+  border-radius: 0 0 14px 14px;
+  text-align: center;
+  box-shadow: 0 12px 36px rgba(220,53,69,0.14);
+  max-width: 1100px;
+  width: calc(100% - 48px);
+  margin: 0 auto 24px; 
+}
+
+.services-header .container {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+
+
+.services-hero .services-title {
+  margin: 0px;
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.services-hero .services-subtitle {
+  margin: 0;
+  font-size: 1.1rem;
+  color: rgba(255,255,255,0.95);
+  font-weight: 600;
+}
+
 .services-header {
   background-color: #f8f9fa;
-  padding-top: 80px;
+  padding-top:0px;
   min-height: 40vh;
 }
 
@@ -26,16 +66,48 @@
   min-height: 60vh;
 }
 
-/* Carousel styles */
-.carousel-indicators button {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background-color: var(--text-gray);
-  border: none;
+/* Carousel styles - indicadores finos em vez de bolas */
+.services-carousel .carousel-indicators {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  padding: 0;
+  margin-bottom: 1.25rem;
+  list-style: none;
 }
-.carousel-indicators .active {
-  background-color: var(--primary-red);
+
+.services-carousel .carousel-indicators button {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 6px;
+  padding: 0;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.12);
+  border: none;
+  transition: all 220ms cubic-bezier(.2,.9,.2,1);
+  box-shadow: none;
+  opacity: 1;
+}
+
+
+.services-carousel .carousel-indicators button::before,
+.services-carousel .carousel-indicators button::after {
+  display: none;
+}
+
+/* indicador activo mais longo e colorido */
+.services-carousel .carousel-indicators .active {
+  background: linear-gradient(90deg, var(--primary-red), #c62828);
+  width: 64px;
+  height: 8px;
+  box-shadow: 0 4px 14px rgba(198,40,40,0.16);
+}
+
+/* tamanhos para dispositivos pequenos */
+@media (max-width: 576px) {
+  .services-carousel .carousel-indicators button { width: 30px; height: 5px; }
+  .services-carousel .carousel-indicators .active { width: 44px; height: 6px; }
 }
 
 .service-card {
@@ -113,4 +185,64 @@
 .services-footer {
   background-color: var(--text-dark);
   color: white;
+}
+
+
+
+/* Contact modal: header/footer vermelho */
+.contact-modal .modal-content {
+  overflow: hidden; /* evita artefactos nas bordas */
+  border-radius: 12px;
+}
+
+/* topo e rodapé em gradiente vermelho */
+.contact-modal .modal-header,
+.contact-modal .modal-footer {
+  background: linear-gradient(180deg, var(--primary-red), #dc3545);
+  color: #fff;
+  border: none;
+  font-weight: 700; /* mais grossos como pedido */
+}
+
+/* título e botão de fechar */
+.contact-modal .modal-title {
+  color: #fff;
+  font-weight: 800;
+}
+.contact-modal .btn-close {
+  filter: brightness(0) invert(1);
+  opacity: 0.95;
+}
+
+/* botão "Fechar" com fundo branco e texto vermelho */
+.contact-modal .modal-footer .btn {
+  background: #fff;
+  color: var(--primary-red);
+  border: 1px solid rgba(0,0,0,0.08);
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  transition: background-color 150ms ease, transform 120ms ease;
+  padding: 0.55rem 1rem;
+}
+
+/* hover / focus states para o botão */
+.contact-modal .modal-footer .btn:hover,
+.contact-modal .modal-footer .btn:focus {
+  background: #f8f9fa;
+  transform: translateY(-1px);
+  color: var(--primary-red);
+}
+
+/* corpo mantém texto escuro para legibilidade */
+.contact-modal .modal-body {
+  color: #222;
+  background: #fff;
+  font-weight: 600; /* corpo um pouco mais denso se quiseres */
+}
+
+/* pequenos ajustes responsivos */
+@media (max-width: 576px) {
+  .contact-modal .modal-content { margin: 12px; }
+  .contact-modal .modal-header,
+  .contact-modal .modal-footer { padding: 12px; }
 }

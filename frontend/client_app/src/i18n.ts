@@ -152,6 +152,42 @@ i18next.use(initReactI18next).init({
           readyToSchedule: "Ready to schedule?",
           scheduleService: "Schedule Service",
           whatsIncluded: "What's included:",
+          features: {
+            engineCheck: "Engine & transmission check",
+            brakeSuspension: "Brake and suspension inspection",
+            fluidsFilters: "Fluids and filters analysis",
+            electronicDiagnosis: "Full electronic diagnosis",
+            detailedReport: "Detailed report",
+
+            highQualityOil: "High-quality oil",
+            oilFilter: "Oil filter replacement",
+            levelCheck: "Level checks",
+            visualEngine: "Visual engine inspection",
+
+            advancedOBD: "Advanced OBD scanner",
+            errorCodes: "Error codes analysis",
+            sensorTest: "Sensor testing",
+            ecuCheck: "ECU verification",
+            technicalReport: "Technical report",
+
+            brakePads: "Brake pads and discs check",
+            brakeFluid: "Brake fluid check",
+            performanceTest: "Performance test",
+            replacement: "Replacement if needed",
+            safetyCertificate: "Safety certificate",
+
+            gasRecharge: "Refrigerant gas recharge",
+            filterCleaning: "Filter cleaning",
+            compressorCheck: "Compressor check",
+            temperatureTest: "Temperature test",
+            systemDisinfection: "System disinfection",
+
+            tireMounting: "Tire mounting",
+            computerAlignment: "Computerized alignment",
+            wheelBalancing: "Wheel balancing",
+            pressureCheck: "Pressure check",
+            tireRotation: "Tire rotation"
+          },
           serviceNames: {
             completeInspection: "Complete Inspection",
             oilChange: "Oil Change",
@@ -174,6 +210,19 @@ i18next.use(initReactI18next).init({
             tiresAlignment:
               "Complete tire services, alignment and balancing for safe and economical driving.",
           },
+        },
+        contactModal: {
+          title: "Contact Us",
+          subtitle: "Send us a message and we will reply as soon as possible.",
+          emailLabel: "Email",
+          phoneLabel: "Phone",
+          emailValue: "projetodghhn@gmail.com",
+          phoneValue: "+351 123 456 789",
+          close: "Close",
+          sendButton: "Send",
+          sending: "Sending...",
+          successMessage: "Message sent successfully!",
+          errorMessage: "Failed to send message. Try again."
         },
 
         servicesStrip: {
@@ -243,7 +292,37 @@ i18next.use(initReactI18next).init({
             },
           },
         },
+        appointmentModal: {
+        title: "Create Appointment",
+        progressAria: "Progress {{percent}} percent",
+        loadingApi: "Loading API data...",
+        errorLoadingData: "Error loading data",
+        tryAgain: "Try again",
+        selectServicePlaceholder: "Select a service",
+        selectVehiclePlaceholder: "Select a vehicle",
+        selectServiceHelp: "Choose the service you want.",
+        estimatedBudget: "Estimated Budget (€)",
+        scheduledFor: "Scheduled for:",
+        clientLabel: "Customer:",
+        noVehiclesFound: "No vehicles found for this customer",
+        descriptionPlaceholder: "Describe the problem or required service...",
+        selectService: "Select the service",
+        serviceSelected: "Service: {{service}} — click Next",
+        serviceSelectedFallback: "Service selected — click Next",
+        chooseDateTime: "Choose date and time",
+        selectVehicle: "Select a vehicle",
+        describeProblem: "Describe the problem (min. 4 chars)",
+        readyToSubmit: "All set — you can submit the appointment",
+        createAppointment: "Schedule Service",
+        creating: "Creating...",
+        next: "Next"
+      },
+      vehicle: "Vehicle",
+      seguinte: "Next",
+      cancel: "Cancel",
+  
 
+        
         // Basic words for auth components
         please: "Please",
         enter: "Enter",
@@ -298,7 +377,6 @@ i18next.use(initReactI18next).init({
         select: "Select",
         of: "of",
         creating: "Creating",
-        cancel: "Cancel",
         city: "City",
 
         // Compound phrases for better translations
@@ -318,6 +396,7 @@ i18next.use(initReactI18next).init({
         selectedDate: "Selected",
       },
       contactUs: "Contact us",
+      
     },
 
     pt: {
@@ -463,6 +542,42 @@ i18next.use(initReactI18next).init({
           readyToSchedule: "Pronto para agendar?",
           scheduleService: "Agendar Serviço",
           whatsIncluded: "O que inclui:",
+              features: {
+                  engineCheck: "Verificação do motor e transmissão",
+                  brakeSuspension: "Inspeção dos travões e suspensão",
+                  fluidsFilters: "Análise de fluidos e filtros",
+                  electronicDiagnosis: "Diagnóstico eletrónico completo",
+                  detailedReport: "Relatório detalhado",
+
+                  highQualityOil: "Óleo de alta qualidade",
+                  oilFilter: "Substituição do filtro de óleo",
+                  levelCheck: "Verificação dos níveis",
+                  visualEngine: "Inspeção visual do motor",
+
+                  advancedOBD: "Scanner OBD avançado",
+                  errorCodes: "Análise de códigos de erro",
+                  sensorTest: "Teste de sensores",
+                  ecuCheck: "Verificação da ECU",
+                  technicalReport: "Relatório técnico detalhado",
+
+                  brakePads: "Inspeção das pastilhas e discos de travão",
+                  brakeFluid: "Verificação do fluido de travões",
+                  performanceTest: "Teste de desempenho",
+                  replacement: "Substituição se necessário",
+                  safetyCertificate: "Certificado de segurança",
+
+                  gasRecharge: "Recarga do gás refrigerante",
+                  filterCleaning: "Limpeza de filtros",
+                  compressorCheck: "Verificação do compressor",
+                  temperatureTest: "Teste de temperatura",
+                  systemDisinfection: "Desinfeção do sistema",
+
+                  tireMounting: "Montagem de pneus novos",
+                   computerAlignment: "Alinhamento computadorizado",
+                  wheelBalancing: "Balanceamento de rodas",
+                  pressureCheck: "Verificação da pressão",
+                  tireRotation: "Rodízio de pneus"
+                },
           serviceNames: {
             completeInspection: "Revisão Completa",
             oilChange: "Mudança de Óleo",
@@ -486,6 +601,20 @@ i18next.use(initReactI18next).init({
               "Serviços completos de pneus, alinhamento e balanceamento para uma condução segura e económica.",
           },
         },
+
+         contactModal: {
+           title: "Fale Connosco",
+           subtitle: "Envie-nos uma mensagem e responderemos o mais breve possível.",
+           emailLabel: "Email",
+           phoneLabel: "Telefone",
+           emailValue: "projetodghhn@gmail.com",
+             phoneValue: "+351 123 456 789",
+           close: "Fechar",
+           sendButton: "Enviar",
+           sending: "A enviar...",
+           successMessage: "Mensagem enviada com sucesso!",
+           errorMessage: "Falha ao enviar a mensagem. Tente novamente."
+         },
 
         servicesStrip: {
           title: "A pensar em si!",
@@ -555,6 +684,37 @@ i18next.use(initReactI18next).init({
           },
         },
 
+        appointmentModal: {
+        title: "Agendar Novo Serviço",
+        progressAria: "Progresso {{percent}} por cento",
+        loadingApi: "Carregando dados da API...",
+        errorLoadingData: "Erro ao carregar dados",
+        tryAgain: "Tentar Novamente",
+        selectServicePlaceholder: "Selecione um serviço",
+        selectVehiclePlaceholder: "Selecione um veículo",
+        selectServiceHelp: "Selecione o serviço pretendido.",
+        estimatedBudget: "Orçamento Estimado (€)",
+        scheduledFor: "Agendado para:",
+        clientLabel: "Cliente:",
+        noVehiclesFound: "Nenhum veículo encontrado para este cliente",
+        descriptionPlaceholder: "Descreva o problema ou serviço necessário...",
+        selectService: "Selecione o serviço",
+        serviceSelected: "Serviço: {{service}} — clique Seguinte",
+        serviceSelectedFallback: "Serviço selecionado — clique Seguinte",
+        chooseDateTime: "Escolha data e hora",
+        selectVehicle: "Selecione um veículo",
+        describeProblem: "Descreva o problema (mín. 4 caracteres)",
+        readyToSubmit: "Tudo preenchido — pode enviar o agendamento",
+        createAppointment: "Agendar Serviço",
+        creating: "Criando...",
+        next: "Seguinte",
+      },
+     
+      vehicle: "Veículo",
+      cancel: "Cancelar",
+      seguinte: "Seguinte",
+    
+
         // Basic words for auth components
         please: "Por favor",
         enter: "Digite",
@@ -609,7 +769,6 @@ i18next.use(initReactI18next).init({
         select: "Selecionar",
         of: "de",
         creating: "Criando",
-        cancel: "Cancelar",
         city: "Cidade",
 
         // Compound phrases for better translations
@@ -772,6 +931,42 @@ i18next.use(initReactI18next).init({
           readyToSchedule: "¿Listo para agendar?",
           scheduleService: "Agendar Servicio",
           whatsIncluded: "¿Qué incluye?",
+          features: {
+            engineCheck: "Revisión del motor y transmisión",
+            brakeSuspension: "Inspección de frenos y suspensión",
+            fluidsFilters: "Análisis de fluidos y filtros",
+            electronicDiagnosis: "Diagnóstico electrónico completo",
+            detailedReport: "Informe detallado",
+
+            highQualityOil: "Aceite de alta calidad",
+            oilFilter: "Cambio de filtro de aceite",
+            levelCheck: "Comprobación de niveles",
+            visualEngine: "Inspección visual del motor",
+
+            advancedOBD: "Escáner OBD avanzado",
+            errorCodes: "Análisis de códigos de error",
+            sensorTest: "Prueba de sensores",
+            ecuCheck: "Verificación de la ECU",
+            technicalReport: "Informe técnico",
+
+            brakePads: "Revisión de pastillas y discos",
+            brakeFluid: "Comprobación del líquido de frenos",
+            performanceTest: "Prueba de rendimiento",
+            replacement: "Reemplazo si es necesario",
+            safetyCertificate: "Certificado de seguridad",
+
+            gasRecharge: "Recarga de gas refrigerante",
+             filterCleaning: "Limpieza de filtros",
+            compressorCheck: "Revisión del compresor",
+            temperatureTest: "Prueba de temperatura",
+            systemDisinfection: "Desinfección del sistema",
+
+            tireMounting: "Montaje de neumáticos",
+            computerAlignment: "Alineación computarizada",
+            wheelBalancing: "Balanceo de ruedas",
+            pressureCheck: "Verificación de presión",
+            tireRotation: "Rotación de neumáticos"
+          },
           serviceNames: {
             completeInspection: "Inspección Completa",
             oilChange: "Cambio de Aceite",
@@ -795,6 +990,20 @@ i18next.use(initReactI18next).init({
               "Servicios completos de neumáticos, alineación y balanceo para una conducción segura y económica.",
           },
         },
+
+         contactModal: {
+           title: "Contáctanos",
+           subtitle: "Envíanos un mensaje y responderemos lo antes posible.",
+           emailLabel: "Correo",
+           phoneLabel: "Teléfono",
+           emailValue: "projetodghhn@gmail.com",
+           phoneValue: "+351 123 456 789",
+           close: "Cerrar",
+           sendButton: "Enviar",
+           sending: "Enviando...",
+           successMessage: "¡Mensaje enviado con éxito!",
+           errorMessage: "Error al enviar el mensaje. Inténtalo de nuevo."
+         },
 
         servicesStrip: {
           title: "¡Pensando en ti!",
@@ -864,6 +1073,40 @@ i18next.use(initReactI18next).init({
           },
         },
 
+        appointmentModal: {
+      title: "Programar servicio",
+      progressAria: "Progreso {{percent}} por ciento",
+      loadingApi: "Cargando datos de la API...",
+      errorLoadingData: "Error cargando datos",
+      tryAgain: "Intentar de nuevo",
+      selectServicePlaceholder: "Seleccione un servicio",
+      selectVehiclePlaceholder: "Seleccione un vehículo",
+      selectServiceHelp: "Elija el servicio deseado.",
+      estimatedBudget: "Presupuesto estimado (€)",
+      scheduledFor: "Agendado para:",
+      clientLabel: "Cliente:",
+      noVehiclesFound: "No se encontraron vehículos para este cliente",
+      descriptionPlaceholder: "Describa el problema o servicio requerido...",
+      selectService: "Seleccione el servicio",
+      serviceSelected: "Servicio: {{service}} — haga clic en Siguiente",
+      serviceSelectedFallback: "Servicio seleccionado — haga clic en Siguiente",
+      chooseDateTime: "Seleccione fecha y hora",
+      selectVehicle: "Seleccione un vehículo",
+      describeProblem: "Describa el problema (mín. 4 caracteres)",
+      readyToSubmit: "Todo listo — puede enviar la cita",
+      createAppointment: "Programar servicio",
+      creating: "Creando...",
+      next: "Siguiente",
+    },
+    
+    vehicle: "Vehículo",
+    cancel: "Cancelar",
+    seguinte: "Siguiente",
+    previous: "Anterior",
+    next: "Siguiente",
+    appointmentCreatedSuccess: "¡Cita creada con éxito!",
+
+
         // Basic words for auth components
         please: "Por favor",
         enter: "Ingrese",
@@ -918,7 +1161,6 @@ i18next.use(initReactI18next).init({
         select: "Seleccionar",
         of: "de",
         creating: "Creando",
-        cancel: "Cancelar",
         city: "Ciudad",
 
         // Compound phrases for better translations
@@ -1081,6 +1323,42 @@ i18next.use(initReactI18next).init({
           readyToSchedule: "Prêt à prendre rendez-vous ?",
           scheduleService: "Prendre Rendez-vous",
           whatsIncluded: "Ce qui est inclus :",
+          features: {
+            engineCheck: "Contrôle moteur et transmission",
+            brakeSuspension: "Inspection des freins et de la suspension",
+            fluidsFilters: "Analyse des fluides et filtres",
+            electronicDiagnosis: "Diagnostic électronique complet",
+            detailedReport: "Rapport détaillé",
+
+            highQualityOil: "Huile de haute qualité",
+            oilFilter: "Remplacement du filtre à huile",
+            levelCheck: "Contrôle des niveaux",
+            visualEngine: "Inspection visuelle du moteur",
+
+            advancedOBD: "Scanner OBD avancé",
+            errorCodes: "Analyse des codes d'erreur",
+            sensorTest: "Test des capteurs",
+            ecuCheck: "Vérification de l'ECU",
+            technicalReport: "Rapport technique",
+
+            brakePads: "Contrôle des plaquettes et disques",
+            brakeFluid: "Vérification du liquide de frein",
+            performanceTest: "Test de performance",
+            replacement: "Remplacement si nécessaire",
+            safetyCertificate: "Certificat de sécurité",
+
+            gasRecharge: "Rechargement du gaz réfrigérant",
+            filterCleaning: "Nettoyage des filtres",
+            compressorCheck: "Vérification du compresseur",
+            temperatureTest: "Test de température",
+            systemDisinfection: "Désinfection du système",
+
+            tireMounting: "Montage des pneus",
+            computerAlignment: "Alignement informatisé",
+            wheelBalancing: "Équilibrage des roues",
+            pressureCheck: "Contrôle de la pression",
+            tireRotation: "Rotation des pneus"
+          },
           serviceNames: {
             completeInspection: "Inspection Complète",
             oilChange: "Changement d'Huile",
@@ -1104,6 +1382,20 @@ i18next.use(initReactI18next).init({
               "Services complets de pneus, alignement et équilibrage pour une conduite sûre et économique.",
           },
         },
+
+         contactModal: {
+           title: "Contactez-nous",
+           subtitle: "Envoyez-nous un message et nous répondrons dès que possible.",
+           emailLabel: "Email",
+           phoneLabel: "Téléphone",
+           emailValue: "projetodghhn@gmail.com",
+           phoneValue: "+351 123 456 789",
+           close: "Fermer",
+           sendButton: "Envoyer",
+           sending: "Envoi...",
+           successMessage: "Message envoyé avec succès !",
+           errorMessage: "Échec de l'envoi. Réessayez."
+           },
 
         servicesStrip: {
           title: "À votre service !",
@@ -1173,7 +1465,39 @@ i18next.use(initReactI18next).init({
           },
         },
 
-        // Basic words for auth components
+        appointmentModal: {
+      title: "Planifier un service",
+      progressAria: "Progression {{percent}} pour cent",
+      loadingApi: "Chargement des données...",
+      errorLoadingData: "Erreur lors du chargement des données",
+      tryAgain: "Réessayer",
+      selectServicePlaceholder: "Sélectionnez un service",
+      selectVehiclePlaceholder: "Sélectionnez un véhicule",
+      selectServiceHelp: "Choisissez le service souhaité.",
+      estimatedBudget: "Budget estimé (€)",
+      scheduledFor: "Planifié pour :",
+      clientLabel: "Client :",
+      noVehiclesFound: "Aucun véhicule trouvé pour ce client",
+      descriptionPlaceholder: "Décrivez le problème ou le service requis...",
+      selectService: "Sélectionnez le service",
+      serviceSelected: "Service : {{service}} — cliquez Suivant",
+      serviceSelectedFallback: "Service sélectionné — cliquez Suivant",
+      chooseDateTime: "Choisissez la date et l'heure",
+      selectVehicle: "Sélectionnez un véhicule",
+      describeProblem: "Décrivez le problème (min. 4 caractères)",
+      readyToSubmit: "Tout est prêt — vous pouvez soumettre la demande",
+      createAppointment: "Planifier le service",
+      creating: "Création...",
+      next: "Suivant",
+    },
+    vehicle: "Véhicule",
+    cancel: "Annuler",
+    
+    previous: "Précédent",
+    next: "Suivant",
+    appointmentCreatedSuccess: "Rendez-vous créé avec succès !",
+
+    // Basic words for auth components
         please: "Veuillez",
         enter: "Entrez",
         and: "et",
@@ -1227,7 +1551,6 @@ i18next.use(initReactI18next).init({
         select: "Sélectionner",
         of: "de",
         creating: "Création",
-        cancel: "Annuler",
         city: "Ville",
 
         // Compound phrases for better translations

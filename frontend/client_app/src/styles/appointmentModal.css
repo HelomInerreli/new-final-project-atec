@@ -1,0 +1,228 @@
+
+.modal-content.shadow .modal-header,
+.modal-content.shadow .modal-footer {
+  background-color: #dc3545 !important; /* vermelho do projeto */
+  color: #fff !important;
+  border: none !important;
+}
+
+.modal-content.shadow .modal-header.bg-light {
+  background-color: #dc3545 !important;
+  color: #fff !important;
+}
+
+/* Título e ícones */
+.modal-content.shadow .modal-title,
+.modal-content.shadow .modal-header .bi {
+  color: #fff !important;
+}
+
+
+.modal-content.shadow .btn-close {
+  background: none !important; 
+  filter: invert(1) contrast(1.2) !important;
+  width: 1.6rem;
+  height: 1.6rem;
+  opacity: 1 !important;
+}
+
+
+.modal-content.shadow .modal-footer .btn,
+.modal-content.shadow .modal-footer .form-text {
+  color: #fff !important;
+}
+
+
+.modal-content.shadow .btn.btn-light {
+  background: #fff !important;
+  color: #dc3545 !important;
+  font-weight: 600;
+}
+
+
+.modal-content.shadow .btn-outline-secondary,
+.modal-content.shadow .btn-outline-light {
+  border-color: rgba(0, 0, 0, 0.22) !important;
+  color: #fff !important;
+}
+.modal-content.shadow .btn-outline-light:hover,
+.modal-content.shadow .btn-outline-secondary:hover {
+  background: rgba(255,255,255,0.06) !important;
+}
+
+
+.modal-content.shadow .modal-body {
+  background: #fff !important;
+  color: #333 !important;
+}
+
+
+@media (max-width: 576px) {
+  .modal-dialog.modal-lg { max-width: 95% !important; margin: 0.5rem; }
+}
+
+
+.modal-content.shadow .modal-footer .btn,
+.modal-content.shadow .modal-footer .btn-outline-light,
+.modal-content.shadow .modal-footer .btn-outline-secondary {
+  background: #ffffff !important;
+  color: #dc3545 !important; /* texto vermelho */
+  border: none !important;
+  box-shadow: none !important;
+  font-weight: 600 !important;
+}
+
+
+.modal-content.shadow .modal-footer .btn:hover,
+.modal-content.shadow .modal-footer .btn:focus {
+  background: #f8f9fa !important;
+  color: #dc3545 !important;
+  transform: translateY(-1px);
+}
+
+
+.modal-content.shadow .modal-footer .btn .bi {
+  color: #dc3545 !important;
+}
+
+
+.modal-content.shadow .modal-footer .btn.btn-primary {
+  background: #ffffff !important;
+  color: #dc3545 !important;
+  border: none !important;
+}
+
+/* Track onde o carro se move */
+.car-progress-track {
+  position: relative;
+  height: 10px;
+  margin: 6px 0;
+  background: transparent;
+  /* linha do track (visível) */
+}
+.car-progress-track::before {
+  content: '';
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  top: 50%;
+  height: 6px;
+  background: rgba(255,255,255,0.18);
+  transform: translateY(-50%);
+  border-radius: 6px;
+  z-index: 1;
+}
+
+/* ícone do carro */
+.car-progress-track .car-icon {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%); /* centra horizontalmente no ponto left */
+  z-index: 2;
+  color: #fff;
+  font-size: 1.25rem;
+  transition: left 380ms cubic-bezier(.2,.9,.2,1);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.35);
+}
+
+/* opcional: pequena sombra/halo para visibilidade sobre branco */
+.car-progress-track .car-icon::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%,-50%);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.18);
+  z-index: -1;
+}
+
+.car-progress-track .car-icon,
+.car-progress-track .car-icon .bi {
+  color: #000 !important; /* muda cor do ícone do carro (preto) */
+}
+
+.modal-content.shadow .modal-body .bi,
+.modal-content.shadow .modal-body .form-label .bi,
+.modal-content.shadow .modal-body .form-text .bi {
+  color: #000 !important;
+}
+
+/* centered progress wrapper */
+.progress-center-wrapper {
+  padding: 12px 20px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+/* track container (centred, fixed max-width) */
+.progress-track {
+  position: relative;
+  width: 72%;
+  max-width: 760px;
+  min-width: 260px;
+  height: 14px;
+  background: rgba(0,0,0,0.06);
+  border-radius: 999px;
+  overflow: visible;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+}
+
+/* fill that grows with progress */
+.progress-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0%;
+  background: linear-gradient(90deg,#000000,#dc3545);
+  border-radius: 999px;
+  transition: width 380ms cubic-bezier(.2,.9,.2,1);
+}
+
+/* car icon that rides above the fill */
+.car-icon {
+  position: absolute;
+  top: 50%;
+  left: 0%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+  transition: left 380ms cubic-bezier(.2,.9,.2,1);
+}
+
+/* icon itself */
+.car-icon .bi {
+  color: #000;
+  font-size: 1.05rem;
+}
+
+/* Instruction and percent text styling */
+.progress-instruction {
+  font-size: 0.95rem;
+  color: #111;
+  min-height: 20px;
+  text-align: center;
+}
+
+.progress-percent {
+  font-size: 0.82rem;
+  color: #666;
+}
+
+/* make sure modal body icons are black by default */
+.appointment-modal .modal-body .bi,
+.appointment-modal .form-label .bi {
+  color: #000 !important;
+}
