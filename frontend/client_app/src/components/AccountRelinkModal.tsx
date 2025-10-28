@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Modal, Button, Alert, Spinner } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 
 interface AccountRelinkModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => Promise<void>;
-  onCancel: () => void;
   provider: 'google' | 'facebook';
   providerUserData: {
     name: string;
@@ -22,12 +22,11 @@ const AccountRelinkModal: React.FC<AccountRelinkModalProps> = ({
   isOpen,
   onClose,
   onConfirm,
-  onCancel,
   provider,
-  providerUserData,
   existingUserData,
   loading
 }) => {
+  const { t } = useTranslation();
   const [error, setError] = useState('');
 
   const handleConfirm = async () => {
@@ -35,12 +34,12 @@ const AccountRelinkModal: React.FC<AccountRelinkModalProps> = ({
       setError('');
       await onConfirm();
     } catch (err: any) {
-      setError(err.message || 'Erro ao religar conta');
+      setError(err.message || t('modal.relink.error'));
     }
   };
 
   const providerName = provider === 'google' ? 'Google' : 'Facebook';
-  const providerColor = provider === 'google' ? '#4285f4' : '#1877F2';
+  const buttonColor = provider === 'google' ? '#595959ff' : '#307bddff';
 
   const getInitials = (name: string) => {
     if (!name) return "?";
@@ -51,15 +50,17 @@ const AccountRelinkModal: React.FC<AccountRelinkModalProps> = ({
   };
 
   return (
-    <Modal show={isOpen} onHide={onClose} centered size="md">
+    <Modal show={isOpen} onHide={onClose} centered>
       <Modal.Header closeButton>
-        <Modal.Title>Religar conta {providerName}</Modal.Title>
+        <Modal.Title>
+          {t('title', { provider: providerName })}
+        </Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <div className="text-center mb-4">
-          <h5>Conta encontrada!</h5>
+          <h5>{t('accountFound')}</h5>
           <p className="text-muted">
-            Já tem uma conta com este email. Deseja religar a sua conta {providerName}?
+            {t('modal.relink.question', { provider: providerName })}
           </p>
         </div>
 
@@ -69,88 +70,50 @@ const AccountRelinkModal: React.FC<AccountRelinkModalProps> = ({
           </Alert>
         )}
 
-        {/* Provider Account Info */}
-        <div className="border rounded p-3 mb-3" style={{ backgroundColor: '#f8f9fa' }}>
-          <div className="d-flex align-items-center mb-2">
-            <div 
-              className="rounded-circle d-flex align-items-center justify-content-center me-3"
-              style={{ 
-                width: '50px', 
-                height: '50px', 
-                backgroundColor: providerColor,
-                color: 'white',
-                fontSize: '18px',
-                fontWeight: 'bold'
-              }}
-            >
-              {getInitials(providerUserData.name)}
-            </div>
-            <div>
-              <h6 className="mb-1">{providerUserData.name}</h6>
-              <small className="text-muted">{providerUserData.email}</small>
-              <br />
-              <small style={{ color: providerColor }}>
-                {provider === 'google' && (
-                  <>
-                    <img
-                      src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
-                      alt="Google"
-                      style={{ width: '14px', height: '14px', marginRight: '4px' }}
-                    />
-                    Conta Google
-                  </>
-                )}
-                {provider === 'facebook' && (
-                  <>
-                    <i className="bi bi-facebook me-1"></i>
-                    Conta Facebook
-                  </>
-                )}
-              </small>
-            </div>
-          </div>
-        </div>
-
-        {/* Existing Account Info */}
-        <div className="border rounded p-3 mb-3">
+        {/* Existing Account Info - No badge */}
+        <div className="border rounded p-4 mb-3">
           <div className="d-flex align-items-center">
             <div 
               className="rounded-circle d-flex align-items-center justify-content-center me-3"
               style={{ 
-                width: '50px', 
-                height: '50px', 
-                backgroundColor: '#6c757d',
+                width: '60px', 
+                height: '60px', 
+                backgroundColor: '#dc3545',
                 color: 'white',
-                fontSize: '18px',
+                fontSize: '20px',
                 fontWeight: 'bold'
               }}
             >
               {getInitials(existingUserData.name)}
             </div>
-            <div>
-              <h6 className="mb-1">{existingUserData.name}</h6>
-              <small className="text-muted">{existingUserData.email}</small>
-              <br />
+            <div className="flex-grow-1">
+              <h5 className="mb-1">{existingUserData.name}</h5>
+              <p className="text-muted mb-1">{existingUserData.email}</p>
               <small className="text-success">
                 <i className="bi bi-check-circle me-1"></i>
-                Conta existente
+                {t('modal.relink.existingAccount')}
               </small>
             </div>
           </div>
         </div>
 
-        <div className="text-center text-muted">
-          <small>
-            Ao confirmar, a sua conta {providerName} será religada à conta existente.
+        <div className="text-center">
+          <small className="text-muted">
+            {t('modal.relink.confirmMessage', { provider: providerName })}
           </small>
         </div>
       </Modal.Body>
       <Modal.Footer>
         <div className="d-grid gap-2 w-100">
           <Button 
-            variant="primary" 
             onClick={handleConfirm}
             disabled={loading}
+            className="d-flex align-items-center justify-content-center"
+            style={{
+              backgroundColor: buttonColor,
+              borderColor: buttonColor,
+              color: 'white'
+            }}
           >
             {loading ? (
               <>
@@ -162,19 +125,27 @@ const AccountRelinkModal: React.FC<AccountRelinkModalProps> = ({
                   aria-hidden="true"
                   className="me-2"
                 />
-                A religar...
+                {t('modal.relink.relinking')}
               </>
             ) : (
-              `Religar conta ${providerName}`
+              <>
+                {provider === 'google' && (
+                  <img
+                    src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
+                    alt="Google"
+                    style={{ width: '16px', height: '16px', marginRight: '8px' }}
+                  />
+                )}
+                {provider === 'facebook' && (
+                  <img
+                    src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg"
+                    alt="Facebook"
+                    style={{ width: '20px', height: '20px', marginRight: '7px' }}
+                  />
+                )}
+                {t('modal.relink.button', { provider: providerName })}
+              </>
             )}
-          </Button>
-          
-          <Button 
-            variant="outline-secondary" 
-            onClick={onCancel}
-            disabled={loading}
-          >
-            Criar nova conta
           </Button>
           
           <Button 
@@ -183,7 +154,7 @@ const AccountRelinkModal: React.FC<AccountRelinkModalProps> = ({
             disabled={loading}
             className="text-muted"
           >
-            Cancelar
+            {t('cancel')}
           </Button>
         </div>
       </Modal.Footer>

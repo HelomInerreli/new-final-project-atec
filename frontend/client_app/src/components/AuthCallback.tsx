@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { setAuthToken, useAuth } from '../api/auth';
 import AccountRelinkModal from './AccountRelinkModal';
+import Home from '../pages/Home/Home';
 
 const AuthCallback: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -15,6 +16,12 @@ const AuthCallback: React.FC = () => {
     const error = searchParams.get('error');
     const token = searchParams.get('token');
 
+    console.log('=== AUTH CALLBACK DEBUG ===');
+    console.log('Type:', type);
+    console.log('Error:', error);
+    console.log('Token:', token);
+    console.log('All params:', Object.fromEntries(searchParams));
+
     if (error) {
       console.error('Auth error:', error);
       navigate('/register?error=Authentication failed');
@@ -22,11 +29,11 @@ const AuthCallback: React.FC = () => {
     }
 
     if (type === 'login' && token) {
-      // User logged in successfully
+      console.log('Login flow');
       setAuthToken(token);
       navigate('/dashboard');
     } else if (type === 'register') {
-      // New user, need to complete registration
+      console.log('Register flow');
       const provider = searchParams.get('provider') || 'google';
       const authData = {
         token: searchParams.get('token') || '',
@@ -34,12 +41,13 @@ const AuthCallback: React.FC = () => {
         name: searchParams.get('name') || ''
       };
       
-      // Store auth data and redirect to register page
       localStorage.setItem(`${provider}AuthData`, JSON.stringify(authData));
       navigate(`/register?${provider}=true`);
     } else if (type === 'relink') {
-      // Show relink modal
+      console.log('Relink flow - showing modal');
       setShowRelinkModal(true);
+    } else {
+      console.log('Unknown type or missing params');
     }
   }, [searchParams, navigate, login]);
 
@@ -78,30 +86,15 @@ const AuthCallback: React.FC = () => {
       navigate('/profile?relinked=success');
       
     } catch (error: any) {
-      throw error;
+        throw error;
     } finally {
       setRelinkLoading(false);
     }
   };
 
-  const handleCreateNewAccount = () => {
-    // Convert to registration flow
-    const provider = searchParams.get('provider') || 'google';
-    const authData = {
-      token: searchParams.get(provider === 'google' ? 'google_id' : 'facebook_id') || '',
-      email: searchParams.get('email') || '',
-      name: searchParams.get('name') || ''
-    };
-    
-    // Store auth data and redirect to register
-    localStorage.setItem(`${provider}AuthData`, JSON.stringify(authData));
+  const handleCloseRelink = () => {
     setShowRelinkModal(false);
-    navigate(`/register?${provider}=true`);
-  };
-
-  const handleCancelRelink = () => {
-    setShowRelinkModal(false);
-    navigate('/login');
+    navigate('/');
   };
 
   // Get relink data for the modal
@@ -117,17 +110,13 @@ const AuthCallback: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center">
-        <h2 className="text-xl font-semibold mb-4">Processing authentication...</h2>
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
-      </div>
+      <Home />
 
       {/* Relink Modal */}
       <AccountRelinkModal
         isOpen={showRelinkModal}
-        onClose={handleCancelRelink}
+        onClose={handleCloseRelink}
         onConfirm={handleConfirmRelink}
-        onCancel={handleCreateNewAccount}
         provider={provider}
         providerUserData={providerUserData}
         existingUserData={existingUserData}

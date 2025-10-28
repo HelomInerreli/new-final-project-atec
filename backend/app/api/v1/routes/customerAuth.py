@@ -250,6 +250,14 @@ async def facebook_register(
     if existing_facebook_user:
         raise HTTPException(status_code=400, detail="This Facebook account is already registered")
     
+    # UPDATED: Require a real email - no placeholders allowed
+    if not facebook_data.email or facebook_data.email.strip() == "":
+        raise HTTPException(status_code=400, detail="A valid email address is required for registration")
+    
+    # Don't allow placeholder emails to be registered
+    if facebook_data.email.startswith('facebook_') and facebook_data.email.endswith('@placeholder.com'):
+        raise HTTPException(status_code=400, detail="Please provide a valid email address")
+    
     # Check if email already exists
     existing_email_user = db.query(CustomerAuth).filter(CustomerAuth.email == facebook_data.email).first()
     if existing_email_user:
@@ -270,10 +278,10 @@ async def facebook_register(
     
     print(f"Customer created - ID: {db_customer.id}, Name: '{db_customer.name}'")
     
-    # Create customer auth record with email and Facebook ID
+    # Create customer auth record with REAL email only (NO PLACEHOLDERS)
     db_customer_auth = CustomerAuth(
         id_customer=db_customer.id,
-        email=facebook_data.email,
+        email=facebook_data.email,  # Only real emails allowed
         facebook_id=facebook_data.token,
         email_verified=True  # Assume Facebook emails are verified
     )
@@ -336,7 +344,6 @@ async def login_google(request: Request):
 
 @router.get("/google/callback")
 async def google_callback(request: Request, db: Session = Depends(get_db)):
-    """Handle Google OAuth callback"""
     try:
         token = await oauth.google.authorize_access_token(request)
         user_info = token.get('userinfo')
@@ -346,24 +353,35 @@ async def google_callback(request: Request, db: Session = Depends(get_db)):
             email = user_info.get("email")
             name = user_info.get("name")
             
+            print(f"=== GOOGLE CALLBACK DEBUG ===")
+            print(f"Google ID: {google_id}")
+            print(f"Email: {email}")
+            print(f"Name: {name}")
+            
             # 1. Check if Google ID is currently linked
             existing_google_user = db.query(CustomerAuth).filter(CustomerAuth.google_id == google_id).first()
+            print(f"1. Existing Google user check: {existing_google_user}")
             
             if existing_google_user:
-                # User exists and Google is linked, log them in
+                print("✅ Found by Google ID - logging in")
                 access_token = create_access_token(data={"sub": str(existing_google_user.id_customer)})
                 frontend_url = f"http://localhost:3000/auth/callback?token={access_token}&type=login"
+                print(f"Login redirect: {frontend_url}")
                 return RedirectResponse(url=frontend_url)
             
-            # 2. Check if user exists by email (for previously unlinked accounts)
+            # 2. Check if user exists by email
             existing_email_user = db.query(CustomerAuth).filter(CustomerAuth.email == email).first()
+            print(f"2. Existing email user check: {existing_email_user}")
+            print(f"   Email searched: '{email}'")
             
             if existing_email_user:
-                # Get customer details for the relink modal
-                customer = db.query(Customer).filter(Customer.id == existing_email_user.id_customer).first()
+                print("🔗 Found by email - should redirect to RELINK")
                 
-                # Redirect to relink confirmation page with user data
-                import urllib.parse
+                # Get customer details
+                customer = db.query(Customer).filter(Customer.id == existing_email_user.id_customer).first()
+                print(f"   Customer found: {customer}")
+                
+                # Create relink data
                 relink_data = {
                     "email": email,
                     "name": name,
@@ -372,28 +390,39 @@ async def google_callback(request: Request, db: Session = Depends(get_db)):
                     "existing_user_id": str(existing_email_user.id_customer),
                     "existing_user_name": customer.name if customer else "",
                     "existing_user_email": existing_email_user.email,
-                    "type": "relink"
+                    "type": "relink"  # THIS SHOULD BE RELINK!
                 }
                 
+                print(f"   Relink data: {relink_data}")
+                
+                import urllib.parse
                 encoded_data = urllib.parse.urlencode(relink_data)
                 frontend_url = f"http://localhost:3000/auth/callback?{encoded_data}"
+                print(f"   Relink redirect URL: {frontend_url}")
                 return RedirectResponse(url=frontend_url)
             
-            # 3. Truly new user - proceed with registration
-            import urllib.parse
+            # 3. New user
+            print("📝 No existing user found - redirecting to register")
             google_data = {
                 "token": google_id,
                 "email": email,
                 "name": name,
-                "provider": "google"
+                "provider": "google",
+                "type": "register"
             }
             
+            print(f"   Register data: {google_data}")
+            
+            import urllib.parse
             encoded_data = urllib.parse.urlencode(google_data)
-            frontend_url = f"http://localhost:3000/auth/callback?{encoded_data}&type=register"
+            frontend_url = f"http://localhost:3000/auth/callback?{encoded_data}"
+            print(f"   Register redirect URL: {frontend_url}")
             return RedirectResponse(url=frontend_url)
                 
     except Exception as e:
-        print(f"Google callback error: {e}")
+        print(f"❌ Google callback error: {e}")
+        import traceback
+        traceback.print_exc()
         frontend_url = f"http://localhost:3000/auth/callback?error={str(e)}"
         return RedirectResponse(url=frontend_url)
 
@@ -442,6 +471,7 @@ async def link_google_callback(request: Request, db: Session = Depends(get_db)):
         if user_info:
             google_id = user_info.get("sub")
             email = user_info.get("email")
+            name = user_info.get("name")
             
             # Check if Google account already linked elsewhere
             existing_google_user = db.query(CustomerAuth).filter(CustomerAuth.google_id == google_id).first()
@@ -494,11 +524,6 @@ async def unlink_google(
         # Unlink Google account
         user_auth.google_id = None
         
-        # If email was from Google and user has Facebook, keep the Facebook email pattern
-        if user_auth.email and user_auth.email.endswith('@gmail.com') and user_auth.facebook_id:
-            user_auth.email = f"facebook_{user_auth.facebook_id}@placeholder.com"
-            user_auth.email_verified = False
-        
         db.commit()
         
         return {"message": "Google account unlinked successfully"}
@@ -532,50 +557,67 @@ async def facebook_callback(request: Request, db: Session = Depends(get_db)):
         token = await oauth.facebook.authorize_access_token(request)
         
         # Get user info from Facebook
-        import httpx
-        async with httpx.AsyncClient() as client:
-            user_response = await client.get(
-                'https://graph.facebook.com/me?fields=id,name',
-                headers={'Authorization': f'Bearer {token["access_token"]}'}
-            )
-            user_info = user_response.json()
+        resp = await oauth.facebook.get('me?fields=id,name,email', token=token)
+        user_info = resp.json()
         
-        if not user_info:
-            raise HTTPException(status_code=400, detail="Failed to get user info from Facebook")
-        
-        name = user_info.get('name')
         facebook_id = user_info.get('id')
+        name = user_info.get('name')
+        email = user_info.get('email')  # This might be None if user didn't share email
         
-        # Generate a placeholder email since we can't get real email
-        email = f"facebook_{facebook_id}@placeholder.com"
+        print(f"=== FACEBOOK CALLBACK DEBUG ===")
+        print(f"Facebook ID: {facebook_id}")
+        print(f"Name: {name}")
+        print(f"Email: {email}")  # This will show if Facebook provides email or not
         
-        # Check if user already exists by Facebook ID
+        # 1. Check if Facebook ID is already linked
         existing_facebook_user = db.query(CustomerAuth).filter(CustomerAuth.facebook_id == facebook_id).first()
         
         if existing_facebook_user:
             # User exists, log them in
             access_token = create_access_token(data={"sub": str(existing_facebook_user.id_customer)})
-            
-            # Redirect to frontend with token
             frontend_url = f"http://localhost:3000/auth/callback?token={access_token}&type=login"
             return RedirectResponse(url=frontend_url)
-        else:
-            # New user, redirect to frontend with Facebook data for registration
-            import urllib.parse
-            facebook_data = {
-                "token": facebook_id,
-                "email": email,
-                "name": name,
-                "provider": "facebook"
-            }
+        
+        # 2. If Facebook provides email, check if user exists by email
+        if email:
+            existing_email_user = db.query(CustomerAuth).filter(CustomerAuth.email == email).first()
             
-            # Encode the data for URL
-            encoded_data = urllib.parse.urlencode(facebook_data)
-            frontend_url = f"http://localhost:3000/auth/callback?{encoded_data}&type=register"
-            return RedirectResponse(url=frontend_url)
-            
+            if existing_email_user:
+                # Redirect to relink confirmation
+                customer = db.query(Customer).filter(Customer.id == existing_email_user.id_customer).first()
+                
+                import urllib.parse
+                relink_data = {
+                    "email": email,
+                    "name": name,
+                    "provider": "facebook", 
+                    "facebook_id": facebook_id,
+                    "existing_user_id": str(existing_email_user.id_customer),
+                    "existing_user_name": customer.name if customer else "",
+                    "existing_user_email": existing_email_user.email,
+                    "type": "relink"
+                }
+                
+                encoded_data = urllib.parse.urlencode(relink_data)
+                frontend_url = f"http://localhost:3000/auth/callback?{encoded_data}"
+                return RedirectResponse(url=frontend_url)
+        
+        # 3. New user registration
+        import urllib.parse
+        facebook_data = {
+            "token": facebook_id,
+            "email": email or "",
+            "name": name,
+            "provider": "facebook",
+            "type": "register"
+        }
+        
+        encoded_data = urllib.parse.urlencode(facebook_data)
+        frontend_url = f"http://localhost:3000/auth/callback?{encoded_data}"
+        return RedirectResponse(url=frontend_url)
+        
     except Exception as e:
-        # Redirect to frontend with error
+        print(f"Facebook callback error: {e}")
         frontend_url = f"http://localhost:3000/auth/callback?error={str(e)}"
         return RedirectResponse(url=frontend_url)
 
@@ -750,6 +792,7 @@ async def confirm_relink(
         provider = relink_data.get("provider")
         user_id = relink_data.get("user_id")
         provider_id = relink_data.get("provider_id")
+        real_email = relink_data.get("email")  # Get the real email from the relink data
         
         if not all([provider, user_id, provider_id]):
             raise HTTPException(status_code=400, detail="Missing required data")
@@ -764,11 +807,22 @@ async def confirm_relink(
             existing = db.query(CustomerAuth).filter(CustomerAuth.google_id == provider_id).first()
             if existing and existing.id_customer != int(user_id):
                 raise HTTPException(status_code=400, detail="This Google account is already linked to another user")
+            
             user_auth.google_id = provider_id
+            
+            # If user had placeholder email, update to real Google email
+            if (user_auth.email and 
+                user_auth.email.startswith('facebook_') and 
+                user_auth.email.endswith('@placeholder.com') and 
+                real_email):
+                user_auth.email = real_email
+                user_auth.email_verified = True
+                
         elif provider == "facebook":
             existing = db.query(CustomerAuth).filter(CustomerAuth.facebook_id == provider_id).first()
             if existing and existing.id_customer != int(user_id):
                 raise HTTPException(status_code=400, detail="This Facebook account is already linked to another user")
+            
             user_auth.facebook_id = provider_id
         
         db.commit()
