@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Button } from "react-bootstrap";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../../api/auth";
 import { getCustomerDetails, createPassword, changePassword, unlinkGoogle, unlinkFacebook } from "../../api/auth";
 import PasswordModal from '../../components/PasswordModal';
@@ -30,6 +31,7 @@ const useAccountButtonVariant = (isConnected: boolean) => {
 };
 
 const Profile: React.FC = () => {
+  const { t } = useTranslation();
   const { loggedInCustomerId, isLoggedIn } = useAuth();
   const [form, setForm] = useState<UserProfile>({
     name: "",
@@ -77,19 +79,19 @@ const Profile: React.FC = () => {
     const googleLinked = urlParams.get('google_linked');
     
     if (facebookLinked === 'success') {
-      alert('Conta Facebook ligada com sucesso!');
+      alert(t('profilePage.linkSuccess', { provider: 'Facebook' }));
       loadCustomerData();
       window.history.replaceState({}, '', '/profile');
     } else if (facebookLinked === 'error') {
       const reason = urlParams.get('reason');
-      let errorMessage = 'Erro ao ligar conta Facebook. Tente novamente.';
+      let errorMessage = t('profilePage.linkError', { provider: 'Facebook' });
       
       if (reason === 'already_linked') {
-        errorMessage = 'Esta conta Facebook já está ligada a outro utilizador.';
+        errorMessage = t('profilePage.alreadyLinked', { provider: 'Facebook' });
       } else if (reason === 'auth_failed') {
-        errorMessage = 'Falha na autenticação. Tente novamente.';
+        errorMessage = t('profilePage.authFailed');
       } else if (reason === 'no_session') {
-        errorMessage = 'Sessão expirada. Tente novamente.';
+        errorMessage = t('profilePage.sessionExpired');
       }
       
       alert(errorMessage);
@@ -97,14 +99,14 @@ const Profile: React.FC = () => {
     }
     
     if (googleLinked === 'success') {
-      alert('Conta Google ligada com sucesso!');
+      alert(t('profilePage.linkSuccess', { provider: 'Google' }));
       loadCustomerData();
       window.history.replaceState({}, '', '/profile');
     } else if (googleLinked === 'error') {
-      alert('Erro ao ligar conta Google. Tente novamente.');
+      alert(t('profilePage.linkError', { provider: 'Google' }));
       window.history.replaceState({}, '', '/profile');
     }
-  }, []);
+  }, [t]);
 
   const loadCustomerData = async () => {
     try {
@@ -132,7 +134,7 @@ const Profile: React.FC = () => {
         city: customerData.city || "",
         postalCode: customerData.postal_code || "",
         birthDate: customerData.birth_date || "",
-        country: customerData.country || "",
+        country: customerData.country || "Portugal",
         hasPassword: !!customerData.password_hash,
         hasGoogleAuth: !!customerData.google_id,
         hasFacebookAuth: !!customerData.facebook_id,
@@ -155,7 +157,7 @@ const Profile: React.FC = () => {
     return (
       <div className="profile">
         <div className="card">
-          <p>Por favor, faça login para ver o seu perfil.</p>
+          <p>{t('profilePage.pleaseLogin')}</p>
         </div>
       </div>
     );
@@ -165,7 +167,7 @@ const Profile: React.FC = () => {
     return (
       <div className="profile">
         <div className="card">
-          <p>A carregar dados do perfil...</p>
+          <p>{t('profilePage.loadingProfile')}</p>
         </div>
       </div>
     );
@@ -185,19 +187,19 @@ const Profile: React.FC = () => {
           currentPassword: passwordData.currentPassword!,
           newPassword: passwordData.newPassword
         });
-        alert('Palavra-passe alterada com sucesso!');
+        alert(t('profilePage.passwordChangedSuccess'));
       } else {
         // Create new password
         await createPassword({
           newPassword: passwordData.newPassword
         });
-        alert('Palavra-passe criada com sucesso!');
+        alert(t('profilePage.passwordCreatedSuccess'));
         // Reload customer data to update the hasPassword status
         await loadCustomerData();
       }
     } catch (error: any) {
       console.error('Password error:', error);
-      throw new Error(error.response?.data?.detail || 'Erro ao processar palavra-passe');
+      throw new Error(error.response?.data?.detail || t('profilePage.passwordError'));
     } finally {
       setPasswordLoading(false);
     }
@@ -207,22 +209,22 @@ const Profile: React.FC = () => {
     if (form.hasGoogleAuth) {
       // Unlink Google account
       if (!form.hasPassword) {
-        alert("Não é possível desligar o Google sem ter uma palavra-passe configurada. Configure uma palavra-passe primeiro.");
+        alert(t('profilePage.cannotUnlinkWithoutPassword', { provider: 'Google' }));
         return;
       }
       
       // Confirm action
-      const confirmUnlink = window.confirm("Tem a certeza de que deseja desligar a sua conta Google?");
+      const confirmUnlink = window.confirm(t('profilePage.confirmUnlink', { provider: 'Google' }));
       if (!confirmUnlink) return;
       
       setLinkLoading('google');
       try {
         await unlinkGoogle();
-        alert("Conta Google desligada com sucesso!");
+        alert(t('profilePage.unlinkSuccess', { provider: 'Google' }));
         await loadCustomerData();
       } catch (error: any) {
         console.error('Error unlinking Google:', error);
-        const errorMessage = error.response?.data?.detail || "Erro ao desligar conta Google";
+        const errorMessage = error.response?.data?.detail || t('profilePage.unlinkError', { provider: 'Google' });
         alert(errorMessage);
       } finally {
         setLinkLoading(null);
@@ -233,7 +235,7 @@ const Profile: React.FC = () => {
       try {
         const token = localStorage.getItem('access_token');
         if (!token) {
-          alert("Erro: Não foi possível encontrar o token de autenticação");
+          alert(t('profilePage.tokenNotFound'));
           setLinkLoading(null);
           return;
         }
@@ -242,7 +244,7 @@ const Profile: React.FC = () => {
         window.location.href = linkUrl;
       } catch (error) {
         console.error('Error linking Google:', error);
-        alert("Erro ao conectar com Google");
+        alert(t('profilePage.linkError', { provider: 'Google' }));
         setLinkLoading(null);
       }
     }
@@ -252,22 +254,22 @@ const Profile: React.FC = () => {
     if (form.hasFacebookAuth) {
       // Unlink Facebook account
       if (!form.hasPassword) {
-        alert("Não é possível desligar o Facebook sem ter uma palavra-passe configurada. Configure uma palavra-passe primeiro.");
+        alert(t('profilePage.cannotUnlinkWithoutPassword', { provider: 'Facebook' }));
         return;
       }
       
       // Confirm action
-      const confirmUnlink = window.confirm("Tem a certeza de que deseja desligar a sua conta Facebook?");
+      const confirmUnlink = window.confirm(t('profilePage.confirmUnlink', { provider: 'Facebook' }));
       if (!confirmUnlink) return;
       
       setLinkLoading('facebook');
       try {
         await unlinkFacebook();
-        alert("Conta Facebook desligada com sucesso!");
+        alert(t('profilePage.unlinkSuccess', { provider: 'Facebook' }));
         await loadCustomerData();
       } catch (error: any) {
         console.error('Error unlinking Facebook:', error);
-        const errorMessage = error.response?.data?.detail || "Erro ao desligar conta Facebook";
+        const errorMessage = error.response?.data?.detail || t('profilePage.unlinkError', { provider: 'Facebook' });
         alert(errorMessage);
       } finally {
         setLinkLoading(null);
@@ -276,20 +278,18 @@ const Profile: React.FC = () => {
       // Link Facebook account
       setLinkLoading('facebook');
       try {
-          // Get the token from localStorage
         const token = localStorage.getItem('access_token');
         if (!token) {
-          alert("Erro: Não foi possível encontrar o token de autenticação");
+          alert(t('profilePage.tokenNotFound'));
           setLinkLoading(null);
           return;
         }
         
-        // Include token as query parameter
         const linkUrl = `http://localhost:8000/api/v1/customersauth/link/facebook?token=${token}`;
         window.location.href = linkUrl;
       } catch (error) {
         console.error('Error linking Facebook:', error);
-        alert("Erro ao conectar com Facebook");
+        alert(t('profilePage.linkError', { provider: 'Facebook' }));
         setLinkLoading(null);
       }
     }
@@ -298,55 +298,55 @@ const Profile: React.FC = () => {
   return (
     <div className="profile">
       <header className="prof-header">
-        <div className="avatar" aria-hidden="true">{initials}</div>
+        <div className="avatar" aria-hidden="true" style={{ backgroundColor: '#dc3545', color: '#ffffff' }}>{initials}</div>
         <div>
-          <h1>Meu Perfil</h1>
-          <p className="subtitle">Informações do seu perfil</p>
+          <h1>{t('profilePage.title')}</h1>
+          <p className="subtitle">{t('profilePage.subtitle')}</p>
         </div>
       </header>
 
       <div className="prof-form">
         <section className="card">
-          <h2>Informação pessoal</h2>
+          <h2>{t('profilePage.personalInfo')}</h2>
           <div className="prof-grid">
             <div className="field">
-              <label htmlFor="name">Nome Completo</label>
+              <label htmlFor="name">{t('profilePage.fullName')}</label>
               <input
                 id="name"
                 className="prof-input"
                 value={form.name}
-                placeholder="Nome completo"
+                placeholder={t('fullName')}
                 readOnly
               />
             </div>
             <div className="field">
-              <label htmlFor="email">Email</label>
+              <label htmlFor="email">{t('email')}</label>
               <input
                 id="email"
                 className="prof-input"
                 type="email"
                 value={form.email}
-                placeholder="email@exemplo.com"
+                placeholder={t('enterEmail')}
                 readOnly
               />
             </div>
             <div className="field">
-              <label htmlFor="phone">Telemóvel</label>
+              <label htmlFor="phone">{t('phone')}</label>
               <input
                 id="phone"
                 className="prof-input"
                 value={form.phone}
-                placeholder="+351 ..."
+                placeholder={t('enterPhoneNumber')}
                 readOnly
               />
             </div>
             <div className="field">
-              <label htmlFor="birthDate">Data de Nascimento</label>
+              <label htmlFor="birthDate">{t('profilePage.birthDate')}</label>
               <input
                 id="birthDate"
                 className="prof-input"
                 value={formatDate(form.birthDate)}
-                placeholder="DD/MM/AAAA"
+                placeholder={t('birthDate')}
                 readOnly
               />
             </div>
@@ -354,45 +354,45 @@ const Profile: React.FC = () => {
         </section>
 
         <section className="card">
-          <h2>Morada</h2>
+          <h2>{t('profilePage.addressSection')}</h2>
           <div className="prof-grid">
             <div className="field">
-              <label htmlFor="address">Morada</label>
+              <label htmlFor="address">{t('address')}</label>
               <input
                 id="address"
                 className="prof-input"
                 value={form.address}
-                placeholder="Rua, nº, andar"
+                placeholder={t('enterAddress')}
                 readOnly
               />
             </div>
             <div className="field">
-              <label htmlFor="country">País</label>
+              <label htmlFor="country">{t('profilePage.country')}</label>
               <input
                 id="country"
                 className="prof-input"
                 value={form.country}
-                placeholder="Portugal"
+                placeholder={'Portugal'}
                 readOnly
               />
             </div>
             <div className="field">
-              <label htmlFor="city">Cidade</label>
+              <label htmlFor="city">{t('city')}</label>
               <input
                 id="city"
                 className="prof-input"
                 value={form.city}
-                placeholder="Cidade"
+                placeholder={t('enterCity')}
                 readOnly
               />
             </div>
             <div className="field">
-              <label htmlFor="postalCode">Código Postal</label>
+              <label htmlFor="postalCode">{t('postalCode')}</label>
               <input
                 id="postalCode"
                 className="prof-input"
                 value={form.postalCode}
-                placeholder="0000-000"
+                placeholder={t('enterPostalCode')}
                 readOnly
               />
             </div>
@@ -400,7 +400,7 @@ const Profile: React.FC = () => {
         </section>
 
         <section className="card">
-          <h2>Segurança da Conta</h2>
+          <h2>{t('profilePage.accountSecurity')}</h2>
           
           <div className="d-grid gap-2">
             {/* Password Button */}
@@ -413,7 +413,7 @@ const Profile: React.FC = () => {
               size="sm"
             >
               <i className="bi bi-shield-check me-2"></i>
-              {form.hasPassword ? 'Alterar Palavra-passe' : 'Criar Palavra-passe'}
+              {form.hasPassword ? t('profilePage.changePassword') : t('profilePage.createPassword')}
             </Button>
 
             {/* Google Button */}
@@ -429,9 +429,9 @@ const Profile: React.FC = () => {
               {linkLoading === 'google' ? (
                 <>
                   <div className="spinner-border spinner-border-sm me-2" role="status">
-                    <span className="visually-hidden">A processar...</span>
+                    <span className="visually-hidden">{t('profilePage.processing')}</span>
                   </div>
-                  A processar...
+                  {t('profilePage.processing')}
                 </>
               ) : (
                 <>
@@ -440,7 +440,7 @@ const Profile: React.FC = () => {
                     alt="Google logo"
                     style={{ width: '16px', height: '16px', marginRight: '8px' }}
                   />
-                  {form.hasGoogleAuth ? 'Desligar Google' : 'Ligar ao Google'}
+                  {form.hasGoogleAuth ? t('profilePage.unlinkGoogle') : t('profilePage.linkGoogle')}
                 </>
               )}
             </Button>
@@ -458,9 +458,9 @@ const Profile: React.FC = () => {
               {linkLoading === 'facebook' ? (
                 <>
                   <div className="spinner-border spinner-border-sm me-2" role="status">
-                    <span className="visually-hidden">A processar...</span>
+                    <span className="visually-hidden">{t('profilePage.processing')}</span>
                   </div>
-                  A processar...
+                  {t('profilePage.processing')}
                 </>
               ) : (
                 <>
@@ -469,7 +469,7 @@ const Profile: React.FC = () => {
                     alt="Facebook logo"
                     style={{ width: '16px', height: '16px', marginRight: '8px' }}
                   />
-                  {form.hasFacebookAuth ? 'Desligar Facebook' : 'Ligar ao Facebook'}
+                  {form.hasFacebookAuth ? t('profilePage.unlinkFacebook') : t('profilePage.linkFacebook')}
                 </>
               )}
             </Button>
@@ -480,9 +480,9 @@ const Profile: React.FC = () => {
           <button
             type="button"
             className="btn primary"
-            onClick={() => alert("Funcionalidade de edição será implementada em breve")}
+            onClick={() => alert(t('profilePage.editWillBeImplemented'))}
           >
-            Editar Perfil
+            {t('profilePage.editProfile')}
           </button>
         </div>
       </div>
