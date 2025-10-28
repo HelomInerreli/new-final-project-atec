@@ -244,6 +244,8 @@ i18next.use(initReactI18next).init({
           },
         },
 
+
+        
         // Basic words for auth components
         please: "Please",
         enter: "Enter",
@@ -331,8 +333,14 @@ i18next.use(initReactI18next).init({
         pleaseUseAnotherEmailOrLogin: "Please use another email or login.",
         errorCheckingEmail: "Error checking email.",
         tryAgain: "Please try again.",
+        relinkTitle: "Link {{provider}} account",
+        relinkAccountFound: "Account found!",
+        relinkQuestion: "Do you want to link your {{provider}} account to this existing account?",
+        relinkExistingAccount: "Existing account",
+        relinkButton: "Link {{provider}} account",
+        relinkLinking: "Linking...",
+        relinkError: "Error linking account",
       },
-      contactUs: "Contact us",
     },
 
     pt: {
@@ -657,8 +665,14 @@ i18next.use(initReactI18next).init({
         pleaseUseAnotherEmailOrLogin: "Por favor, use outro email ou faça login.",
         errorCheckingEmail: "Erro ao verificar email.",
         tryAgain: "Por favor, tente novamente.",
+        relinkTitle: "Religar conta {{provider}}",
+        relinkAccountFound: "Conta encontrada!",
+        relinkQuestion: "Deseja religar a sua conta {{provider}} a esta conta existente?",
+        relinkExistingAccount: "Conta existente",
+        relinkButton: "Religar conta {{provider}}",
+        relinkLinking: "A religar...",
+        relinkError: "Erro ao religar conta"
       },
-      contactUs: "Contacte-nos",
     },
 
     es: {
@@ -981,8 +995,14 @@ i18next.use(initReactI18next).init({
         pleaseUseAnotherEmailOrLogin: "Por favor, use otro email o haga login.",
         errorCheckingEmail: "Error al verificar email.",
         tryAgain: "Por favor, intente nuevamente.",
+        relinkTitle: "Vincular cuenta {{provider}}",
+        relinkAccountFound: "¡Cuenta encontrada!",
+        relinkQuestion: "¿Desea vincular su cuenta {{provider}} a esta cuenta existente?",
+        relinkExistingAccount: "Cuenta existente",
+        relinkButton: "Vincular cuenta {{provider}}",
+        relinkLinking: "Vinculando...",
+        relinkError: "Error al vincular cuenta"
       },
-      contactUs: "Contáctanos",
     },
 
     fr: {
@@ -1305,6 +1325,14 @@ i18next.use(initReactI18next).init({
         pleaseUseAnotherEmailOrLogin: "Veuillez utiliser un autre email ou vous connecter.",
         errorCheckingEmail: "Erreur lors de la vérification de l'email.",
         tryAgain: "Veuillez réessayer.",
+
+        relinkTitle: "Lier le compte {{provider}}",
+        relinkAccountFound: "Compte trouvé !",
+        relinkQuestion: "Voulez-vous lier votre compte {{provider}} à ce compte existant ?",
+        relinkExistingAccount: "Compte existant",
+        relinkButton: "Lier le compte {{provider}}",
+        relinkLinking: "Liaison en cours...",
+        relinkError: "Erreur lors de la liaison du compte",
       },
     },
   },

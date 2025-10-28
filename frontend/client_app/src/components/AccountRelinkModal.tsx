@@ -34,7 +34,7 @@ const AccountRelinkModal: React.FC<AccountRelinkModalProps> = ({
       setError('');
       await onConfirm();
     } catch (err: any) {
-      setError(err.message || t('modal.relink.error'));
+      setError(err.message || t('relinkError'));
     }
   };
 
@@ -53,14 +53,14 @@ const AccountRelinkModal: React.FC<AccountRelinkModalProps> = ({
     <Modal show={isOpen} onHide={onClose} centered>
       <Modal.Header closeButton>
         <Modal.Title>
-          {t('title', { provider: providerName })}
+          {t('relinkTitle', { provider: providerName })}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <div className="text-center mb-4">
-          <h5>{t('accountFound')}</h5>
+          <h5>{t('relinkAccountFound')}</h5>
           <p className="text-muted">
-            {t('modal.relink.question', { provider: providerName })}
+            {t('relinkQuestion', { provider: providerName })}
           </p>
         </div>
 
@@ -71,7 +71,7 @@ const AccountRelinkModal: React.FC<AccountRelinkModalProps> = ({
         )}
 
         {/* Existing Account Info - No badge */}
-        <div className="border rounded p-4 mb-3">
+        <div className="border rounded p-4 mb-1">
           <div className="d-flex align-items-center">
             <div 
               className="rounded-circle d-flex align-items-center justify-content-center me-3"
@@ -91,16 +91,10 @@ const AccountRelinkModal: React.FC<AccountRelinkModalProps> = ({
               <p className="text-muted mb-1">{existingUserData.email}</p>
               <small className="text-success">
                 <i className="bi bi-check-circle me-1"></i>
-                {t('modal.relink.existingAccount')}
+                {t('relinkExistingAccount')}
               </small>
             </div>
           </div>
-        </div>
-
-        <div className="text-center">
-          <small className="text-muted">
-            {t('modal.relink.confirmMessage', { provider: providerName })}
-          </small>
         </div>
       </Modal.Body>
       <Modal.Footer>
@@ -125,7 +119,7 @@ const AccountRelinkModal: React.FC<AccountRelinkModalProps> = ({
                   aria-hidden="true"
                   className="me-2"
                 />
-                {t('modal.relink.relinking')}
+                {t('relinkLinking')}
               </>
             ) : (
               <>
@@ -143,7 +137,7 @@ const AccountRelinkModal: React.FC<AccountRelinkModalProps> = ({
                     style={{ width: '20px', height: '20px', marginRight: '7px' }}
                   />
                 )}
-                {t('modal.relink.button', { provider: providerName })}
+                {t('relinkButton', { provider: providerName })}
               </>
             )}
           </Button>
