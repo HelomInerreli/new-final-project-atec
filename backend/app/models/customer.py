@@ -13,6 +13,7 @@ class Customer(Base):
     address = Column(String, nullable=True)  
     city = Column(String, nullable=True)  
     postal_code = Column(String, nullable=True)  
+    country = Column(String, nullable=True)
     birth_date = Column(Date, nullable=True)  
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.now)

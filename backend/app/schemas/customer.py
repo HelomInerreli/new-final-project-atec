@@ -9,6 +9,7 @@ class CustomerBase(BaseModel):
     address: Optional[str] = None
     city: Optional[str] = None
     postal_code: Optional[str] = None
+    country: Optional[str] = None
     birth_date: Optional[date] = None
 
 class CustomerCreate(CustomerBase):
@@ -20,6 +21,7 @@ class CustomerUpdate(BaseModel):
     address: Optional[str] = None
     city: Optional[str] = None
     postal_code: Optional[str] = None
+    country: Optional[str] = None
     birth_date: Optional[date] = None
 
 class CustomerResponse(CustomerBase):

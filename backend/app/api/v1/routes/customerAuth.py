@@ -22,16 +22,7 @@ from app.schemas.customerAuth import CustomerAuthRegister, GoogleAuthRegister, F
 
 router = APIRouter()
 
-# =============================================================================
-# SPECIFIC ROUTES FIRST (before any path parameters)
-# =============================================================================
-
-# Test endpoint
-@router.get("/test")
-def customer_auth_test():
-    return {"message": "CustomerAuth test endpoint is working!"}
-
-# MOVED /me TO THE TOP - BEFORE ANY /{parameter} ROUTES
+#region Get current user profile
 @router.get("/me")
 def get_current_user_profile(
     current_user_id: str = Depends(get_current_user_id), 
@@ -73,6 +64,7 @@ def get_current_user_profile(
             "city": customer.city,
             "postal_code": customer.postal_code,
             "birth_date": customer.birth_date,
+            "country": customer.country,
             "created_at": customer.created_at,
             "updated_at": customer.updated_at
         },
@@ -82,8 +74,9 @@ def get_current_user_profile(
             "has_password": customer_auth.password_hash is not None
         }
     }
+#endregion
 
-# Authentication endpoint
+#region Authentication endpoint
 @router.post("/token")
 async def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
@@ -129,8 +122,9 @@ async def login_for_access_token(
         "access_token": access_token,
         "token_type": "bearer"
     }
+#endregion
 
-# Registration endpoints
+#region Registration endpoints
 @router.post("/register")
 async def register(
     customer_data: CustomerAuthRegister,
@@ -152,6 +146,7 @@ async def register(
         address=customer_data.address,
         city=customer_data.city,
         postal_code=customer_data.postal_code,
+        country=customer_data.country,
         birth_date=customer_data.birth_date
     )
     db.add(db_customer)
@@ -186,6 +181,7 @@ async def register(
             "address": db_customer.address,
             "city": db_customer.city,
             "postal_code": db_customer.postal_code,
+            "country": db_customer.country,
             "birth_date": db_customer.birth_date
         }
     }
@@ -202,6 +198,7 @@ async def google_register(
         address=google_data.address,
         city=google_data.city,
         postal_code=google_data.postal_code,
+        country=google_data.country,
         birth_date=google_data.birth_date
     )
     db.add(db_customer)
@@ -232,6 +229,7 @@ async def google_register(
             "address": db_customer.address,
             "city": db_customer.city,
             "postal_code": db_customer.postal_code,
+            "country": db_customer.country,
             "birth_date": db_customer.birth_date
         }
     }
@@ -270,6 +268,7 @@ async def facebook_register(
         address=facebook_data.address,
         city=facebook_data.city,
         postal_code=facebook_data.postal_code,
+        country=facebook_data.country,
         birth_date=facebook_data.birth_date
     )
     db.add(db_customer)
@@ -306,10 +305,13 @@ async def facebook_register(
             "address": db_customer.address,
             "city": db_customer.city,
             "postal_code": db_customer.postal_code,
+            "country": db_customer.country,
             "birth_date": db_customer.birth_date
         }
     }
+#endregion
 
+#region OAuth2 Integration Endpoints
 # Google OAuth2 routes
 @router.get("/google/test")
 def test_google_config():
@@ -751,27 +753,9 @@ async def unlink_facebook(
     except Exception as e:
         print(f"Error unlinking Facebook: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
+#endregion
 
-
-# Debug endpoints
-@router.get("/debug/check-user/{email}")
-def debug_check_user(email: str, db: Session = Depends(get_db)):
-    """Debug: Check if user exists and has password."""
-    user = db.query(CustomerAuth).filter(CustomerAuth.email == email).first()
-    if not user:
-        return {"exists": False}
-    
-    return {
-        "exists": True,
-        "id": user.id,
-        "email": user.email,
-        "has_password": bool(user.password_hash),
-        "google_id": user.google_id,
-        "facebook_id": user.facebook_id,
-        "is_active": user.is_active
-    }
-
-# Check email existence
+#region Check email existence
 @router.get("/check-email")
 def check_email_exists(email: str, db: Session = Depends(get_db)):
     """Check if email already exists."""
@@ -780,8 +764,9 @@ def check_email_exists(email: str, db: Session = Depends(get_db)):
         "exists": existing_user is not None,
         "email": email
     }
+#endregion
 
-# Account relinking endpoint
+#region Account relinking endpoint
 @router.post("/relink/confirm")
 async def confirm_relink(
     relink_data: dict,
@@ -839,8 +824,9 @@ async def confirm_relink(
     except Exception as e:
         print(f"Relink confirm error: {e}")
         raise HTTPException(status_code=500, detail="Failed to relink account")
+#endregion
 
-# Password management endpoints
+#region Password management endpoints
 @router.post("/create-password")
 async def create_password(
     password_data: dict,
@@ -922,27 +908,43 @@ async def change_password(
     except Exception as e:
         print(f"Error changing password: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
+    
+#endregion
 
-# =============================================================================
-# CRUD ENDPOINTS WITH PATH PARAMETERS (MOVED TO BOTTOM)
-# =============================================================================
-
-# List all (no path parameter)
+# region CRUD Endpoints for CustomerAuth
+# List all
 @router.get("/", response_model=list[customer_auth_schema.CustomerAuthResponse])
 def list_customer_auths(db: Session = Depends(get_db)):
     return crud_customer_auth.get_customer_auths(db=db)
 
-# Create (POST, no conflict)
+# Create
 @router.post("/", response_model=customer_auth_schema.CustomerAuthResponse)
 def create_customer_auth(customer_auth: customer_auth_schema.CustomerAuthCreate, db: Session = Depends(get_db)):
     return crud_customer_auth.create_customer_auth(db=db, customer_auth=customer_auth)
 
-# MOVED TO BOTTOM - This was causing the conflict!
+# Read single customer auth
 @router.get("/{customer_auth_id}", response_model=customer_auth_schema.CustomerAuthResponse)
 def read_customer_auth(customer_auth_id: int, db: Session = Depends(get_db)):
     db_customer_auth = crud_customer_auth.get_customer_auth(db=db, customer_auth_id=customer_auth_id)
     if db_customer_auth is None:
         raise HTTPException(status_code=404, detail="User not found")
     return db_customer_auth
+#endregion
 
-
+# Debug endpoint
+@router.get("/debug/check-user/{email}")
+def debug_check_user(email: str, db: Session = Depends(get_db)):
+    """Debug: Check if user exists and has password."""
+    user = db.query(CustomerAuth).filter(CustomerAuth.email == email).first()
+    if not user:
+        return {"exists": False}
+    
+    return {
+        "exists": True,
+        "id": user.id,
+        "email": user.email,
+        "has_password": bool(user.password_hash),
+        "google_id": user.google_id,
+        "facebook_id": user.facebook_id,
+        "is_active": user.is_active
+    }
