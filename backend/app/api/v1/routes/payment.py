@@ -48,7 +48,7 @@ async def preview_appointment_checkout(appointment_id: int, db: Session = Depend
     
     return {
         "appointment_id": appointment.id,
-        "items": items,
+        "items": items, 
         "total": total,
         "currency": "EUR",
     }
