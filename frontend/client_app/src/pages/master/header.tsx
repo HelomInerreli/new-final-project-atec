@@ -24,16 +24,16 @@ export function Header({ className = "" }: HeaderProps) {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
-  const { isLoggedIn, loggedInCustomerId, loggedInCustomerName, logout /*checkAuth*/ } = useAuth();
+  const { isLoggedIn, loggedInCustomerId, loggedInCustomerName, logout, /*checkAuth*/ } = useAuth();
 
-  // const debugAuth = () => {
+  //const debugAuth = () => {
   //   console.log('=== AUTH DEBUG ===');
   //   console.log('Is Logged In:', isLoggedIn);
-  //   console.log('Customer ID:', loggedInCustomerId);
-  //   console.log('Token in localStorage:', localStorage.getItem('access_token'));
-  //   console.log('Re-checking auth:', checkAuth());
+  //  console.log('Customer ID:', loggedInCustomerId);
+  //  console.log('Token in localStorage:', localStorage.getItem('access_token'));
+  // console.log('Re-checking auth:', checkAuth());
   //   console.log('==================');
-  // };
+  //};
 
   const handleLogout = () => {
     logout();
@@ -279,13 +279,13 @@ export function Header({ className = "" }: HeaderProps) {
                 </Dropdown.Menu>
               </Dropdown>
 
-              {/* <button
+              {/*<button
                 className="btn btn-warning btn-sm"
                 onClick={debugAuth}
                 title="Debug Auth"
               >
                 Debug Auth
-              </button> */}
+              </button>*/}
 
               {!isLoggedIn ? (
                 <>

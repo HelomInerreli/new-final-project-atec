@@ -10,6 +10,7 @@ export interface RegisterData {
   address?: string;
   city?: string;
   postal_code?: string;
+  country?: string;
   birth_date?: string;
 }
 
@@ -21,6 +22,7 @@ export interface GoogleAuthData {
   address?: string;
   city?: string;
   postal_code?: string;
+  country?: string;
   birth_date?: string;
 }
 
@@ -32,6 +34,7 @@ export interface FacebookAuthData {
   address?: string;
   city?: string;
   postal_code?: string;
+  country?: string;
   birth_date?: string;
 }
 
@@ -48,6 +51,7 @@ export interface CustomerDetails {
   address?: string;
   city?: string;
   postal_code?: string;
+  country?: string;
   birth_date?: string;
   password_hash?: string | null;
   google_id?: string | null;
@@ -99,15 +103,18 @@ export const getCustomerIdFromToken = (token: string): number | null => {
 
 export const removeToken = () => {
   localStorage.removeItem('access_token');
+  localStorage.removeItem('customer_name');
+  localStorage.removeItem('customer_id');
   sessionStorage.removeItem('access_token');
-  delete http.defaults.headers.common['Authorization']; // Also remove from axios
+  sessionStorage.removeItem('customer_name');
+  sessionStorage.removeItem('customer_id');
+  delete http.defaults.headers.common['Authorization'];
 };
 
 export const checkEmailExists = async (email: string) => {
   const response = await http.get(`/customersauth/check-email?email=${encodeURIComponent(email)}`);
   return response.data;
 };
-
 //#endregion
 
 //#region CUSTOMER API
@@ -125,6 +132,7 @@ export const getCustomerDetails = async (customerId: number): Promise<CustomerDe
     address: data.customer_info?.address || "",
     city: data.customer_info?.city || "",
     postal_code: data.customer_info?.postal_code || "",
+    country: data.customer_info?.country || "",
     birth_date: data.customer_info?.birth_date || "",
     // Auth fields
     password_hash: data.linked_accounts?.has_password ? "***" : undefined,
@@ -296,6 +304,3 @@ export const loginWithFacebook = async (data: FacebookAuthData) => {
   return response.data;
 };
 //#endregion
-
-
-

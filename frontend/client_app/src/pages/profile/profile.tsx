@@ -341,7 +341,7 @@ const Profile: React.FC = () => {
               />
             </div>
             <div className="field">
-              <label htmlFor="birthDate">{t('profilePage.birthDate')}</label>
+              <label htmlFor="birthDate">{t('birthDate')}</label>
               <input
                 id="birthDate"
                 className="prof-input"
@@ -367,7 +367,7 @@ const Profile: React.FC = () => {
               />
             </div>
             <div className="field">
-              <label htmlFor="country">{t('profilePage.country')}</label>
+              <label htmlFor="country">{t('country')}</label>
               <input
                 id="country"
                 className="prof-input"

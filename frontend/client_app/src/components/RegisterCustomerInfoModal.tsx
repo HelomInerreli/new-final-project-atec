@@ -21,6 +21,7 @@ interface CustomerInfo {
   address?: string;
   city?: string;
   postal_code?: string;
+  country?: string;
   birth_date?: string;
 }
 
@@ -41,11 +42,14 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
     address: '',
     city: '',
     postal_code: '',
+    country: '',
     birth_date: ''
   });
 
   const { t } = useTranslation();
 
+
+  
   // Auto-fill form with Google or Facebook data when available
   useEffect(() => {
     if (googleData) {
@@ -69,15 +73,10 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
       setError(`${t('name')} ${t('is')} ${t('required')}`);
       return;
     }
-    
-    // Convert selected date to string format and include in form data
-    const finalFormData = {
-      ...formData,
-      birth_date: selectedDate ? selectedDate.toISOString().split('T')[0] : ''
-    };
+
     
     setError(''); // Clear any previous errors
-    onSubmit(finalFormData); // Submit the updated form data with the date
+    onSubmit(formData); // Submit the updated form data with the date
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -90,10 +89,19 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
 
   const handleDateChange = (date: Date | null) => {
     setSelectedDate(date);
-    // Also update the formData for consistency
+
+    let dateString = '';
+    if (date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      dateString = `${year}-${month}-${day}`;
+    }
+
+    // Atualiza o formData com a string de data correta
     setFormData(prev => ({
       ...prev,
-      birth_date: date ? date.toISOString().split('T')[0] : ''
+      birth_date: dateString
     }));
   };
 
@@ -216,6 +224,19 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
           </Form.Group>
           
           <Form.Group className="mb-3">
+            <Form.Label htmlFor='country'>{t('country')}</Form.Label>
+            <Form.Control
+              type="text"
+              id="country"
+              name="country"
+              value={formData.country || ''}
+              onChange={handleChange}
+              disabled={loading}
+              placeholder={t('enterCountry')}
+            />
+          </Form.Group>
+
+          <Form.Group className="mb-3">
             <Form.Label>{t('birthDate')}</Form.Label>
             <div>
               <DatePicker
@@ -241,7 +262,7 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
             </div>
             {selectedDate && (
               <Form.Text className="text-muted">
-                {t('selectedDate')}: {selectedDate.toLocaleDateString()}
+                {t('selectedDate')}: {selectedDate.toLocaleDateString('pt-PT')}
               </Form.Text>
             )}
           </Form.Group>
