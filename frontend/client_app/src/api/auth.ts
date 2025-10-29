@@ -143,6 +143,11 @@ export const getCustomerDetails = async (customerId: number): Promise<CustomerDe
   };
 };
 
+export const updateCustomerProfile = async (data: Partial<CustomerDetails>) => {
+  const response = await http.put('/customers/profile', data);
+  return response.data;
+};
+
 export const createPassword = async (data: { newPassword: string }) => {
   const response = await http.post('/customersauth/create-password', {
     new_password: data.newPassword

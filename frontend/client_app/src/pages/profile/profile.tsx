@@ -2,8 +2,9 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Button } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../api/auth";
-import { getCustomerDetails, createPassword, changePassword, unlinkGoogle, unlinkFacebook } from "../../api/auth";
+import { getCustomerDetails, createPassword, changePassword, unlinkGoogle, unlinkFacebook, updateCustomerProfile } from "../../api/auth";
 import PasswordModal from '../../components/PasswordModal';
+import EditCustomerInfoModal from '../../components/EditCustomerInfoModal';
 import "../../styles/profile.css";
 
 type UserProfile = {
@@ -51,8 +52,9 @@ const Profile: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editLoading, setEditLoading] = useState(false);
 
-  // MOVE THE HOOK CALLS HERE - RIGHT AFTER STATE DECLARATIONS
   const passwordButton = useAccountButtonVariant(form.hasPassword);
   const googleButton = useAccountButtonVariant(form.hasGoogleAuth);
   const facebookButton = useAccountButtonVariant(form.hasFacebookAuth);
@@ -293,6 +295,21 @@ const Profile: React.FC = () => {
         setLinkLoading(null);
       }
     }
+
+  };
+
+  const handleEditSubmit = async (data: UserProfile) => {
+    setEditLoading(true);
+    try {
+      await updateCustomerProfile(data);
+      alert(t('profilePage.profileUpdatedSuccess'));
+      await loadCustomerData();
+      setShowEditModal(false);
+    } catch (error) {
+      alert(t('profilePage.profileUpdateError'));
+    } finally {
+      setEditLoading(false);
+    }
   };
 
   return (
@@ -480,7 +497,7 @@ const Profile: React.FC = () => {
           <button
             type="button"
             className="btn primary"
-            onClick={() => alert(t('profilePage.editWillBeImplemented'))}
+            onClick={() => setShowEditModal(true)}
           >
             {t('profilePage.editProfile')}
           </button>
@@ -493,6 +510,13 @@ const Profile: React.FC = () => {
         onSubmit={handlePasswordSubmit}
         isCreating={!form.hasPassword}
         loading={passwordLoading}
+      />
+      <EditCustomerInfoModal
+        isOpen={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        onSubmit={handleEditSubmit}
+        initialData={form}
+        loading={editLoading}
       />
     </div>
   );

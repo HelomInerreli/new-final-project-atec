@@ -13,6 +13,7 @@ from app.core.security import get_current_user_id
 from app.models.customerAuth import CustomerAuth
 from app.models.customer import Customer as CustomerModel
 
+
 router = APIRouter()
 
 
@@ -130,3 +131,4 @@ def update_customer_profile(
     db.refresh(customer)
     
     return {"message": "Profile updated successfully", "customer": customer}
+
