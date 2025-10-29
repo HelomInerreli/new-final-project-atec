@@ -83,6 +83,11 @@ const AuthCallback: React.FC = () => {
       
       // Close modal and redirect
       setShowRelinkModal(false);
+      
+      // Reload page after successful login
+        setTimeout(() => {
+          window.location.reload();
+        }, 10);
       navigate('/profile?relinked=success');
       
     } catch (error: any) {
