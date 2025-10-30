@@ -1,34 +1,18 @@
 import React, { useState } from "react";
-import "../NewAppointment.css";
 
-interface NewAppointmentProps {
-  onClose: () => void;
-  onAdd: (newEvent: CalendarEvent) => void;
+
+export interface AppointmentFormData {
+  clientName: string;
+  carMake: string;
+  carModel: string;
+  carYear: number;
+  carPlate: string;
+  serviceType: string;
+  serviceDescription: string;
+  date: string;      // YYYY-MM-DD
+  startTime: string; // HH:mm
+  endTime: string;   // HH:mm
 }
-
-interface CalendarEvent {
-  id: string;
-  day: string;
-  start: string;
-  end: string;
-  title: string;
-  color: "green" | "yellow";
-  client: {
-    name: string;
-    car: {
-      make: string;
-      model: string;
-      year: number;
-      plate: string;
-    };
-  };
-  service: {
-    type: string;
-    description: string;
-    estimatedDuration: string;
-  };
-}
-
 
 interface Service {
   id: string;
@@ -36,112 +20,114 @@ interface Service {
   icon: string;
 }
 
-const servicesList: Service[] = [
-  { id: "rev", name: "Revisão Oficial", icon: "bi bi-wrench" },
-  { id: "insp", name: "Inspeção Obrigatória", icon: "bi bi-clipboard-check" },
-  { id: "check", name: "Check-up", icon: "bi bi-tools" },
-  { id: "lamp", name: "Lâmpadas", icon: "bi bi-lightbulb" },
-  { id: "oleo", name: "Mudança de Óleo", icon: "bi bi-droplet" },
-  { id: "trav", name: "Travões", icon: "bi bi-disc" },
-  { id: "ar", name: "Ar Condicionado", icon: "bi bi-snow" },
-  { id: "pneus", name: "Pneus", icon: "bi bi-circle-half" },
-  { id: "diag", name: "Diagnóstico Electrónico", icon: "bi bi-cpu" },
-  { id: "bat", name: "Baterias Auto", icon: "bi bi-battery-half" },
-  { id: "amort", name: "Amortecedores", icon: "bi bi-tools" },
-  { id: "outros", name: "Outros", icon: "bi bi-question-circle" },
-];
+interface NewAppointmentProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (data: AppointmentFormData) => void;
+}
 
-// 👉 Componente reutilizável para lista de serviços
-const ServiceCard: React.FC<{
-  service: Service;
-  selected: boolean;
-  onClick: () => void;
-}> = ({ service, selected, onClick }) => (
-  <div
-    onClick={onClick}
-    className={`d-flex align-items-center justify-content-between border px-3 py-3 rounded-4 ${
-      selected ? "border-2 border-danger bg-light" : "border-secondary-subtle"
-    }`}
-    style={{ cursor: "pointer", transition: "0.2s" }}
-  >
-    <div className="d-flex align-items-center gap-3">
-      <input type="checkbox" checked={selected} readOnly />
-      <i
-        className={`${service.icon} fs-4 ${
-          selected ? "text-danger" : "text-secondary"
-        }`}
-      ></i>
-      <span>{service.name}</span>
-    </div>
-  </div>
-);
-
-// 👉 Painel lateral (resumo da marcação)
-const SummaryPanel: React.FC<{
-  selectedServices: string[];
-  selectedDate?: Date | null;
-  selectedTime?: string | null;
-}> = ({ selectedServices, selectedDate, selectedTime }) => (
-  <div className="border rounded-4 p-3 bg-white">
-    <h6 className="text-danger fw-bold mb-3">A minha Marcação</h6>
-    <ul className="list-unstyled small text-muted mb-0">
-      {selectedServices.map((id) => (
-        <li key={id}>• {servicesList.find((s) => s.id === id)?.name}</li>
-      ))}
-    </ul>
-    {selectedDate && selectedTime && (
-      <>
-        <hr />
-        <p className="small text-muted mb-0">
-          {selectedDate.toLocaleDateString("pt-PT")} às {selectedTime}
-        </p>
-      </>
-    )}
-  </div>
-);
-
-const NewAppointment: React.FC<NewAppointmentProps> = ({ onClose, onAdd }) => {
+const NewAppointment: React.FC<NewAppointmentProps> = ({ isOpen, onClose, onSubmit }) => {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [notes, setNotes] = useState("");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
+
+  // Dados do cliente (novos campos incluídos)
   const [client, setClient] = useState({
     matricula: "",
     nome: "",
     apelido: "",
     email: "",
     telefone: "",
+    nif: "",
+    dataNascimento: "",
+    morada: "",
+    codigoPostal: "",
+    localidade: "",
   });
 
+  const servicesList: Service[] = [
+    { id: "rev", name: "Revisão Oficial", icon: "bi bi-wrench" },
+    { id: "insp", name: "Inspeção Obrigatória", icon: "bi bi-clipboard-check" },
+    { id: "check", name: "Check-up", icon: "bi bi-tools" },
+    { id: "lamp", name: "Lâmpadas", icon: "bi bi-lightbulb" },
+    { id: "oleo", name: "Mudança de Óleo", icon: "bi bi-droplet" },
+    { id: "trav", name: "Travões", icon: "bi bi-disc" },
+    { id: "ar", name: "Ar Condicionado", icon: "bi bi-snow" },
+    { id: "pneus", name: "Pneus", icon: "bi bi-circle-half" },
+    { id: "diag", name: "Diagnóstico Electrónico", icon: "bi bi-cpu" },
+    { id: "bat", name: "Baterias Auto", icon: "bi bi-battery-half" },
+    { id: "amort", name: "Amortecedores", icon: "bi bi-tools" },
+    { id: "outros", name: "Outros", icon: "bi bi-question-circle" },
+  ];
+
+  const ServiceCard: React.FC<{
+    service: Service;
+    selected: boolean;
+    onClick: () => void;
+  }> = ({ service, selected, onClick }) => (
+    <div
+      onClick={onClick}
+      className={`d-flex align-items-center justify-content-between border px-3 py-3 rounded-4 ${
+        selected ? "border-2 border-danger bg-light" : "border-secondary-subtle"
+      }`}
+      style={{ cursor: "pointer", transition: "0.2s" }}
+    >
+      <div className="d-flex align-items-center gap-3">
+        <input type="checkbox" checked={selected} readOnly />
+        <i className={`${service.icon} fs-4 ${selected ? "text-danger" : "text-secondary"}`}></i>
+        <span>{service.name}</span>
+      </div>
+    </div>
+  );
+
+  const SummaryPanel: React.FC<{
+    selectedServices: string[];
+    selectedDate?: Date | null;
+    selectedTime?: string | null;
+  }> = ({ selectedServices, selectedDate, selectedTime }) => (
+    <div className="border rounded-4 p-3 bg-white">
+      <h6 className="text-danger fw-bold mb-3">A minha Marcação</h6>
+      <ul className="list-unstyled small text-muted mb-0">
+        {selectedServices.map((id) => (
+          <li key={id}>• {servicesList.find((s) => s.id === id)?.name}</li>
+        ))}
+      </ul>
+      {selectedDate && selectedTime && (
+        <>
+          <hr />
+          <p className="small text-muted mb-0">
+            {selectedDate.toLocaleDateString("pt-PT")} às {selectedTime}
+          </p>
+        </>
+      )}
+    </div>
+  );
+
+  // Slots visíveis (ajuste conforme necessário)
   const hours = [
     "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
     "13:00", "13:30", "14:00", "14:30", "15:00", "15:30",
     "16:00", "16:30", "17:00", "17:30",
   ];
 
-  // 🔹 Gera apenas dias úteis (Seg–Sex)
   const generateWorkDays = (month: Date) => {
     const days: Date[] = [];
     const date = new Date(month.getFullYear(), month.getMonth(), 1);
     while (date.getMonth() === month.getMonth()) {
-      if (date.getDay() >= 1 && date.getDay() <= 5)
-        days.push(new Date(date));
+      if (date.getDay() >= 1 && date.getDay() <= 5) days.push(new Date(date));
       date.setDate(date.getDate() + 1);
     }
     return days;
   };
 
   const workDays = generateWorkDays(currentMonth);
-  const monthLabel = `${currentMonth.toLocaleString("pt-PT", {
-    month: "long",
-  })} ${currentMonth.getFullYear()}`;
+  const monthLabel = `${currentMonth.toLocaleString("pt-PT", { month: "long" })} ${currentMonth.getFullYear()}`;
 
   const toggleService = (id: string) =>
-    setSelectedServices((prev) =>
-      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
-    );
+    setSelectedServices((prev) => (prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]));
 
   const handleMonthChange = (dir: number) => {
     const m = new Date(currentMonth);
@@ -151,55 +137,12 @@ const NewAppointment: React.FC<NewAppointmentProps> = ({ onClose, onAdd }) => {
     setSelectedTime(null);
   };
 
-  const handleFinalize = async () => {
-  if (!selectedDate || !selectedTime) return;
-
-  const newEvent: CalendarEvent = {
-    id: crypto.randomUUID(),
-    day: selectedDate
-      .toLocaleDateString("pt-PT", { weekday: "short" })
-      .replace(".", ""),
-    start: selectedTime,
-    end: `${parseInt(selectedTime.split(":")[0]) + 1}:00`,
-    title: selectedServices.map(
-      (id) => servicesList.find((s) => s.id === id)?.name
-    ).join(", ") || "Serviço",
-    color: "green",
-    client: {
-      name: `${client.nome} ${client.apelido}`,
-      car: {
-        make: "Desconhecido",
-        model: "Desconhecido",
-        year: 2025,
-        plate: client.matricula || "N/A",
-      },
-    },
-    service: {
-      type: selectedServices[0] || "Serviço",
-      description: notes || "Sem descrição adicional",
-      estimatedDuration: "1h",
-    },
+  const addMinutes = (time: string, minutes: number) => {
+    const [h, m] = time.split(":").map(Number);
+    const d = new Date(2000, 0, 1, h, m);
+    d.setMinutes(d.getMinutes() + minutes);
+    return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
   };
-
-  try {
-    // Envia para o backend
-    await fetch("http://localhost:3000/api/appointments", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newEvent),
-    });
-
-    // Atualiza no calendário sem reload
-    onAdd(newEvent);
-
-    // Fecha modal
-    onClose();
-  } catch (err) {
-    console.error("Erro ao criar agendamento:", err);
-    alert("❌ Ocorreu um erro ao criar o agendamento.");
-  }
-};
-
 
   const Header = ({ title, back }: { title: string; back?: () => void }) => (
     <div className="d-flex justify-content-between align-items-center mb-4">
@@ -216,15 +159,46 @@ const NewAppointment: React.FC<NewAppointmentProps> = ({ onClose, onAdd }) => {
     </div>
   );
 
+  // Finaliza e devolve apenas dados de front ao parent (sem backend)
+  const handleFinalize = () => {
+    if (!selectedDate || !selectedTime) return;
+
+    const serviceNames = selectedServices
+      .map((id) => servicesList.find((s) => s.id === id)?.name)
+      .filter(Boolean)
+      .join(", ");
+
+    const payload: AppointmentFormData = {
+      clientName: `${client.nome} ${client.apelido}`.trim(),
+      carMake: "",              // não recolhido neste fluxo
+      carModel: "",             // não recolhido neste fluxo
+      carYear: new Date().getFullYear(),
+      carPlate: client.matricula || "",
+      serviceType: serviceNames || "Serviço",
+      serviceDescription: notes || "Sem descrição adicional",
+      date: selectedDate.toISOString().split("T")[0], // YYYY-MM-DD
+      startTime: selectedTime,
+      endTime: addMinutes(selectedTime, 60),
+    };
+
+    onSubmit(payload);
+    onClose();
+  };
+
+  if (!isOpen) return null;
+
   return (
     <div
       className="modal fade show"
-      style={{ display: "block", backgroundColor: "rgba(0,0,0,0.5)", backdropFilter: "blur(2px)" }}
+      style={{
+        display: "block",
+        backgroundColor: "rgba(0, 0, 0, 0.3)",
+        backdropFilter: "blur(2px)",
+      }}
       onClick={onClose}
     >
       <div className="modal-dialog modal-dialog-centered modal-xl" onClick={(e) => e.stopPropagation()}>
         <div className="modal-content p-4 rounded-4 shadow-lg border-0">
-
           {/* === STEP 1: Serviços === */}
           {step === 1 && (
             <>
@@ -282,28 +256,35 @@ const NewAppointment: React.FC<NewAppointmentProps> = ({ onClose, onAdd }) => {
 
                   <div className="border rounded-4 p-3 text-center mb-4 bg-white">
                     <div className="d-flex justify-content-between align-items-center mb-3">
-                      <button className="btn btn-link text-dark p-0 fs-5" onClick={() => handleMonthChange(-1)}>&lt;</button>
+                      <button className="btn btn-link text-dark p-0 fs-5" onClick={() => handleMonthChange(-1)}>
+                        &lt;
+                      </button>
                       <span className="fw-medium text-capitalize">
                         {monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1)}
                       </span>
-                      <button className="btn btn-link text-dark p-0 fs-5" onClick={() => handleMonthChange(1)}>&gt;</button>
+                      <button className="btn btn-link text-dark p-0 fs-5" onClick={() => handleMonthChange(1)}>
+                        &gt;
+                      </button>
                     </div>
 
                     <div className="d-flex justify-content-center gap-4 text-muted small mb-3">
                       {["Seg", "Ter", "Qua", "Qui", "Sex"].map((d) => (
-                        <div key={d} style={{ width: "40px" }}>{d}</div>
+                        <div key={d} style={{ width: "40px" }}>
+                          {d}
+                        </div>
                       ))}
                     </div>
 
-                    <div className="d-grid" style={{ gridTemplateColumns: "repeat(5, 1fr)", justifyItems: "center", rowGap: "10px" }}>
+                    <div
+                      className="d-grid"
+                      style={{ gridTemplateColumns: "repeat(5, 1fr)", justifyItems: "center", rowGap: "10px" }}
+                    >
                       {workDays.map((d) => (
                         <div
                           key={d.toDateString()}
                           onClick={() => setSelectedDate(d)}
                           className={`rounded-circle d-flex align-items-center justify-content-center ${
-                            selectedDate?.toDateString() === d.toDateString()
-                              ? "bg-danger text-white"
-                              : "text-muted"
+                            selectedDate?.toDateString() === d.toDateString() ? "bg-danger text-white" : "text-muted"
                           }`}
                           style={{ width: "38px", height: "38px", cursor: "pointer" }}
                         >
@@ -320,9 +301,7 @@ const NewAppointment: React.FC<NewAppointmentProps> = ({ onClose, onAdd }) => {
                           <button
                             key={h}
                             className={`btn rounded-pill px-3 border ${
-                              selectedTime === h
-                                ? "btn-danger text-white"
-                                : "btn-outline-secondary"
+                              selectedTime === h ? "btn-danger text-white" : "btn-outline-secondary"
                             }`}
                             onClick={() => setSelectedTime(h)}
                           >
@@ -367,50 +346,109 @@ const NewAppointment: React.FC<NewAppointmentProps> = ({ onClose, onAdd }) => {
                     value={client.matricula}
                     onChange={(e) => setClient({ ...client, matricula: e.target.value })}
                   />
-                  {client.matricula && (
-                    <div className="text-success small mb-3">
-                      ✅ A sua matrícula foi encontrada e validada.
-                    </div>
-                  )}
+                  {client.matricula && <div className="text-success small mb-3">✅ Matrícula validada.</div>}
 
                   <h6 className="fw-bold mb-3 mt-3">Os meus Dados</h6>
-                  <div className="row g-2 mb-2">
-                    {["nome", "apelido"].map((field) => (
-                      <div className="col-md-6" key={field}>
-                        <input
-                          type="text"
-                          className="form-control"
-                          placeholder={field === "nome" ? "Nome" : "Apelido"}
-                          value={(client as any)[field]}
-                          onChange={(e) =>
-                            setClient({ ...client, [field]: e.target.value })
-                          }
-                        />
-                      </div>
-                    ))}
+                  <div className="row g-2 mb-3">
+                    <div className="col-md-6">
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Nome"
+                        value={client.nome}
+                        onChange={(e) => setClient({ ...client, nome: e.target.value })}
+                      />
+                    </div>
+                    <div className="col-md-6">
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Apelido"
+                        value={client.apelido}
+                        onChange={(e) => setClient({ ...client, apelido: e.target.value })}
+                      />
+                    </div>
+                    <div className="col-md-6">
+                      <input
+                        type="email"
+                        className="form-control"
+                        placeholder="Email"
+                        value={client.email}
+                        onChange={(e) => setClient({ ...client, email: e.target.value })}
+                      />
+                    </div>
+                    <div className="col-md-6">
+                      <input
+                        type="tel"
+                        className="form-control"
+                        placeholder="Telemóvel"
+                        value={client.telefone}
+                        onChange={(e) => setClient({ ...client, telefone: e.target.value })}
+                      />
+                    </div>
+                    <div className="col-md-6">
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="NIF"
+                        value={client.nif}
+                        onChange={(e) => setClient({ ...client, nif: e.target.value })}
+                      />
+                    </div>
+                    <div className="col-md-6">
+                      <input
+                        type="date"
+                        className="form-control"
+                        placeholder="Data de Nascimento"
+                        value={client.dataNascimento}
+                        onChange={(e) => setClient({ ...client, dataNascimento: e.target.value })}
+                      />
+                    </div>
+                    <div className="col-12">
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Morada"
+                        value={client.morada}
+                        onChange={(e) => setClient({ ...client, morada: e.target.value })}
+                      />
+                    </div>
+                    <div className="col-md-4">
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Código Postal"
+                        value={client.codigoPostal}
+                        onChange={(e) => setClient({ ...client, codigoPostal: e.target.value })}
+                      />
+                    </div>
+                    <div className="col-md-8">
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Localidade"
+                        value={client.localidade}
+                        onChange={(e) => setClient({ ...client, localidade: e.target.value })}
+                      />
+                    </div>
                   </div>
-                  {["email", "telefone"].map((field) => (
-                    <input
-                      key={field}
-                      type={field === "email" ? "email" : "tel"}
-                      className="form-control mb-2"
-                      placeholder={field === "email" ? "Email" : "Telemóvel"}
-                      value={(client as any)[field]}
-                      onChange={(e) =>
-                        setClient({ ...client, [field]: e.target.value })
-                      }
-                    />
-                  ))}
 
                   <div className="text-center mt-3">
                     <button
                       className="btn btn-danger rounded-pill px-5"
                       onClick={handleFinalize}
                       disabled={
+                        !selectedDate ||
+                        !selectedTime ||
+                        !selectedServices.length ||
                         !client.nome ||
                         !client.apelido ||
                         !client.email ||
-                        !client.telefone
+                        !client.telefone ||
+                        !client.nif ||
+                        !client.morada ||
+                        !client.codigoPostal ||
+                        !client.localidade
                       }
                     >
                       Finalizar Marcação

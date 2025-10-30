@@ -7,25 +7,30 @@ type ViewType = "day" | "week" | "month";
 
 interface CalendarEvent {
   id: string;
-  day: string;
-  start: string;
-  end: string;
+  day: string;         // "Seg" | "Ter" | ...
+  start: string;       // "HH:mm"
+  end: string;         // "HH:mm"
   title: string;
   color: "green" | "yellow";
   client: {
     name: string;
-    car: {
-      make: string;
-      model: string;
-      year: number;
-      plate: string;
-    };
+    car: { make: string; model: string; year: number; plate: string };
   };
-  service: {
-    type: string;
-    description: string;
-    estimatedDuration: string;
-  };
+  service: { type: string; description: string; estimatedDuration: string };
+}
+
+// Dados do formulário que vêm do NewAppointment
+interface AppointmentFormData {
+  clientName: string;
+  carMake: string;
+  carModel: string;
+  carYear: number;
+  carPlate: string;
+  serviceType: string;
+  serviceDescription: string;
+  date: string;       // "YYYY-MM-DD"
+  startTime: string;  // "HH:mm"
+  endTime: string;    // "HH:mm"
 }
 
 const daysMonFirst = ["Seg", "Ter", "Qua", "Qui", "Sex"];
@@ -116,7 +121,7 @@ const Appointments: React.FC = () => {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
-  const [isAddingAppointment, setIsAddingAppointment] = useState(false); // 👈 controla o modal do NewAppointment
+  const [isAddingAppointment, setIsAddingAppointment] = useState(false);
 
   useEffect(() => {
     fetchEvents();
@@ -186,23 +191,32 @@ const Appointments: React.FC = () => {
     setView("day");
   };
 
-  const handleNewAppointment = async (appointmentData: Omit<CalendarEvent, 'id'>) => {
-    try {
-      // Here you'll make your API call
-      console.log('Creating appointment:', appointmentData);
-      
-      // Temporary mock implementation
-      const newEvent: CalendarEvent = {
-        id: Date.now().toString(),
-        ...appointmentData
-      };
-      
-      setEvents(prev => [...prev, newEvent]);
-      setIsAddingAppointment(false);
-    } catch (error) {
-      console.error('Error creating appointment:', error);
-      alert('Erro ao criar agendamento. Tente novamente.');
-    }
+  const handleNewAppointment = (formData: AppointmentFormData) => {
+    const newEvent: CalendarEvent = {
+      id: crypto?.randomUUID ? crypto.randomUUID() : `${Date.now()}`,
+      day: new Date(formData.date).toLocaleDateString('pt-PT', { weekday: 'short' }),
+      start: formData.startTime,
+      end: formData.endTime,
+      title: `${formData.serviceType} - ${formData.clientName}`,
+      color: "green",
+      client: {
+        name: formData.clientName,
+        car: {
+          make: formData.carMake,
+          model: formData.carModel,
+          year: formData.carYear,
+          plate: formData.carPlate
+        }
+      },
+      service: {
+        type: formData.serviceType,
+        description: formData.serviceDescription,
+        estimatedDuration: "1h" // You might want to calculate this based on start and end time
+      }
+    };
+
+    setEvents((prev) => [...prev, newEvent]);
+    setIsAddingAppointment(false);
   };
 
   return (
@@ -295,17 +309,19 @@ const Appointments: React.FC = () => {
                     ))}
                     {events
                       .filter((e) => e.day === label)
-                      .map((e, idx) => {
+                      .map((e) => {
                         const startMin = timeToMinutes(e.start) - START_HOUR * 60;
                         const endMin = timeToMinutes(e.end) - START_HOUR * 60;
                         const top = startMin * PX_PER_MINUTE;
                         const height = (endMin - startMin) * PX_PER_MINUTE;
+
                         return (
                           <div
-                            key={`${label}-${idx}`}
+                            key={e.id}
                             className={`event-block ${e.color}`}
-                            onClick={() => handleEventClick(e)}
                             style={{ top: `${top}px`, height: `${height}px` }}
+                            title={`${e.title}\n${e.start} - ${e.end}`}
+                            onClick={() => handleEventClick(e)}
                           >
                             <div className="event-time">
                               {e.start} - {e.end}
@@ -336,6 +352,7 @@ const Appointments: React.FC = () => {
       </button>
 
       <NewAppointment
+        isOpen={true}
         onClose={() => setIsAddingAppointment(false)}
         onSubmit={handleNewAppointment}
       />
