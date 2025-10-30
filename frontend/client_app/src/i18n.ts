@@ -152,6 +152,42 @@ i18next.use(initReactI18next).init({
           readyToSchedule: "Ready to schedule?",
           scheduleService: "Schedule Service",
           whatsIncluded: "What's included:",
+          features: {
+            engineCheck: "Engine & transmission check",
+            brakeSuspension: "Brake and suspension inspection",
+            fluidsFilters: "Fluids and filters analysis",
+            electronicDiagnosis: "Full electronic diagnosis",
+            detailedReport: "Detailed report",
+
+            highQualityOil: "High-quality oil",
+            oilFilter: "Oil filter replacement",
+            levelCheck: "Level checks",
+            visualEngine: "Visual engine inspection",
+
+            advancedOBD: "Advanced OBD scanner",
+            errorCodes: "Error codes analysis",
+            sensorTest: "Sensor testing",
+            ecuCheck: "ECU verification",
+            technicalReport: "Technical report",
+
+            brakePads: "Brake pads and discs check",
+            brakeFluid: "Brake fluid check",
+            performanceTest: "Performance test",
+            replacement: "Replacement if needed",
+            safetyCertificate: "Safety certificate",
+
+            gasRecharge: "Refrigerant gas recharge",
+            filterCleaning: "Filter cleaning",
+            compressorCheck: "Compressor check",
+            temperatureTest: "Temperature test",
+            systemDisinfection: "System disinfection",
+
+            tireMounting: "Tire mounting",
+            computerAlignment: "Computerized alignment",
+            wheelBalancing: "Wheel balancing",
+            pressureCheck: "Pressure check",
+            tireRotation: "Tire rotation",
+          },
           serviceNames: {
             completeInspection: "Complete Inspection",
             oilChange: "Oil Change",
@@ -174,6 +210,19 @@ i18next.use(initReactI18next).init({
             tiresAlignment:
               "Complete tire services, alignment and balancing for safe and economical driving.",
           },
+        },
+        contactModal: {
+          title: "Contact Us",
+          subtitle: "Send us a message and we will reply as soon as possible.",
+          emailLabel: "Email",
+          phoneLabel: "Phone",
+          emailValue: "projetodghhn@gmail.com",
+          phoneValue: "+351 123 456 789",
+          close: "Close",
+          sendButton: "Send",
+          sending: "Sending...",
+          successMessage: "Message sent successfully!",
+          errorMessage: "Failed to send message. Try again.",
         },
 
         servicesStrip: {
@@ -243,9 +292,35 @@ i18next.use(initReactI18next).init({
             },
           },
         },
+        appointmentModal: {
+          title: "Create Appointment",
+          progressAria: "Progress {{percent}} percent",
+          loadingApi: "Loading API data...",
+          errorLoadingData: "Error loading data",
+          tryAgain: "Try again",
+          selectServicePlaceholder: "Select a service",
+          selectVehiclePlaceholder: "Select a vehicle",
+          selectServiceHelp: "Choose the service you want.",
+          estimatedBudget: "Estimated Budget (€)",
+          scheduledFor: "Scheduled for:",
+          clientLabel: "Customer:",
+          noVehiclesFound: "No vehicles found for this customer",
+          descriptionPlaceholder: "Describe the problem or required service...",
+          selectService: "Select the service",
+          serviceSelected: "Service: {{service}} — click Next",
+          serviceSelectedFallback: "Service selected — click Next",
+          chooseDateTime: "Choose date and time",
+          selectVehicle: "Select a vehicle",
+          describeProblem: "Describe the problem (min. 4 chars)",
+          readyToSubmit: "All set — you can submit the appointment",
+          createAppointment: "Schedule Service",
+          creating: "Creating...",
+          next: "Next",
+        },
+        vehicle: "Vehicle",
+        seguinte: "Next",
+        cancel: "Cancel",
 
-
-        
         // Basic words for auth components
         please: "Please",
         enter: "Enter",
@@ -301,7 +376,6 @@ i18next.use(initReactI18next).init({
         select: "Select",
         of: "of",
         creating: "Creating",
-        cancel: "Cancel",
         city: "City",
 
         // Compound phrases for better translations
@@ -339,7 +413,8 @@ i18next.use(initReactI18next).init({
         relink: {
           title: "Link {{provider}} account",
           accountFound: "Account found!",
-          question: "Do you want to link your {{provider}} account to this existing account?",
+          question:
+            "Do you want to link your {{provider}} account to this existing account?",
           existingAccount: "Existing account",
           button: "Link {{provider}} account",
           linking: "Linking...",
@@ -365,13 +440,16 @@ i18next.use(initReactI18next).init({
           loadingProfile: "Loading profile data...",
           passwordChangedSuccess: "Password changed successfully!",
           passwordCreatedSuccess: "Password created successfully!",
-          cannotUnlinkWithoutPassword: "Cannot unlink {{provider}} without having a password configured. Please set up a password first.",
-          confirmUnlink: "Are you sure you want to unlink your {{provider}} account?",
+          cannotUnlinkWithoutPassword:
+            "Cannot unlink {{provider}} without having a password configured. Please set up a password first.",
+          confirmUnlink:
+            "Are you sure you want to unlink your {{provider}} account?",
           unlinkSuccess: "{{provider}} account unlinked successfully!",
           unlinkError: "Error unlinking {{provider}} account",
           linkSuccess: "{{provider}} account linked successfully!",
           linkError: "Error linking {{provider}} account. Please try again.",
-          alreadyLinked: "This {{provider}} account is already linked to another user.",
+          alreadyLinked:
+            "This {{provider}} account is already linked to another user.",
           authFailed: "Authentication failed. Please try again.",
           sessionExpired: "Session expired. Please try again.",
           tokenNotFound: "Error: Authentication token not found",
@@ -395,6 +473,7 @@ i18next.use(initReactI18next).init({
           error: "Error processing password",
         },
       },
+      contactUs: "Contact us",
     },
 
     pt: {
@@ -540,6 +619,42 @@ i18next.use(initReactI18next).init({
           readyToSchedule: "Pronto para agendar?",
           scheduleService: "Agendar Serviço",
           whatsIncluded: "O que inclui:",
+          features: {
+            engineCheck: "Verificação do motor e transmissão",
+            brakeSuspension: "Inspeção dos travões e suspensão",
+            fluidsFilters: "Análise de fluidos e filtros",
+            electronicDiagnosis: "Diagnóstico eletrónico completo",
+            detailedReport: "Relatório detalhado",
+
+            highQualityOil: "Óleo de alta qualidade",
+            oilFilter: "Substituição do filtro de óleo",
+            levelCheck: "Verificação dos níveis",
+            visualEngine: "Inspeção visual do motor",
+
+            advancedOBD: "Scanner OBD avançado",
+            errorCodes: "Análise de códigos de erro",
+            sensorTest: "Teste de sensores",
+            ecuCheck: "Verificação da ECU",
+            technicalReport: "Relatório técnico detalhado",
+
+            brakePads: "Inspeção das pastilhas e discos de travão",
+            brakeFluid: "Verificação do fluido de travões",
+            performanceTest: "Teste de desempenho",
+            replacement: "Substituição se necessário",
+            safetyCertificate: "Certificado de segurança",
+
+            gasRecharge: "Recarga do gás refrigerante",
+            filterCleaning: "Limpeza de filtros",
+            compressorCheck: "Verificação do compressor",
+            temperatureTest: "Teste de temperatura",
+            systemDisinfection: "Desinfeção do sistema",
+
+            tireMounting: "Montagem de pneus novos",
+            computerAlignment: "Alinhamento computadorizado",
+            wheelBalancing: "Balanceamento de rodas",
+            pressureCheck: "Verificação da pressão",
+            tireRotation: "Rodízio de pneus",
+          },
           serviceNames: {
             completeInspection: "Revisão Completa",
             oilChange: "Mudança de Óleo",
@@ -562,6 +677,21 @@ i18next.use(initReactI18next).init({
             tiresAlignment:
               "Serviços completos de pneus, alinhamento e balanceamento para uma condução segura e económica.",
           },
+        },
+
+        contactModal: {
+          title: "Fale Connosco",
+          subtitle:
+            "Envie-nos uma mensagem e responderemos o mais breve possível.",
+          emailLabel: "Email",
+          phoneLabel: "Telefone",
+          emailValue: "projetodghhn@gmail.com",
+          phoneValue: "+351 123 456 789",
+          close: "Fechar",
+          sendButton: "Enviar",
+          sending: "A enviar...",
+          successMessage: "Mensagem enviada com sucesso!",
+          errorMessage: "Falha ao enviar a mensagem. Tente novamente.",
         },
 
         servicesStrip: {
@@ -632,6 +762,37 @@ i18next.use(initReactI18next).init({
           },
         },
 
+        appointmentModal: {
+          title: "Agendar Novo Serviço",
+          progressAria: "Progresso {{percent}} por cento",
+          loadingApi: "Carregando dados da API...",
+          errorLoadingData: "Erro ao carregar dados",
+          tryAgain: "Tentar Novamente",
+          selectServicePlaceholder: "Selecione um serviço",
+          selectVehiclePlaceholder: "Selecione um veículo",
+          selectServiceHelp: "Selecione o serviço pretendido.",
+          estimatedBudget: "Orçamento Estimado (€)",
+          scheduledFor: "Agendado para:",
+          clientLabel: "Cliente:",
+          noVehiclesFound: "Nenhum veículo encontrado para este cliente",
+          descriptionPlaceholder:
+            "Descreva o problema ou serviço necessário...",
+          selectService: "Selecione o serviço",
+          serviceSelected: "Serviço: {{service}} — clique Seguinte",
+          serviceSelectedFallback: "Serviço selecionado — clique Seguinte",
+          chooseDateTime: "Escolha data e hora",
+          selectVehicle: "Selecione um veículo",
+          describeProblem: "Descreva o problema (mín. 4 caracteres)",
+          readyToSubmit: "Tudo preenchido — pode enviar o agendamento",
+          createAppointment: "Agendar Serviço",
+          creating: "Criando...",
+          next: "Seguinte",
+        },
+
+        vehicle: "Veículo",
+        cancel: "Cancelar",
+        seguinte: "Seguinte",
+
         // Basic words for auth components
         please: "Por favor",
         enter: "Digite",
@@ -687,7 +848,6 @@ i18next.use(initReactI18next).init({
         select: "Selecionar",
         of: "de",
         creating: "Criando",
-        cancel: "Cancelar",
         city: "Cidade",
 
         // Compound phrases for better translations
@@ -717,7 +877,8 @@ i18next.use(initReactI18next).init({
         scheduleNewService: "Agendar Novo Serviço",
         schedule: "Agendar",
         emailAlreadyRegistered: "Este email já está registrado.",
-        pleaseUseAnotherEmailOrLogin: "Por favor, use outro email ou faça login.",
+        pleaseUseAnotherEmailOrLogin:
+          "Por favor, use outro email ou faça login.",
         errorCheckingEmail: "Erro ao verificar email.",
         tryAgain: "Por favor, tente novamente.",
         country: "País",
@@ -725,11 +886,12 @@ i18next.use(initReactI18next).init({
         relink: {
           title: "Religar conta {{provider}}",
           accountFound: "Conta encontrada!",
-          question: "Deseja religar a sua conta {{provider}} a esta conta existente?",
+          question:
+            "Deseja religar a sua conta {{provider}} a esta conta existente?",
           existingAccount: "Conta existente",
           button: "Religar conta {{provider}}",
           linking: "A religar...",
-          error: "Erro ao religar conta"
+          error: "Erro ao religar conta",
         },
         profilePage: {
           title: "Meu Perfil",
@@ -746,21 +908,26 @@ i18next.use(initReactI18next).init({
           linkFacebook: "Ligar ao Facebook",
           processing: "A processar...",
           editProfile: "Editar Perfil",
-          editWillBeImplemented: "Funcionalidade de edição será implementada em breve",
+          editWillBeImplemented:
+            "Funcionalidade de edição será implementada em breve",
           pleaseLogin: "Por favor, faça login para ver o seu perfil",
           loadingProfile: "A carregar dados do perfil...",
           passwordChangedSuccess: "Palavra-passe alterada com sucesso!",
           passwordCreatedSuccess: "Palavra-passe criada com sucesso!",
-          cannotUnlinkWithoutPassword: "Não é possível desligar o {{provider}} sem ter uma palavra-passe configurada. Configure uma palavra-passe primeiro.",
-          confirmUnlink: "Tem a certeza de que deseja desligar a sua conta {{provider}}?",
+          cannotUnlinkWithoutPassword:
+            "Não é possível desligar o {{provider}} sem ter uma palavra-passe configurada. Configure uma palavra-passe primeiro.",
+          confirmUnlink:
+            "Tem a certeza de que deseja desligar a sua conta {{provider}}?",
           unlinkSuccess: "Conta {{provider}} desligada com sucesso!",
           unlinkError: "Erro ao desligar conta {{provider}}",
           linkSuccess: "Conta {{provider}} ligada com sucesso!",
           linkError: "Erro ao ligar conta {{provider}}. Tente novamente.",
-          alreadyLinked: "Esta conta {{provider}} já está ligada a outro utilizador.",
+          alreadyLinked:
+            "Esta conta {{provider}} já está ligada a outro utilizador.",
           authFailed: "Falha na autenticação. Tente novamente.",
           sessionExpired: "Sessão expirada. Tente novamente.",
-          tokenNotFound: "Erro: Não foi possível encontrar o token de autenticação",
+          tokenNotFound:
+            "Erro: Não foi possível encontrar o token de autenticação",
           profileUpdatedSuccess: "Perfil atualizado com sucesso!",
         },
         passwordModal: {
@@ -924,6 +1091,42 @@ i18next.use(initReactI18next).init({
           readyToSchedule: "¿Listo para agendar?",
           scheduleService: "Agendar Servicio",
           whatsIncluded: "¿Qué incluye?",
+          features: {
+            engineCheck: "Revisión del motor y transmisión",
+            brakeSuspension: "Inspección de frenos y suspensión",
+            fluidsFilters: "Análisis de fluidos y filtros",
+            electronicDiagnosis: "Diagnóstico electrónico completo",
+            detailedReport: "Informe detallado",
+
+            highQualityOil: "Aceite de alta calidad",
+            oilFilter: "Cambio de filtro de aceite",
+            levelCheck: "Comprobación de niveles",
+            visualEngine: "Inspección visual del motor",
+
+            advancedOBD: "Escáner OBD avanzado",
+            errorCodes: "Análisis de códigos de error",
+            sensorTest: "Prueba de sensores",
+            ecuCheck: "Verificación de la ECU",
+            technicalReport: "Informe técnico",
+
+            brakePads: "Revisión de pastillas y discos",
+            brakeFluid: "Comprobación del líquido de frenos",
+            performanceTest: "Prueba de rendimiento",
+            replacement: "Reemplazo si es necesario",
+            safetyCertificate: "Certificado de seguridad",
+
+            gasRecharge: "Recarga de gas refrigerante",
+            filterCleaning: "Limpieza de filtros",
+            compressorCheck: "Revisión del compresor",
+            temperatureTest: "Prueba de temperatura",
+            systemDisinfection: "Desinfección del sistema",
+
+            tireMounting: "Montaje de neumáticos",
+            computerAlignment: "Alineación computarizada",
+            wheelBalancing: "Balanceo de ruedas",
+            pressureCheck: "Verificación de presión",
+            tireRotation: "Rotación de neumáticos",
+          },
           serviceNames: {
             completeInspection: "Inspección Completa",
             oilChange: "Cambio de Aceite",
@@ -946,6 +1149,20 @@ i18next.use(initReactI18next).init({
             tiresAlignment:
               "Servicios completos de neumáticos, alineación y balanceo para una conducción segura y económica.",
           },
+        },
+
+        contactModal: {
+          title: "Contáctanos",
+          subtitle: "Envíanos un mensaje y responderemos lo antes posible.",
+          emailLabel: "Correo",
+          phoneLabel: "Teléfono",
+          emailValue: "projetodghhn@gmail.com",
+          phoneValue: "+351 123 456 789",
+          close: "Cerrar",
+          sendButton: "Enviar",
+          sending: "Enviando...",
+          successMessage: "¡Mensaje enviado con éxito!",
+          errorMessage: "Error al enviar el mensaje. Inténtalo de nuevo.",
         },
 
         servicesStrip: {
@@ -1016,6 +1233,41 @@ i18next.use(initReactI18next).init({
           },
         },
 
+        appointmentModal: {
+          title: "Programar servicio",
+          progressAria: "Progreso {{percent}} por ciento",
+          loadingApi: "Cargando datos de la API...",
+          errorLoadingData: "Error cargando datos",
+          tryAgain: "Intentar de nuevo",
+          selectServicePlaceholder: "Seleccione un servicio",
+          selectVehiclePlaceholder: "Seleccione un vehículo",
+          selectServiceHelp: "Elija el servicio deseado.",
+          estimatedBudget: "Presupuesto estimado (€)",
+          scheduledFor: "Agendado para:",
+          clientLabel: "Cliente:",
+          noVehiclesFound: "No se encontraron vehículos para este cliente",
+          descriptionPlaceholder:
+            "Describa el problema o servicio requerido...",
+          selectService: "Seleccione el servicio",
+          serviceSelected: "Servicio: {{service}} — haga clic en Siguiente",
+          serviceSelectedFallback:
+            "Servicio seleccionado — haga clic en Siguiente",
+          chooseDateTime: "Seleccione fecha y hora",
+          selectVehicle: "Seleccione un vehículo",
+          describeProblem: "Describa el problema (mín. 4 caracteres)",
+          readyToSubmit: "Todo listo — puede enviar la cita",
+          createAppointment: "Programar servicio",
+          creating: "Creando...",
+          next: "Siguiente",
+        },
+
+        vehicle: "Vehículo",
+        cancel: "Cancelar",
+        seguinte: "Siguiente",
+        previous: "Anterior",
+        next: "Siguiente",
+        appointmentCreatedSuccess: "¡Cita creada con éxito!",
+
         // Basic words for auth components
         please: "Por favor",
         enter: "Ingrese",
@@ -1071,7 +1323,6 @@ i18next.use(initReactI18next).init({
         select: "Seleccionar",
         of: "de",
         creating: "Creando",
-        cancel: "Cancelar",
         city: "Ciudad",
 
         // Compound phrases for better translations
@@ -1109,7 +1360,8 @@ i18next.use(initReactI18next).init({
         relink: {
           title: "Vincular cuenta {{provider}}",
           accountFound: "¡Cuenta encontrada!",
-          question: "¿Desea vincular su cuenta {{provider}} a esta cuenta existente?",
+          question:
+            "¿Desea vincular su cuenta {{provider}} a esta cuenta existente?",
           existingAccount: "Cuenta existente",
           button: "Vincular cuenta {{provider}}",
           linking: "Vinculando...",
@@ -1130,21 +1382,27 @@ i18next.use(initReactI18next).init({
           linkFacebook: "Vincular con Facebook",
           processing: "Procesando...",
           editProfile: "Editar Perfil",
-          editWillBeImplemented: "La funcionalidad de edición se implementará pronto",
+          editWillBeImplemented:
+            "La funcionalidad de edición se implementará pronto",
           pleaseLogin: "Por favor, inicia sesión para ver tu perfil",
           loadingProfile: "Cargando datos del perfil...",
           passwordChangedSuccess: "¡Contraseña cambiada exitosamente!",
           passwordCreatedSuccess: "¡Contraseña creada exitosamente!",
-          cannotUnlinkWithoutPassword: "No se puede desvincular {{provider}} sin tener una contraseña configurada. Configure una contraseña primero.",
-          confirmUnlink: "¿Está seguro de que desea desvincular su cuenta {{provider}}?",
+          cannotUnlinkWithoutPassword:
+            "No se puede desvincular {{provider}} sin tener una contraseña configurada. Configure una contraseña primero.",
+          confirmUnlink:
+            "¿Está seguro de que desea desvincular su cuenta {{provider}}?",
           unlinkSuccess: "¡Cuenta {{provider}} desvinculada exitosamente!",
           unlinkError: "Error al desvincular cuenta {{provider}}",
           linkSuccess: "¡Cuenta {{provider}} vinculada exitosamente!",
-          linkError: "Error al vincular cuenta {{provider}}. Intente nuevamente.",
-          alreadyLinked: "Esta cuenta {{provider}} ya está vinculada a otro usuario.",
+          linkError:
+            "Error al vincular cuenta {{provider}}. Intente nuevamente.",
+          alreadyLinked:
+            "Esta cuenta {{provider}} ya está vinculada a otro usuario.",
           authFailed: "Autenticación fallida. Intente nuevamente.",
           sessionExpired: "Sesión expirada. Intente nuevamente.",
-          tokenNotFound: "Error: No se pudo encontrar el token de autenticación",
+          tokenNotFound:
+            "Error: No se pudo encontrar el token de autenticación",
           profileUpdatedSuccess: "¡Perfil actualizado exitosamente!",
         },
         passwordModal: {
@@ -1163,9 +1421,9 @@ i18next.use(initReactI18next).init({
           successChanged: "¡Contraseña cambiada exitosamente!",
           successCreated: "¡Contraseña creada exitosamente!",
           error: "Error al procesar la contraseña",
+        },
       },
     },
-  },
 
     fr: {
       translation: {
@@ -1308,6 +1566,42 @@ i18next.use(initReactI18next).init({
           readyToSchedule: "Prêt à prendre rendez-vous ?",
           scheduleService: "Prendre Rendez-vous",
           whatsIncluded: "Ce qui est inclus :",
+          features: {
+            engineCheck: "Contrôle moteur et transmission",
+            brakeSuspension: "Inspection des freins et de la suspension",
+            fluidsFilters: "Analyse des fluides et filtres",
+            electronicDiagnosis: "Diagnostic électronique complet",
+            detailedReport: "Rapport détaillé",
+
+            highQualityOil: "Huile de haute qualité",
+            oilFilter: "Remplacement du filtre à huile",
+            levelCheck: "Contrôle des niveaux",
+            visualEngine: "Inspection visuelle du moteur",
+
+            advancedOBD: "Scanner OBD avancé",
+            errorCodes: "Analyse des codes d'erreur",
+            sensorTest: "Test des capteurs",
+            ecuCheck: "Vérification de l'ECU",
+            technicalReport: "Rapport technique",
+
+            brakePads: "Contrôle des plaquettes et disques",
+            brakeFluid: "Vérification du liquide de frein",
+            performanceTest: "Test de performance",
+            replacement: "Remplacement si nécessaire",
+            safetyCertificate: "Certificat de sécurité",
+
+            gasRecharge: "Rechargement du gaz réfrigérant",
+            filterCleaning: "Nettoyage des filtres",
+            compressorCheck: "Vérification du compresseur",
+            temperatureTest: "Test de température",
+            systemDisinfection: "Désinfection du système",
+
+            tireMounting: "Montage des pneus",
+            computerAlignment: "Alignement informatisé",
+            wheelBalancing: "Équilibrage des roues",
+            pressureCheck: "Contrôle de la pression",
+            tireRotation: "Rotation des pneus",
+          },
           serviceNames: {
             completeInspection: "Inspection Complète",
             oilChange: "Changement d'Huile",
@@ -1330,6 +1624,21 @@ i18next.use(initReactI18next).init({
             tiresAlignment:
               "Services complets de pneus, alignement et équilibrage pour une conduite sûre et économique.",
           },
+        },
+
+        contactModal: {
+          title: "Contactez-nous",
+          subtitle:
+            "Envoyez-nous un message et nous répondrons dès que possible.",
+          emailLabel: "Email",
+          phoneLabel: "Téléphone",
+          emailValue: "projetodghhn@gmail.com",
+          phoneValue: "+351 123 456 789",
+          close: "Fermer",
+          sendButton: "Envoyer",
+          sending: "Envoi...",
+          successMessage: "Message envoyé avec succès !",
+          errorMessage: "Échec de l'envoi. Réessayez.",
         },
 
         servicesStrip: {
@@ -1400,6 +1709,39 @@ i18next.use(initReactI18next).init({
           },
         },
 
+        appointmentModal: {
+          title: "Planifier un service",
+          progressAria: "Progression {{percent}} pour cent",
+          loadingApi: "Chargement des données...",
+          errorLoadingData: "Erreur lors du chargement des données",
+          tryAgain: "Réessayer",
+          selectServicePlaceholder: "Sélectionnez un service",
+          selectVehiclePlaceholder: "Sélectionnez un véhicule",
+          selectServiceHelp: "Choisissez le service souhaité.",
+          estimatedBudget: "Budget estimé (€)",
+          scheduledFor: "Planifié pour :",
+          clientLabel: "Client :",
+          noVehiclesFound: "Aucun véhicule trouvé pour ce client",
+          descriptionPlaceholder:
+            "Décrivez le problème ou le service requis...",
+          selectService: "Sélectionnez le service",
+          serviceSelected: "Service : {{service}} — cliquez Suivant",
+          serviceSelectedFallback: "Service sélectionné — cliquez Suivant",
+          chooseDateTime: "Choisissez la date et l'heure",
+          selectVehicle: "Sélectionnez un véhicule",
+          describeProblem: "Décrivez le problème (min. 4 caractères)",
+          readyToSubmit: "Tout est prêt — vous pouvez soumettre la demande",
+          createAppointment: "Planifier le service",
+          creating: "Création...",
+          next: "Suivant",
+        },
+        vehicle: "Véhicule",
+        cancel: "Annuler",
+
+        previous: "Précédent",
+        next: "Suivant",
+        appointmentCreatedSuccess: "Rendez-vous créé avec succès !",
+
         // Basic words for auth components
         please: "Veuillez",
         enter: "Entrez",
@@ -1455,7 +1797,6 @@ i18next.use(initReactI18next).init({
         select: "Sélectionner",
         of: "de",
         creating: "Création",
-        cancel: "Annuler",
         city: "Ville",
 
         // Compound phrases for better translations
@@ -1485,7 +1826,8 @@ i18next.use(initReactI18next).init({
         scheduleNewService: "Prendre Nouveau Rendez-vous",
         schedule: "Planifier",
         emailAlreadyRegistered: "Cet email est déjà enregistré.",
-        pleaseUseAnotherEmailOrLogin: "Veuillez utiliser un autre email ou vous connecter.",
+        pleaseUseAnotherEmailOrLogin:
+          "Veuillez utiliser un autre email ou vous connecter.",
         errorCheckingEmail: "Erreur lors de la vérification de l'email.",
         tryAgain: "Veuillez réessayer.",
         country: "Pays",
@@ -1493,7 +1835,8 @@ i18next.use(initReactI18next).init({
         relink: {
           title: "Lier le compte {{provider}}",
           accountFound: "Compte trouvé !",
-          question: "Voulez-vous lier votre compte {{provider}} à ce compte existant ?",
+          question:
+            "Voulez-vous lier votre compte {{provider}} à ce compte existant ?",
           existingAccount: "Compte existant",
           button: "Lier le compte {{provider}}",
           linking: "Liaison en cours...",
@@ -1514,18 +1857,23 @@ i18next.use(initReactI18next).init({
           linkFacebook: "Lier à Facebook",
           processing: "Traitement en cours...",
           editProfile: "Modifier le Profil",
-          editWillBeImplemented: "La fonctionnalité d'édition sera bientôt mise en œuvre",
+          editWillBeImplemented:
+            "La fonctionnalité d'édition sera bientôt mise en œuvre",
           pleaseLogin: "Veuillez vous connecter pour voir votre profil",
           loadingProfile: "Chargement des données du profil...",
           passwordChangedSuccess: "Mot de passe modifié avec succès !",
           passwordCreatedSuccess: "Mot de passe créé avec succès !",
-          cannotUnlinkWithoutPassword: "Impossible de délier {{provider}} sans avoir un mot de passe configuré. Veuillez d'abord configurer un mot de passe.",
-          confirmUnlink: "Êtes-vous sûr de vouloir délier votre compte {{provider}} ?",
+          cannotUnlinkWithoutPassword:
+            "Impossible de délier {{provider}} sans avoir un mot de passe configuré. Veuillez d'abord configurer un mot de passe.",
+          confirmUnlink:
+            "Êtes-vous sûr de vouloir délier votre compte {{provider}} ?",
           unlinkSuccess: "Compte {{provider}} délié avec succès !",
           unlinkError: "Erreur lors de la déconnexion du compte {{provider}}",
           linkSuccess: "Compte {{provider}} lié avec succès !",
-          linkError: "Erreur lors de la liaison du compte {{provider}}. Veuillez réessayer.",
-          alreadyLinked: "Ce compte {{provider}} est déjà lié à un autre utilisateur.",
+          linkError:
+            "Erreur lors de la liaison du compte {{provider}}. Veuillez réessayer.",
+          alreadyLinked:
+            "Ce compte {{provider}} est déjà lié à un autre utilisateur.",
           authFailed: "Échec de l'authentification. Veuillez réessayer.",
           sessionExpired: "Session expirée. Veuillez réessayer.",
           tokenNotFound: "Erreur : Token d'authentification introuvable",
