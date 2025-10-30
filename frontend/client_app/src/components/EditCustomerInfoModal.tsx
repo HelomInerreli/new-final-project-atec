@@ -3,7 +3,7 @@ import { Modal, Button, Form, Alert, Spinner } from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useTranslation } from 'react-i18next';
-
+import './../styles/RedButton.css';
 interface EditCustomerInfoModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -162,8 +162,8 @@ const EditCustomerInfoModal: React.FC<EditCustomerInfoModalProps> = ({
             />
           </Form.Group>
           <div className="d-grid gap-2">
-            <Button type="submit" variant="primary" disabled={loading}>
-              {loading ? <Spinner animation="border" size="sm" /> : t('save')}
+            <Button type="submit" variant="primary" disabled={loading} className="red-hover-btn">
+              {loading ? <Spinner animation="border" size="sm"  /> : t('save')}
             </Button>
             <Button type="button" variant="outline-secondary" onClick={onClose} disabled={loading}>
               {t('cancel')}
