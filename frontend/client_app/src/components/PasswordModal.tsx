@@ -41,17 +41,17 @@ const PasswordModal: React.FC<PasswordModalProps> = ({
 
     // Validation
     if (newPassword.length < 6) {
-      setError('A palavra-passe deve ter pelo menos 6 caracteres');
+      setError(t('passwordModal.minLength'));
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setError('As palavras-passe não coincidem');
+      setError(t('passwordModal.mismatch'));
       return;
     }
 
     if (!isCreating && !currentPassword) {
-      setError('Por favor, insira a palavra-passe atual');
+      setError(t('passwordModal.requiredCurrent'));
       return;
     }
 
@@ -64,7 +64,7 @@ const PasswordModal: React.FC<PasswordModalProps> = ({
       resetForm();
       onClose();
     } catch (err: any) {
-      setError(err.message || 'Erro ao processar palavra-passe');
+      setError(err.message || t('passwordModal.error'));
     }
   };
 
@@ -72,7 +72,7 @@ const PasswordModal: React.FC<PasswordModalProps> = ({
     <Modal show={isOpen} onHide={handleClose} centered>
       <Modal.Header closeButton>
         <Modal.Title>
-          {isCreating ? 'Criar Palavra-passe' : 'Alterar Palavra-passe'}
+          {isCreating ? t('passwordModal.titleCreate') : t('passwordModal.titleChange')}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
@@ -85,11 +85,11 @@ const PasswordModal: React.FC<PasswordModalProps> = ({
 
           {!isCreating && (
             <Form.Group className="mb-3">
-              <Form.Label htmlFor="currentPassword">Palavra-passe Atual</Form.Label>
+              <Form.Label htmlFor="currentPassword">{t('passwordModal.current')}</Form.Label>
               <Form.Control
                 type="password"
                 id="currentPassword"
-                placeholder="Digite a sua palavra-passe atual"
+                placeholder={t('passwordModal.placeholderCurrent')}
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 required={!isCreating}
@@ -98,14 +98,14 @@ const PasswordModal: React.FC<PasswordModalProps> = ({
             </Form.Group>
           )}
 
-          <Form.Group className="mb-3">
+          <Form.Group className="mb-2">
             <Form.Label htmlFor="newPassword">
-              {isCreating ? 'Nova Palavra-passe' : 'Nova Palavra-passe'}
+              {isCreating ? t('passwordModal.new') : t('passwordModal.new')}
             </Form.Label>
             <Form.Control
               type="password"
               id="newPassword"
-              placeholder="Digite a nova palavra-passe"
+              placeholder={t('passwordModal.placeholderNew')}
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               required
@@ -113,16 +113,16 @@ const PasswordModal: React.FC<PasswordModalProps> = ({
               minLength={6}
             />
             <Form.Text className="text-muted">
-              A palavra-passe deve ter pelo menos 6 caracteres
+              {t('passwordModal.minLength')}
             </Form.Text>
           </Form.Group>
 
-          <Form.Group className="mb-4">
-            <Form.Label htmlFor="confirmPassword">Confirmar Palavra-passe</Form.Label>
+          <Form.Group className="mb-3">
+            <Form.Label htmlFor="confirmPassword">{t('passwordModal.confirm')}</Form.Label>
             <Form.Control
               type="password"
               id="confirmPassword"
-              placeholder="Confirme a nova palavra-passe"
+              placeholder={t('passwordModal.placeholderConfirm')}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
@@ -146,10 +146,10 @@ const PasswordModal: React.FC<PasswordModalProps> = ({
                     aria-hidden="true"
                     className="me-2"
                   />
-                  A processar...
+                  {t('passwordModal.processing')}
                 </>
               ) : (
-                isCreating ? 'Criar Palavra-passe' : 'Alterar Palavra-passe'
+                isCreating ? t('passwordModal.titleCreate') : t('passwordModal.titleChange')
               )}
             </Button>
             
@@ -159,7 +159,7 @@ const PasswordModal: React.FC<PasswordModalProps> = ({
               onClick={handleClose}
               disabled={loading}
             >
-              Cancelar
+              {t('cancel')}
             </Button>
           </div>
         </Form>
