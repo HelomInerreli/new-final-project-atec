@@ -10,13 +10,9 @@ def create_customer_auth(db: Session, customer_auth: CustomerAuthCreate):
         id_customer=customer_auth.id_customer,
         email=customer_auth.email,
         password_hash=get_password_hash(customer_auth.password) if customer_auth.password else None,
-        email_verified=getattr(customer_auth, 'email_verified', False),  # Use getattr with default
+        email_verified=getattr(customer_auth, 'email_verified', False),
         google_id=getattr(customer_auth, 'google_id', None),
         facebook_id=getattr(customer_auth, 'facebook_id', None),
-        twitter_id=getattr(customer_auth, 'twitter_id', None),
-        access_token=getattr(customer_auth, 'access_token', None),
-        refresh_token=getattr(customer_auth, 'refresh_token', None),
-        token_expires_at=getattr(customer_auth, 'token_expires_at', None),
         is_active=getattr(customer_auth, 'is_active', True),
         failed_login_attempts=getattr(customer_auth, 'failed_login_attempts', 0),
         last_login=getattr(customer_auth, 'last_login', None),
@@ -109,9 +105,9 @@ def create_customer_and_auth_facebook(db: Session, email: str, facebook_id: str,
     # Create CustomerAuth with placeholder email
     db_customer_auth = CustomerAuth(
         id_customer=new_customer.id,
-        email=email,  # This will be the placeholder email
+        email=email, 
         facebook_id=facebook_id,
-        email_verified=False,  # Set to False since it's a placeholder
+        email_verified=False, 
         is_active=True,
         password_hash=None
     )

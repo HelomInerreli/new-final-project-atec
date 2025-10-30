@@ -144,6 +144,7 @@ def seed_data(db: Session):
             "city": "Lisboa",
             "postal_code": "1000-100",
             "birth_date": datetime(1985, 4, 20).date(),
+            "country": "Portugal",
             "email": "joao.silva@example.com",
             "is_active": True
         },
@@ -153,6 +154,7 @@ def seed_data(db: Session):
             "address": "Avenida Central 45",
             "city": "Porto",
             "postal_code": "4000-200",
+            "country": "Portugal",
             "birth_date": datetime(1990, 7, 3).date(),
             "email": "mariana.pereira@example.com",
             "is_active": True
@@ -163,6 +165,7 @@ def seed_data(db: Session):
             "address": "Largo do Comércio 3",
             "city": "Coimbra",
             "postal_code": "3000-300",
+            "country": "Portugal",
             "birth_date": datetime(1978, 11, 15).date(),
             "email": "miguel.oliveira@example.com",
             "is_active": True
@@ -178,6 +181,7 @@ def seed_data(db: Session):
                 address=mc["address"],
                 city=mc["city"],
                 postal_code=mc["postal_code"],
+                country=mc["country"],
                 birth_date=mc["birth_date"],
                 is_active=mc["is_active"]
             )
@@ -195,7 +199,8 @@ def seed_data(db: Session):
             auth = CustomerAuth(
                 id_customer=cust_model.id,
                 email=mc["email"],
-                email_verified=False,
+                password_hash="$2b$12$G8EYjnybOQpHy.pCo7lx9.GMasGyWMvdEOsV8fKPSAsBVyHPKGpYm",
+                email_verified=True,
                 is_active=True,
                 created_at=datetime.utcnow()
             )

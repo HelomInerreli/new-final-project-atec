@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { type GoogleAuthData } from '../api/auth';
+import { type GoogleAuthData, type FacebookAuthData } from '../api/auth';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Modal, Button, Form, Alert, Spinner } from 'react-bootstrap';
@@ -9,7 +9,9 @@ interface CustomerInfoModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: CustomerInfo) => void;
-  googleData: GoogleAuthData | null;
+  googleData?: GoogleAuthData | null;
+  facebookData?: FacebookAuthData | null;
+  email?: string;
   loading: boolean;
 }
 
@@ -19,6 +21,7 @@ interface CustomerInfo {
   address?: string;
   city?: string;
   postal_code?: string;
+  country?: string;
   birth_date?: string;
 }
 
@@ -27,6 +30,8 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
   onClose,
   onSubmit,
   googleData,
+  facebookData,
+  email,
   loading
 }) => {
   const [error, setError] = useState('');
@@ -37,20 +42,28 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
     address: '',
     city: '',
     postal_code: '',
+    country: '',
     birth_date: ''
   });
 
   const { t } = useTranslation();
 
-  // Auto-fill form with Google data when available
+
+  
+  // Auto-fill form with Google or Facebook data when available
   useEffect(() => {
     if (googleData) {
       setFormData(prev => ({
         ...prev,
         name: googleData.name || ''
       }));
+    } else if (facebookData) {
+      setFormData(prev => ({
+        ...prev,
+        name: facebookData.name || ''
+      }));
     }
-  }, [googleData]);
+  }, [googleData, facebookData]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,15 +73,10 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
       setError(`${t('name')} ${t('is')} ${t('required')}`);
       return;
     }
-    
-    // Convert selected date to string format and include in form data
-    const finalFormData = {
-      ...formData,
-      birth_date: selectedDate ? selectedDate.toISOString().split('T')[0] : ''
-    };
+
     
     setError(''); // Clear any previous errors
-    onSubmit(finalFormData); // Submit the updated form data with the date
+    onSubmit(formData); // Submit the updated form data with the date
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -81,21 +89,35 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
 
   const handleDateChange = (date: Date | null) => {
     setSelectedDate(date);
-    // Also update the formData for consistency
+
+    let dateString = '';
+    if (date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      dateString = `${year}-${month}-${day}`;
+    }
+
+    // Atualiza o formData com a string de data correta
     setFormData(prev => ({
       ...prev,
-      birth_date: date ? date.toISOString().split('T')[0] : ''
+      birth_date: dateString
     }));
   };
+
+  // Update email logic - use priority: Google > Facebook > Manual input
+  const displayEmail = googleData?.email || facebookData?.email || email || '';
+  const isEmailDisabled = !!(googleData?.email || facebookData?.email);
 
   return (
     <Modal show={isOpen} onHide={onClose} centered>
       <Modal.Header closeButton>
-        <Modal.Title className="fw-bold">
-          {t('completeRegistration')}
+        <Modal.Title>
+          {googleData ? 'Complete Google Registration' : 
+           facebookData ? 'Complete Facebook Registration' : 
+           'Complete Registration'}
         </Modal.Title>
       </Modal.Header>
-
       <Modal.Body>
         <Form onSubmit={handleSubmit}>
           {error && (
@@ -109,6 +131,12 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
               <small>✓ {t('successfully')} {t('authenticated')} {t('with')} {t('google')} {t('as')} {googleData.email}</small>
             </Alert>
           )}
+
+          {facebookData && (
+            <Alert variant="info" className="mb-3">
+              <small>✓ {t('successfully')} {t('authenticated')} {t('with')} {t('facebook')} {t('as')} {facebookData.name}</small>
+            </Alert>
+          )}
           
           <Form.Group className="mb-3">
             <Form.Label htmlFor='name'>{t('fullName')}</Form.Label>
@@ -119,9 +147,28 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
               required
               value={formData.name}
               onChange={handleChange}
-              disabled={!!googleData || loading}
+              disabled={!!(googleData || facebookData) || loading}
               placeholder={t('enterFullName')}
             />
+          </Form.Group>
+          
+          <Form.Group className="mb-3">
+            <Form.Label htmlFor='email'>{t('email')}</Form.Label>
+            <Form.Control
+              type="email"
+              id="email"
+              name="email"
+              value={displayEmail}
+              onChange={() => {}}
+              disabled={isEmailDisabled || loading}
+              placeholder={t('enterEmail')}
+              required
+            />
+            {isEmailDisabled && (
+              <Form.Text className="text-muted">
+                {t('email')} {t('from')} {googleData ? 'Google' : 'Facebook'} {t('authentication')}
+              </Form.Text>
+            )}
           </Form.Group>
           
           <Form.Group className="mb-3">
@@ -177,6 +224,19 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
           </Form.Group>
           
           <Form.Group className="mb-3">
+            <Form.Label htmlFor='country'>{t('country')}</Form.Label>
+            <Form.Control
+              type="text"
+              id="country"
+              name="country"
+              value={formData.country || ''}
+              onChange={handleChange}
+              disabled={loading}
+              placeholder={t('enterCountry')}
+            />
+          </Form.Group>
+
+          <Form.Group className="mb-3">
             <Form.Label>{t('birthDate')}</Form.Label>
             <div>
               <DatePicker
@@ -200,11 +260,6 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
                 wrapperClassName="d-block" 
               />
             </div>
-            {selectedDate && (
-              <Form.Text className="text-muted">
-                {t('selectedDate')}: {selectedDate.toLocaleDateString()}
-              </Form.Text>
-            )}
           </Form.Group>
 
           <div className="d-grid gap-2">
@@ -212,7 +267,7 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
               type="submit" 
               variant="dark" 
               disabled={loading}
-              className="mb-2"
+              className="mb-2 red-hover-btn"
             >
               {loading ? (
                 <>

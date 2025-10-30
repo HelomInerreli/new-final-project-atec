@@ -13,6 +13,8 @@ import { FutureAppointments } from "./components/FutureAppointement";
 import { SobrePage } from "./pages/Sobre/SobrePage";
 import ClientMenu from "./components/ClientMenu";
 import { ContactPage } from "./pages/contact/ContactPage";
+import Dashboard from './pages/dashboard/Dashboard';
+import Profile from './pages/profile/profile';
 
 function App() {
   return (
@@ -34,6 +36,8 @@ function App() {
           <Route path="/about" element={<SobrePage />} />
           {/* <Route path="/contact" element={<ClientMenu />} /> */}
           <Route path="/contact" element={<ContactPage />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/profile" element={<Profile />} />
         </Routes>
       </Layout>
     </BrowserRouter>
