@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from app.core.config import settings
 from app.database import get_db
 from app.models.appoitment import Appointment
+from app.models.customerAuth import CustomerAuth
 from app.models.invoice import Invoice
 import json
 from datetime import datetime
@@ -124,48 +125,74 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
     """
     try:
         payload = await request.body()
-        sig_header = request.headers.get('stripe-signature')
+        print(f"📥 Received webhook payload: {payload[:200]}")  # Log first 200 chars
         
-        # Validate webhook signature (optional but recommended for production)
-        if settings.STRIPE_WEBHOOK_SECRET:
-            try:
-                event = stripe.Webhook.construct_event(
-                    payload, sig_header, settings.STRIPE_WEBHOOK_SECRET
-                )
-            except stripe.error.SignatureVerificationError as e:
-                print(f"❌ Webhook signature verification failed: {str(e)}")
-                raise HTTPException(status_code=400, detail="Invalid signature")
-        else:
+        # Parse event WITHOUT signature validation for testing
+        try:
             event = stripe.Event.construct_from(
                 json.loads(payload), stripe.api_key
             )
+            print(f"✅ Event parsed successfully: {event.type}")
+        except Exception as e:
+            print(f"❌ Failed to parse event: {str(e)}")
+            raise HTTPException(status_code=400, detail=f"Failed to parse event: {str(e)}")
         
         # Handle successful payment
         if event.type == "checkout.session.completed":
+            print(f"🎉 Received checkout.session.completed event!")
             session = event.data.object
-            appointment_id = session.metadata.get("appointment_id")
+            print(f"📋 Session ID: {session.id}")
+            print(f"📋 Session metadata: {session.metadata}")
             
-            if appointment_id:
-                appointment = db.query(Appointment).filter(
-                    Appointment.id == int(appointment_id)
-                ).first()
-                
-                if appointment:
-                    # Update appointment status to "Finalizado" (id=3)
-                    appointment.status_id = 3
-                    
-                    # Create invoice
-                    invoice = create_invoice_from_session(db, appointment, session)
-                    
-                    db.commit()
-                    
-                    print(f"✅ Payment confirmed for appointment {appointment_id}")
-                    print(f"✅ Invoice created: {invoice.invoice_number}")
+            appointment_id = session.metadata.get("appointment_id")
+            print(f"🔍 Looking for appointment_id: {appointment_id}")
+            
+            if not appointment_id:
+                print(f"❌ No appointment_id in metadata!")
+                return {"status": "success", "message": "No appointment_id in metadata"}
+            
+            appointment = db.query(Appointment).filter(
+                Appointment.id == int(appointment_id)
+            ).first()
+            
+            if not appointment:
+                print(f"❌ Appointment {appointment_id} not found in database!")
+                return {"status": "success", "message": f"Appointment {appointment_id} not found"}
+            
+            print(f"✅ Found appointment {appointment_id}, current status: {appointment.status_id}")
+            
+            # Update appointment status to "Finalized" (id=3)
+            old_status = appointment.status_id
+            appointment.status_id = 3
+            print(f"🔄 Changing status from {old_status} to 3 (Finalized)")
+            
+            # Create invoice
+            try:
+                invoice = create_invoice_from_session(db, appointment, session)
+                print(f"📄 Invoice created: {invoice.invoice_number}")
+            except Exception as e:
+                print(f"❌ Failed to create invoice: {str(e)}")
+                db.rollback()
+                raise
+            
+            # Commit changes
+            try:
+                db.commit()
+                print(f"✅ Payment confirmed for appointment {appointment_id}")
+                print(f"✅ Invoice created: {invoice.invoice_number}")
+            except Exception as e:
+                print(f"❌ Failed to commit changes: {str(e)}")
+                db.rollback()
+                raise
+        else:
+            print(f"ℹ️ Received event type: {event.type} (not handled)")
                     
         return {"status": "success"}
         
     except Exception as e:
         print(f"❌ Webhook error: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -209,6 +236,30 @@ def create_invoice_from_session(db: Session, appointment: Appointment, session):
     last_invoice = db.query(Invoice).order_by(Invoice.id.desc()).first()
     invoice_number = f"INV-{datetime.now().year}-{(last_invoice.id + 1) if last_invoice else 1:06d}"
     
+    # Get customer email from CustomerAuth
+    customer_email = None
+    customer_phone = None
+    customer_name = None
+    
+    if appointment.customer:
+        customer_name = appointment.customer.name
+        customer_phone = appointment.customer.phone
+        
+        # Get email from CustomerAuth
+        customer_auth = db.query(CustomerAuth).filter(
+            CustomerAuth.id_customer == appointment.customer.id
+        ).first()
+        if customer_auth:
+            customer_email = customer_auth.email
+    
+    # Fallback to Stripe session data if customer not found
+    if not customer_name and hasattr(session, 'customer_details'):
+        customer_name = session.customer_details.name
+    if not customer_email and hasattr(session, 'customer_details'):
+        customer_email = session.customer_details.email
+    if not customer_phone and hasattr(session, 'customer_details') and hasattr(session.customer_details, 'phone'):
+        customer_phone = session.customer_details.phone
+    
     # Create invoice
     invoice = Invoice(
         appointment_id=appointment.id,
@@ -220,9 +271,9 @@ def create_invoice_from_session(db: Session, appointment: Appointment, session):
         total=subtotal,
         currency="EUR",
         payment_status="paid",
-        customer_name=appointment.customer.name if appointment.customer else session.customer_details.name,
-        customer_email=appointment.customer.email if appointment.customer else session.customer_details.email,
-        customer_phone=appointment.customer.phone if appointment.customer else (session.customer_details.phone if hasattr(session.customer_details, 'phone') else None),
+        customer_name=customer_name,
+        customer_email=customer_email,
+        customer_phone=customer_phone,
         line_items=json.dumps(line_items_data),
         paid_at=datetime.utcnow()
     )

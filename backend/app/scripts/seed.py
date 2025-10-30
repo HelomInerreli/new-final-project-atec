@@ -77,7 +77,7 @@ def seed_data(db: Session):
     - create extra service catalog
     - create 3 customers (+ CustomerAuth entries)
     - create vehicles for ALL customers (at least 1 per customer)
-    - create 12 appointments with RANDOM customer_id
+    - create 12 appointments ALL with status_id = 1 (Pendente)
     """
     print("Seeding data...")
 
@@ -237,7 +237,7 @@ def seed_data(db: Session):
     
     print(f"Created {len(vehicles)} vehicles (all customers have at least 1 vehicle).")
 
-    # 6) Create exactly 12 appointments with RANDOM customer_id
+    # 6) Create exactly 12 appointments ALL with status_id = 1 (Pendente)
     appointments = []
     
     for i in range(NUM_APPOINTMENTS):
@@ -254,32 +254,14 @@ def seed_data(db: Session):
         days_offset = random.randint(-180, 60)  # from 180 days ago to 60 days in future
         appointment_date = datetime.now() + timedelta(days=days_offset)
 
-        # Status distribution based on date
-        if days_offset < -30:  # old appointments
-            status_weights = {"Finalized": 70, "Canceled": 20, "Pendente": 5, "In Repair": 3, "Awaiting Approval": 2}
-        elif days_offset < 0:  # recent past
-            status_weights = {"Finalized": 40, "In Repair": 30, "Awaiting Approval": 15, "Pendente": 10, "Canceled": 5}
-        else:  # future appointments
-            status_weights = {"Pendente": 80, "In Repair": 10, "Awaiting Approval": 5, "Finalized": 3, "Canceled": 2}
-
-        status_choices = []
-        for st, wt in status_weights.items():
-            status_choices.extend([st] * wt)
-        chosen_status = random.choice(status_choices)
-
         estimated_budget = main_service.price
-        actual_budget = 0.0
-        if chosen_status == "Finalized":
-            variance_factor = random.uniform(0.8, 1.3)
-            actual_budget = round(estimated_budget * variance_factor, 2)
-        elif chosen_status in ["In Repair", "Awaiting Approval"]:
-            actual_budget = round(estimated_budget * random.uniform(0.3, 0.7), 2)
+        actual_budget = 0.0  # All pending, no actual budget yet
 
         appointment_in = AppointmentCreate(
             appointment_date=appointment_date,
             description=f"Agendamento {i+1} para {main_service.name} - Cliente: {customer.name}",
             vehicle_id=vehicle.id,
-            customer_id=customer.id,  # RANDOM customer
+            customer_id=customer.id,
             service_id=main_service.id,
             estimated_budget=estimated_budget,
             actual_budget=actual_budget,
@@ -287,25 +269,18 @@ def seed_data(db: Session):
 
         try:
             appointment = appointment_repo.create(appointment_in)
+            # Force status_id = 1 (Pendente) for ALL appointments
+            appointment.status_id = status_objects["Pendente"].id
+            db.commit()
+            db.refresh(appointment)
+            appointments.append(appointment)
         except Exception as e:
             db.rollback()
             print(f"Failed to create appointment {i+1}: {e}")
             continue
 
-        # Update status if not default
-        if chosen_status != "Pendente":
-            try:
-                appointment.status_id = status_objects[chosen_status].id
-                db.commit()
-                db.refresh(appointment)
-            except Exception as e:
-                db.rollback()
-                print(f"Failed to set status for appointment {appointment.id}: {e}")
-
-        appointments.append(appointment)
-
-        # Add extra services to some appointments
-        if chosen_status == "Finalized" and catalog_extra_services and random.choice([True, False]):
+        # Optionally add extra services (but not approve them since status is Pendente)
+        if catalog_extra_services and random.choice([True, False]):
             for _ in range(random.randint(1, MAX_EXTRA_SERVICES_PER_APPOINTMENT)):
                 chosen_catalog = random.choice(catalog_extra_services)
                 req_in = AppointmentExtraServiceCreate(
@@ -313,26 +288,17 @@ def seed_data(db: Session):
                 )
                 try:
                     req = appointment_repo.add_extra_service_request(appointment.id, req_in)
-                    if req:
-                        appointment_repo.approve_extra_service_request(req.id)
+                    # Don't approve, just add the request
                 except Exception as e:
                     db.rollback()
-                    print(f"Failed to add/approve extra request for appointment {appointment.id}: {e}")
+                    print(f"Failed to add extra request for appointment {appointment.id}: {e}")
 
     # 7) Print statistics
     all_appointments = db.query(Appointment).all()
-    finalized_count = sum(1 for apt in all_appointments if apt.status_id == status_objects["Finalized"].id)
-    in_repair_count = sum(1 for apt in all_appointments if apt.status_id == status_objects["In Repair"].id)
     pending_count = sum(1 for apt in all_appointments if apt.status_id == status_objects["Pendente"].id)
-    canceled_count = sum(1 for apt in all_appointments if apt.status_id == status_objects["Canceled"].id)
-    awaiting_count = sum(1 for apt in all_appointments if apt.status_id == status_objects["Awaiting Approval"].id)
 
-    print(f"\n✅ Created {len(all_appointments)} appointments (with RANDOM customer_id distribution):")
-    print(f"  - {finalized_count} Finalized (completed)")
-    print(f"  - {in_repair_count} In Repair")
+    print(f"\n✅ Created {len(all_appointments)} appointments (ALL with status_id = 1 - Pendente):")
     print(f"  - {pending_count} Pending")
-    print(f"  - {canceled_count} Canceled")
-    print(f"  - {awaiting_count} Awaiting Approval")
     
     # Show customer distribution
     print(f"\n📊 Appointments per customer:")
