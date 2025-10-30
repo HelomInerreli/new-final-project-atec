@@ -8,3 +8,4 @@ from .appoitment import Appointment
 from .extra_service import ExtraService
 from .appoitment_extra_service import AppointmentExtraService
 from .customerAuth import CustomerAuth
+from .invoice import Invoice
