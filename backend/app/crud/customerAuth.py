@@ -10,7 +10,7 @@ def create_customer_auth(db: Session, customer_auth: CustomerAuthCreate):
         id_customer=customer_auth.id_customer,
         email=customer_auth.email,
         password_hash=get_password_hash(customer_auth.password) if customer_auth.password else None,
-        email_verified=getattr(customer_auth, 'email_verified', False),  # Use getattr with default
+        email_verified=getattr(customer_auth, 'email_verified', False),
         google_id=getattr(customer_auth, 'google_id', None),
         facebook_id=getattr(customer_auth, 'facebook_id', None),
         is_active=getattr(customer_auth, 'is_active', True),

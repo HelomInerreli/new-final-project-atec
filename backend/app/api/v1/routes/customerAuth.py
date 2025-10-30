@@ -1,3 +1,4 @@
+from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
@@ -107,12 +108,18 @@ async def login_for_access_token(
     # Verify password
     if not verify_password(form_data.password, user.password_hash):
         print(f"Invalid password for: {form_data.username}")
+        user.failed_login_attempts += 1
+        db.commit()
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
+    user.failed_login_attempts = 0
+    user.last_login = datetime.now()
+    db.commit()
+
     # Create access token
     access_token = create_access_token(data={"sub": str(user.id_customer)})
     

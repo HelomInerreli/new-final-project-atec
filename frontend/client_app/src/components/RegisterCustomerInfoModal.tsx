@@ -260,11 +260,6 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
                 wrapperClassName="d-block" 
               />
             </div>
-            {selectedDate && (
-              <Form.Text className="text-muted">
-                {t('selectedDate')}: {selectedDate.toLocaleDateString('pt-PT')}
-              </Form.Text>
-            )}
           </Form.Group>
 
           <div className="d-grid gap-2">
