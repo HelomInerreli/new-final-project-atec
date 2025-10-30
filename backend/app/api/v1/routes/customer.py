@@ -114,6 +114,8 @@ def update_customer_profile(
         raise HTTPException(status_code=404, detail="Customer not found")
     
     # Update only provided fields
+    if profile_data.name is not None:
+        customer.name = profile_data.name
     if profile_data.phone is not None:
         customer.phone = profile_data.phone
     if profile_data.address is not None:

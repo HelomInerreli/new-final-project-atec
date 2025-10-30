@@ -267,7 +267,7 @@ const CustomerInfoModal: React.FC<CustomerInfoModalProps> = ({
               type="submit" 
               variant="dark" 
               disabled={loading}
-              className="mb-2"
+              className="mb-2 red-hover-btn"
             >
               {loading ? (
                 <>

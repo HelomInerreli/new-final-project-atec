@@ -6,6 +6,7 @@ import { getCustomerDetails, createPassword, changePassword, unlinkGoogle, unlin
 import PasswordModal from '../../components/PasswordModal';
 import EditCustomerInfoModal from '../../components/EditCustomerInfoModal';
 import "../../styles/profile.css";
+import "../../styles/RedButton.css";
 
 type UserProfile = {
   name: string;
@@ -13,7 +14,7 @@ type UserProfile = {
   phone: string;
   address: string;
   city: string;
-  postalCode: string;
+  postal_code: string;
   birthDate: string;
   country: string;
   hasPassword: boolean;
@@ -40,7 +41,7 @@ const Profile: React.FC = () => {
     phone: "",
     address: "",
     city: "",
-    postalCode: "",
+    postal_code: "",
     birthDate: "",
     country: "",
     hasPassword: false,
@@ -134,7 +135,7 @@ const Profile: React.FC = () => {
         phone: customerData.phone || "",
         address: customerData.address || "",
         city: customerData.city || "",
-        postalCode: customerData.postal_code || "",
+        postal_code: customerData.postal_code || "",
         birthDate: customerData.birth_date || "",
         country: customerData.country || "Portugal",
         hasPassword: !!customerData.password_hash,
@@ -404,11 +405,11 @@ const Profile: React.FC = () => {
               />
             </div>
             <div className="field">
-              <label htmlFor="postalCode">{t('postalCode')}</label>
+              <label htmlFor="postal_code">{t('postalCode')}</label>
               <input
-                id="postalCode"
+                id="postal_code"
                 className="prof-input"
-                value={form.postalCode}
+                value={form.postal_code}
                 placeholder={t('enterPostalCode')}
                 readOnly
               />
@@ -496,7 +497,7 @@ const Profile: React.FC = () => {
         <div className="actions">
           <button
             type="button"
-            className="btn primary"
+            className="btn primary red-hover-btn"
             onClick={() => setShowEditModal(true)}
           >
             {t('profilePage.editProfile')}

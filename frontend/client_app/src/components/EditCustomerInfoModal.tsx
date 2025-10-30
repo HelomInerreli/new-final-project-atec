@@ -17,7 +17,7 @@ interface CustomerInfo {
   phone?: string;
   address?: string;
   city?: string;
-  postalCode?: string;
+  postal_code?: string;
   country?: string;
   birthDate?: string;
 }
@@ -129,8 +129,8 @@ const EditCustomerInfoModal: React.FC<EditCustomerInfoModalProps> = ({
             <Form.Label>{t('postalCode')}</Form.Label>
             <Form.Control
               type="text"
-              name="postalCode"
-              value={formData.postalCode || ''}
+              name="postal_code"
+              value={formData.postal_code || ''}
               onChange={handleChange}
               disabled={loading}
             />
@@ -163,7 +163,7 @@ const EditCustomerInfoModal: React.FC<EditCustomerInfoModalProps> = ({
           </Form.Group>
           <div className="d-grid gap-2">
             <Button type="submit" variant="primary" disabled={loading} className="red-hover-btn">
-              {loading ? <Spinner animation="border" size="sm"  /> : t('save')}
+              {loading ? <Spinner animation="border" size="sm" color="red"/> : t('save')}
             </Button>
             <Button type="button" variant="outline-secondary" onClick={onClose} disabled={loading}>
               {t('cancel')}

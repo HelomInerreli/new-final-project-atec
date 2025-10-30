@@ -84,7 +84,7 @@ const PasswordModal: React.FC<PasswordModalProps> = ({
           )}
 
           {!isCreating && (
-            <Form.Group className="mb-3">
+            <Form.Group className="mb-5">
               <Form.Label htmlFor="currentPassword">{t('passwordModal.current')}</Form.Label>
               <Form.Control
                 type="password"
@@ -98,7 +98,7 @@ const PasswordModal: React.FC<PasswordModalProps> = ({
             </Form.Group>
           )}
 
-          <Form.Group className="mb-2">
+          <Form.Group className="mb-3">
             <Form.Label htmlFor="newPassword">
               {isCreating ? t('passwordModal.new') : t('passwordModal.new')}
             </Form.Label>
@@ -134,6 +134,7 @@ const PasswordModal: React.FC<PasswordModalProps> = ({
             <Button 
               type="submit" 
               variant="dark" 
+              className="red-hover-btn"
               disabled={loading}
             >
               {loading ? (
