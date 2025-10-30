@@ -13,6 +13,7 @@ from app.schemas.vehicle import VehicleCreate
 from app.schemas.appointment import AppointmentCreate
 from app.schemas.service import ServiceCreate
 from app.schemas.appointment_extra_service import AppointmentExtraServiceCreate
+from app.models.invoice import Invoice
 
 # Import models to ensure they are registered with Base.metadata before table creation
 from app.models.customer import Customer
@@ -24,11 +25,10 @@ from app.models.service import Service
 from app.models.extra_service import ExtraService as ExtraServiceModel
 
 # Configuration
-NUM_CUSTOMERS = 15
+NUM_APPOINTMENTS = 12
+MIN_VEHICLES_PER_CUSTOMER = 1  # Garantir que todos têm pelo menos 1 veículo
 MAX_VEHICLES_PER_CUSTOMER = 3
-MAX_APPOINTMENTS_PER_VEHICLE = 5
 MAX_EXTRA_SERVICES_PER_APPOINTMENT = 2
-PCT_CUSTOMERS_WITH_AUTH = 0.6  # proportion of customers that will get a CustomerAuth entry
 
 fake = Faker("pt_PT")  # Portuguese provider for realistic data
 
@@ -75,9 +75,9 @@ def seed_data(db: Session):
     - create statuses
     - create main services
     - create extra service catalog
-    - create customers (+ some CustomerAuth entries)
-    - create vehicles
-    - create appointments and optionally extra-service requests (approve some)
+    - create 3 customers (+ CustomerAuth entries)
+    - create vehicles for ALL customers (at least 1 per customer)
+    - create 12 appointments ALL with status_id = 1 (Pendente)
     """
     print("Seeding data...")
 
@@ -133,7 +133,7 @@ def seed_data(db: Session):
     print(f"Created/verified {len(catalog_extra_services)} catalog extra services.")
 
    
-    # 4) Create 3 customers manualmente (e criar CustomerAuth para cada um)
+    # 4) Create 3 customers manually (and create CustomerAuth for each)
     customers = []
 
     manual_customers = [
@@ -144,6 +144,7 @@ def seed_data(db: Session):
             "city": "Lisboa",
             "postal_code": "1000-100",
             "birth_date": datetime(1985, 4, 20).date(),
+            "country": "Portugal",
             "email": "joao.silva@example.com",
             "is_active": True
         },
@@ -153,6 +154,7 @@ def seed_data(db: Session):
             "address": "Avenida Central 45",
             "city": "Porto",
             "postal_code": "4000-200",
+            "country": "Portugal",
             "birth_date": datetime(1990, 7, 3).date(),
             "email": "mariana.pereira@example.com",
             "is_active": True
@@ -163,6 +165,7 @@ def seed_data(db: Session):
             "address": "Largo do Comércio 3",
             "city": "Coimbra",
             "postal_code": "3000-300",
+            "country": "Portugal",
             "birth_date": datetime(1978, 11, 15).date(),
             "email": "miguel.oliveira@example.com",
             "is_active": True
@@ -170,7 +173,7 @@ def seed_data(db: Session):
     ]
 
     for i, mc in enumerate(manual_customers):
-        # Criar o Customer usando o modelo diretamente (sem email)
+        # Create Customer using the model directly (without email)
         try:
             cust_model = Customer(
                 name=mc["name"],
@@ -178,6 +181,7 @@ def seed_data(db: Session):
                 address=mc["address"],
                 city=mc["city"],
                 postal_code=mc["postal_code"],
+                country=mc["country"],
                 birth_date=mc["birth_date"],
                 is_active=mc["is_active"]
             )
@@ -190,12 +194,13 @@ def seed_data(db: Session):
             print(f"Failed to create manual customer {mc['name']}: {e}")
             continue
 
-        # Criar a entrada CustomerAuth ligada (com email) — o modelo CustomerAuth requer email
+        # Create CustomerAuth entry (with email)
         try:
             auth = CustomerAuth(
                 id_customer=cust_model.id,
                 email=mc["email"],
-                email_verified=False,
+                password_hash="$2b$12$G8EYjnybOQpHy.pCo7lx9.GMasGyWMvdEOsV8fKPSAsBVyHPKGpYm",
+                email_verified=True,
                 is_active=True,
                 created_at=datetime.utcnow()
             )
@@ -206,10 +211,13 @@ def seed_data(db: Session):
             db.rollback()
             print(f"Failed to create CustomerAuth for {cust_model.id}: {e}")
 
-    # 5) Create vehicles
+    print(f"Created {len(customers)} customers.")
+
+    # 5) Create vehicles for ALL customers (at least 1 per customer, up to MAX_VEHICLES_PER_CUSTOMER)
     vehicles = []
     for customer in customers:
-        for _ in range(random.randint(1, MAX_VEHICLES_PER_CUSTOMER)):
+        num_vehicles = random.randint(MIN_VEHICLES_PER_CUSTOMER, MAX_VEHICLES_PER_CUSTOMER)
+        for _ in range(num_vehicles):
             brand = random.choice(VEHICLE_BRANDS)
             model = random.choice(VEHICLE_MODELS[brand])
             vehicle_in = VehicleCreate(
@@ -221,107 +229,84 @@ def seed_data(db: Session):
             )
             try:
                 vehicle = vehicle_repo.create(vehicle_in)
+                vehicles.append(vehicle)
             except Exception as e:
                 db.rollback()
                 print(f"Failed to create vehicle for customer {customer.id}: {e}")
                 continue
-            vehicles.append(vehicle)
-    print(f"Created {len(vehicles)} vehicles.")
+    
+    print(f"Created {len(vehicles)} vehicles (all customers have at least 1 vehicle).")
 
-    # 6) Create appointments and optionally extra-service requests
+    # 6) Create exactly 12 appointments ALL with status_id = 1 (Pendente)
     appointments = []
-    for vehicle in vehicles:
-        # random number of appointments per vehicle
-        for _ in range(random.randint(0, MAX_APPOINTMENTS_PER_VEHICLE)):
-            main_service = random.choice(services)
+    
+    for i in range(NUM_APPOINTMENTS):
+        # Pick a RANDOM customer
+        customer = random.choice(customers)
+        
+        # Pick a random vehicle belonging to that customer
+        customer_vehicles = [v for v in vehicles if v.customer_id == customer.id]
+        vehicle = random.choice(customer_vehicles)
+        
+        main_service = random.choice(services)
 
-            # appointment date in the past
-            days_ago = random.randint(1, 365)
-            appointment_date = datetime.now() - timedelta(days=days_ago)
+        # appointment date - vary between past and future
+        days_offset = random.randint(-180, 60)  # from 180 days ago to 60 days in future
+        appointment_date = datetime.now() + timedelta(days=days_offset)
 
-            # status weighting based on age
-            if days_ago > 30:
-                status_weights = {"Finalized": 70, "Canceled": 20, "Pendente": 5, "In Repair": 3, "Awaiting Approval": 2}
-            elif days_ago > 7:
-                status_weights = {"Finalized": 40, "In Repair": 30, "Awaiting Approval": 15, "Pendente": 10, "Canceled": 5}
-            else:
-                status_weights = {"Pendente": 50, "In Repair": 30, "Awaiting Approval": 15, "Finalized": 3, "Canceled": 2}
+        estimated_budget = main_service.price
+        actual_budget = 0.0  # All pending, no actual budget yet
 
-            status_choices = []
-            for st, wt in status_weights.items():
-                status_choices.extend([st] * wt)
-            chosen_status = random.choice(status_choices)
+        appointment_in = AppointmentCreate(
+            appointment_date=appointment_date,
+            description=f"Agendamento {i+1} para {main_service.name} - Cliente: {customer.name}",
+            vehicle_id=vehicle.id,
+            customer_id=customer.id,
+            service_id=main_service.id,
+            estimated_budget=estimated_budget,
+            actual_budget=actual_budget,
+        )
 
-            estimated_budget = main_service.price
-            actual_budget = 0.0
-            if chosen_status == "Finalized":
-                variance_factor = random.uniform(0.8, 1.3)
-                actual_budget = round(estimated_budget * variance_factor, 2)
-                actual_budget = min(actual_budget, 500.0)
-            elif chosen_status in ["In Repair", "Awaiting Approval"]:
-                actual_budget = round(estimated_budget * random.uniform(0.3, 0.7), 2)
-                actual_budget = min(actual_budget, 300.0)
+        try:
+            appointment = appointment_repo.create(appointment_in)
+            # Force status_id = 1 (Pendente) for ALL appointments
+            appointment.status_id = status_objects["Pendente"].id
+            db.commit()
+            db.refresh(appointment)
+            appointments.append(appointment)
+        except Exception as e:
+            db.rollback()
+            print(f"Failed to create appointment {i+1}: {e}")
+            continue
 
-            appointment_in = AppointmentCreate(
-                appointment_date=appointment_date,
-                description=f"Agendamento para {main_service.name}.",
-                vehicle_id=vehicle.id,
-                customer_id=vehicle.customer_id,
-                service_id=main_service.id,
-                estimated_budget=estimated_budget,
-                actual_budget=actual_budget,
-            )
-
-            # create appointment (this will set default 'Pendente' if repo enforces it)
-            try:
-                appointment = appointment_repo.create(appointment_in)
-            except Exception as e:
-                db.rollback()
-                print(f"Failed to create appointment for vehicle {vehicle.id}: {e}")
-                continue
-
-            # If chosen status differs from the default, update status_id directly
-            if chosen_status != "Pendente":
+        # Optionally add extra services (but not approve them since status is Pendente)
+        if catalog_extra_services and random.choice([True, False]):
+            for _ in range(random.randint(1, MAX_EXTRA_SERVICES_PER_APPOINTMENT)):
+                chosen_catalog = random.choice(catalog_extra_services)
+                req_in = AppointmentExtraServiceCreate(
+                    extra_service_id=chosen_catalog.id
+                )
                 try:
-                    appointment.status_id = status_objects[chosen_status].id
-                    db.commit()
-                    db.refresh(appointment)
+                    req = appointment_repo.add_extra_service_request(appointment.id, req_in)
+                    # Don't approve, just add the request
                 except Exception as e:
                     db.rollback()
-                    print(f"Failed to set status for appointment {appointment.id}: {e}")
-
-            appointments.append(appointment)
-
-            # For finalized appointments, optionally create and approve extra-service requests
-            if chosen_status == "Finalized" and catalog_extra_services and random.choice([True, False]):
-                for _ in range(random.randint(1, MAX_EXTRA_SERVICES_PER_APPOINTMENT)):
-                    chosen_catalog = random.choice(catalog_extra_services)
-                    req_in = AppointmentExtraServiceCreate(
-                        extra_service_id=chosen_catalog.id
-                    )
-                    try:
-                        req = appointment_repo.add_extra_service_request(appointment.id, req_in)
-                        if req:
-                            appointment_repo.approve_extra_service_request(req.id)
-                    except Exception as e:
-                        db.rollback()
-                        print(f"Failed to add/approve extra request for appointment {appointment.id}: {e}")
+                    print(f"Failed to add extra request for appointment {appointment.id}: {e}")
 
     # 7) Print statistics
     all_appointments = db.query(Appointment).all()
-    finalized_count = sum(1 for apt in all_appointments if apt.status_id == status_objects["Finalized"].id)
-    in_repair_count = sum(1 for apt in all_appointments if apt.status_id == status_objects["In Repair"].id)
     pending_count = sum(1 for apt in all_appointments if apt.status_id == status_objects["Pendente"].id)
-    canceled_count = sum(1 for apt in all_appointments if apt.status_id == status_objects["Canceled"].id)
-    awaiting_count = sum(1 for apt in all_appointments if apt.status_id == status_objects["Awaiting Approval"].id)
 
-    print(f"Created {len(all_appointments)} appointments:")
-    print(f"  - {finalized_count} Finalized (completed)")
-    print(f"  - {in_repair_count} In Repair")
+    print(f"\n✅ Created {len(all_appointments)} appointments (ALL with status_id = 1 - Pendente):")
     print(f"  - {pending_count} Pending")
-    print(f"  - {canceled_count} Canceled")
-    print(f"  - {awaiting_count} Awaiting Approval")
-    print("Seeding finished successfully!")
+    
+    # Show customer distribution
+    print(f"\n📊 Appointments per customer:")
+    for customer in customers:
+        customer_appts = [apt for apt in all_appointments if apt.customer_id == customer.id]
+        print(f"  - {customer.name}: {len(customer_appts)} appointments")
+    
+    print("\nSeeding finished successfully!")
 
 
 if __name__ == "__main__":

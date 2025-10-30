@@ -24,16 +24,16 @@ export function Header({ className = "" }: HeaderProps) {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
-  const { isLoggedIn, loggedInCustomerId, logout /*checkAuth*/ } = useAuth();
+  const { isLoggedIn, loggedInCustomerId, loggedInCustomerName, logout, /*checkAuth*/ } = useAuth();
 
-  // const debugAuth = () => {
+  //const debugAuth = () => {
   //   console.log('=== AUTH DEBUG ===');
   //   console.log('Is Logged In:', isLoggedIn);
-  //   console.log('Customer ID:', loggedInCustomerId);
-  //   console.log('Token in localStorage:', localStorage.getItem('access_token'));
-  //   console.log('Re-checking auth:', checkAuth());
+  //  console.log('Customer ID:', loggedInCustomerId);
+  //  console.log('Token in localStorage:', localStorage.getItem('access_token'));
+  // console.log('Re-checking auth:', checkAuth());
   //   console.log('==================');
-  // };
+  //};
 
   const handleLogout = () => {
     logout();
@@ -46,6 +46,7 @@ export function Header({ className = "" }: HeaderProps) {
 
   const menuItems = [
     { label: "Home", href: "/" },
+    ...(isLoggedIn ? [{ label: t("dashboard"), href: "/dashboard" }] : []),
     { label: t("clientList"), href: "/clients" },
     { label: t("serviceList"), href: "/services" },
     { label: t("appointmentList"), href: "/appointments" },
@@ -57,6 +58,23 @@ export function Header({ className = "" }: HeaderProps) {
   const isActiveRoute = (href: string) => {
     return location.pathname === href;
   };
+
+  // Funções para obter nome de usuário e iniciais
+
+  const getUserDisplayName = () => {
+    if (!loggedInCustomerName) return "User";
+    return loggedInCustomerName.split(" ")[0];
+  };
+
+  const getUserInitials = () => {
+    if (!loggedInCustomerName) return "U";
+    const names = loggedInCustomerName.split(" ");
+    if (names.length >= 2) {
+      return (names[0][0] + names[names.length - 1][0]).toUpperCase();
+    }
+    return names[0][0].toUpperCase();
+  };
+  //
 
   return (
     <>
@@ -261,13 +279,13 @@ export function Header({ className = "" }: HeaderProps) {
                 </Dropdown.Menu>
               </Dropdown>
 
-              {/* <button
+              {/*<button
                 className="btn btn-warning btn-sm"
                 onClick={debugAuth}
                 title="Debug Auth"
               >
                 Debug Auth
-              </button> */}
+              </button>*/}
 
               {!isLoggedIn ? (
                 <>
@@ -285,12 +303,122 @@ export function Header({ className = "" }: HeaderProps) {
                   </button>
                 </>
               ) : (
-                <button
-                  className="btn btn-outline-danger btn-sm"
-                  onClick={handleLogout}
-                >
-                  Logout
-                </button>
+                /* USER DROPDOWN MENU */
+                <Dropdown align="end">
+                  <Dropdown.Toggle
+                    variant="outline-primary"
+                    id="dropdown-user"
+                    size="sm"
+                    style={{
+                      border: "1px solid #dee2e6",
+                      borderRadius: "25px",
+                      backgroundColor: "#f8f9fa",
+                      color: "#495057",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      padding: "0.375rem 0.75rem",
+                      boxShadow: "none",
+                    }}
+                  >
+                    {/* User Avatar */}
+                    <div
+                      style={{
+                        width: "28px",
+                        height: "28px",
+                        borderRadius: "50%",
+                        backgroundColor: "#ca0000ff",
+                        color: "white",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "12px",
+                        fontWeight: "600",
+                        marginRight: "4px",
+                      }}
+                    >
+                      {getUserInitials()}
+                    </div>
+                    <span className="d-none d-md-inline fw-medium">
+                      {getUserDisplayName()}
+                    </span>
+                    <i className="bi bi-chevron-down" style={{ fontSize: "10px" }}></i>
+                  </Dropdown.Toggle>
+
+                  <Dropdown.Menu style={{ minWidth: "220px", border: "1px solid #e0e0e0", borderRadius: "8px" }}>
+                    {/* User Info Header */}
+                    <div className="px-3 py-2 border-bottom bg-light">
+                      <div className="fw-bold text-dark small">{loggedInCustomerName || "User"}</div>
+                      <small className="text-muted">ID: {loggedInCustomerId}</small>
+                    </div>
+
+                    {/* Profile Section */}
+                    <Dropdown.Item
+                      onClick={() => navigate("/profile")}
+                      className="d-flex align-items-center py-2"
+                    >
+                      <i className="bi bi-person me-2 text-primary"></i>
+                      {t("myProfile")}
+                    </Dropdown.Item>
+                    
+                    <Dropdown.Item
+                      onClick={() => navigate("/my-appointments")}
+                      className="d-flex align-items-center py-2"
+                    >
+                      <i className="bi bi-calendar-check me-2 text-success"></i>
+                      {t("myAppointments")}
+                    </Dropdown.Item>
+
+                    <Dropdown.Item
+                      onClick={() => navigate("/service-history")}
+                      className="d-flex align-items-center py-2"
+                    >
+                      <i className="bi bi-clock-history me-2 text-info"></i>
+                      {t("serviceHistory")}
+                    </Dropdown.Item>
+
+                    <Dropdown.Divider />
+
+                    {/* Settings Section 
+                    <Dropdown.Item
+                      onClick={() => navigate("/account-settings")}
+                      className="d-flex align-items-center py-2"
+                    >
+                      <i className="bi bi-gear me-2 text-secondary"></i>
+                      {t("accountSettings")}
+                    </Dropdown.Item>*/}
+
+                    <Dropdown.Item
+                      onClick={() => navigate("/notifications")}
+                      className="d-flex align-items-center py-2"
+                    >
+                      <i className="bi bi-bell me-2 text-warning"></i>
+                      {t("notifications")}
+                    </Dropdown.Item>
+
+                    <Dropdown.Divider />
+
+                    {/* Quick Actions */}
+                    <Dropdown.Item
+                      onClick={() => setShowCreateModal(true)}
+                      className="d-flex align-items-center py-2"
+                    >
+                      <i className="bi bi-plus-circle me-2 text-success"></i>
+                      {t("scheduleService")}
+                    </Dropdown.Item>
+
+                    <Dropdown.Divider />
+
+                    {/* Logout */}
+                    <Dropdown.Item
+                      onClick={handleLogout}
+                      className="d-flex align-items-center py-2 text-danger"
+                    >
+                      <i className="bi bi-box-arrow-right me-2"></i>
+                      {t("logout")}
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
               )}
             </div>
           </div>

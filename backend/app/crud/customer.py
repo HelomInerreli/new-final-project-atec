@@ -14,6 +14,7 @@ def create_customer(db: Session, customer: CustomerCreate):
         address=customer.address,
         city=customer.city,
         postal_code=customer.postal_code,
+        country=customer.country,
         birth_date=customer.birth_date
     )
     db.add(db_customer)

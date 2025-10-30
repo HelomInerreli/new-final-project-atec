@@ -10,7 +10,6 @@ class CustomerAuthCreate(CustomerAuthBase):
     password: Optional[str] = None
     google_id: Optional[str] = None
     facebook_id: Optional[str] = None
-    twitter_id: Optional[str] = None
 
 class CustomerAuthResponse(CustomerAuthBase):
     id: int
@@ -18,10 +17,6 @@ class CustomerAuthResponse(CustomerAuthBase):
     email_verified: bool
     google_id: Optional[str] = None
     facebook_id: Optional[str] = None
-    twitter_id: Optional[str] = None
-    access_token: Optional[str] = None
-    refresh_token: Optional[str] = None
-    token_expires_at: Optional[datetime] = None
     is_active: bool
     failed_login_attempts: int
     last_login: Optional[datetime] = None
@@ -39,6 +34,7 @@ class CustomerAuthRegister(BaseModel):
     address: Optional[str] = None
     city: Optional[str] = None
     postal_code: Optional[str] = None
+    country: Optional[str] = None
     birth_date: Optional[date] = None
 
 class CustomerAuthLogin(BaseModel):
@@ -53,4 +49,16 @@ class GoogleAuthRegister(BaseModel):
     address: Optional[str] = None
     city: Optional[str] = None
     postal_code: Optional[str] = None
+    country: Optional[str] = None
+    birth_date: Optional[date] = None
+
+class FacebookAuthRegister(BaseModel):
+    token: str
+    email: EmailStr
+    name: str
+    phone: Optional[str] = None
+    address: Optional[str] = None
+    city: Optional[str] = None
+    postal_code: Optional[str] = None
+    country: Optional[str] = None
     birth_date: Optional[date] = None

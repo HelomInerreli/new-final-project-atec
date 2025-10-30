@@ -50,6 +50,30 @@ def create_google_user_data(user_info: dict) -> dict:
         "email_verified": user_info.get("email_verified", False),
     }
 
+oauth.register(
+    name='facebook',
+    client_id='852745794579007',
+    client_secret='536755a9adf4aaa56be9776c3f3a1cd7',
+    access_token_url='https://graph.facebook.com/oauth/access_token',
+    authorize_url='https://www.facebook.com/dialog/oauth',
+    api_base_url='https://graph.facebook.com/',
+    client_kwargs={
+        'scope': 'email public_profile'
+    }
+)
+
+def get_facebook_oauth():
+    """Get Facebook OAuth client."""
+    return oauth.facebook
+
+def create_facebook_user_data(user_info: dict) -> dict:
+    """Extract user data from Facebook OAuth response."""
+    return {
+        "email": user_info.get("email"),
+        "facebook_id": user_info.get("id"),
+        "name": user_info.get("name"),
+    }
+
 # Password functions
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     plain_password = plain_password[:72] 
@@ -88,17 +112,17 @@ def get_current_user_id(token: str = Depends(oauth2_scheme), db: Session = Depen
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id: str = payload.get("sub")
-        if user_id is None:
+        customer_id: str = payload.get("sub")  # This is the customer ID
+        if customer_id is None:
             raise credentials_exception
     except JWTError:
         raise credentials_exception
     
     from app.models.customerAuth import CustomerAuth
-    user = db.query(CustomerAuth).filter(CustomerAuth.id == int(user_id)).first()
+    user = db.query(CustomerAuth).filter(CustomerAuth.id_customer == int(customer_id)).first()
     if user is None:
         raise credentials_exception
-    return user_id
+    return customer_id  # Return the customer ID (which is what the JWT contains)
 
 def get_current_user_with_customer(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     """Get current user with customer data using relationships."""

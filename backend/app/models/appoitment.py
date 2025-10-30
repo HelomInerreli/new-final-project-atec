@@ -37,6 +37,7 @@ class Appointment(Base):
 
     # Relationships
     vehicle = relationship("Vehicle", back_populates="appointments")
+    invoices = relationship("Invoice", back_populates="appointment")
     customer = relationship("Customer", back_populates="appointments")
     service = relationship("Service", back_populates="appointments")
     extra_service_associations = relationship(

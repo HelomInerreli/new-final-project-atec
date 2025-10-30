@@ -1,0 +1,13 @@
+.red-hover-btn,
+.red-hover-btn:active,
+.red-hover-btn:focus {
+  background-color: #dc3545 !important;
+  border-color: #dc3545 !important;
+  color: #ffffff !important;
+  transition: all 0.2s;
+}
+.red-hover-btn:hover {
+  background-color: #ffffff !important;
+  border-color: #dc3545 !important;
+  color: #dc3545 !important;
+}

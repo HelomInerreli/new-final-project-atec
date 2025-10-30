@@ -13,18 +13,13 @@ from app.core.security import get_current_user_id
 from app.models.customerAuth import CustomerAuth
 from app.models.customer import Customer as CustomerModel
 
+
 router = APIRouter()
 
 
 def get_customer_repo(db: Session = Depends(get_db)) -> CustomerRepository:
     """Dependency to provide a CustomerRepository instance."""
     return CustomerRepository(db)
-
-#Implementacao do Nuno
-# @router.post("/", response_model=customer_schema.CustomerResponse)
-# def create_customer(customer: customer_schema.CustomerCreate, db: Session = Depends(get_db)):
-#     return crud_customer.create_customer(db=db, customer=customer)
-
 
 @router.post("/", response_model=Customer, status_code=status.HTTP_201_CREATED)
 def create_customer(
@@ -119,6 +114,8 @@ def update_customer_profile(
         raise HTTPException(status_code=404, detail="Customer not found")
     
     # Update only provided fields
+    if profile_data.name is not None:
+        customer.name = profile_data.name
     if profile_data.phone is not None:
         customer.phone = profile_data.phone
     if profile_data.address is not None:
@@ -127,6 +124,8 @@ def update_customer_profile(
         customer.city = profile_data.city
     if profile_data.postal_code is not None:
         customer.postal_code = profile_data.postal_code
+    if profile_data.country is not None:
+        customer.country = profile_data.country
     if profile_data.birth_date is not None:
         customer.birth_date = profile_data.birth_date
     
@@ -134,3 +133,4 @@ def update_customer_profile(
     db.refresh(customer)
     
     return {"message": "Profile updated successfully", "customer": customer}
+
