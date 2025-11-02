@@ -1,15 +1,7 @@
 import { FaCar, FaEdit, FaTrash, FaTachometerAlt } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
+import type { Vehicle } from '../interfaces/vehicle'; // MUDOU: import type
 import '../styles/VehicleCard.css';
-
-interface Vehicle {
-  id: number;
-  plate: string;
-  brand: string;
-  model: string;
-  kilometers: number;
-  customer_id: number;
-}
 
 interface VehicleCardProps {
   vehicle: Vehicle;
@@ -41,10 +33,10 @@ export function VehicleCard({ vehicle, onEdit, onDelete }: VehicleCardProps) {
               <FaEdit />
             </button>
           )}
-          {onDelete && (
+          {onDelete && vehicle.id && (
             <button
               className="btn btn-sm btn-outline-danger"
-              onClick={() => onDelete(vehicle.id)}
+              onClick={() => onDelete(vehicle.id!)}
               title={t('vehicleCard.delete')}
             >
               <FaTrash />

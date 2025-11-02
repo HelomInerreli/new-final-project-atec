@@ -2,16 +2,8 @@ import { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { FaCar, FaSave, FaTimes } from 'react-icons/fa';
+import type { Vehicle } from '../interfaces/vehicle'; // MUDOU DE services para interfaces
 import '../styles/VehicleModal.css';
-
-interface Vehicle {
-  id?: number;
-  plate: string;
-  brand: string;
-  model: string;
-  kilometers: number;
-  customer_id?: number;
-}
 
 interface VehicleModalProps {
   show: boolean;
@@ -28,6 +20,7 @@ export function VehicleModal({ show, vehicle, customerId, onClose, onSave }: Veh
     brand: '',
     model: '',
     kilometers: 0,
+    customer_id: customerId,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
@@ -36,17 +29,21 @@ export function VehicleModal({ show, vehicle, customerId, onClose, onSave }: Veh
 
   useEffect(() => {
     if (vehicle) {
-      setFormData(vehicle);
+      setFormData({
+        ...vehicle,
+        customer_id: vehicle.customer_id || customerId, // Garantir que customer_id está presente
+      });
     } else {
       setFormData({
         plate: '',
         brand: '',
         model: '',
         kilometers: 0,
+        customer_id: customerId,
       });
     }
     setErrors({});
-  }, [vehicle, show]);
+  }, [vehicle, show, customerId]); // Adicionado customerId nas dependências
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -96,11 +93,12 @@ export function VehicleModal({ show, vehicle, customerId, onClose, onSave }: Veh
       setLoading(true);
       await onSave({
         ...formData,
-        customer_id: customerId,
+        customer_id: customerId, // Garantir que customer_id está sempre presente
       });
       onClose();
     } catch (error) {
       console.error('Erro ao salvar veículo:', error);
+      // Não fechar o modal se houver erro
     } finally {
       setLoading(false);
     }

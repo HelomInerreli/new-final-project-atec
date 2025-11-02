@@ -4,19 +4,9 @@ import { VehicleCard } from '../../components/VehicleCard';
 import { VehicleModal } from '../../components/VehicleModal';
 import { useTranslation } from 'react-i18next';
 import { FaPlus, FaCar } from 'react-icons/fa';
+import type { Vehicle } from '../../interfaces/vehicle'; // MUDOU: import type
+import { vehicleService } from '../../services/VehicleServices';
 import '../../styles/Vehicles.css';
-
-interface Vehicle {
-  id: number;
-  plate: string;
-  brand: string;
-  model: string;
-  kilometers: number;
-  customer_id: number;
-  deleted_at?: string | null;
-}
-
-const API_BASE_URL = 'http://localhost:8000/api/v1';
 
 export function Vehicles() {
   const { t } = useTranslation();
@@ -33,21 +23,8 @@ export function Vehicles() {
     try {
       setLoading(true);
       setError(null);
-      
-      const response = await fetch(`${API_BASE_URL}/vehicles/by_customer/${loggedInCustomerId}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      });
-      
-      if (!response.ok) {
-        throw new Error(t('vehiclesPage.errorLoading'));
-      }
-      
-      const data = await response.json();
-      
-      // Filtrar apenas veículos que não foram deletados (deleted_at é null)
-      const activeVehicles = data.filter((vehicle: Vehicle) => !vehicle.deleted_at);
-      setVehicles(activeVehicles);
+      const data = await vehicleService.getByCustomer(loggedInCustomerId);
+      setVehicles(data);
     } catch (error: any) {
       console.error('Erro ao carregar veículos:', error);
       setError(error.message || t('vehiclesPage.errorLoading'));
@@ -75,16 +52,7 @@ export function Vehicles() {
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/vehicles/${vehicleId}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-      });
-
-      if (!response.ok) {
-        throw new Error(t('vehiclesPage.deleteError'));
-      }
-
-      // Remover o veículo da lista local (soft delete)
+      await vehicleService.delete(vehicleId);
       setVehicles(prev => prev.filter(v => v.id !== vehicleId));
       alert(t('vehiclesPage.deleteSuccess'));
     } catch (error: any) {
@@ -103,27 +71,20 @@ export function Vehicles() {
     setSelectedVehicle(null);
   }, []);
 
-  const handleSaveVehicle = useCallback(async (vehicleData: Omit<Vehicle, 'id' | 'deleted_at'>) => {
+  const handleSaveVehicle = useCallback(async (vehicleData: Vehicle) => {
     try {
       const isEditing = !!selectedVehicle?.id;
-      const url = isEditing 
-        ? `${API_BASE_URL}/vehicles/${selectedVehicle.id}`
-        : `${API_BASE_URL}/vehicles/`;
       
-      const method = isEditing ? 'PUT' : 'POST';
-
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(vehicleData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || t('vehiclesPage.saveError'));
+      if (isEditing && selectedVehicle.id) {
+        // Editar veículo existente
+        const { id, deleted_at, customer_id, ...updateData } = vehicleData;
+        await vehicleService.update(selectedVehicle.id, updateData);
+      } else {
+        // Criar novo veículo
+        const { id, deleted_at, ...createData } = vehicleData;
+        await vehicleService.create(createData);
       }
 
-      // Recarregar a lista de veículos
       await loadVehicles();
       
       const successMessage = isEditing 
@@ -133,7 +94,7 @@ export function Vehicles() {
     } catch (error: any) {
       console.error('Erro ao salvar veículo:', error);
       alert(error.message || t('vehiclesPage.saveError'));
-      throw error; // Re-throw para o modal saber que houve erro
+      throw error;
     }
   }, [selectedVehicle, loadVehicles, t]);
 
