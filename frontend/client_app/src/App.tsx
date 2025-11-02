@@ -15,6 +15,9 @@ import ClientMenu from "./components/ClientMenu";
 import { ContactPage } from "./pages/contact/ContactPage";
 import Dashboard from './pages/dashboard/Dashboard';
 import Profile from './pages/profile/profile';
+import { Vehicles } from './pages/vehicles/vehicles';
+
+
 
 function App() {
   return (
@@ -30,6 +33,7 @@ function App() {
             path="/appointments/:customerId"
             element={<AppointmentList />}
           />
+          <Route path="/vehicles" element={<Vehicles />} />
           <Route path="/services" element={<ServicesList />} />
           <Route path="/register" element={<Register />} />
           <Route path="/auth/callback" element={<AuthCallback />} />

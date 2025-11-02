@@ -47,9 +47,9 @@ export function Header({ className = "" }: HeaderProps) {
   const menuItems = [
     { label: "Home", href: "/" },
     ...(isLoggedIn ? [{ label: t("dashboard"), href: "/dashboard" }] : []),
-    { label: t("clientList"), href: "/clients" },
+    
     { label: t("serviceList"), href: "/services" },
-    { label: t("appointmentList"), href: "/appointments" },
+    
     { label: t("about"), href: "/about" },
     { label: t("contact"), href: "/contact" },
   ];
