@@ -349,7 +349,6 @@ export function Header({ className = "" }: HeaderProps) {
                     {/* User Info Header */}
                     <div className="px-3 py-2 border-bottom bg-light">
                       <div className="fw-bold text-dark small">{loggedInCustomerName || "User"}</div>
-                      <small className="text-muted">ID: {loggedInCustomerId}</small>
                     </div>
 
                     {/* Profile Section */}
@@ -362,19 +361,11 @@ export function Header({ className = "" }: HeaderProps) {
                     </Dropdown.Item>
                     
                     <Dropdown.Item
-                      onClick={() => navigate("/my-appointments")}
+                      onClick={() => navigate("/my-services")}
                       className="d-flex align-items-center py-2"
                     >
-                      <i className="bi bi-calendar-check me-2 text-success"></i>
-                      {t("myAppointments")}
-                    </Dropdown.Item>
-
-                    <Dropdown.Item
-                      onClick={() => navigate("/service-history")}
-                      className="d-flex align-items-center py-2"
-                    >
-                      <i className="bi bi-clock-history me-2 text-info"></i>
-                      {t("serviceHistory")}
+                    <i className="bi bi-tools me-2 text-primary"></i>
+                      {t("myServices")}
                     </Dropdown.Item>
 
                     <Dropdown.Divider />
@@ -396,16 +387,6 @@ export function Header({ className = "" }: HeaderProps) {
                       {t("notifications")}
                     </Dropdown.Item>
 
-                    <Dropdown.Divider />
-
-                    {/* Quick Actions */}
-                    <Dropdown.Item
-                      onClick={() => setShowCreateModal(true)}
-                      className="d-flex align-items-center py-2"
-                    >
-                      <i className="bi bi-plus-circle me-2 text-success"></i>
-                      {t("scheduleService")}
-                    </Dropdown.Item>
 
                     <Dropdown.Divider />
 

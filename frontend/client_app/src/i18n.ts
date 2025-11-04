@@ -515,7 +515,7 @@ i18next.use(initReactI18next).init({
             kilometersInvalid: "Kilometers must be a positive number",
           },
         },
-      
+      myServices: "My Services",
     },
     },
 
@@ -1033,6 +1033,7 @@ i18next.use(initReactI18next).init({
         kilometersInvalid: "Quilómetros deve ser um número positivo",
       },
     },
+    myServices: "Meus Serviços",
     },
 
     es: {
@@ -1551,6 +1552,7 @@ i18next.use(initReactI18next).init({
     kilometersInvalid: "Los kilómetros deben ser un número positivo",
   },
 },
+    myServices: "Mis Servicios",
     },
 
     fr: {
@@ -2067,6 +2069,7 @@ i18next.use(initReactI18next).init({
     kilometersInvalid: "Les kilomètres doivent être un nombre positif",
   },
 },
+    myServices: "Mes Services"
       },
     },
   },
