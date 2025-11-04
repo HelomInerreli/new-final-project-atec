@@ -1,366 +1,288 @@
-import React, { useMemo, useState, useEffect } from "react";
-import "../appointments.css";
-import "../NewAppointment.css";
-import NewAppointment from "./NewAppointment";
+import { useState } from "react";
+import { Calendar, Clock, Search, Plus, Phone, Mail } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
+import { Input } from "../components/ui/input";
+import { Button } from "../components/ui/button";
+import { Badge } from "../components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../components/ui/dialog";
+import { Label } from "../components/ui/label";
+import { Textarea } from "../components/ui/textarea";
+import { toast } from "../hooks/use-toast";
 
-type ViewType = "day" | "week" | "month";
-
-interface CalendarEvent {
+interface Agendamento {
   id: string;
-  day: string;         // "Seg" | "Ter" | ...
-  start: string;       // "HH:mm"
-  end: string;         // "HH:mm"
-  title: string;
-  color: "green" | "yellow";
-  client: {
-    name: string;
-    car: { make: string; model: string; year: number; plate: string };
-  };
-  service: { type: string; description: string; estimatedDuration: string };
+  cliente: string;
+  telefone: string;
+  email: string;
+  veiculo: string;
+  data: string;
+  hora: string;
+  servico: string;
+  status: "confirmado" | "pendente" | "cancelado";
+  observacoes?: string;
 }
 
-// Dados do formulário que vêm do NewAppointment
-interface AppointmentFormData {
-  clientName: string;
-  carMake: string;
-  carModel: string;
-  carYear: number;
-  carPlate: string;
-  serviceType: string;
-  serviceDescription: string;
-  date: string;       // "YYYY-MM-DD"
-  startTime: string;  // "HH:mm"
-  endTime: string;    // "HH:mm"
-}
-
-const daysMonFirst = ["Seg", "Ter", "Qua", "Qui", "Sex"];
-const hours = Array.from({ length: 10 }, (_, i) => i + 9); // 9h to 19h
-
-const START_HOUR = 9;
-const HOUR_HEIGHT = 50;
-const PX_PER_MINUTE = HOUR_HEIGHT / 60;
-
-function timeToMinutes(t: string) {
-  const [h, m] = t.split(":").map(Number);
-  return h * 60 + m;
-}
-
-function startOfWeekMonday(d: Date) {
-  const date = new Date(d);
-  const day = date.getDay();
-  const diffToMonday = (day + 6) % 7;
-  date.setDate(date.getDate() - diffToMonday);
-  date.setHours(0, 0, 0, 0);
-  return date;
-}
-
-function addDays(d: Date, n: number) {
-  const date = new Date(d);
-  date.setDate(date.getDate() + n);
-  return date;
-}
-
-function getPtDayLabel(date: Date) {
-  const map = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
-  return map[date.getDay()];
-}
-
-interface EventModalProps {
-  event: CalendarEvent | null;
-  onClose: () => void;
-}
-
-const EventModal: React.FC<EventModalProps> = ({ event, onClose }) => {
-  if (!event) return null;
-
-  return (
-    <div className="event-modal-overlay" onClick={onClose}>
-      <div className="event-modal" onClick={(e) => e.stopPropagation()}>
-        <button className="close-button" onClick={onClose}>
-          &times;
-        </button>
-
-        <h2>{event.title}</h2>
-
-        <div className="modal-section">
-          <h3>Horário</h3>
-          <p>
-            {event.start} - {event.end}
-          </p>
-          <p>Duração estimada: {event.service.estimatedDuration}</p>
-        </div>
-
-        <div className="modal-section">
-          <h3>Cliente</h3>
-          <p>{event.client.name}</p>
-        </div>
-
-        <div className="modal-section">
-          <h3>Veículo</h3>
-          <p>
-            {event.client.car.make} {event.client.car.model} (
-            {event.client.car.year})
-          </p>
-          <p>Matrícula: {event.client.car.plate}</p>
-        </div>
-
-        <div className="modal-section">
-          <h3>Serviço</h3>
-          <p>
-            <strong>{event.service.type}</strong>
-          </p>
-          <p>{event.service.description}</p>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const Appointments: React.FC = () => {
-  const [view, setView] = useState<ViewType>("week");
-  const [currentDate, setCurrentDate] = useState<Date>(new Date());
-  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
-  const [events, setEvents] = useState<CalendarEvent[]>([]);
-  const [isAddingAppointment, setIsAddingAppointment] = useState(false);
-
-  useEffect(() => {
-    fetchEvents();
-  }, []);
-
-  const fetchEvents = async () => {
-    try {
-      const response = await fetch("http://localhost:3000/api/appointments");
-      const data = await response.json();
-      setEvents(data);
-    } catch (error) {
-      console.error("Error fetching appointments:", error);
-    }
-  };
-
-  const handleAddAppointment = () => {
-    setIsAddingAppointment(true);
-  };
-
-  const visibleDays = useMemo(() => {
-    if (view === "day") {
-      const d = new Date(currentDate);
-      if (d.getDay() === 0) d.setDate(d.getDate() + 1);
-      if (d.getDay() === 6) d.setDate(d.getDate() + 2);
-      return [d];
-    }
-    if (view === "week") {
-      const start = startOfWeekMonday(currentDate);
-      return Array.from({ length: 5 }, (_, i) => addDays(start, i));
-    }
-    return [];
-  }, [view, currentDate]);
-
-  const monthMatrix = useMemo(() => {
-    if (view !== "month") return [];
-    const firstOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-    const start = startOfWeekMonday(firstOfMonth);
-    return Array.from({ length: 42 }, (_, i) => addDays(start, i));
-  }, [view, currentDate]);
-
-  function navigateCalendar(direction: number) {
-    const d = new Date(currentDate);
-    if (view === "day") {
-      let increment = direction;
-      if (direction > 0 && d.getDay() === 5) increment = 3;
-      if (direction < 0 && d.getDay() === 1) increment = -3;
-      d.setDate(d.getDate() + increment);
-    } else if (view === "week") d.setDate(d.getDate() + direction * 7);
-    else d.setMonth(d.getMonth() + direction);
-    setCurrentDate(d);
+const mockAgendamentos: Agendamento[] = [
+  {
+    id: "AG001",
+    cliente: "João Silva",
+    telefone: "(11) 98765-4321",
+    email: "joao.silva@email.com",
+    veiculo: "Honda Civic - ABC1234",
+    data: "2025-11-02",
+    hora: "09:00",
+    servico: "Revisão 10.000 km",
+    status: "confirmado",
+    observacoes: "Cliente solicitou troca de óleo sintético"
+  },
+  {
+    id: "AG002",
+    cliente: "Maria Santos",
+    telefone: "(11) 91234-5678",
+    email: "maria.santos@email.com",
+    veiculo: "Toyota Corolla - XYZ5678",
+    data: "2025-11-02",
+    hora: "14:00",
+    servico: "Troca de pastilhas de freio",
+    status: "pendente"
+  },
+  {
+    id: "AG003",
+    cliente: "Carlos Oliveira",
+    telefone: "(11) 99876-5432",
+    email: "carlos.oliveira@email.com",
+    veiculo: "Ford Focus - DEF9012",
+    data: "2025-11-03",
+    hora: "10:30",
+    servico: "Alinhamento e balanceamento",
+    status: "confirmado"
+  },
+  {
+    id: "AG004",
+    cliente: "Ana Paula",
+    telefone: "(11) 93456-7890",
+    email: "ana.paula@email.com",
+    veiculo: "Volkswagen Golf - GHI3456",
+    data: "2025-11-03",
+    hora: "16:00",
+    servico: "Diagnóstico de motor",
+    status: "cancelado",
+    observacoes: "Cliente cancelou por motivos pessoais"
+  },
+  {
+    id: "AG005",
+    cliente: "Pedro Costa",
+    telefone: "(11) 94567-8901",
+    email: "pedro.costa@email.com",
+    veiculo: "Chevrolet Onix - JKL7890",
+    data: "2025-11-04",
+    hora: "11:00",
+    servico: "Troca de óleo e filtros",
+    status: "confirmado"
   }
+];
 
-  const periodLabel = useMemo(() => {
-    const opts: Intl.DateTimeFormatOptions =
-      view === "month"
-        ? { month: "long", year: "numeric" }
-        : { day: "2-digit", month: "long", year: "numeric" };
-    return currentDate.toLocaleDateString("pt-PT", opts);
-  }, [currentDate, view]);
+export default function Agendamentos() {
+  const [agendamentos] = useState<Agendamento[]>(mockAgendamentos);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("todos");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const handleEventClick = (event: CalendarEvent) => {
-    setSelectedEvent(event);
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "confirmado":
+        return "bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20";
+      case "pendente":
+        return "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20";
+      case "cancelado":
+        return "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20";
+      default:
+        return "bg-muted";
+    }
   };
 
-  const handleDayClick = (date: Date) => {
-    setCurrentDate(date);
-    setView("day");
-  };
+  const filteredAgendamentos = agendamentos.filter((agendamento) => {
+    const matchesSearch =
+      agendamento.cliente.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      agendamento.veiculo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      agendamento.id.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = statusFilter === "todos" || agendamento.status === statusFilter;
+    
+    return matchesSearch && matchesStatus;
+  });
 
-  const handleNewAppointment = (formData: AppointmentFormData) => {
-    const newEvent: CalendarEvent = {
-      id: crypto?.randomUUID ? crypto.randomUUID() : `${Date.now()}`,
-      day: new Date(formData.date).toLocaleDateString('pt-PT', { weekday: 'short' }),
-      start: formData.startTime,
-      end: formData.endTime,
-      title: `${formData.serviceType} - ${formData.clientName}`,
-      color: "green",
-      client: {
-        name: formData.clientName,
-        car: {
-          make: formData.carMake,
-          model: formData.carModel,
-          year: formData.carYear,
-          plate: formData.carPlate
-        }
-      },
-      service: {
-        type: formData.serviceType,
-        description: formData.serviceDescription,
-        estimatedDuration: "1h" // You might want to calculate this based on start and end time
-      }
-    };
-
-    setEvents((prev) => [...prev, newEvent]);
-    setIsAddingAppointment(false);
+  const handleNovoAgendamento = () => {
+    toast({
+      title: "Agendamento criado",
+      description: "O novo agendamento foi criado com sucesso.",
+    });
+    setIsDialogOpen(false);
   };
 
   return (
-    <div className={`calendar-wrapper ${view === "month" ? "view-month" : ""}`}>
-      <div className="calendar-controls">
-        <button onClick={() => setCurrentDate(new Date())}>Hoje</button>
-        <button onClick={() => navigateCalendar(-1)}>Anterior</button>
-        <select value={view} onChange={(e) => setView(e.target.value as ViewType)}>
-          <option value="day">Dia</option>
-          <option value="week">Semana</option>
-          <option value="month">Mês</option>
-        </select>
-        <button onClick={() => navigateCalendar(1)}>Seguinte</button>
-        <span className="current-date">{periodLabel}</span>
-
-        {/* ✅ Botão que abre o modal com o NewAppointment */}
-        <button className="add-appointment-btn" onClick={handleAddAppointment}>
-          + Novo Agendamento
-        </button>
+    <div className="flex-1 space-y-6 p-8">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Agendamentos</h1>
+          <p className="text-muted-foreground">
+            Gerencie os agendamentos de serviços da oficina
+          </p>
+        </div>
+        
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="gap-2">
+              <Plus className="h-4 w-4" />
+              Novo Agendamento
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Novo Agendamento</DialogTitle>
+              <DialogDescription>
+                Preencha os dados para criar um novo agendamento
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="cliente">Cliente</Label>
+                <Input id="cliente" placeholder="Nome do cliente" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="telefone">Telefone</Label>
+                  <Input id="telefone" placeholder="(11) 99999-9999" />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" type="email" placeholder="email@exemplo.com" />
+                </div>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="veiculo">Veículo</Label>
+                <Input id="veiculo" placeholder="Marca Modelo - Placa" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="data">Data</Label>
+                  <Input id="data" type="date" />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="hora">Hora</Label>
+                  <Input id="hora" type="time" />
+                </div>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="servico">Serviço</Label>
+                <Input id="servico" placeholder="Tipo de serviço" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="observacoes">Observações</Label>
+                <Textarea id="observacoes" placeholder="Observações adicionais (opcional)" />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                Cancelar
+              </Button>
+              <Button onClick={handleNovoAgendamento}>Criar Agendamento</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
 
-      {view === "month" ? (
-        <>
-          <div className="calendar-header month">
-            {daysMonFirst.map((d) => (
-              <div key={d} className="day-header">
-                <div className="day-name">{d}</div>
-              </div>
-            ))}
-          </div>
-          <div className="month-grid">
-            {monthMatrix.map((date, idx) => {
-              const isOutside = date.getMonth() !== currentDate.getMonth();
-              const isWeekend = date.getDay() === 0 || date.getDay() === 6;
-              const dayLabel = getPtDayLabel(date);
-              const count = events.filter((e) => e.day === dayLabel).length;
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar por cliente, veículo ou ID..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-full sm:w-[200px]">
+            <SelectValue placeholder="Filtrar por status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todos">Todos os status</SelectItem>
+            <SelectItem value="confirmado">Confirmado</SelectItem>
+            <SelectItem value="pendente">Pendente</SelectItem>
+            <SelectItem value="cancelado">Cancelado</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
-              const cellClasses = [
-                "month-cell",
-                isOutside ? "outside" : "",
-                isWeekend ? "weekend" : "",
-              ]
-                .join(" ")
-                .trim();
-
-              return (
-                <div
-                  key={idx}
-                  className={cellClasses}
-                  onClick={() => !isWeekend && handleDayClick(date)}
-                  style={{ cursor: isWeekend ? "default" : "pointer" }}
-                >
-                  <div className="month-date">{date.getDate()}</div>
-                  {count > 0 && <div className="month-badge">{count}</div>}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {filteredAgendamentos.map((agendamento) => (
+          <Card key={agendamento.id} className="hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <div className="flex items-start justify-between">
+                <div>
+                  <CardTitle className="text-lg">{agendamento.cliente}</CardTitle>
+                  <CardDescription className="mt-1">
+                    {agendamento.veiculo}
+                  </CardDescription>
                 </div>
-              );
-            })}
-          </div>
-        </>
-      ) : (
-        <>
-          <div className="calendar-header">
-            <div className="hour-col-header"></div>
-            {visibleDays.map((date) => (
-              <div key={date.toDateString()} className="day-header">
-                <div className="day-name">
-                  {getPtDayLabel(date)} {date.getDate().toString().padStart(2, "0")}
+                <Badge className={getStatusColor(agendamento.status)} variant="outline">
+                  {agendamento.status.charAt(0).toUpperCase() + agendamento.status.slice(1)}
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Calendar className="h-4 w-4" />
+                  <span>{new Date(agendamento.data).toLocaleDateString('pt-BR')}</span>
+                  <Clock className="h-4 w-4 ml-2" />
+                  <span>{agendamento.hora}</span>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Phone className="h-4 w-4" />
+                  <span>{agendamento.telefone}</span>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Mail className="h-4 w-4" />
+                  <span className="truncate">{agendamento.email}</span>
                 </div>
               </div>
-            ))}
-          </div>
+              
+              <div className="pt-3 border-t">
+                <p className="font-medium text-sm">{agendamento.servico}</p>
+                {agendamento.observacoes && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {agendamento.observacoes}
+                  </p>
+                )}
+              </div>
 
-          <div className="calendar-body">
-            <div className="hours-col">
-              {hours.map((h) => (
-                <div key={h} className="hour-cell">{`${h.toString().padStart(2, "0")}:00`}</div>
-              ))}
-            </div>
+              <div className="flex gap-2 pt-2">
+                <Button variant="outline" size="sm" className="flex-1">
+                  Editar
+                </Button>
+                <Button variant="outline" size="sm" className="flex-1">
+                  Cancelar
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
-            <div
-              className="days-grid"
-              style={{ gridTemplateColumns: `repeat(${visibleDays.length}, 1fr)` }}
-            >
-              {visibleDays.map((date) => {
-                const label = getPtDayLabel(date);
-                return (
-                  <div key={date.toISOString()} className="day-column">
-                    {hours.map((_, i) => (
-                      <div key={i} className="day-cell" />
-                    ))}
-                    {events
-                      .filter((e) => e.day === label)
-                      .map((e) => {
-                        const startMin = timeToMinutes(e.start) - START_HOUR * 60;
-                        const endMin = timeToMinutes(e.end) - START_HOUR * 60;
-                        const top = startMin * PX_PER_MINUTE;
-                        const height = (endMin - startMin) * PX_PER_MINUTE;
-
-                        return (
-                          <div
-                            key={e.id}
-                            className={`event-block ${e.color}`}
-                            style={{ top: `${top}px`, height: `${height}px` }}
-                            title={`${e.title}\n${e.start} - ${e.end}`}
-                            onClick={() => handleEventClick(e)}
-                          >
-                            <div className="event-time">
-                              {e.start} - {e.end}
-                            </div>
-                            <div className="event-title">{e.title}</div>
-                          </div>
-                        );
-                      })}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </>
+      {filteredAgendamentos.length === 0 && (
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-12">
+            <Calendar className="h-12 w-12 text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Nenhum agendamento encontrado</h3>
+            <p className="text-sm text-muted-foreground">
+              Tente ajustar os filtros ou criar um novo agendamento
+            </p>
+          </CardContent>
+        </Card>
       )}
-
-      {/* Modal para detalhes de evento */}
-      {selectedEvent && (
-        <EventModal event={selectedEvent} onClose={() => setSelectedEvent(null)} />
-      )}
-
-      {/* ✅ Modal para adicionar novo agendamento */}
-      {isAddingAppointment && (
-  <div className="event-modal-overlay" onClick={() => setIsAddingAppointment(false)}>
-    <div className="event-modal large" onClick={(e) => e.stopPropagation()}>
-      <button className="close-button" onClick={() => setIsAddingAppointment(false)}>
-        &times;
-      </button>
-
-      <NewAppointment
-        isOpen={true}
-        onClose={() => setIsAddingAppointment(false)}
-        onSubmit={handleNewAppointment}
-      />
-    </div>
-  </div>
-)}
     </div>
   );
-};
-
-export default Appointments;
+}
