@@ -1,4 +1,3 @@
-import { Link, useLocation } from "react-router-dom";
 import "../styles/ClientMenu.css";
 import "../i18n";
 import { useTranslation } from "react-i18next";
@@ -13,65 +12,81 @@ import {
   FaSignOutAlt 
 } from 'react-icons/fa';
 
-export function ClientMenu() {
-  const { t } = useTranslation();
-  const location = useLocation();
+export type ClientSection = 
+  | "dashboard" 
+  | "appointments" 
+  | "vehicles" 
+  | "schedule" 
+  | "service-history" 
+  | "invoices" 
+  | "profile";
 
-  const isActive = (path: string) => location.pathname === path;
+interface ClientMenuProps {
+  activeSection: ClientSection;
+  onSectionChange: (section: ClientSection) => void;
+}
+
+export function ClientMenu({ activeSection, onSectionChange }: ClientMenuProps) {
+  const { t } = useTranslation();
+
+  const handleClick = (section: ClientSection) => {
+    onSectionChange(section);
+  };
 
   return (
     <div className="modern-sidebar">
       <nav className="sidebar-nav">
         <ul className="sidebar-menu">
-          <li className={isActive("/dashboard") ? "active" : ""}>
-            <Link to="/dashboard">
+          <li className={activeSection === "dashboard" ? "active" : ""}>
+            <button onClick={() => handleClick("dashboard")}>
               <FaTachometerAlt className="menu-icon" />
               <span>Dashboard</span>
-            </Link>
+            </button>
           </li>
 
-          <li className={isActive("/appointments") ? "active" : ""}>
-            <Link to="/appointments">
+          <li className={activeSection === "appointments" ? "active" : ""}>
+            <button onClick={() => handleClick("appointments")}>
               <FaCalendarAlt className="menu-icon" />
               <span>{t("appointment")}</span>
-            </Link>
+            </button>
           </li>
 
-          <li className={isActive("/vehicles") ? "active" : ""}>
-            <Link to="/vehicles">
+          <li className={activeSection === "vehicles" ? "active" : ""}>
+            <button onClick={() => handleClick("vehicles")}>
               <FaCar className="menu-icon" />
               <span>Meus Veículos</span>
-            </Link>
+            </button>
           </li>
 
-          <li className={isActive("/schedule") ? "active" : ""}>
-            <Link to="/schedule">
+          <li className={activeSection === "schedule" ? "active" : ""}>
+            <button onClick={() => handleClick("schedule")}>
               <FaCalendarPlus className="menu-icon" />
               <span>Agendar novo serviço</span>
-            </Link>
+            </button>
           </li>
 
-          <li className={isActive("/service-history") ? "active" : ""}>
-            <Link to="/service-history">
+          <li className={activeSection === "service-history" ? "active" : ""}>
+            <button onClick={() => handleClick("service-history")}>
               <FaCheckCircle className="menu-icon" />
               <span>Meus serviços realizados</span>
-            </Link>
+            </button>
           </li>
 
-          <li className={isActive("/invoices") ? "active" : ""}>
-            <Link to="/invoices">
+          <li className={activeSection === "invoices" ? "active" : ""}>
+            <button onClick={() => handleClick("invoices")}>
               <FaFileInvoice className="menu-icon" />
               <span>Minhas Faturas</span>
-            </Link>
+            </button>
           </li>
 
-          <li className={isActive("/profile") ? "active" : ""}>
-            <Link to="/profile">
+          <li className={activeSection === "profile" ? "active" : ""}>
+            <button onClick={() => handleClick("profile")}>
               <FaUser className="menu-icon" />
               <span>Meus dados</span>
-            </Link>
+            </button>
           </li>
 
+          
           
         </ul>
       </nav>

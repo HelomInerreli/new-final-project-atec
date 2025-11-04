@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next';
 import { FaPlus, FaCar } from 'react-icons/fa';
 import type { Vehicle } from '../../interfaces/vehicle'; // MUDOU: import type
 import { vehicleService } from '../../services/vehicleServices';
-import { ClientMenu } from '../../components/ClientMenu';
 import '../../styles/Vehicles.css';
 
 export function Vehicles() {
@@ -126,7 +125,6 @@ export function Vehicles() {
 
   return (
     <div className="vehicles-page">
-      <ClientMenu />
       <div className="vehicles-header">
         <h1>{t('vehiclesPage.title')}</h1>
         <button className="btn btn-primary" onClick={handleAddVehicle}>

@@ -5,7 +5,6 @@ import { useAuth } from "../../api/auth";
 import { getCustomerDetails, createPassword, changePassword, unlinkGoogle, unlinkFacebook, updateCustomerProfile } from "../../api/auth";
 import PasswordModal from '../../components/PasswordModal';
 import EditCustomerInfoModal from '../../components/EditCustomerInfoModal';
-import { ClientMenu } from "../../components/ClientMenu";
 import "../../styles/profile.css";
 import "../../styles/RedButton.css";
 
@@ -316,7 +315,6 @@ const Profile: React.FC = () => {
 
   return (
     <div className="profile">
-      <ClientMenu />
       <header className="prof-header">
         <div className="avatar" aria-hidden="true" style={{ backgroundColor: '#dc3545', color: '#ffffff' }}>{initials}</div>
         <div>

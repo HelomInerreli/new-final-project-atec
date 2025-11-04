@@ -12,10 +12,7 @@ import AuthCallback from "./components/AuthCallback";
 import { FutureAppointments } from "./components/FutureAppointement";
 import { SobrePage } from "./pages/Sobre/SobrePage";
 import { ContactPage } from "./pages/contact/ContactPage";
-import Dashboard from './pages/dashboard/Dashboard';
-import Profile from './pages/profile/profile';
-import { Vehicles } from './pages/vehicles/vehicles';
-import { MyServices } from "./pages/myServices/myServices";
+import { ClientLayout } from "./pages/clientLayout/ClientLayout";
 
 
 
@@ -34,16 +31,13 @@ function App() {
             path="/appointments/:customerId"
             element={<AppointmentList />}
           />
-          <Route path="/vehicles" element={<Vehicles />} />
           <Route path="/services" element={<ServicesList />} />
           <Route path="/register" element={<Register />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/about" element={<SobrePage />} />
           {/* <Route path="/contact" element={<ClientMenu />} /> */}
           <Route path="/contact" element={<ContactPage />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/my-services" element={<MyServices />} />
+          <Route path="/my-services" element={<ClientLayout />} />
         </Routes>
       </Layout>
     </BrowserRouter>

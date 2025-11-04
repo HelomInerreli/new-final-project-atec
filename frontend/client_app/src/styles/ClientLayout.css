@@ -1,0 +1,42 @@
+.client-layout {
+  display: flex;
+  min-height: 100vh;
+  padding-top: 70px; /* Altura do header */
+}
+
+.client-content {
+  flex: 1;
+  margin-left: 240px; /* Largura da sidebar */
+  padding: 20px;
+  background-color: #f8f9fa;
+  overflow-y: auto;
+}
+
+.content-section {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.content-section h2 {
+  color: #333;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.content-section p {
+  color: #666;
+  font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  .client-layout {
+    flex-direction: column;
+  }
+  
+  .client-content {
+    margin-left: 0;
+    padding: 15px;
+  }
+}

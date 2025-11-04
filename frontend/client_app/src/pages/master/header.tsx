@@ -3,12 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Logo } from "../../components/Logo";
 import "../../i18n";
 import { useTranslation } from "react-i18next";
-import Button from "react-bootstrap/Button";
-import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Dropdown from "react-bootstrap/Dropdown";
 import ReactCountryFlag from "react-country-flag";
-import NavDropdown from "react-bootstrap/esm/NavDropdown";
-import { CreateAppointmentModal } from "../../components/CreateAppointmentModal";
 import LoginModal from "../../components/LoginModal";
 import { useAuth } from "../../api/auth";
 
@@ -21,19 +17,10 @@ export function Header({ className = "" }: HeaderProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
-  const [showCreateModal, setShowCreateModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
-  const { isLoggedIn, loggedInCustomerId, loggedInCustomerName, logout, /*checkAuth*/ } = useAuth();
+  const { isLoggedIn, loggedInCustomerName, logout, /*checkAuth*/ } = useAuth();
 
-  //const debugAuth = () => {
-  //   console.log('=== AUTH DEBUG ===');
-  //   console.log('Is Logged In:', isLoggedIn);
-  //  console.log('Customer ID:', loggedInCustomerId);
-  //  console.log('Token in localStorage:', localStorage.getItem('access_token'));
-  // console.log('Re-checking auth:', checkAuth());
-  //   console.log('==================');
-  //};
 
   const handleLogout = () => {
     logout();
@@ -46,10 +33,7 @@ export function Header({ className = "" }: HeaderProps) {
 
   const menuItems = [
     { label: "Home", href: "/" },
-    ...(isLoggedIn ? [{ label: t("dashboard"), href: "/dashboard" }] : []),
-    
     { label: t("serviceList"), href: "/services" },
-    
     { label: t("about"), href: "/about" },
     { label: t("contact"), href: "/contact" },
   ];

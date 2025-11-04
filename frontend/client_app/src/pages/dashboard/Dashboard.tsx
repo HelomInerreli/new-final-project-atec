@@ -2,7 +2,6 @@ import React, { useMemo } from "react";
 import "../../styles/Dashboard.css";
 import { Container, Row, Col } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { ClientMenu } from "../../components/ClientMenu";
 
 const Dashboard: React.FC = () => {
   // Exemplo (substitui pela tua fonte de dados quando quiseres)
@@ -30,7 +29,6 @@ const Dashboard: React.FC = () => {
         <h1>Dashboard</h1>
         <p className="subtitle">Resumo rápido da sua atividade</p>
       </header>
-<ClientMenu />
       {/* KPIs (apenas visual, sem ação) */}
       <Row className="justify-content-center g-4 kpi-grid">
         <Col xs={12} sm={6} lg={3}>

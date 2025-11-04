@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { ClientMenu } from "../../components/ClientMenu";
 import { useAuth } from "../../api/auth";
 import { useTranslation } from "react-i18next";
 import "../../styles/MyServices.css";
@@ -44,7 +43,6 @@ export function MyServices() {
 
     return (
         <div className="my-services-page">
-            <ClientMenu />
             <div className="my-services-content">
                 <div className="container mt-5 pt-5">
                     <h1 className="mb-4">
