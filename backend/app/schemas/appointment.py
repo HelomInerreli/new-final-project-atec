@@ -26,6 +26,8 @@ class AppointmentUpdate(BaseModel):
 
 class Appointment(AppointmentBase):
     id: int
+    customer_id: int  # ADICIONAR ESTA LINHA
+    vehicle_id: Optional[int] = None  # ADICIONAR ESTA LINHA (opcional)
     status: Optional[StatusSchema]
     service: Optional[ServiceSchema]
     service_id: Optional[int]

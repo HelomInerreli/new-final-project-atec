@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ClientMenu } from "../../components/ClientMenu";
 import { Vehicles } from "../vehicles/vehicles";
+import { FutureAppointments } from "../../components/FutureAppointement";
 import Profile from "../profile/profile";
 import Dashboard from "../dashboard/Dashboard";
 import { useAuth } from "../../api/auth";
@@ -37,10 +38,7 @@ export function ClientLayout() {
         return <Dashboard />;
       case "appointments":
         return (
-          <div className="content-section">
-            <h2>Meus Agendamentos</h2>
-            <p>Funcionalidade em desenvolvimento...</p>
-          </div>
+          <FutureAppointments />
         );
       case "vehicles":
         return <Vehicles />;

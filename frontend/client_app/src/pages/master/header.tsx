@@ -66,9 +66,9 @@ export function Header({ className = "" }: HeaderProps) {
         className={`navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top ${className}`}
         style={{ zIndex: 1030 }}
       >
-        <div className="container">
-          {/* Logo */}
-          <a className="navbar-brand d-flex align-items-center" href="/">
+        <div className="container-fluid px-3">
+          {/* Logo - Far Left */}
+          <a className="navbar-brand d-flex align-items-center me-0" href="/">
             <Logo scale={0.6} showSubtitle={false} />
           </a>
 
@@ -89,8 +89,8 @@ export function Header({ className = "" }: HeaderProps) {
             className={`collapse navbar-collapse ${isMenuOpen ? "show" : ""}`}
             id="navbarNav"
           >
-            {/* Menu Items */}
-            <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+            {/* Menu Items Centered */}
+            <ul className="navbar-nav position-absolute start-50 translate-middle-x mb-2 mb-lg-0 d-none d-lg-flex">
               {menuItems.map((item) => (
                 <li key={item.label} className="nav-item">
                   <a
@@ -113,20 +113,32 @@ export function Header({ className = "" }: HeaderProps) {
               ))}
             </ul>
 
-            {/* Botões de Ação */}
-            <div className="d-flex flex-column flex-lg-row gap-2">
-              {/* BOTÃO AGENDAR SERVIÇO (só aparece se logado) */}
-              {/* {isLoggedIn && (
-                <button
-                  className="btn btn-success btn-sm"
-                  onClick={() => setShowCreateModal(true)}
-                  title="Agendar Novo Serviço"
-                >
-                  <i className="bi bi-plus-circle me-1"></i>
-                  <span className="d-none d-lg-inline">Schedule Service</span>
-                  <span className="d-lg-none">Agendar</span>
-                </button>
-              )} */}
+            {/* Menu Items for Mobile */}
+            <ul className="navbar-nav d-lg-none mb-2">
+              {menuItems.map((item) => (
+                <li key={item.label} className="nav-item">
+                  <a
+                    className={`nav-link ${
+                      isActiveRoute(item.href)
+                        ? "active text-danger fw-bold"
+                        : ""
+                    }`}
+                    href={item.href}
+                    onClick={() => setIsMenuOpen(false)}
+                    style={
+                      isActiveRoute(item.href)
+                        ? { borderBottom: "2px solid #dc3545" }
+                        : {}
+                    }
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+
+            {/* Language Selector and User Actions - Far Right */}
+            <div className="d-flex flex-column flex-lg-row gap-2 align-items-center ms-auto">
               {/* Seletor de idioma com bandeiras */}
               <Dropdown>
                 <Dropdown.Toggle
@@ -263,13 +275,6 @@ export function Header({ className = "" }: HeaderProps) {
                 </Dropdown.Menu>
               </Dropdown>
 
-              {/*<button
-                className="btn btn-warning btn-sm"
-                onClick={debugAuth}
-                title="Debug Auth"
-              >
-                Debug Auth
-              </button>*/}
 
               {!isLoggedIn ? (
                 <>
@@ -293,6 +298,7 @@ export function Header({ className = "" }: HeaderProps) {
                     variant="outline-primary"
                     id="dropdown-user"
                     size="sm"
+                    className="border-0 shadow-none"
                     style={{
                       border: "1px solid #dee2e6",
                       borderRadius: "25px",
@@ -326,7 +332,6 @@ export function Header({ className = "" }: HeaderProps) {
                     <span className="d-none d-md-inline fw-medium">
                       {getUserDisplayName()}
                     </span>
-                    <i className="bi bi-chevron-down" style={{ fontSize: "10px" }}></i>
                   </Dropdown.Toggle>
 
                   <Dropdown.Menu style={{ minWidth: "220px", border: "1px solid #e0e0e0", borderRadius: "8px" }}>
@@ -397,23 +402,7 @@ export function Header({ className = "" }: HeaderProps) {
         onClose={() => setShowLoginModal(false)}
       />
     )}
-      {/* MODAL PARA CRIAR APPOINTMENT - SINTAXE CORRIGIDA */}
-      {/* {isLoggedIn && (
-        <CreateAppointmentModal
-          show={showCreateModal}
-          onClose={() => setShowCreateModal(false)}
-          customerId={loggedInCustomerId}
-          onSuccess={() => {
-            setShowCreateModal(false);
-            alert("Agendamento criado com sucesso!");
-            if (location.pathname !== "/appointments") {
-              window.location.href = "/appointments";
-            } else {
-              window.location.reload();
-            }
-          }}
-        />
-      )} */}
+      
       
     </>
     

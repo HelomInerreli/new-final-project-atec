@@ -7,9 +7,8 @@ import {
   FaCar, 
   FaCalendarPlus, 
   FaCheckCircle, 
-  FaFileInvoice, 
+  FaFileInvoice,  
   FaUser, 
-  FaSignOutAlt 
 } from 'react-icons/fa';
 
 export type ClientSection = 

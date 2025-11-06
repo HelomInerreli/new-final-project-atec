@@ -1,127 +1,159 @@
 import { useEffect, useState } from "react";
 import { getServices } from "../services/ServiceHistoryServices";
 import type { Appointment } from "../interfaces/appointment";
+import { useAuth } from "../api/auth";
+import { FaCalendarAlt, FaCheckCircle, FaTools } from 'react-icons/fa';
 import "../i18n";
 import { useTranslation } from "react-i18next";
+import "../styles/FutureAppointments.css";
 
 export function FutureAppointments() {
-const { t } = useTranslation();
-const [appointments, setAppointments] = useState<Appointment[]>([]);
-const [loading, setLoading] = useState(true);
-const [error, setError] = useState<string | null>(null);
+    const { t } = useTranslation();
+    const { loggedInCustomerId, isLoggedIn } = useAuth();
+    const [appointments, setAppointments] = useState<Appointment[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-useEffect(() => {
-    const fetchAppointments = async () => {
-    try {
-        setLoading(true);
-        const data = await getServices();
+    useEffect(() => {
+        const fetchAppointments = async () => {
+            if (!isLoggedIn || !loggedInCustomerId) {
+                setLoading(false);
+                return;
+            }
 
-        const completedAppointments = data
-        .filter((appointment: Appointment) => appointment.status?.id === 1)
-        .sort((a: Appointment, b: Appointment) => a.id - b.id);
+            try {
+                setLoading(true);
+                const data = await getServices();
 
-        setAppointments(completedAppointments);
-        setError(null);
-    } catch (err) {
-        setError(t("errorLoadingServices"));
-    } finally {
-        setLoading(false);
-    }
+                const completedAppointments = data
+                    .filter((appointment: Appointment) => {
+                        const matchStatus = appointment.status?.id === 1;
+                        const matchCustomer =
+                            appointment.customer_id === loggedInCustomerId ||
+                            appointment.customer_id === Number(loggedInCustomerId) ||
+                            String(appointment.customer_id) === String(loggedInCustomerId);
+
+                        return matchStatus && matchCustomer;
+                    })
+                    .sort((a: Appointment, b: Appointment) =>
+                        new Date(b.appointment_date).getTime() - new Date(a.appointment_date).getTime()
+                    );
+
+                setAppointments(completedAppointments);
+                setError(null);
+            } catch (err) {
+                setError(t("errorLoadingServices"));
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchAppointments();
+    }, [isLoggedIn, loggedInCustomerId, t]);
+
+    const formatDate = (dateString: string) => {
+        return new Date(dateString).toLocaleDateString('pt-PT', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+        });
     };
 
-    fetchAppointments();
-}, []);
-
-const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString();
-};
-
-return (
-    <>
-    <div className="text-center mb-5">
-        <h1 className="display-4 fw-bold text-dark mb-3">
-        {t("completedServicesHistory")}
-        </h1>
-        <p className="lead text-muted">{t("completedServicesDescription")}</p>
-    </div>
-
-    {loading && (
-        <div className="text-center my-5">
-        <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">{t("loading")}...</span>
-        </div>
-        <p className="mt-3 text-primary">{t("loadingServices")}...</p>
-        </div>
-    )}
-
-    {error && (
-        <div className="alert alert-danger" role="alert">
-        <i className="bi bi-exclamation-triangle me-2"></i>
-        {error}
-        </div>
-    )}
-    {!loading && !error && (
-        <>
-        <div className="card shadow-sm">
-            <div className="card-header bg-success text-white">
-            <h5 className="mb-0">
-                <i className="bi bi-check-circle me-2"></i>
-                {t("completedServices")} ({appointments.length})
-            </h5>
+    if (!isLoggedIn) {
+        return (
+            <div className="appointments-page">
+                <div className="alert alert-warning">
+                    {t("pleaseLogin")}
+                </div>
             </div>
-            <div className="table-responsive">
-            <table className="table table-striped table-hover mb-0">
-                <thead className="table-light">
-                <tr>
-                    <th scope="col">ID</th>
-                    <th scope="col">{t("appointmentDate")}</th>
-                    <th scope="col">{t("serviceType")}</th>
-                    <th scope="col">{t("description")}</th>
-                    <th scope="col">{t("Actions")}</th>
-                </tr>
-                </thead>
-                <tbody>
-                {appointments.length > 0 ? (
-                    appointments.map((appointment) => {
-                    return (
-                        <tr key={appointment.id}>
-                        <td className="fw-bold">{appointment.id}</td>
-                        <td>{formatDate(appointment.appointment_date)}</td>
-                        <td className="fw-bold text-primary">
-                            {appointment.service?.name ||
-                            appointment.service_name}
-                        </td>
-                        <td
-                            className="text-muted small"
-                            title={appointment.description}
-                        >
-                            {appointment.description.length > 40
-                            ? `${appointment.description.substring(0, 40)}...`
-                            : appointment.description || t("noDescription")}
-                        </td>
-                        </tr>
-                    );
-                    })
-                ) : (
-                    <tr>
-                    <td colSpan={9} className="text-center text-muted py-4">
-                        <i className="bi bi-journal-x display-1 d-block mb-3 text-muted"></i>
-                        {t("noServicesFound")}
-                    </td>
-                    </tr>
-                )}
-                </tbody>
-            </table>
-            </div>
-        </div>
+        );
+    }
 
-        <div className="alert alert-success mt-4" role="alert">
-            <i className="bi bi-check-circle me-2"></i>
-            <strong>{t("apiConnected")}</strong> - {appointments.length}{" "}
-            {t("serviceDataFetchedSuccessfully")}
+    if (loading) {
+        return (
+            <div className="appointments-page">
+                <div className="text-center my-5">
+                    <div className="spinner-border text-primary" role="status">
+                        <span className="visually-hidden">{t("loading")}...</span>
+                    </div>
+                    <p className="mt-3 text-primary">{t("loadingServices")}...</p>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="appointments-page">
+            {error && (
+                <div className="alert alert-danger" role="alert">
+                    <i className="bi bi-exclamation-triangle me-2"></i>
+                    {error}
+                </div>
+            )}
+
+            {!error && appointments.length === 0 && (
+                <div className="empty-state">
+                    <div className="empty-icon">
+                        <FaCalendarAlt size={80} />
+                    </div>
+                    <h3>{t("noServicesFound")}</h3>
+                    <p>{t("noAppointmentsDescription")}</p>
+                </div>
+            )}
+
+            {!error && appointments.length > 0 && (
+                <div className="appointments-grid">
+                    {appointments.map((appointment) => (
+                        <div key={appointment.id} className="appointment-card">
+                            <div className="appointment-card-header">
+                                <div className="appointment-icon">
+                                    <FaCheckCircle size={32} />
+                                </div>
+                                <div className="appointment-status">
+                                    <span className="status-badge status-completed">
+                                        {t("completed")}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div className="appointment-card-body">
+                                <h3 className="appointment-service">
+                                    <FaTools className="me-2" />
+                                    {appointment.service?.name || appointment.service_name}
+                                </h3>
+
+                                <div className="appointment-info">
+                                    <div className="info-item">
+                                        <FaCalendarAlt className="info-icon" />
+                                        <div>
+                                            <span className="info-label">{t("appointmentDate")}</span>
+                                            <span className="info-value">{formatDate(appointment.appointment_date)}</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="info-item">
+                                        <span className="info-label">{t("description")}</span>
+                                        <p className="info-description">
+                                            {appointment.description || t("noDescription")}
+                                        </p>
+                                    </div>
+
+                                    {(appointment.estimated_budget || appointment.actual_budget) && (
+                                        <div className="appointment-budget">
+                                            {appointment.estimated_budget && (
+                                                <div className="budget-item">
+                                                    <span className="budget-label">{t("estimatedBudget")}</span>
+                                                    <span className="budget-value text-muted">€{appointment.estimated_budget.toFixed(2)}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
-        </>
-    )}
-    </>
-);
+    );
 }

@@ -1,3 +1,5 @@
+
+
 export interface Vehicle {
     id?: number;
     plate: string;
@@ -22,3 +24,12 @@ export interface VehicleUpdate {
     model?: string;
     kilometers?: number;
 }
+
+export interface VehicleCardProps {
+    vehicle: Vehicle;
+    onEdit?: (vehicle: Vehicle) => void;
+    onDelete?: (vehicleId: number) => void;
+}
+
+
+
