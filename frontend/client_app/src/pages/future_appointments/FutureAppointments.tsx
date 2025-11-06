@@ -1,5 +1,4 @@
 import { FutureAppointments } from '../../components/FutureAppointement';
-import { FaPlus } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../api/auth';
 import '../../styles/Appointments.css';
@@ -29,4 +28,3 @@ export function Appointments() {
     );
 }
 
-export default Appointments;

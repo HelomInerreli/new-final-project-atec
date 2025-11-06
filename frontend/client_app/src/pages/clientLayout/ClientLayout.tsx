@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ClientMenu } from "../../components/ClientMenu";
 import { Vehicles } from "../vehicles/vehicles";
 import { Appointments } from "../future_appointments/FutureAppointments";
+import { PastAppointmentsPage } from "../pastAppointments/PastAppointmentsPage";
 import Profile from "../profile/profile";
 import Dashboard from "../dashboard/Dashboard";
 import { useAuth } from "../../api/auth";
@@ -51,10 +52,7 @@ export function ClientLayout() {
         );
       case "service-history":
         return (
-          <div className="content-section">
-            <h2>Meus Serviços Realizados</h2>
-            <p>Funcionalidade em desenvolvimento...</p>
-          </div>
+          <PastAppointmentsPage />
         );
       case "invoices":
         return (
