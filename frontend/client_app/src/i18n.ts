@@ -515,8 +515,8 @@ i18next.use(initReactI18next).init({
             kilometersInvalid: "Kilometers must be a positive number",
           },
         },
-      myServices: "My Services",
-    },
+        myServices: "My Services",
+      },
     },
 
     pt: {
@@ -721,7 +721,6 @@ i18next.use(initReactI18next).init({
               "Serviços completos de pneus, alinhamento e balanceamento para uma condução segura e económica.",
           },
         },
-
         contactModal: {
           title: "Fale Connosco",
           subtitle:
@@ -964,7 +963,8 @@ i18next.use(initReactI18next).init({
           unlinkSuccess: "Conta {{provider}} desligada com sucesso!",
           unlinkError: "Erro ao desligar conta {{provider}}",
           linkSuccess: "Conta {{provider}} ligada com sucesso!",
-          linkError: "Erro ao ligar conta {{provider}}. Tente novamente.",
+          linkError:
+            "Erro ao ligar conta {{provider}}. Tente novamente.",
           alreadyLinked:
             "Esta conta {{provider}} já está ligada a outro utilizador.",
           authFailed: "Falha na autenticação. Tente novamente.",
@@ -1034,6 +1034,7 @@ i18next.use(initReactI18next).init({
       },
     },
     myServices: "Meus Serviços",
+    },
     },
 
     es: {
@@ -1528,32 +1529,32 @@ i18next.use(initReactI18next).init({
       edit: "Editar",
       delete: "Eliminar",
     },
+    vehicleModal: {
+      titleAdd: "Agregar Nuevo Vehículo",
+      titleEdit: "Editar Vehículo",
+      plate: "Matrícula",
+      platePlaceholder: "ej: AB-12-CD",
+      plateHelper: "Formato: XX-XX-XX o similar",
+      brand: "Marca",
+      brandPlaceholder: "ej: Toyota, BMW, Ford",
+      model: "Modelo",
+      modelPlaceholder: "ej: Corolla, X5, Focus",
+      kilometers: "Kilómetros",
+      requiredFields: "Campos obligatorios",
+      cancel: "Cancelar",
+      save: "Guardar",
+      saving: "Guardando...",
+      errors: {
+        plateRequired: "La matrícula es obligatoria",
+        plateInvalid: "Formato de matrícula inválido",
+        brandRequired: "La marca es obligatoria",
+        modelRequired: "El modelo es obligatorio",
+        kilometersInvalid: "Los kilómetros deben ser un número positivo",
       },
-      vehicleModal: {
-  titleAdd: "Agregar Nuevo Vehículo",
-  titleEdit: "Editar Vehículo",
-  plate: "Matrícula",
-  platePlaceholder: "ej: AB-12-CD",
-  plateHelper: "Formato: XX-XX-XX o similar",
-  brand: "Marca",
-  brandPlaceholder: "ej: Toyota, BMW, Ford",
-  model: "Modelo",
-  modelPlaceholder: "ej: Corolla, X5, Focus",
-  kilometers: "Kilómetros",
-  requiredFields: "Campos obligatorios",
-  cancel: "Cancelar",
-  save: "Guardar",
-  saving: "Guardando...",
-  errors: {
-    plateRequired: "La matrícula es obligatoria",
-    plateInvalid: "Formato de matrícula inválido",
-    brandRequired: "La marca es obligatoria",
-    modelRequired: "El modelo es obligatorio",
-    kilometersInvalid: "Los kilómetros deben ser un número positivo",
+    },
+    myServices: "Mis Servicios",  // <-- CORRIGIDO: Agora no nível raiz da translation
   },
 },
-    myServices: "Mis Servicios",
-    },
 
     fr: {
       translation: {
@@ -1672,7 +1673,7 @@ i18next.use(initReactI18next).init({
         cancelled: "Annulé",
         scheduled: "Programmé",
         inProgress: "En Cours",
-        errorLoadingAppointments: "Erreur lors du chargement des rendez-vous",
+        errorLoadingAppointments: "Erreur lors du chargamento des rendez-vous",
         appointmentList: "Liste des Rendez-vous",
         appointmentManagementDescription: "Gestion complète des rendez-vous",
         loadingAppointments: "Chargement des rendez-vous",
@@ -2073,7 +2074,5 @@ i18next.use(initReactI18next).init({
       },
     },
   },
-  },
 });
-
 export default i18next;
