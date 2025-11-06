@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ClientMenu } from "../../components/ClientMenu";
 import { Vehicles } from "../vehicles/vehicles";
-import { FutureAppointments } from "../../components/FutureAppointement";
+import { Appointments } from "../future_appointments/FutureAppointments";
 import Profile from "../profile/profile";
 import Dashboard from "../dashboard/Dashboard";
 import { useAuth } from "../../api/auth";
@@ -38,7 +38,7 @@ export function ClientLayout() {
         return <Dashboard />;
       case "appointments":
         return (
-          <FutureAppointments />
+          <Appointments />
         );
       case "vehicles":
         return <Vehicles />;
