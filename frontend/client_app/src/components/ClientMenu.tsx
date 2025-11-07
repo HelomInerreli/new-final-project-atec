@@ -39,54 +39,51 @@ export function ClientMenu({ activeSection, onSectionChange }: ClientMenuProps) 
           <li className={activeSection === "dashboard" ? "active" : ""}>
             <button onClick={() => handleClick("dashboard")}>
               <FaTachometerAlt className="menu-icon" />
-              <span>Dashboard</span>
+              <span>{t("dashboard")}</span>
             </button>
           </li>
 
           <li className={activeSection === "appointments" ? "active" : ""}>
             <button onClick={() => handleClick("appointments")}>
               <FaCalendarAlt className="menu-icon" />
-              <span>{t("appointment")}</span>
+              <span>{t("myAppointments")}</span>
             </button>
           </li>
 
           <li className={activeSection === "vehicles" ? "active" : ""}>
             <button onClick={() => handleClick("vehicles")}>
               <FaCar className="menu-icon" />
-              <span>Meus Veículos</span>
+              <span>{t("vehiclesPage.title")}</span>
             </button>
           </li>
 
           <li className={activeSection === "schedule" ? "active" : ""}>
             <button onClick={() => handleClick("schedule")}>
               <FaCalendarPlus className="menu-icon" />
-              <span>Agendar novo serviço</span>
+              <span>{t("scheduleNewService")}</span>
             </button>
           </li>
 
           <li className={activeSection === "service-history" ? "active" : ""}>
             <button onClick={() => handleClick("service-history")}>
               <FaCheckCircle className="menu-icon" />
-              <span>Meus serviços realizados</span>
+              <span>{t("myServices")}</span>
             </button>
           </li>
 
           <li className={activeSection === "invoices" ? "active" : ""}>
             <button onClick={() => handleClick("invoices")}>
               <FaFileInvoice className="menu-icon" />
-              <span>Minhas Faturas</span>
+              <span>{t("myInvoices")}</span>
             </button>
           </li>
 
           <li className={activeSection === "profile" ? "active" : ""}>
             <button onClick={() => handleClick("profile")}>
               <FaUser className="menu-icon" />
-              <span>Meus dados</span>
+              <span>{t("myProfile")}</span>
             </button>
           </li>
-
-          
-          
         </ul>
       </nav>
     </div>

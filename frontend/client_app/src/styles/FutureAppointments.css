@@ -1,7 +1,7 @@
 .appointments-page {
-  max-width: 1400px;
+  max-width: 900px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 2rem 1rem;
 }
 
 .appointments-header {
@@ -26,13 +26,62 @@
   margin: 0 auto;
 }
 
-.appointments-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-  gap: 2rem;
+/* Grouped Appointments */
+.grouped-appointments {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Month Section */
+.month-section {
+  background: transparent;
+}
+
+/* Month Header (Dropdown) */
+.month-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  transition: all 0.2s ease;
+}
+
+.month-header:hover .month-title {
+  color: #dc3545;
+}
+
+.month-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+  transition: color 0.2s ease;
+}
+
+.toggle-icon {
+  font-size: 1rem;
+  color: #666;
+  transition: transform 0.3s ease;
+  display: inline-block;
+}
+
+.toggle-icon.expanded {
+  transform: rotate(90deg);
+}
+
+/* Appointments List */
+.appointments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
   margin-bottom: 2rem;
 }
 
+/* Appointment Card */
 .appointment-card {
   background: white;
   border-radius: 12px;
@@ -216,16 +265,36 @@
 }
 
 @media (max-width: 768px) {
-  .appointments-grid {
-    grid-template-columns: 1fr;
+  .appointments-page {
+    padding: 1rem;
   }
 
   .appointments-title {
     font-size: 2rem;
   }
 
+  .month-title {
+    font-size: 1.25rem;
+  }
+
   .appointment-budget {
     flex-direction: column;
     gap: 0.75rem;
   }
+}
+
+/* Adicione após .month-header */
+.month-header-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.appointment-count {
+  font-size: 0.875rem;
+  color: #666;
+  font-weight: 500;
+  background: #f0f0f0;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
 }

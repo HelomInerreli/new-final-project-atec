@@ -27,7 +27,7 @@ export function ClientLayout() {
     return (
       <div className="client-layout">
         <div className="alert alert-warning m-5">
-          {t('vehiclesPage.pleaseLogin')}
+          {t('pleaseLogin')}
         </div>
       </div>
     );
@@ -38,27 +38,23 @@ export function ClientLayout() {
       case "dashboard":
         return <Dashboard />;
       case "appointments":
-        return (
-          <Appointments />
-        );
+        return <Appointments />;
       case "vehicles":
         return <Vehicles />;
       case "schedule":
         return (
           <div className="content-section">
-            <h2>Agendar Novo Serviço</h2>
-            <p>Funcionalidade em desenvolvimento...</p>
+            <h2>{t('scheduleService')}</h2>
+            <p>{t('underDevelopment')}</p>
           </div>
         );
       case "service-history":
-        return (
-          <PastAppointmentsPage />
-        );
+        return <PastAppointmentsPage />;
       case "invoices":
         return (
           <div className="content-section">
-            <h2>Minhas Faturas</h2>
-            <p>Funcionalidade em desenvolvimento...</p>
+            <h2>{t('myInvoices')}</h2>
+            <p>{t('underDevelopment')}</p>
           </div>
         );
       case "profile":
