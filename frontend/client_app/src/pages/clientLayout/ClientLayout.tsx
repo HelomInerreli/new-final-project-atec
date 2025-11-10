@@ -3,6 +3,7 @@ import { ClientMenu } from "../../components/ClientMenu";
 import { Vehicles } from "../vehicles/vehicles";
 import { Appointments } from "../future_appointments/FutureAppointments";
 import { PastAppointmentsPage } from "../pastAppointments/PastAppointmentsPage";
+import { Invoices } from "../invoices/invoices";
 import Profile from "../profile/profile";
 import Dashboard from "../dashboard/Dashboard";
 import { useAuth } from "../../api/auth";
@@ -52,10 +53,7 @@ export function ClientLayout() {
         return <PastAppointmentsPage />;
       case "invoices":
         return (
-          <div className="content-section">
-            <h2>{t('myInvoices')}</h2>
-            <p>{t('underDevelopment')}</p>
-          </div>
+          <Invoices />
         );
       case "profile":
         return <Profile />;

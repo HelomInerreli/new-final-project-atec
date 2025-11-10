@@ -128,6 +128,19 @@
   border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
+.status-default,
+.status-pendente {
+  background: rgba(255, 255, 255, 0.3);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.status-waitting-payment {
+  background: #ffe082;
+  color: #7f4400;
+  border: 1px solid rgba(255, 193, 7, 0.6);
+}
+
 .appointment-card-body {
   padding: 1.5rem;
 }
@@ -297,4 +310,44 @@
   background: #f0f0f0;
   padding: 0.25rem 0.75rem;
   border-radius: 12px;
+}
+
+.payment-button {
+  background: #ffc107;
+  color: #2c3e50;
+  border: none;
+  padding: 0.6rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.payment-button:hover {
+  background: #ffb300;
+  transform: translateY(-1px);
+}
+
+.payment-button:active {
+  transform: translateY(0);
+}
+
+.payment-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.future-appointment-action-btn.view-invoice {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.future-appointment-action-btn.view-invoice:hover {
+    background: linear-gradient(135deg, #5568d3 0%, #653a8b 100%);
+    transform: translateY(-2px);
+}
+
+.future-appointment-status-badge.finalized {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
 }
