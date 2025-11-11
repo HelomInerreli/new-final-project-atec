@@ -7,21 +7,7 @@ interface InvoiceDetailProps {
     appointmentId: number;
 }
 
-const getStatusBadge = (status: string) => {
-    const statusMap: Record<string, { label: string; className: string }> = {
-        'paid': { label: 'Pendente', className: 'badge-success' },
-        'pending': { label: 'Pendente', className: 'badge-warning' },
-        'cancelled': { label: 'Cancelado', className: 'badge-danger' },
-    };
-    
-    const statusInfo = statusMap[status.toLowerCase()] || { label: status, className: 'badge-success' };
-    
-    return (
-        <span className={`badge ${statusInfo.className}`}>
-            {statusInfo.label}
-        </span>
-    );
-};
+
 
 export function InvoiceDetail({ appointmentId }: InvoiceDetailProps) {
     const { invoice, loading, error } = useInvoice(appointmentId);

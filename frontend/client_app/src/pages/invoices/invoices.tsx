@@ -40,7 +40,7 @@ export function Invoices() {
                 <div className="spinner-border text-danger" role="status">
                     <span className="visually-hidden">{t('loading')}...</span>
                 </div>
-                <p className="mt-3">{t('loadingInvoices', { defaultValue: 'A carregar faturas...' })}</p>
+                <p className="mt-3">{t('invoices.loading')}</p>
             </div>
         );
     }
@@ -73,7 +73,7 @@ export function Invoices() {
                     onMouseEnter={(e) => e.currentTarget.style.background = '#5a6268'}
                     onMouseLeave={(e) => e.currentTarget.style.background = '#6c757d'}
                 >
-                    ← {t('back', { defaultValue: 'Voltar' })}
+                    ← {t('invoices.backButton')}
                 </button>
                 <InvoiceDetail appointmentId={selectedAppointmentId} />
             </div>
@@ -85,15 +85,15 @@ export function Invoices() {
         <div className="past-appointments-page">
             <div className="past-appointments-header">
                 <h1 className="past-appointments-title">
-                    {t('invoices', { defaultValue: 'Minhas Faturas' })}
+                    {t('invoices.title')}
                 </h1>
             </div>
 
             {Object.keys(groupedAppointments).length === 0 ? (
                 <div className="past-empty-state">
                     <div className="past-empty-icon">📄</div>
-                    <h3>{t('noInvoicesFound', { defaultValue: 'Nenhuma fatura encontrada' })}</h3>
-                    <p>{t('noInvoicesMessage', { defaultValue: 'Ainda não tem serviços finalizados com faturas.' })}</p>
+                    <h3>{t('invoices.noInvoicesFound')}</h3>
+                    <p>{t('invoices.noInvoicesMessage')}</p>
                 </div>
             ) : (
                 <div className="past-appointments-content">
@@ -106,7 +106,7 @@ export function Invoices() {
                                 <div className="past-month-header-content">
                                     <h2 className="past-month-title">{monthYear}</h2>
                                     <span className="past-appointment-count">
-                                        {appointments.length} {appointments.length === 1 ? t('invoice') : t('invoices')}
+                                        {appointments.length} {appointments.length === 1 ? t('invoices.invoice_singular') : t('invoices.invoice_plural')}
                                     </span>
                                 </div>
                                 <span className={`past-toggle-icon ${expandedMonths[monthYear] ? 'past-expanded' : ''}`}>
@@ -119,7 +119,7 @@ export function Invoices() {
                                     {appointments.map((appointment) => (
                                         <div key={appointment.id} className="card mb-3">
                                             <div className="card-body">
-                                                <h5 className="card-title">{appointment.service?.name || 'Service'}</h5>
+                                                <h5 className="card-title">{appointment.service?.name || t('service')}</h5>
                                                 <p className="card-text">
                                                     {appointment.date && new Date(appointment.date).toLocaleDateString()}
                                                 </p>
@@ -151,7 +151,7 @@ export function Invoices() {
                                                         e.currentTarget.style.boxShadow = 'none';
                                                     }}
                                                 >
-                                                    📄 {t('viewInvoice', { defaultValue: 'Ver Fatura' })}
+                                    📄 {t('invoices.viewInvoice')}
                                                 </button>
                                             </div>
                                         </div>
@@ -161,7 +161,6 @@ export function Invoices() {
                         </div>
                     ))}
                 </div>
-
             )}
         </div>
     );

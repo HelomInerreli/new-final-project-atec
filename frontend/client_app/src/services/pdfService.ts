@@ -62,6 +62,3 @@ export const generateInvoicePDF = async (elementId: string, invoiceNumber: strin
     }
 };
 
-export const printInvoice = () => {
-    window.print();
-};
