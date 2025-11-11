@@ -30,3 +30,35 @@ export interface Appointment {
     name: string;
   };
 }
+
+export interface AppointmentForm {
+  appointment_date: string;
+  description: string;
+  estimated_budget: number;
+  vehicle_id: number;
+  service_id: number;
+}
+
+export interface CreateAppointmentData extends AppointmentForm {
+  customer_id: number;
+}
+
+
+export interface UpdateAppointmentData {
+  appointment_date?: string;
+  description?: string;
+  estimated_budget?: number;
+  actual_budget?: number;
+  vehicle_id?: number;
+  service_id?: number;
+  status_id?: number;
+}
+
+
+export interface CreateAppointmentModalProps {
+  show: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
+}
+
+
