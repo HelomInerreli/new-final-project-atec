@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom'; // ✅ ADICIONAR
 import { useAuth } from '../api/auth';
 import { type CreateAppointmentModalProps } from '../interfaces/appointment';
 
@@ -24,8 +25,10 @@ export function CreateAppointmentModal({
   onSuccess 
 }: CreateAppointmentModalProps) {
   const { t } = useTranslation();
+  const navigate = useNavigate(); // ✅ ADICIONAR
   const auth = useAuth();
   const customerId = auth?.loggedInCustomerId ?? null;
+  const isLoggedIn = auth?.isLoggedIn ?? false; // ✅ ADICIONAR
 
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1);
@@ -84,8 +87,23 @@ export function CreateAppointmentModal({
     }));
   };
 
+  // ✅ NOVA FUNÇÃO: Verificar login antes de avançar
   const handleNext = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // ✅ Se não estiver logado, redireciona para login
+    if (!isLoggedIn) {
+      onClose(); // Fecha o modal
+      navigate('/register', { 
+        state: { 
+          message: t('loginRequired', 'Por favor, faça login para agendar um serviço'),
+          returnTo: '/services'
+        } 
+      });
+      return;
+    }
+
+    // ✅ Se estiver logado, avança para step 2
     setStep(2);
   };
 
@@ -241,6 +259,23 @@ export function CreateAppointmentModal({
                           required
                         />
                       </div>
+
+                      {/* ✅ AVISO: Login obrigatório */}
+                      {!isLoggedIn && (
+                        <div className="col-12">
+                          <div className="alert alert-info">
+                            <i className="bi bi-info-circle me-2"></i>
+                            <strong>
+                              {t('appointmentModal.loginRequired', { 
+                                defaultValue: 'Login necessário:' 
+                              })}
+                            </strong>{' '}
+                            {t('appointmentModal.loginRequiredMessage', { 
+                              defaultValue: 'Você será redirecionado para fazer login antes de continuar.' 
+                            })}
+                          </div>
+                        </div>
+                      )}
                     </>
                   )}
 
@@ -387,7 +422,20 @@ export function CreateAppointmentModal({
                     className="btn btn-light text-danger"
                     disabled={!form.service_id || !form.estimated_budget}
                   >
-                    {t('appointmentModal.next', { defaultValue: 'Seguinte' })}
+                    {/* ✅ TEXTO DINÂMICO: "Fazer Login" ou "Seguinte" */}
+                    {!isLoggedIn ? (
+                      <>
+                        <i className="bi bi-box-arrow-in-right me-1"></i>
+                        {t('appointmentModal.loginToContinue', { 
+                          defaultValue: 'Fazer Login para Continuar' 
+                        })}
+                      </>
+                    ) : (
+                      <>
+                        <i className="bi bi-arrow-right me-1"></i>
+                        {t('appointmentModal.next', { defaultValue: 'Seguinte' })}
+                      </>
+                    )}
                   </button>
                 ) : (
                   <button
