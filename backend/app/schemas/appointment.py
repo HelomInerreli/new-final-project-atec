@@ -5,6 +5,8 @@ from .extra_service import ExtraService as ExtraServiceSchema
 from .service import Service as ServiceSchema
 from .status import Status as StatusSchema
 from .appointment_extra_service import AppointmentExtraService
+from .customer import Customer as CustomerSchema #Henrique
+from .vehicle import Vehicle as VehicleSchema   #Henrique
 
 class AppointmentBase(BaseModel):
     appointment_date: datetime
@@ -26,6 +28,10 @@ class AppointmentUpdate(BaseModel):
 
 class Appointment(AppointmentBase):
     id: int
+    customer_id: Optional[int] = None           #Henrique
+    vehicle_id: Optional[int] = None    #Henrique
+    customer: Optional[CustomerSchema] = None #Henrique
+    vehicle: Optional[VehicleSchema] = None  #Henrique
     status: Optional[StatusSchema]
     service: Optional[ServiceSchema]
     service_id: Optional[int]

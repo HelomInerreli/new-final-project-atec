@@ -4,6 +4,8 @@ import { Layout } from "./pages/master/Layout";
 import Home from "./pages/Home";
 import Appointments from "./components/appointments";
 import Examples from "./components/Examples";
+import ServiceOrders from "./components/ServiceOrders";
+import ServiceOrderDetail from "./components/ServiceOrderDetail";
 
 function App() {
   return (
@@ -14,6 +16,8 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/dashboard" element={<Examples />} />
             <Route path="/appointments" element={<Appointments />} />
+            <Route path="/servicesOrders" element={<ServiceOrders />} />
+            <Route path="/orders/:id" element={<ServiceOrderDetail />} />
           </Routes>
         </Layout>
       </BrowserRouter>
