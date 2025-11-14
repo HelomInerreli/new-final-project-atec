@@ -1,0 +1,14 @@
+.modal.fade.show {
+  display: block;
+  background-color: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(2px);
+}
+
+.modal-dialog {
+  margin: 1.75rem auto;
+}
+
+.modal-content {
+  background-color: #ffffff;
+  border: none;
+}
