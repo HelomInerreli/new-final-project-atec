@@ -4,14 +4,52 @@ import { useAuth } from '../api/auth';
 import { useTranslation } from 'react-i18next';
 import { getGroupedAppointments } from '../services/futureAppointments';
 
+/**
+ * Hook para buscar e gerenciar agendamentos futuros agrupados por data
+ * @returns Objeto com agendamentos agrupados, estado de loading, erro e status de login
+ */
 export function useFutureAppointments() {
-    const { t } = useTranslation();
-    const { loggedInCustomerId, isLoggedIn } = useAuth();
-    const [groupedAppointments, setGroupedAppointments] = useState<Record<string, Appointment[]>>({});
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
+    /**
+     * Tradução de textos
+     * @returns Função de tradução
+     */
 
+    const { t } = useTranslation();
+    /**
+     * Hooks e estados necessários
+     * loggedInCustomerId - ID do cliente logado
+     * isLoggedIn - Status de login do usuário (boolean)
+     */
+
+    const { loggedInCustomerId, isLoggedIn } = useAuth(); 
+    /**
+     * Estado para armazenar agendamentos futuros agrupados por data
+     * Formato: { "YYYY-MM-DD": Appointment[] }
+     * Hash map onde a chave é a data e o valor é um array de agendamentos
+     */
+
+    const [groupedAppointments, setGroupedAppointments] = useState<Record<string, Appointment[]>>({});
+    /**
+     * Estado para indicar se os dados estão sendo carregados
+     * Tipo: boolean
+     * Inicia como true para indicar que o carregamento está em progresso
+     */
+    const [loading, setLoading] = useState<boolean>(true);
+
+    /**
+     * Estado para armazenar mensagens de erro
+     * Tipo: string | null
+     * Inicia como null (sem erro)
+     */
+    const [error, setError] = useState<string | null>(null);
+    
+    /**
+     * Efeito para buscar agendamentos quando o usuário está logado
+     */
     useEffect(() => {
+        /**
+         * Função assíncrona para buscar agendamentos agrupados
+         */
         const fetchAppointments = async () => {
             if (!isLoggedIn || !loggedInCustomerId) {
                 setLoading(false);

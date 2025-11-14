@@ -7,12 +7,13 @@ from app.models.appoitment import Appointment
 from app.models.appoitment_extra_service import AppointmentExtraService
 from app.models.extra_service import ExtraService
 from app.models.status import Status
+from app.models.customer import Customer  # ✅ ADICIONAR
+from app.models.customerAuth import CustomerAuth  # ✅ ADICIONAR
 
 from app.schemas.appointment import AppointmentCreate, AppointmentUpdate
 from app.schemas.appointment_extra_service import AppointmentExtraServiceCreate
 
 from app.email_service.email_service import EmailService
-from app.crud import customer as crud_customer
 
 
 # Define status constants locally to avoid magic strings
@@ -50,11 +51,26 @@ class AppointmentRepository:
         """Listar appointments, ordenadas do mais recente para o mais antigo."""
         return self.db.query(Appointment).order_by(Appointment.id.desc()).offset(skip).limit(limit).all()
 
+    # ✅ FUNÇÃO AUXILIAR: Buscar email do customer via CustomerAuth
+    def _get_customer_email(self, customer_id: int) -> Optional[str]:
+        """
+        Busca o email do customer através da tabela CustomerAuth.
+        
+        Relacionamento: Customer -> CustomerAuth (customer.id = customerAuth.id_customer)
+        """
+        customer_auth = (
+            self.db.query(CustomerAuth)
+            .filter(CustomerAuth.id_customer == customer_id)
+            .first()
+        )
+        
+        return customer_auth.email if customer_auth else None
+
     def create(self, appointment: AppointmentCreate, email_service: Optional[EmailService] = None) -> Appointment:
         """
         Cria uma nova appointment.
         - Define o status default "Pendente" (procura-o na tabela statuses).
-        - Se for fornecido email_service, envia email de confirmação para o cliente (se houver email).
+        - Se for fornecido email_service, envia email de confirmação para o cliente (busca email em CustomerAuth).
         """
         pending_status = self.db.query(Status).filter(Status.name == APPOINTMENT_STATUS_PENDING).first()
         if not pending_status:
@@ -66,20 +82,28 @@ class AppointmentRepository:
         self.db.commit()
         self.db.refresh(db_appointment)
 
-        # Enviar email de confirmação se for solicitado (opcional)
+        # ✅ CORRIGIDO: Buscar email do CustomerAuth
         if email_service:
             try:
-                customer = crud_customer.get_by_id(db=self.db, id=db_appointment.customer_id)
-                if customer and getattr(customer, "email", None):
+                customer_email = self._get_customer_email(db_appointment.customer_id)
+                
+                if customer_email:
+                    # Buscar nome do serviço (assumindo que você tem essa info)
+                    service_name = getattr(db_appointment, "service_name", "Serviço")
+                    service_date = getattr(db_appointment, "appointment_date", datetime.now())
+                    
                     email_service.send_confirmation_email(
-                        customer_email=customer.email,
-                        service_name=getattr(db_appointment, "service_name", None),
-                        service_date=getattr(db_appointment, "service_date", None),
+                        customer_email=customer_email,
+                        service_name=service_name,
+                        service_date=service_date,
                     )
-                    print(f"Confirmação de agendamento enviada para {customer.email}.")
+                    print(f"✅ Confirmação de agendamento enviada para {customer_email}.")
+                else:
+                    print(f"⚠️ Email não encontrado para customer_id={db_appointment.customer_id}")
+                    
             except Exception as e:
                 # Não abortar a criação por falha no envio de email; só log
-                print(f"ERRO ao enviar confirmação de agendamento: {e}")
+                print(f"❌ ERRO ao enviar confirmação de agendamento: {e}")
 
         return db_appointment
 

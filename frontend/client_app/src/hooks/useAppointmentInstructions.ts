@@ -3,6 +3,15 @@ import { useTranslation } from 'react-i18next';
 import { type AppointmentForm } from '../interfaces/appointment';
 import { type Service } from '../interfaces/service';
 
+/**
+ * Hook para gerar instruções dinâmicas baseadas no passo do formulário de agendamento
+ * @param step - Passo atual do formulário (1 ou 2)
+ * @param form - Estado atual do formulário de agendamento
+ * @param services - Lista de serviços disponíveis
+ * @param selectedDate - Data selecionada (YYYY-MM-DD)
+ * @param selectedTime - Hora selecionada (HH:mm)
+ * @returns String com a instrução apropriada para o usuário
+ */
 export function useAppointmentInstructions(
   step: number,
   form: AppointmentForm,
