@@ -190,3 +190,237 @@
 
   .invoices .right{ text-align: left; } /* em mobile, tudo alinhado à esquerda */
 }
+
+/* ===== Novos Estilos Propostos ===== */
+.invoices-page {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.back-to-list-btn {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 1.5rem;
+    transition: background 0.2s ease;
+}
+
+.back-to-list-btn:hover {
+    background: #5a6268;
+}
+
+.invoices-header {
+    margin-bottom: 2rem;
+}
+
+.invoices-title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.invoices-loading-container {
+    padding: 3rem;
+}
+
+.invoices-empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.invoices-empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.invoices-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.invoices-month-section {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.invoices-month-header {
+    padding: 1.25rem 1.5rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.invoices-month-header:hover {
+    background: linear-gradient(135deg, #5568d3 0%, #653a8b 100%);
+}
+
+.invoices-month-header-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.invoices-month-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: white;
+    margin: 0;
+}
+
+.invoices-count {
+    background: rgba(255,255,255,0.2);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    color: white;
+}
+
+.invoices-toggle-icon {
+    color: white;
+    font-size: 1.25rem;
+    transition: transform 0.3s ease;
+}
+
+.invoices-toggle-icon.invoices-expanded {
+    transform: rotate(90deg);
+}
+
+.invoices-list {
+    padding: 1.5rem;
+    display: grid;
+    gap: 1rem;
+}
+
+.invoice-card {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    border: 1px solid #dee2e6;
+}
+
+.invoice-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+}
+
+.invoice-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.invoice-card-title-section {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.invoice-service-icon {
+    font-size: 2rem;
+}
+
+.invoice-service-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.invoice-status-badge {
+    background: #d4edda;
+    color: #155724;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.invoice-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.invoice-info-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.invoice-info-icon {
+    font-size: 1.25rem;
+}
+
+.invoice-info-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.invoice-info-label {
+    font-size: 0.75rem;
+    color: #6c757d;
+    font-weight: 600;
+}
+
+.invoice-info-value {
+    font-size: 0.95rem;
+    color: #2c3e50;
+}
+
+.invoice-budget-value {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #28a745;
+}
+
+.invoice-card-footer {
+    padding-top: 1rem;
+    border-top: 1px solid #dee2e6;
+}
+
+.view-invoice-btn {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.2s ease;
+}
+
+.view-invoice-btn:hover {
+    background: #0056b3;
+}
+
+@media (max-width: 768px) {
+    .invoices-page {
+        padding: 1rem;
+    }
+
+    .invoices-month-header {
+        padding: 1rem;
+    }
+
+    .invoices-list {
+        padding: 1rem;
+    }
+}

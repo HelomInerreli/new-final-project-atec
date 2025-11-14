@@ -29,7 +29,6 @@ const Dashboard: React.FC = () => {
         <h1>Dashboard</h1>
         <p className="subtitle">Resumo rápido da sua atividade</p>
       </header>
-
       {/* KPIs (apenas visual, sem ação) */}
       <Row className="justify-content-center g-4 kpi-grid">
         <Col xs={12} sm={6} lg={3}>

@@ -11,10 +11,11 @@ import AuthCallback from "./components/AuthCallback";
 
 import { FutureAppointments } from "./components/FutureAppointement";
 import { SobrePage } from "./pages/Sobre/SobrePage";
-import ClientMenu from "./components/ClientMenu";
 import { ContactPage } from "./pages/contact/ContactPage";
-import Dashboard from './pages/dashboard/Dashboard';
-import Profile from './pages/profile/profile';
+import { ClientLayout } from "./pages/clientLayout/ClientLayout";
+
+
+
 
 function App() {
   return (
@@ -36,8 +37,7 @@ function App() {
           <Route path="/about" element={<SobrePage />} />
           {/* <Route path="/contact" element={<ClientMenu />} /> */}
           <Route path="/contact" element={<ContactPage />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route path="/my-services" element={<ClientLayout />} />
         </Routes>
       </Layout>
     </BrowserRouter>
