@@ -39,10 +39,16 @@ class AppointmentRepository:
         return self.db.query(Appointment).filter(Appointment.id == appointment_id).first()
 
     def get_by_id_with_relations(self, appointment_id: int) -> Optional[Appointment]:
-        """Obter appointment com relações úteis carregadas (customer, extra requests, service)."""
+        """Obter appointment com relações úteis carregadas (customer, service, vehicle, status, extra requests)."""
         return (
             self.db.query(Appointment)
-            .options(joinedload(Appointment.customer), joinedload(Appointment.extra_service_associations))
+            .options(
+                joinedload(Appointment.customer),
+                joinedload(Appointment.service),  # ← Adicionado
+                joinedload(Appointment.vehicle),  # ← Adicionado
+                joinedload(Appointment.status),  # ← Adicionado
+                joinedload(Appointment.extra_service_associations)
+            )
             .filter(Appointment.id == appointment_id)
             .first()
         )

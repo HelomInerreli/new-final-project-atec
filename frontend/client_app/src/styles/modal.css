@@ -1,0 +1,4 @@
+body.modal-open {
+  overflow: hidden;  /* Bloqueia scrolling APENAS quando modal aberto */
+  padding-right: 17px;  /* Evita shift horizontal da scrollbar */
+}

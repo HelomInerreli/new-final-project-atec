@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getServices } from "../services/ServiceHistoryServices";
 import type { Appointment } from "../interfaces/appointment";
-import { AppointmentDetailsModal } from "./AppointmentDetailsModal";
+import { AppointmentStatusModal } from './AppointmentDetailsModal';
 import "../i18n";
 import { useTranslation } from "react-i18next";
 
@@ -114,7 +114,7 @@ const formatDate = (dateString: string) => {
                             className="text-muted small"
                             title={appointment.description}
                           >
-                            {appointment.description.length > 40
+                            {appointment.description && appointment.description.length > 40
                               ? `${appointment.description.substring(0, 40)}...`
                               : appointment.description || t("noDescription")}
                           </td>
@@ -153,11 +153,11 @@ const formatDate = (dateString: string) => {
       )}
 
       {/* Modal Component */}
-      <AppointmentDetailsModal
-        appointment={selectedAppointment}
-        show={showModal}
-        onClose={handleCloseModal}
-      />
+      <AppointmentStatusModal
+  appointment={selectedAppointment}
+  open={!!selectedAppointment}
+  onOpenChange={(open: boolean) => !open && setSelectedAppointment(null)}
+/>
     </>
   );
 }

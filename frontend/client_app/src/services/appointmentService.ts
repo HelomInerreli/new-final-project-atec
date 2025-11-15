@@ -21,3 +21,4 @@ export function validateAppointmentForm(
         form.description.trim().length > 3  // ✅ Validação melhorada
     );
 }
+

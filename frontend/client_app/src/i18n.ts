@@ -151,6 +151,7 @@ i18next.use(initReactI18next).init({
           allServices: "All Services",
           readyToSchedule: "Ready to schedule?",
           scheduleService: "Schedule Service",
+          priceFrom: "From",
           whatsIncluded: "What's included:",
           features: {
             engineCheck: "Engine & transmission check",
@@ -715,6 +716,7 @@ i18next.use(initReactI18next).init({
           readyToSchedule: "Pronto para agendar?",
           scheduleService: "Agendar Serviço",
           whatsIncluded: "O que inclui:",
+          priceFrom: "Desde",
           features: {
             engineCheck: "Verificação do motor e transmissão",
             brakeSuspension: "Inspeção dos travões e suspensão",
@@ -1283,6 +1285,7 @@ i18next.use(initReactI18next).init({
           readyToSchedule: "Listo para agendar?",
           scheduleService: "Agendar Servicio",
           whatsIncluded: "Lo que incluye:",
+          priceFrom: "Desde",
           features: {
             engineCheck: "Revisión de motor y transmisión",
             brakeSuspension: "Inspección de frenos y suspensión",
@@ -1831,6 +1834,7 @@ i18next.use(initReactI18next).init({
           readyToSchedule: "Prêt à réserver?",
           scheduleService: "Réserver un Service",
           whatsIncluded: "Ce qui est inclus:",
+          priceFrom: "Depuis",
           features: {
             engineCheck: "Vérification du moteur et de la transmission",
             brakeSuspension: "Inspection des freins et de la suspension",

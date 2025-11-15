@@ -1,4 +1,5 @@
 export interface Appointment {
+  service_name: string | undefined;
   date: string;
   id: number;
   appointment_date: string;
@@ -61,4 +62,8 @@ export interface CreateAppointmentModalProps {
   onSuccess: () => void;
 }
 
-
+export interface AppointmentStatusModalProps {  // ← Renomeado de AppointmentStatusModal
+  appointment: Appointment | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
