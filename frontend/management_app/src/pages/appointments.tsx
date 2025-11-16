@@ -140,16 +140,16 @@ export default function Agendamentos() {
       </div>
 
       {/* Grid de Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
         {filteredAgendamentos.map((agendamento) => (
           <Card key={agendamento.id} className="flex flex-col hover:shadow-lg transition-shadow">
             <CardHeader>
-              <div className="flex items-start justify-between">
-                <div>
-                  <CardTitle className="text-lg">{agendamento.cliente}</CardTitle>
-                  <CardDescription className="mt-1">{agendamento.veiculo}</CardDescription>
-                </div>
-                <Badge className={getStatusColor(agendamento.status)} variant="outline">{agendamento.status.charAt(0).toUpperCase() + agendamento.status.slice(1)}</Badge>
+              <div className="space-y-2">
+                <Badge className={getStatusColor(agendamento.status)} variant="outline">
+                  {agendamento.status.charAt(0).toUpperCase() + agendamento.status.slice(1)}
+                </Badge>
+                <CardTitle className="text-lg">{agendamento.cliente}</CardTitle>
+                <CardDescription className="mt-1">{agendamento.veiculo}</CardDescription>
               </div>
             </CardHeader>
             <CardContent className="space-y-3 flex-1">
@@ -163,25 +163,43 @@ export default function Agendamentos() {
                 {agendamento.observacoes && <p className="text-xs text-muted-foreground mt-1">{agendamento.observacoes}</p>}
               </div>
             </CardContent>
+            
             <div className="flex gap-2 p-4 pt-0">
-              <Button variant="outline" size="sm" className="flex-1 gap-2" onClick={() => handleOpenDialog(agendamento)}><Edit className="h-3 w-3" />Editar</Button>
-                  <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="destructive" size="sm" className="flex-1 gap-2"><Trash2 className="h-3 w-3" />Eliminar</Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex-1 gap-1.5 min-w-0 !outline-none !ring-0 hover:bg-gray-100 hover:text-black active:bg-gray-200" 
+                onClick={() => handleOpenDialog(agendamento)}
+              >
+                <Edit className="h-3.5 w-3.5" />
+                Editar
+              </Button>
+              
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button 
+                    variant="destructive" 
+                    size="sm" 
+                    className="flex-[1.2] gap-1.5 min-w-0 !outline-none !ring-0"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    Eliminar
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
                     <AlertDialogTitle>Tem a certeza absoluta?</AlertDialogTitle>
                     <AlertDialogDescription>
                       Esta ação não pode ser desfeita. Isto irá eliminar permanentemente o agendamento.
                     </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
                     <AlertDialogCancel>Cancelar</AlertDialogCancel>
                     <AlertDialogAction onClick={() => handleDelete(agendamento.id)}>Continuar</AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                  </AlertDialog></div>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
           </Card>
         ))}
       </div>
@@ -194,6 +212,15 @@ export default function Agendamentos() {
       {/* Dialog para Criar/Editar */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
         <DialogContent className="sm:max-w-[500px]">
+          <button
+            onClick={() => setIsFormOpen(false)}
+            className="absolute right-4 top-4 rounded-sm p-1 text-red-500 border border-red-500 hover:text-red-600 hover:border-red-600 focus:outline-none transition-colors bg-transparent"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
           <form onSubmit={handleFormSubmit}>
             <DialogHeader>
               <DialogTitle>{editingId ? "Editar Agendamento" : "Novo Agendamento"}</DialogTitle>
@@ -227,7 +254,7 @@ export default function Agendamentos() {
               <div className="grid gap-2"><Label htmlFor="observacoes">Observações</Label><Textarea id="observacoes" value={formData.observacoes} onChange={handleInputChange} /></div>
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsFormOpen(false)}>Cancelar</Button>
+              <Button type="button" variant="outline" className="!outline-none !ring-0 hover:bg-gray-100 hover:text-black active:bg-gray-200" onClick={() => setIsFormOpen(false)}>Cancelar</Button>
               <Button type="submit">{editingId ? "Salvar Alterações" : "Criar Agendamento"}</Button>
             </DialogFooter>
           </form>
