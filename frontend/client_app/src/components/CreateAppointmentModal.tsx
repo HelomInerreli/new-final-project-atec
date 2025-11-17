@@ -19,6 +19,33 @@ import { getTodayDateString } from '../utils/appointmentHelpers';
 // Styles
 import '../styles/appointmentModal.css';
 
+// Adicione estas funções utilitárias antes do componente
+const getDayOfWeek = (dateString: string): number => {
+  return new Date(dateString + 'T00:00:00').getDay();
+};
+
+const isDisabledDate = (dateString: string): boolean => {
+  const dayOfWeek = getDayOfWeek(dateString);
+  return dayOfWeek === 0; // 0 = Domingo
+};
+
+const getTimeRestrictions = (dateString: string): { min: string; max: string } => {
+  const dayOfWeek = getDayOfWeek(dateString);
+  
+  if (dayOfWeek === 6) { // Sábado
+    return { min: '09:00', max: '13:00' };
+  } else if (dayOfWeek >= 1 && dayOfWeek <= 5) { // Segunda a Sexta
+    return { min: '09:00', max: '18:00' };
+  }
+  
+  return { min: '09:00', max: '18:00' };
+};
+
+const isTimeWithinRange = (time: string, dateString: string): boolean => {
+  const restrictions = getTimeRestrictions(dateString);
+  return time >= restrictions.min && time < restrictions.max;
+};
+
 export function CreateAppointmentModal({ 
   show, 
   onClose, 
@@ -129,6 +156,28 @@ export function CreateAppointmentModal({
       setLoading(false);
     }
   };
+
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newDate = e.target.value;
+    setSelectedDate(newDate);
+    
+    // Limpar hora se estiver fora do intervalo permitido
+    if (selectedTime && !isTimeWithinRange(selectedTime, newDate)) {
+      setSelectedTime('');
+    }
+  };
+
+  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTime = e.target.value;
+    
+    if (isTimeWithinRange(newTime, selectedDate)) {
+      setSelectedTime(newTime);
+    } else {
+      alert(t('invalidTimeSlot', { defaultValue: 'Horário não disponível para este dia' }));
+    }
+  };
+
+  const timeRestrictions = selectedDate ? getTimeRestrictions(selectedDate) : { min: '09:00', max: '18:00' };
 
   if (!show) return null;
 
@@ -284,50 +333,42 @@ export function CreateAppointmentModal({
                     <>
                       <div className="col-md-6 mb-3">
                         <label className="form-label fw-semibold text-dark">
-                          <i className="bi bi-calendar-event me-1 text-dark"></i>
                           {t('date', { defaultValue: 'Data' })} *
                         </label>
                         <input
                           type="date"
                           className="form-control border-2 mb-2"
                           value={selectedDate}
-                          onChange={(e) => {
-                            setSelectedDate(e.target.value);
-                            updateDateTime(e.target.value, selectedTime);
-                          }}
+                          onChange={handleDateChange}
                           min={getTodayDateString()}
                           style={{ cursor: 'pointer', fontSize: '1rem' }}
                           onClick={(e) => (e.target as HTMLInputElement).showPicker?.()}
                           required
                         />
+                        {selectedDate && isDisabledDate(selectedDate) && (
+                          <small className="text-danger">
+                            {t('sundayNotAllowed', { defaultValue: 'Domingos não disponíveis' })}
+                          </small>
+                        )}
                         
-                        <label className="form-label fw-semibold text-dark">
-                          <i className="bi bi-clock me-1 text-dark"></i>
-                          {t('time', { defaultValue: 'Hora' })} *
-                        </label>
                         <input
                           type="time"
-                          className="form-control border-2"
+                          className="form-control border-2 mt-2"
                           value={selectedTime}
-                          onChange={(e) => {
-                            setSelectedTime(e.target.value);
-                            updateDateTime(selectedDate, e.target.value);
-                          }}
+                          onChange={handleTimeChange}
+                          min={timeRestrictions.min}
+                          max={timeRestrictions.max}
                           style={{ cursor: 'pointer', fontSize: '1rem' }}
                           onClick={(e) => (e.target as HTMLInputElement).showPicker?.()}
+                          disabled={!selectedDate || isDisabledDate(selectedDate)}
                           required
                         />
-                        
-                        {form.appointment_date && (
-                          <div className="form-text text-success mt-2">
-                            <i className="bi bi-check-circle me-1"></i>
-                            <strong>
-                              {t('appointmentModal.scheduledFor', { 
-                                defaultValue: 'Agendado para:' 
-                              })}
-                            </strong>{' '}
-                            {new Date(form.appointment_date).toLocaleString()}
-                          </div>
+                        {selectedDate && (
+                          <small className="text-muted d-block mt-1">
+                            {getDayOfWeek(selectedDate) === 6
+                              ? t('saturdayHours', { defaultValue: 'Sábado: 09:00 - 13:00' })
+                              : t('weekdayHours', { defaultValue: 'Seg-Sex: 09:00 - 18:00' })}
+                          </small>
                         )}
                       </div>
 
