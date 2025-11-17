@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ClientMenu } from "../../components/ClientMenu";
 import { Vehicles } from "../vehicles/vehicles";
 import { Appointments } from "../future_appointments/FutureAppointments";
@@ -23,6 +23,18 @@ export function ClientLayout() {
   const [activeSection, setActiveSection] = useState<ClientSection>("dashboard");
   const { isLoggedIn } = useAuth();
   const { t } = useTranslation();
+
+  // Ler parâmetros da URL ao carregar
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const section = urlParams.get('section') as ClientSection;
+    
+    if (section) {
+      setActiveSection(section);
+      // Limpar parâmetros da URL após processar
+      window.history.replaceState({}, '', '/my-services');
+    }
+  }, []);
 
   if (!isLoggedIn) {
     return (

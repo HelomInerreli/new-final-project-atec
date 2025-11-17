@@ -163,7 +163,7 @@ export function ServicesList() {
                               <div className="text-center p-4">
                                 <i className={`${service.icon} mb-4 service-icon-large`} />
                                 <h3 className="fw-bold mb-3">{service.name}</h3>
-                                <span className="badge bg-white price-tag">
+                                <span className="badge bg-danger price-tag">
                                   {t('servicesPage.priceFrom')} €{service.priceRange}
                                 </span>
                               </div>

@@ -7,12 +7,10 @@ import { Vehicles } from "../pages/vehicles/vehicles";
 import { PastAppointments } from "../components/PastAppointments";
 import { Invoices } from "../pages/invoices/invoices";
 import Profile from "../pages/profile/profile";
-import { AppointmentDetailPage } from '../pages/AppointmentDetailPage';
 
 export function AppRoutes() {
   return (
     <Routes>
-      <Route path="/appointment/:id" element={<AppointmentDetailPage />} />
       <Route path="/client" element={<ClientLayout />}>
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />

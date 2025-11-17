@@ -13,7 +13,6 @@ import { FutureAppointments } from "./components/FutureAppointement";
 import { SobrePage } from "./pages/Sobre/SobrePage";
 import { ContactPage } from "./pages/contact/ContactPage";
 import { ClientLayout } from "./pages/clientLayout/ClientLayout";
-import { AppointmentDetailPage } from "./pages/AppointmentDetailPage";
 
 function App() {
   return (
@@ -36,7 +35,6 @@ function App() {
           {/* <Route path="/contact" element={<ClientMenu />} /> */}
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/my-services" element={<ClientLayout />} />
-          <Route path="/appointment/:id" element={<AppointmentDetailPage />} />
         </Routes>
       </Layout>
     </BrowserRouter>

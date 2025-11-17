@@ -519,6 +519,10 @@ i18next.use(initReactI18next).init({
         myServices: "My Services",
         noCompletedServicesMessage: "You don't have any completed services yet. When you complete a service, it will appear here.",
         myInvoices: "My Invoices",
+
+        appointmentsPage: {
+          title: "My Appointments",
+        },
         
         // Invoice translations
         invoices: {
@@ -1091,6 +1095,9 @@ i18next.use(initReactI18next).init({
         myServices: "Meus Serviços",
         noCompletedServicesMessage: "Ainda não tem serviços finalizados. Quando concluir um serviço, ele aparecerá aqui.",
         myInvoices: "Minhas Faturas",
+        appointmentsPage: {
+          title: "Detalhes do Agendamento",
+        },
         
         // Invoice translations
         invoices: {
@@ -1657,6 +1664,9 @@ i18next.use(initReactI18next).init({
         myServices: "Mis Servicios",
         noCompletedServicesMessage: "Aún no tienes servicios completados. Cuando completes un servicio, aparecerá aquí.",
         myInvoices: "Mis Facturas",
+        appointmentsPage: {
+          title: "Mis Citas",
+        },
         
         // Invoice translations
         invoices: {
@@ -1780,6 +1790,9 @@ i18next.use(initReactI18next).init({
         serviceDataFetchedSuccessfully:
           "Données de services chargées avec succès",
         completedServicesHistory: "Historique des Services Terminés",
+        appointmentsPage: {
+          title: "Mes Rendez-vous",
+        },
         completedServicesDescription:
           "Voir l'historique complet de vos services terminés",
         completedServices: "Services Terminés",
