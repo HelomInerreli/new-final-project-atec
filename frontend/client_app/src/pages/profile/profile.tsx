@@ -299,7 +299,7 @@ const Profile: React.FC = () => {
 
   };
 
-  const handleEditSubmit = async (data: UserProfile) => {
+  const handleEditSubmit = async (data: any) => {
     setEditLoading(true);
     try {
       await updateCustomerProfile(data);

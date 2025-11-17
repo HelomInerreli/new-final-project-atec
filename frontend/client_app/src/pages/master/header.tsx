@@ -3,12 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Logo } from "../../components/Logo";
 import "../../i18n";
 import { useTranslation } from "react-i18next";
-import Button from "react-bootstrap/Button";
-import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Dropdown from "react-bootstrap/Dropdown";
 import ReactCountryFlag from "react-country-flag";
-import NavDropdown from "react-bootstrap/esm/NavDropdown";
-import { CreateAppointmentModal } from "../../components/CreateAppointmentModal";
 import LoginModal from "../../components/LoginModal";
 import { useAuth } from "../../api/auth";
 
@@ -21,19 +17,10 @@ export function Header({ className = "" }: HeaderProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
-  const [showCreateModal, setShowCreateModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
-  const { isLoggedIn, loggedInCustomerId, loggedInCustomerName, logout, /*checkAuth*/ } = useAuth();
+  const { isLoggedIn, loggedInCustomerName, logout, /*checkAuth*/ } = useAuth();
 
-  //const debugAuth = () => {
-  //   console.log('=== AUTH DEBUG ===');
-  //   console.log('Is Logged In:', isLoggedIn);
-  //  console.log('Customer ID:', loggedInCustomerId);
-  //  console.log('Token in localStorage:', localStorage.getItem('access_token'));
-  // console.log('Re-checking auth:', checkAuth());
-  //   console.log('==================');
-  //};
 
   const handleLogout = () => {
     logout();
@@ -46,10 +33,7 @@ export function Header({ className = "" }: HeaderProps) {
 
   const menuItems = [
     { label: "Home", href: "/" },
-    ...(isLoggedIn ? [{ label: t("dashboard"), href: "/dashboard" }] : []),
-    { label: t("clientList"), href: "/clients" },
     { label: t("serviceList"), href: "/services" },
-    { label: t("appointmentList"), href: "/appointments" },
     { label: t("about"), href: "/about" },
     { label: t("contact"), href: "/contact" },
   ];
@@ -82,9 +66,9 @@ export function Header({ className = "" }: HeaderProps) {
         className={`navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top ${className}`}
         style={{ zIndex: 1030 }}
       >
-        <div className="container">
-          {/* Logo */}
-          <a className="navbar-brand d-flex align-items-center" href="/">
+        <div className="container-fluid px-3">
+          {/* Logo - Far Left */}
+          <a className="navbar-brand d-flex align-items-center me-0" href="/">
             <Logo scale={0.6} showSubtitle={false} />
           </a>
 
@@ -105,8 +89,8 @@ export function Header({ className = "" }: HeaderProps) {
             className={`collapse navbar-collapse ${isMenuOpen ? "show" : ""}`}
             id="navbarNav"
           >
-            {/* Menu Items */}
-            <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+            {/* Menu Items Centered */}
+            <ul className="navbar-nav position-absolute start-50 translate-middle-x mb-2 mb-lg-0 d-none d-lg-flex">
               {menuItems.map((item) => (
                 <li key={item.label} className="nav-item">
                   <a
@@ -129,20 +113,32 @@ export function Header({ className = "" }: HeaderProps) {
               ))}
             </ul>
 
-            {/* Botões de Ação */}
-            <div className="d-flex flex-column flex-lg-row gap-2">
-              {/* BOTÃO AGENDAR SERVIÇO (só aparece se logado) */}
-              {/* {isLoggedIn && (
-                <button
-                  className="btn btn-success btn-sm"
-                  onClick={() => setShowCreateModal(true)}
-                  title="Agendar Novo Serviço"
-                >
-                  <i className="bi bi-plus-circle me-1"></i>
-                  <span className="d-none d-lg-inline">Schedule Service</span>
-                  <span className="d-lg-none">Agendar</span>
-                </button>
-              )} */}
+            {/* Menu Items for Mobile */}
+            <ul className="navbar-nav d-lg-none mb-2">
+              {menuItems.map((item) => (
+                <li key={item.label} className="nav-item">
+                  <a
+                    className={`nav-link ${
+                      isActiveRoute(item.href)
+                        ? "active text-danger fw-bold"
+                        : ""
+                    }`}
+                    href={item.href}
+                    onClick={() => setIsMenuOpen(false)}
+                    style={
+                      isActiveRoute(item.href)
+                        ? { borderBottom: "2px solid #dc3545" }
+                        : {}
+                    }
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+
+            {/* Language Selector and User Actions - Far Right */}
+            <div className="d-flex flex-column flex-lg-row gap-2 align-items-center ms-auto">
               {/* Seletor de idioma com bandeiras */}
               <Dropdown>
                 <Dropdown.Toggle
@@ -279,13 +275,6 @@ export function Header({ className = "" }: HeaderProps) {
                 </Dropdown.Menu>
               </Dropdown>
 
-              {/*<button
-                className="btn btn-warning btn-sm"
-                onClick={debugAuth}
-                title="Debug Auth"
-              >
-                Debug Auth
-              </button>*/}
 
               {!isLoggedIn ? (
                 <>
@@ -309,6 +298,7 @@ export function Header({ className = "" }: HeaderProps) {
                     variant="outline-primary"
                     id="dropdown-user"
                     size="sm"
+                    className="border-0 shadow-none"
                     style={{
                       border: "1px solid #dee2e6",
                       borderRadius: "25px",
@@ -342,14 +332,12 @@ export function Header({ className = "" }: HeaderProps) {
                     <span className="d-none d-md-inline fw-medium">
                       {getUserDisplayName()}
                     </span>
-                    <i className="bi bi-chevron-down" style={{ fontSize: "10px" }}></i>
                   </Dropdown.Toggle>
 
                   <Dropdown.Menu style={{ minWidth: "220px", border: "1px solid #e0e0e0", borderRadius: "8px" }}>
                     {/* User Info Header */}
                     <div className="px-3 py-2 border-bottom bg-light">
                       <div className="fw-bold text-dark small">{loggedInCustomerName || "User"}</div>
-                      <small className="text-muted">ID: {loggedInCustomerId}</small>
                     </div>
 
                     {/* Profile Section */}
@@ -362,19 +350,11 @@ export function Header({ className = "" }: HeaderProps) {
                     </Dropdown.Item>
                     
                     <Dropdown.Item
-                      onClick={() => navigate("/my-appointments")}
+                      onClick={() => navigate("/my-services")}
                       className="d-flex align-items-center py-2"
                     >
-                      <i className="bi bi-calendar-check me-2 text-success"></i>
-                      {t("myAppointments")}
-                    </Dropdown.Item>
-
-                    <Dropdown.Item
-                      onClick={() => navigate("/service-history")}
-                      className="d-flex align-items-center py-2"
-                    >
-                      <i className="bi bi-clock-history me-2 text-info"></i>
-                      {t("serviceHistory")}
+                    <i className="bi bi-tools me-2 text-primary"></i>
+                      {t("myServices")}
                     </Dropdown.Item>
 
                     <Dropdown.Divider />
@@ -396,16 +376,6 @@ export function Header({ className = "" }: HeaderProps) {
                       {t("notifications")}
                     </Dropdown.Item>
 
-                    <Dropdown.Divider />
-
-                    {/* Quick Actions */}
-                    <Dropdown.Item
-                      onClick={() => setShowCreateModal(true)}
-                      className="d-flex align-items-center py-2"
-                    >
-                      <i className="bi bi-plus-circle me-2 text-success"></i>
-                      {t("scheduleService")}
-                    </Dropdown.Item>
 
                     <Dropdown.Divider />
 
@@ -432,23 +402,7 @@ export function Header({ className = "" }: HeaderProps) {
         onClose={() => setShowLoginModal(false)}
       />
     )}
-      {/* MODAL PARA CRIAR APPOINTMENT - SINTAXE CORRIGIDA */}
-      {/* {isLoggedIn && (
-        <CreateAppointmentModal
-          show={showCreateModal}
-          onClose={() => setShowCreateModal(false)}
-          customerId={loggedInCustomerId}
-          onSuccess={() => {
-            setShowCreateModal(false);
-            alert("Agendamento criado com sucesso!");
-            if (location.pathname !== "/appointments") {
-              window.location.href = "/appointments";
-            } else {
-              window.location.reload();
-            }
-          }}
-        />
-      )} */}
+      
       
     </>
     

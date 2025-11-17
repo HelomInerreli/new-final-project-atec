@@ -1,0 +1,244 @@
+.past-appointments-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.past-appointments-header {
+  margin-bottom: 2rem;
+}
+
+.past-appointments-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+/* Loading */
+.past-loading-container {
+  padding: 4rem 0;
+  text-align: center;
+}
+
+/* Empty State */
+.past-empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.past-empty-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.past-empty-state h3 {
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+.past-empty-state p {
+  color: #7f8c8d;
+}
+
+/* Content */
+.past-appointments-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Month Section */
+.past-month-section {
+  background: transparent;
+}
+
+/* Month Header (Dropdown) */
+.past-month-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  transition: all 0.2s ease;
+}
+
+.past-month-header:hover .past-month-title {
+  color: #dc3545;
+}
+
+.past-month-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+  transition: color 0.2s ease;
+}
+
+.past-toggle-icon {
+  font-size: 1rem;
+  color: #666;
+  transition: transform 0.3s ease;
+  display: inline-block;
+}
+
+.past-toggle-icon.past-expanded {
+  transform: rotate(90deg);
+}
+
+/* Appointments List */
+.past-appointments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+/* Appointment Card - Similar ao FutureAppointments */
+.past-appointment-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+}
+
+.past-appointment-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Card Header - Gradiente vermelho como FutureAppointments */
+.past-card-header {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.past-card-title-section {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: white;
+}
+
+.past-service-icon {
+  font-size: 1.5rem;
+  color: white;
+}
+
+.past-service-name {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: white;
+  margin: 0;
+}
+
+.past-status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.3);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+/* Card Body */
+.past-card-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.past-info-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.past-info-icon {
+  color: #dc3545;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+}
+
+.past-info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.past-info-label {
+  font-size: 0.875rem;
+  color: #7f8c8d;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.past-info-value {
+  font-size: 1rem;
+  color: #2c3e50;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.past-budget-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #dc3545;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .past-appointments-page {
+    padding: 1rem;
+  }
+
+  .past-appointments-title {
+    font-size: 1.5rem;
+  }
+
+  .past-month-title {
+    font-size: 1.25rem;
+  }
+
+  .past-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .past-status-badge {
+    align-self: flex-start;
+  }
+}
+
+.past-month-header-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.past-appointment-count {
+  font-size: 0.875rem;
+  color: #666;
+  font-weight: 500;
+  background: #f0f0f0;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+}

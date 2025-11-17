@@ -1,0 +1,113 @@
+/* ServiceOrderDetail overrides - ocupa toda a área útil à direita da sidebar */
+
+/* segurança: tornar transparentes wrappers globais que possam estar a pintar o fundo */
+#root,
+.app,
+.page,
+.page-wrapper,
+.content-area,
+.main,
+.layout-content,
+.app-content {
+  background: transparent !important;
+}
+
+/* wrapper full-screen à direita da sidebar */
+.so-fullscreen {
+  position: fixed !important;
+  top: 0 !important;
+  left: 240px !important; /* ajustar conforme a largura real da sidebar */
+  right: 0 !important;
+  bottom: 0 !important;
+  width: calc(100% - 240px) !important;
+  height: 100vh !important;
+  background: transparent !important; /* remove o cinzento por trás */
+  overflow-y: auto !important;
+  padding: 32px 48px !important;
+  box-sizing: border-box !important;
+  z-index: 9999 !important;
+}
+
+/* header e layout */
+.so-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  width: 100%;
+}
+
+/* cartão de conteúdo interno — branco e occupy full width */
+.so-content,
+.order-card {
+  background: #fff !important;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08) !important;
+  padding: 24px !important;
+  width: 100% !important;
+  max-width: none !important;
+  box-sizing: border-box !important;
+}
+
+/* garantir que a grid interna usa toda a largura disponível */
+.so-content .row,
+.order-card .row {
+  margin: 0 !important;
+  width: 100% !important;
+}
+
+/* colunas ocupam espaço igual e responsivo */
+.so-content .col-12,
+.so-content .col-md-4,
+.order-card .col-12,
+.order-card .col-md-4 {
+  width: 100% !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+}
+
+/* comentários */
+.comments-list,
+.list-unstyled {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.comments-list li {
+  margin-bottom: 8px;
+}
+
+/* inputs e botões adaptam-se ao cartão */
+.so-content input.form-control,
+.order-card input.form-control,
+.so-content textarea.form-control,
+.order-card textarea.form-control {
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* pequenas melhorias responsivas */
+@media (max-width: 991.98px) {
+  .so-fullscreen {
+    left: 0 !important;
+    width: 100% !important;
+    padding: 16px !important;
+  }
+
+  .so-content,
+  .order-card {
+    padding: 16px !important;
+    border-radius: 8px !important;
+  }
+
+  .so-content .col-12,
+  .so-content .col-md-4,
+  .order-card .col-12,
+  .order-card .col-md-4 {
+    width: 100% !important;
+    flex: 1 1 100% !important;
+  }
+}

@@ -37,18 +37,43 @@ class AppointmentRepository:
         """Obter uma appointment por id (sem joins extras)."""
         return self.db.query(Appointment).filter(Appointment.id == appointment_id).first()
 
+    # def get_by_id_with_relations(self, appointment_id: int) -> Optional[Appointment]:
+    #     """Obter appointment com relações úteis carregadas (customer, extra requests, service)."""
+    #     return (
+    #         self.db.query(Appointment)
+    #         .options(joinedload(Appointment.customer), joinedload(Appointment.extra_service_associations))
+    #         .filter(Appointment.id == appointment_id)
+    #         .first()
+    #     )
+
     def get_by_id_with_relations(self, appointment_id: int) -> Optional[Appointment]:
-        """Obter appointment com relações úteis carregadas (customer, extra requests, service)."""
-        return (
-            self.db.query(Appointment)
-            .options(joinedload(Appointment.customer), joinedload(Appointment.extra_service_associations))
-            .filter(Appointment.id == appointment_id)
-            .first()
+            """Obter appointment com relações úteis carregadas (customer, vehicle, extra requests, service)."""
+            return (
+                self.db.query(Appointment)
+                .options(
+                    joinedload(Appointment.customer),
+                    joinedload(Appointment.vehicle),
+                    joinedload(Appointment.extra_service_associations),
+                )
+                .filter(Appointment.id == appointment_id)
+                .first()
         )
 
     def get_all(self, skip: int = 0, limit: int = 100) -> List[Appointment]:
         """Listar appointments, ordenadas do mais recente para o mais antigo."""
-        return self.db.query(Appointment).order_by(Appointment.id.desc()).offset(skip).limit(limit).all()
+        # carregar customer e vehicle para que os campos customer_id/vehicle_id e os objetos apareçam no response. #Henrique
+        return (
+            self.db.query(Appointment)
+            .options(joinedload(Appointment.customer), joinedload(Appointment.vehicle))
+            .order_by(Appointment.id.desc())
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
+
+    # def get_all(self, skip: int = 0, limit: int = 100) -> List[Appointment]:
+    #     """Listar appointments, ordenadas do mais recente para o mais antigo."""
+    #     return self.db.query(Appointment).order_by(Appointment.id.desc()).offset(skip).limit(limit).all()
 
     def create(self, appointment: AppointmentCreate, email_service: Optional[EmailService] = None) -> Appointment:
         """
