@@ -8,34 +8,19 @@ import {
 } from "react-pro-sidebar";
 import { NavLink } from "react-router-dom";
 import {
-  FiBook,
-  FiCalendar,
-  FiMenu,
-  FiChevronLeft,
-  FiSearch,
-  FiUsers,
-  FiSettings,
-  FiUser,
-  FiPackage,
-  FiPieChart,
-  FiDollarSign,
-  FiSliders,
-} from "react-icons/fi";
-import {
-  BsCalendar2WeekFill,
-  BsCalendar3,
-  BsCarFrontFill,
-  BsCashCoin,
-  BsCreditCard2BackFill,
-  BsDoorOpenFill,
-  BsFileEarmarkTextFill,
-  BsFillBoxSeamFill,
-  BsFillPeopleFill,
-  BsFillPersonVcardFill,
-  BsGearFill,
-  BsPieChartFill,
-  BsTools,
-} from "react-icons/bs";
+  LayoutDashboard,
+  FileText,
+  Calendar,
+  Users,
+  Car,
+  Package,
+  CreditCard,
+  UserCog,
+  Wrench,
+  Settings,
+  LogOut,
+} from "lucide-react";
+import { FiMenu, FiChevronLeft } from "react-icons/fi";
 import { Logo } from "./Logo";
 import Badge from "react-bootstrap/esm/Badge";
 
@@ -262,7 +247,7 @@ export default function SideBarMenu() {
             <MenuItem
               icon={
                 <IconWithBadgeSized
-                  icon={<BsPieChartFill />}
+                  icon={<LayoutDashboard />}
                   size={collapsed ? 25 : 27}
                 />
               }
@@ -274,7 +259,7 @@ export default function SideBarMenu() {
             <MenuItem
               icon={
                 <IconWithBadgeSized
-                  icon={<BsFileEarmarkTextFill />}
+                  icon={<FileText />}
                   size={collapsed ? 25 : 27}
                 />
               }
@@ -286,7 +271,7 @@ export default function SideBarMenu() {
             <MenuItem
               icon={
                 <IconWithBadgeSized
-                  icon={<BsCalendar2WeekFill />}
+                  icon={<Calendar />}
                   count={5}
                   size={collapsed ? 25 : 27}
                 />
@@ -299,7 +284,7 @@ export default function SideBarMenu() {
             <MenuItem
               icon={
                 <IconWithBadgeSized
-                  icon={<BsFillPeopleFill />}
+                  icon={<Users />}
                   size={collapsed ? 25 : 27}
                 />
               }
@@ -310,10 +295,7 @@ export default function SideBarMenu() {
 
             <MenuItem
               icon={
-                <IconWithBadgeSized
-                  icon={<BsCarFrontFill />}
-                  size={collapsed ? 25 : 27}
-                />
+                <IconWithBadgeSized icon={<Car />} size={collapsed ? 25 : 27} />
               }
               component={<NavLink to="/vehicles" />}
             >
@@ -340,7 +322,7 @@ export default function SideBarMenu() {
             <MenuItem
               icon={
                 <IconWithBadgeSized
-                  icon={<BsFillBoxSeamFill />}
+                  icon={<Package />}
                   count={3}
                   size={collapsed ? 25 : 27}
                 />
@@ -353,7 +335,7 @@ export default function SideBarMenu() {
             <MenuItem
               icon={
                 <IconWithBadgeSized
-                  icon={<BsCreditCard2BackFill />}
+                  icon={<CreditCard />}
                   size={collapsed ? 25 : 27}
                 />
               }
@@ -365,7 +347,7 @@ export default function SideBarMenu() {
             <MenuItem
               icon={
                 <IconWithBadgeSized
-                  icon={<BsFillPersonVcardFill />}
+                  icon={<UserCog />}
                   size={collapsed ? 25 : 27}
                 />
               }
@@ -377,7 +359,7 @@ export default function SideBarMenu() {
             <MenuItem
               icon={
                 <IconWithBadgeSized
-                  icon={<BsTools />}
+                  icon={<Wrench />}
                   size={collapsed ? 25 : 27}
                 />
               }
@@ -389,7 +371,7 @@ export default function SideBarMenu() {
             <MenuItem
               icon={
                 <IconWithBadgeSized
-                  icon={<BsGearFill />}
+                  icon={<Settings />}
                   size={collapsed ? 25 : 27}
                 />
               }
@@ -401,7 +383,7 @@ export default function SideBarMenu() {
             <MenuItem
               icon={
                 <IconWithBadgeSized
-                  icon={<BsDoorOpenFill />}
+                  icon={<LogOut />}
                   size={collapsed ? 25 : 27}
                 />
               }

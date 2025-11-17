@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
 @layer base {
   :root {
     --background: 0 0% 96%;
@@ -73,7 +72,7 @@
     --border: 355 79% 55%;
     --input: 355 79% 55%;
     --ring: 355 79% 55%;
-    
+
     --sidebar-background: 355 79% 55%;
     --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 0 0% 100%;
@@ -94,9 +93,6 @@
     @apply bg-background text-foreground;
   }
 }
-
-
-
 
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -125,6 +121,8 @@ a:hover {
 body {
   margin: 0;
   display: flex;
+  background-color: #f3f3f3;
+  /* background-color: #e73241; */
   place-items: center;
   min-width: 320px;
   min-height: 100vh;

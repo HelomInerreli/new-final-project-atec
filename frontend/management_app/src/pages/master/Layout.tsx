@@ -9,11 +9,14 @@ interface LayoutProps {
 export function Layout({ children, className = "" }: LayoutProps) {
   return (
     <div
-      className={`min-vh-100 ${className}`}
+      className={` ${className}`}
       style={{
         display: "flex",
+        width: "98vw",
+        height: "95vh",
+        // paddingLeft: "100px",
         flexDirection: "column",
-        backgroundColor: "#f8f9fa",
+        backgroundColor: "#fff",
       }}
     >
       <SideBarMenu />
@@ -25,7 +28,7 @@ export function Layout({ children, className = "" }: LayoutProps) {
           paddingBottom: "80px", // Espaço para footer fixo
           minHeight: "calc(100vh - 170px)",
           // push content to the right of the fixed sidebar. --sidebar-width is updated by the sidebar component
-          marginLeft: 'var(--sidebar-width, 260px)',
+          marginLeft: "var(--sidebar-width, 260px)",
         }}
       >
         {/* Container responsivo que ocupa 80% da largura */}
@@ -37,7 +40,6 @@ export function Layout({ children, className = "" }: LayoutProps) {
           </div>
         </div>
       </main>
-
     </div>
   );
 }

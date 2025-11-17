@@ -6,6 +6,7 @@ import Appointments from "./pages/appointments";
 import Examples from "./components/Examples";
 import ServiceOrders from "./components/ServiceOrders";
 import ServiceOrderDetail from "./components/ServiceOrderDetail";
+import MainStock from "./pages/Stock/mainStock";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/dashboard" element={<Examples />} />
+            <Route path="/stock" element={<MainStock />} />
             <Route path="/appointments" element={<Appointments />} />
             <Route path="/servicesOrders" element={<ServiceOrders />} />
             <Route path="/orders/:id" element={<ServiceOrderDetail />} />
