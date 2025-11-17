@@ -7,6 +7,7 @@ import Examples from "./components/Examples";
 import ServiceOrders from "./components/ServiceOrders";
 import ServiceOrderDetail from "./components/ServiceOrderDetail";
 import ServicesManagement from "./pages/ServicesManagement";
+import { Toaster } from "./components/ui/toaster";
 
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
             <Route path="/servicesManagement" element={<ServicesManagement />} />
           </Routes>
         </Layout>
+        <Toaster />
       </BrowserRouter>
     </>
   );

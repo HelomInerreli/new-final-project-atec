@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
@@ -7,184 +7,139 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "../hooks/use-toast";
-import {Table,TableBody,TableCell,TableHead,TableHeader,TableRow,} from "../components/ui/table";
-import {Dialog,DialogContent,DialogDescription,DialogFooter,DialogHeader,DialogTitle,} from "../components/ui/dialog";
-import {AlertDialog,AlertDialogAction,AlertDialogCancel,AlertDialogContent,AlertDialogDescription,AlertDialogFooter,AlertDialogHeader,AlertDialogTitle,} from "../components/ui/alert-dialog";
-import {Form,FormControl,FormField,FormItem,FormLabel,FormMessage,
-} from "../components/ui/form";
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "../components/ui/table";
+import {Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle} from "../components/ui/dialog";
+import {AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle} from "../components/ui/alert-dialog";
+import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "../components/ui/form";
 import { Textarea } from "../components/ui/textarea";
-
-type Servico = {
-  id: string;
-  nome: string;
-  descricao: string;
-  preco: number;
-  duracao: number; // em minutos
-  categoria: string;
-};
+import { serviceService, type Service } from "../services/serviceService";
 
 const servicoSchema = z.object({
-  nome: z.string().min(3, "Nome deve ter no mínimo 3 caracteres"),
-  descricao: z.string().min(10, "Descrição deve ter no mínimo 10 caracteres"),
-  preco: z.number().min(0.01, "Preço deve ser maior que 0"),
-  duracao: z.number().min(1, "Duração deve ser maior que 0"),
-  categoria: z.string().min(1, "Categoria é obrigatória"),
+  name: z.string().min(3, "Nome deve ter no mínimo 3 caracteres"),
+  description: z.string().min(10, "Descrição deve ter no mínimo 10 caracteres"),
+  price: z.number().min(0.01, "Preço deve ser maior que 0"),
+  duration_minutes: z.number().min(1, "Duração deve ser maior que 0"),
 });
 
-const initialServicos: Servico[] = [
-  {
-    id: "1",
-    nome: "Mudança de Óleo",
-    descricao: "Troca de óleo do motor e filtro",
-    preco: 45.00,
-    duracao: 30,
-    categoria: "Manutenção",
-  },
-  {
-    id: "2",
-    nome: "Alinhamento e Balanceamento",
-    descricao: "Alinhamento de direção e balanceamento de rodas",
-    preco: 65.00,
-    duracao: 60,
-    categoria: "Suspensão",
-  },
-  {
-    id: "3",
-    nome: "Revisão Completa",
-    descricao: "Revisão geral do veículo com 50 pontos de verificação",
-    preco: 150.00,
-    duracao: 120,
-    categoria: "Manutenção",
-  },
-  {
-    id: "4",
-    nome: "Troca de Pastilhas de Travão",
-    descricao: "Substituição de pastilhas dianteiras ou traseiras",
-    preco: 85.00,
-    duracao: 90,
-    categoria: "Travões",
-  },
-  {
-    id: "5",
-    nome: "Diagnóstico Eletrónico",
-    descricao: "Leitura de códigos de erro com equipamento especializado",
-    preco: 35.00,
-    duracao: 30,
-    categoria: "Eletrónica",
-  },
-  {
-    id: "6",
-    nome: "Substituição de Bateria",
-    descricao: "Troca e teste de bateria do veículo",
-    preco: 120.00,
-    duracao: 20,
-    categoria: "Eletrónica",
-  },
-];
-
 export default function ServicesManagement() {
-  const [servicos, setServicos] = useState<Servico[]>(initialServicos);
+  const [servicos, setServicos] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [categoriaFilter, setCategoriaFilter] = useState<string>("Todos");
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingServico, setEditingServico] = useState<Servico | null>(null);
+  const [editingServico, setEditingServico] = useState<Service | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [servicoToDelete, setServicoToDelete] = useState<string | null>(null);
+  const [servicoToDelete, setServicoToDelete] = useState<number | null>(null);
 
   const form = useForm<z.infer<typeof servicoSchema>>({
     resolver: zodResolver(servicoSchema),
     defaultValues: {
-      nome: "",
-      descricao: "",
-      preco: 0,
-      duracao: 30,
-      categoria: "Manutenção",
+      name: "",
+      description: "",
+      price: 0,
+      duration_minutes: 30,
     },
   });
 
-  const categorias = ["Todos", ...new Set(servicos.map(s => s.categoria))];
+  // Load services from API
+  useEffect(() => {
+    loadServices();
+  }, []);
+
+  const loadServices = async () => {
+    try {
+      setLoading(true);
+      const data = await serviceService.getAll();
+      setServicos(data);
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Não foi possível carregar os serviços.",
+        variant: "destructive",
+      });
+      console.error("Error loading services:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredServicos = servicos.filter((servico) => {
     const matchesSearch = 
-      servico.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      servico.descricao.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategoria = categoriaFilter === "Todos" || servico.categoria === categoriaFilter;
-    
-    return matchesSearch && matchesCategoria;
+      servico.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (servico.description?.toLowerCase().includes(searchTerm.toLowerCase()) || false);
+    return matchesSearch;
   });
 
-  const handleOpenDialog = (servico?: Servico) => {
+  const handleOpenDialog = (servico?: Service) => {
     if (servico) {
       setEditingServico(servico);
       form.reset({
-        nome: servico.nome,
-        descricao: servico.descricao,
-        preco: servico.preco,
-        duracao: servico.duracao,
-        categoria: servico.categoria,
+        name: servico.name,
+        description: servico.description || "",
+        price: servico.price,
+        duration_minutes: servico.duration_minutes || 30,
       });
     } else {
       setEditingServico(null);
       form.reset({
-        nome: "",
-        descricao: "",
-        preco: 0,
-        duracao: 30,
-        categoria: "Manutenção",
+        name: "",
+        description: "",
+        price: 0,
+        duration_minutes: 30,
       });
     }
     setDialogOpen(true);
   };
 
-  const handleSubmit = (values: z.infer<typeof servicoSchema>) => {
-    if (editingServico) {
-      setServicos(servicos.map(s => 
-        s.id === editingServico.id 
-          ? { 
-              id: s.id,
-              nome: values.nome,
-              descricao: values.descricao,
-              preco: values.preco,
-              duracao: values.duracao,
-              categoria: values.categoria,
-            }
-          : s
-      ));
+  const handleSubmit = async (values: z.infer<typeof servicoSchema>) => {
+    try {
+      if (editingServico) {
+        await serviceService.update(editingServico.id, values);
+        toast({
+          title: "Serviço atualizado",
+          description: "O serviço foi atualizado com sucesso.",
+        });
+      } else {
+        await serviceService.create(values);
+        toast({
+          title: "Serviço criado",
+          description: "O serviço foi criado com sucesso.",
+        });
+      }
+      setDialogOpen(false);
+      form.reset();
+      loadServices(); // Reload the list
+    } catch (error) {
       toast({
-        title: "Serviço atualizado",
-        description: "O serviço foi atualizado com sucesso.",
+        title: "Erro",
+        description: editingServico ? "Não foi possível atualizar o serviço." : "Não foi possível criar o serviço.",
+        variant: "destructive",
       });
-    } else {
-      const newServico: Servico = {
-        id: Date.now().toString(),
-        nome: values.nome,
-        descricao: values.descricao,
-        preco: values.preco,
-        duracao: values.duracao,
-        categoria: values.categoria,
-      };
-      setServicos([...servicos, newServico]);
-      toast({
-        title: "Serviço criado",
-        description: "O serviço foi criado com sucesso.",
-      });
+      console.error("Error saving service:", error);
     }
-    setDialogOpen(false);
-    form.reset();
   };
 
-  const handleDeleteClick = (id: string) => {
+  const handleDeleteClick = (id: number) => {
     setServicoToDelete(id);
     setDeleteDialogOpen(true);
   };
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     if (servicoToDelete) {
-      setServicos(servicos.filter(s => s.id !== servicoToDelete));
-      toast({
-        title: "Serviço eliminado",
-        description: "O serviço foi eliminado com sucesso.",
-      });
+      try {
+        await serviceService.delete(servicoToDelete);
+        toast({
+          title: "Serviço eliminado",
+          description: "O serviço foi eliminado com sucesso.",
+        });
+        loadServices(); // Reload the list
+      } catch (error) {
+        toast({
+          title: "Erro",
+          description: "Não foi possível eliminar o serviço.",
+          variant: "destructive",
+        });
+        console.error("Error deleting service:", error);
+      }
     }
     setDeleteDialogOpen(false);
     setServicoToDelete(null);
@@ -197,17 +152,16 @@ export default function ServicesManagement() {
     }).format(preco);
   };
 
-  const formatDuracao = (minutos: number) => {
-    if (minutos < 60) {
-      return `${minutos} min`;
-    }
+  const formatDuracao = (minutos: number | null) => {
+    if (!minutos) return "N/A";
+    if (minutos < 60) return `${minutos} min`;
     const horas = Math.floor(minutos / 60);
     const mins = minutos % 60;
     return mins > 0 ? `${horas}h ${mins}min` : `${horas}h`;
   };
 
   return (
-    <div className="space-y-6">
+    <div className="flex-1 space-y-6 p-8">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Gestão de Serviços</h1>
@@ -229,92 +183,77 @@ export default function ServicesManagement() {
             className="pl-10"
           />
         </div>
-        <select
-          value={categoriaFilter}
-          onChange={(e) => setCategoriaFilter(e.target.value)}
-          className="px-4 py-2 rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground"
-        >
-          {categorias.map((cat) => (
-            <option key={cat} value={cat}>
-              {cat}
-            </option>
-          ))}
-        </select>
       </div>
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Serviço</TableHead>
-              <TableHead>Descrição</TableHead>
-              <TableHead>Categoria</TableHead>
-              <TableHead className="text-right">Preço</TableHead>
-              <TableHead className="text-center">Duração</TableHead>
-              <TableHead className="text-right">Ações</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredServicos.length === 0 ? (
+      {loading ? (
+        <div className="flex justify-center items-center py-12">
+          <p className="text-muted-foreground">A carregar serviços...</p>
+        </div>
+      ) : (
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                  Nenhum serviço encontrado
-                </TableCell>
+                <TableHead>Serviço</TableHead>
+                <TableHead>Descrição</TableHead>
+                <TableHead className="text-right">Preço</TableHead>
+                <TableHead className="text-center">Duração</TableHead>
+                <TableHead className="text-center">Estado</TableHead>
+                <TableHead className="text-right">Ações</TableHead>
               </TableRow>
-            ) : (
-              filteredServicos.map((servico) => (
-                <TableRow key={servico.id}>
-                  <TableCell className="font-medium">{servico.nome}</TableCell>
-                  <TableCell className="max-w-xs truncate">{servico.descricao}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{servico.categoria}</Badge>
-                  </TableCell>
-                  <TableCell className="text-right font-medium">
-                    {formatPreco(servico.preco)}
-                  </TableCell>
-                  <TableCell className="text-center">{formatDuracao(servico.duracao)}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => handleOpenDialog(servico)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => handleDeleteClick(servico.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+            </TableHeader>
+            <TableBody>
+              {filteredServicos.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                    Nenhum serviço encontrado
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+              ) : (
+                filteredServicos.map((servico) => (
+                  <TableRow key={servico.id}>
+                    <TableCell className="font-medium">{servico.name}</TableCell>
+                    <TableCell className="max-w-xs truncate">{servico.description}</TableCell>
+                    <TableCell className="text-right font-medium">
+                      {formatPreco(servico.price)}
+                    </TableCell>
+                    <TableCell className="text-center">{formatDuracao(servico.duration_minutes)}</TableCell>
+                    <TableCell className="text-center">
+                      <Badge variant={servico.is_active ? "default" : "secondary"}>
+                        {servico.is_active ? "Ativo" : "Inativo"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button variant="ghost" size="sm" onClick={() => handleOpenDialog(servico)}>
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => handleDeleteClick(servico.id)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>
-              {editingServico ? "Editar Serviço" : "Novo Serviço"}
-            </DialogTitle>
+            <DialogTitle>{editingServico ? "Editar Serviço" : "Novo Serviço"}</DialogTitle>
             <DialogDescription>
-              {editingServico 
-                ? "Edite as informações do serviço abaixo." 
-                : "Preencha as informações do novo serviço."}
+              {editingServico ? "Edite as informações do serviço abaixo." : "Preencha as informações do novo serviço."}
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
               <FormField
                 control={form.control}
-                name="nome"
+                name="name"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Nome do Serviço</FormLabel>
@@ -327,16 +266,12 @@ export default function ServicesManagement() {
               />
               <FormField
                 control={form.control}
-                name="descricao"
+                name="description"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Descrição</FormLabel>
                     <FormControl>
-                      <Textarea 
-                        placeholder="Descreva o serviço..." 
-                        {...field} 
-                        rows={3}
-                      />
+                      <Textarea placeholder="Descreva o serviço..." {...field} rows={3} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -345,7 +280,7 @@ export default function ServicesManagement() {
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
-                  name="preco"
+                  name="price"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Preço (€)</FormLabel>
@@ -364,7 +299,7 @@ export default function ServicesManagement() {
                 />
                 <FormField
                   control={form.control}
-                  name="duracao"
+                  name="duration_minutes"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Duração (min)</FormLabel>
@@ -381,19 +316,6 @@ export default function ServicesManagement() {
                   )}
                 />
               </div>
-              <FormField
-                control={form.control}
-                name="categoria"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Categoria</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Ex: Manutenção" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                   Cancelar
