@@ -30,7 +30,9 @@ export interface ServiceUpdate {
 export const serviceService = {
   // Get all services
   getAll: async (): Promise<Service[]> => {
+    console.log("📡 Fazendo GET para:", API_URL);
     const response = await axios.get(API_URL);
+    console.log("📦 Resposta recebida:", response.data);
     return response.data;
   },
 

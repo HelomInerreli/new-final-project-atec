@@ -16,7 +16,7 @@ import { serviceService, type Service } from "../services/serviceService";
 
 const servicoSchema = z.object({
   name: z.string().min(3, "Nome deve ter no mínimo 3 caracteres"),
-  description: z.string().min(10, "Descrição deve ter no mínimo 10 caracteres"),
+  description: z.string().optional(),
   price: z.number().min(0.01, "Preço deve ser maior que 0"),
   duration_minutes: z.number().min(1, "Duração deve ser maior que 0"),
 });
@@ -47,10 +47,13 @@ export default function ServicesManagement() {
 
   const loadServices = async () => {
     try {
+      console.log("🔄 Tentando carregar serviços...");
       setLoading(true);
       const data = await serviceService.getAll();
+      console.log("✅ Serviços carregados:", data);
       setServicos(data);
     } catch (error) {
+      console.error("❌ Erro ao carregar serviços:", error);
       toast({
         title: "Erro",
         description: "Não foi possível carregar os serviços.",
@@ -91,14 +94,17 @@ export default function ServicesManagement() {
   };
 
   const handleSubmit = async (values: z.infer<typeof servicoSchema>) => {
+    console.log("🚀 handleSubmit chamado com valores:", values);
     try {
       if (editingServico) {
+        console.log("✏️ Atualizando serviço ID:", editingServico.id);
         await serviceService.update(editingServico.id, values);
         toast({
           title: "Serviço atualizado",
           description: "O serviço foi atualizado com sucesso.",
         });
       } else {
+        console.log("➕ Criando novo serviço");
         await serviceService.create(values);
         toast({
           title: "Serviço criado",
@@ -109,6 +115,7 @@ export default function ServicesManagement() {
       form.reset();
       loadServices(); // Reload the list
     } catch (error) {
+      console.error("❌ Erro no handleSubmit:", error);
       toast({
         title: "Erro",
         description: editingServico ? "Não foi possível atualizar o serviço." : "Não foi possível criar o serviço.",
@@ -250,7 +257,12 @@ export default function ServicesManagement() {
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+            <form onSubmit={(e) => {
+              console.log("📝 Form onSubmit triggered");
+              console.log("Form values:", form.getValues());
+              console.log("Form errors:", form.formState.errors);
+              form.handleSubmit(handleSubmit)(e);
+            }} className="space-y-4">
               <FormField
                 control={form.control}
                 name="name"
