@@ -233,20 +233,18 @@ export default function ServicesManagement() {
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         <Button 
-                          variant="outline" 
+                          variant="ghost" 
                           size="sm" 
                           onClick={() => handleOpenDialog(servico)}
-                          className="hover:bg-red-50 focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none"
-                          style={{ outline: 'none', boxShadow: 'none' }}
+                          className="bg-transparent hover:bg-white"
                         >
                           <Edit className="h-4 w-4 text-red-600" />
                         </Button>
                         <Button 
-                          variant="outline" 
+                          variant="ghost" 
                           size="sm" 
                           onClick={() => handleDeleteClick(servico.id)}
-                          className="hover:bg-red-50 focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none"
-                          style={{ outline: 'none', boxShadow: 'none' }}
+                          className="bg-transparent hover:bg-white"
                         >
                           <Trash2 className="h-4 w-4 text-red-600" />
                         </Button>
