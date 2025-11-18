@@ -232,11 +232,23 @@ export default function ServicesManagement() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        <Button variant="ghost" size="sm" onClick={() => handleOpenDialog(servico)}>
-                          <Edit className="h-4 w-4" />
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => handleOpenDialog(servico)}
+                          className="hover:bg-red-50 focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none"
+                          style={{ outline: 'none', boxShadow: 'none' }}
+                        >
+                          <Edit className="h-4 w-4 text-red-600" />
                         </Button>
-                        <Button variant="ghost" size="sm" onClick={() => handleDeleteClick(servico.id)}>
-                          <Trash2 className="h-4 w-4" />
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => handleDeleteClick(servico.id)}
+                          className="hover:bg-red-50 focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none"
+                          style={{ outline: 'none', boxShadow: 'none' }}
+                        >
+                          <Trash2 className="h-4 w-4 text-red-600" />
                         </Button>
                       </div>
                     </TableCell>
@@ -329,7 +341,12 @@ export default function ServicesManagement() {
                 />
               </div>
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setDialogOpen(false)}
+                  className="hover:bg-gray-100 hover:text-gray-900 focus-visible:ring-0 focus-visible:ring-offset-0"
+                >
                   Cancelar
                 </Button>
                 <Button type="submit">
