@@ -7,7 +7,7 @@ import Examples from "./components/Examples";
 import ServiceOrders from "./components/ServiceOrders";
 import ServiceOrderDetail from "./components/ServiceOrderDetail";
 import MainStock from "./pages/Stock/mainStock";
-import Customers from "./pages/Customers";
+import Customers from "./pages/Customers/Customers";
 
 function App() {
   return (

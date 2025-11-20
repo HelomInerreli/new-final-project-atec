@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
-import { Button } from "./../components/ui/button";
-import { Input } from "./../components/ui/input";
-import { Label } from "./../components/ui/label";
+import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
+import { Label } from "../../components/ui/label";
 import {
   Table,
   TableBody,
@@ -9,7 +9,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "./../components/ui/table";
+} from "../../components/ui/table";
 import {
   Dialog,
   DialogContent,
@@ -17,7 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "./../components/ui/dialog";
+} from "../../components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,23 +27,24 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "./../components/ui/alert-dialog";
+} from "../../components/ui/alert-dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "./../components/ui/select";
+} from "../../components/ui/select";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Plus, Search, Pencil, Trash2, Eye } from "lucide-react";
-import { toast } from "../hooks/use-toast";
+import { toast } from "../../hooks/use-toast";
 import Badge from "react-bootstrap/Badge";
 import { Link } from "react-router-dom";
 import { Spinner, Alert } from "react-bootstrap";
-import { useFetchCustomers } from '../hooks/useCustomers';
+import { useFetchCustomers } from '../../hooks/useCustomers';
+import { useFetchVehicleCounts } from '../../hooks/useVehicles';
 
 const clienteSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
@@ -91,7 +92,15 @@ export default function Customers() {
     resolver: zodResolver(clienteSchema),
   });
 
-  // Map backend data to Cliente type
+  // Extract customer IDs for vehicle count fetching
+  const customerIds = useMemo(() => {
+    return rawCustomers.map(profile => profile.customer.id);
+  }, [rawCustomers]);
+
+  // Fetch vehicle counts for all customers
+  const { vehicleCounts } = useFetchVehicleCounts(customerIds);
+
+  // Map backend data to Cliente type with vehicle counts
   const clientes = useMemo(() => {
     return rawCustomers.map(profile => ({
       id: profile.customer.id.toString(),
@@ -103,9 +112,9 @@ export default function Customers() {
       postalCode: profile.customer.postal_code || 'N/A',
       status: profile.auth.is_active ? 'Ativo' as const : 'Inativo' as const,
       lastVisit: profile.customer.updated_at ? new Date(profile.customer.updated_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-      vehicles: 0, // TODO: Get from backend when available
+      vehicles: vehicleCounts[profile.customer.id.toString()] || 0,
     }));
-  }, [rawCustomers]);
+  }, [rawCustomers, vehicleCounts]);
 
   // Filter customers based on search and status
   const filteredClientes = useMemo(() => {
@@ -392,7 +401,9 @@ export default function Customers() {
                   <TableCell>{cliente.phone}</TableCell>
                   <TableCell>{cliente.city}</TableCell>
                   <TableCell className="text-center">
-                    {cliente.vehicles}
+                    <Badge bg={cliente.vehicles > 0 ? "danger" : "secondary"}>
+                      {cliente.vehicles}
+                    </Badge>
                   </TableCell>
                   <TableCell>{formatDate(cliente.lastVisit)}</TableCell>
                   <TableCell>
