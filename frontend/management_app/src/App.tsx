@@ -7,6 +7,7 @@ import Examples from "./components/Examples";
 import ServiceOrders from "./components/ServiceOrders";
 import ServiceOrderDetail from "./components/ServiceOrderDetail";
 import MainStock from "./pages/Stock/mainStock";
+import Customers from "./pages/Customers";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
             <Route path="/appointments" element={<Appointments />} />
             <Route path="/servicesOrders" element={<ServiceOrders />} />
             <Route path="/orders/:id" element={<ServiceOrderDetail />} />
+            <Route path="/customers" element={<Customers />} />
           </Routes>
         </Layout>
       </BrowserRouter>

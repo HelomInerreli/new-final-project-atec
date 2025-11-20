@@ -1,12 +1,12 @@
 import type { ReactNode } from "react";
 import SideBarMenu from "../../components/SideBarMenu";
+import "./../../styles/Layout.css";
 
 interface LayoutProps {
   children: ReactNode;
-  className?: string;
 }
 
-export function Layout({ children, className = "" }: LayoutProps) {
+export function Layout({ children }: LayoutProps) {
   return (
     <div
       className={` ${className}`}
