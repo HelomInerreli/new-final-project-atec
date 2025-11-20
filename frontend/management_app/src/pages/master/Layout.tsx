@@ -4,12 +4,13 @@ import "./../../styles/Layout.css";
 
 interface LayoutProps {
   children: ReactNode;
+  className?: string;
 }
 
-export function Layout({ children }: LayoutProps) {
+export function Layout({ children, className }: LayoutProps) {
   return (
     <div
-      className={` ${className}`}
+      className={className}
       style={{
         display: "flex",
         width: "98vw",
