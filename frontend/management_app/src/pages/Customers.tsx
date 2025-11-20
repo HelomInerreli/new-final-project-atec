@@ -14,20 +14,18 @@ export default function Customers() {
 
   // Mapping and filtering customers based on search term
   const filteredCustomers = useMemo(() => {
-    // First, map the raw data to the structure your table needs
-    const tableData = rawCustomers.map(customer => ({
-      id: customer.id,
-      name: customer.name,
-      email: customer.email,
-      phone: customer.phone || 'N/A',
-      address: `${customer.address || ''}, ${customer.city || ''}`.replace(/^,|,$/g, '').trim(),
-      //PLACEHOLDERS FOR NOW
-      vehicles: 0, // Placeholder
-      lastVisit: new Date(customer.updated_at).toLocaleDateString('pt-PT'),
-      status: 'Ativo', // Placeholder
+    // Map the complete profile data to the structure your table needs
+    const tableData = rawCustomers.map(profile => ({
+      id: profile.customer.id,
+      name: profile.customer.name,
+      email: profile.auth.email,
+      phone: profile.customer.phone || 'N/A',
+      address: `${profile.customer.address || ''}, ${profile.customer.city || ''}`.replace(/^,|,$/g, '').trim() || 'N/A',
+      lastVisit: profile.customer.updated_at ? new Date(profile.customer.updated_at).toLocaleDateString('pt-PT') : 'N/A',
+      status: profile.auth.is_active ? 'Ativo' : 'Inativo',
     }));
 
-    // Then, filter based on the search term
+    // Filter based on the search term
     if (!searchTerm) {
       return tableData;
     }
@@ -98,10 +96,10 @@ export default function Customers() {
             {filteredCustomers.map((customer) => (
               <tr key={customer.id}>
                 <td className="fw-semibold">{customer.name}</td>
-                <td className="text-muted">{customer.email}</td>
+                <td>{customer.email}</td>
                 <td>{customer.phone}</td>
                 <td>{customer.address}</td>
-                <td className="text-center">{customer.vehicles}</td>
+                <td className="text-center">0</td>
                 <td>{customer.lastVisit}</td>
                 <td>
                   <Badge 

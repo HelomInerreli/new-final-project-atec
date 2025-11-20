@@ -1,30 +1,42 @@
 import { useState, useEffect } from 'react';
-import type { CustomerDetails } from '../interfaces/Customer'; // <-- Add 'type' here
-import http from '../api/http'; // Assuming you have a shared axios instance
+import type { CompleteCustomerProfile } from '../interfaces/Customer';
+import http from '../api/http';
 
 export function useFetchCustomers() {
-  const [customers, setCustomers] = useState<CustomerDetails[]>([]);
+  const [customers, setCustomers] = useState<CompleteCustomerProfile[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchAllCustomers = async () => {
+      console.log('=== Starting customer fetch ===');
       setLoading(true);
       try {
-        // This endpoint should return a list of all customers
-        const response = await http.get('/customers'); 
+        console.log('Fetching customers from /customers/all-profiles');
+        const response = await http.get('/customers/all-profiles');
+        console.log('Raw response:', response);
+        console.log('Response data:', response.data);
+        console.log('Response data length:', response.data?.length);
+        
         setCustomers(response.data);
+        console.log('Customers set in state:', response.data);
         setError(null);
-      } catch (err) {
+      } catch (err: any) {
+        console.error("=== Error occurred ===");
         console.error("Failed to fetch customers:", err);
-        setError('Could not load customer data. Please try again.');
+        console.error("Error response:", err.response?.data);
+        console.error("Error status:", err.response?.status);
+        setError(err.response?.data?.detail || 'Could not load customer data. Please try again.');
       } finally {
         setLoading(false);
+        console.log('=== Fetch complete, loading set to false ===');
       }
     };
 
     fetchAllCustomers();
-  }, []); // The empty array means this effect runs only once
+  }, []);
+
+  console.log('Hook returning:', { customersLength: customers.length, loading, error });
 
   return { customers, loading, error };
 }
