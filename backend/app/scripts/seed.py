@@ -24,6 +24,8 @@ from app.models.status import Status
 from app.models.service import Service
 from app.models.extra_service import ExtraService as ExtraServiceModel
 from app.models.invoice import Invoice
+from app.models.product import Product
+from app.scripts.seed_products import seed_products
 
 # Configuration
 NUM_APPOINTMENTS = 12
@@ -468,6 +470,11 @@ if __name__ == "__main__":
 
     try:
         seed_data(db)
+        print("Seeding products...")
+        try:
+            seed_products()
+        except Exception as e:
+            print(f"Failed to seed products: {e}")
     except Exception as e:
         print(f"An error occurred during seeding: {e}")
         db.rollback()

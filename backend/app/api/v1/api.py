@@ -1,5 +1,16 @@
 from fastapi import APIRouter
-from app.api.v1.routes import customer, vehicle, appointment, extra_service, customerAuth, service, payment, vehicleApi,agendamentos
+from app.api.v1.routes import (
+	customer,
+	vehicle,
+	appointment,
+	extra_service,
+	customerAuth,
+	service,
+	payment,
+	vehicleApi,
+	agendamentos,
+	product,
+)
 
 
 api_router = APIRouter()
@@ -14,3 +25,4 @@ api_router.include_router(extra_service.router, prefix="/extra_services", tags=[
 api_router.include_router(service.router, prefix="/services", tags=["services"])
 api_router.include_router(payment.router, prefix="/payments", tags=["payments"]) 
 api_router.include_router(agendamentos.router, prefix="/api/v1", tags=["agendamentos"]) 
+api_router.include_router(product.router, prefix="/products", tags=["products"])
