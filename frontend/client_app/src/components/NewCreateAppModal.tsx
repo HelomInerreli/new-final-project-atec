@@ -11,6 +11,14 @@ import DatePicker from 'react-datepicker';
 import { pt, fr, es, enUS } from 'date-fns/locale';
 import { formatDate } from '../utils/dateUtils';
 import { h5 } from 'framer-motion/m';
+import type { Locale } from 'date-fns';
+
+const locales: { [key: string]: Locale } = {
+    pt: pt,
+    fr: fr,
+    es: es,
+    en: enUS
+};
 
 interface Service {
     id: number;
@@ -27,7 +35,7 @@ const getServices = async (): Promise<Service[]> => {
 }
 
 export const NewCreateAppModal: React.FC<CreateAppointmentModalProps> = ({ show, onClose, onSuccess }) => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const navigate = useNavigate(); // ✅ ADICIONAR
     const [currentStep, setCurrentStep] = useState<number>(1);
     const { loggedInCustomerId, isLoggedIn } = useAuth();
@@ -42,7 +50,17 @@ export const NewCreateAppModal: React.FC<CreateAppointmentModalProps> = ({ show,
     });
     const [vehicles, setVehicles] = useState<Vehicle[]>([]);
     const [services, setServices] = useState<Service[]>([]);
-    const [selectData, setSelectData] = useState<Date | null>(new Date());
+    const getInitialDate = () => {
+        const now = new Date();
+        if (now.getHours() >= 17) {
+            const tomorrow = new Date();
+            tomorrow.setDate(now.getDate() + 1);
+            return tomorrow;
+        }
+        return now;
+    };
+
+    const [selectData, setSelectData] = useState<Date | null>(getInitialDate());
     const [selectedTime, setSelectedTime] = useState<string>('09:00');
 
     const timeSlots: string[] = [];
@@ -55,42 +73,42 @@ export const NewCreateAppModal: React.FC<CreateAppointmentModalProps> = ({ show,
     }
 
     const goToNextStep = () => {
-        if(currentStep === 1){
+        if (currentStep === 1) {
             // ✅ VERIFICAR LOGIN PRIMEIRO (antes da validação)
             if (!isLoggedIn) {
-                navigate('/register', { 
-                    state: { 
-                        message: t('loginRequired', 'Por favor, faça login para agendar um serviço'),
+                navigate('/register', {
+                    state: {
+                        message: t('appointmentModal.loginRequired', { defaultValue: 'Por favor, faça login para agendar um serviço' }),
                         returnTo: '/appointments'
-                    } 
+                    }
                 });
                 onClose(); // Fecha o modal DEPOIS do navigate
                 return;
             }
-            
+
             // Validação SÓ se estiver logado
             if (!formData.service_id || !selectData || !selectedTime) {
-                setError("Preencha todos os campos obrigatórios do passo 1");
+                setError(t('appointmentModal.errorStep1', { defaultValue: 'Preencha todos os campos obrigatórios do passo 1' }));
                 return;
             }
-            
+
             // Combinar data + hora no appointment_date
             const dateTime = new Date(selectData);
             const [hours, minutes] = selectedTime.split(':');
             dateTime.setHours(parseInt(hours), parseInt(minutes));
-            
+
             setFormData(prev => ({
                 ...prev,
                 appointment_date: dateTime.toISOString()
             }));
-            
+
             setError(null);
             setCurrentStep(2);
         }
-        
-        if(currentStep === 2){
+
+        if (currentStep === 2) {
             if (!formData.vehicle_id) {
-                setError("Selecione um veículo");
+                setError(t('appointmentModal.errorVehicle', { defaultValue: 'Selecione um veículo' }));
                 return;
             }
             setError(null);
@@ -123,7 +141,7 @@ export const NewCreateAppModal: React.FC<CreateAppointmentModalProps> = ({ show,
 
         const selectedDate = new Date(selectData);
         const today = new Date();
-        
+
         // Se a data selecionada não é hoje, todos os horários estão disponíveis
         if (selectedDate.toDateString() !== today.toDateString()) {
             return true;
@@ -163,7 +181,7 @@ export const NewCreateAppModal: React.FC<CreateAppointmentModalProps> = ({ show,
                 setLoading(false);
             }
             catch (error) {
-                setError("Erro ao carregar dados");
+                setError(t('appointmentModal.errorLoad', { defaultValue: 'Erro ao carregar dados' }));
                 setLoading(false);
             }
         };
@@ -183,24 +201,24 @@ export const NewCreateAppModal: React.FC<CreateAppointmentModalProps> = ({ show,
     }, [selectData]); // Executa quando selectData muda
 
     const isTodayAndAfterLastSlot = () => {
-    if (!selectData) return false;
-    const now = new Date();
-    const selected = new Date(selectData);
-    return (
-        selected.toDateString() === now.toDateString() &&
-        now.getHours() >= 17
-    );
+        if (!selectData) return false;
+        const now = new Date();
+        const selected = new Date(selectData);
+        return (
+            selected.toDateString() === now.toDateString() &&
+            now.getHours() >= 17
+        );
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!isLoggedIn || !loggedInCustomerId) {
-            setError("Usuário não está logado");
+            setError(t('appointmentModal.errorLogin', { defaultValue: 'Usuário não está logado' }));
             return;
         }
 
         if (!formData.vehicle_id || !formData.service_id || !formData.appointment_date) {
-            setError("Preencha todos os campos obrigatórios");
+            setError(t('appointmentModal.errorAllFields', { defaultValue: 'Preencha todos os campos obrigatórios' }));
             return;
         }
         try {
@@ -211,10 +229,10 @@ export const NewCreateAppModal: React.FC<CreateAppointmentModalProps> = ({ show,
             };
             await createAppointment(appointmentData);
             onSuccess();
-            resetForm();                 
-            handleClose();               
+            resetForm();
+            handleClose();
         } catch (error) {
-            setError("Erro ao criar appointment");
+            setError(t('appointmentModal.errorCreate', { defaultValue: 'Erro ao criar agendamento' }));
         } finally {
             setLoading(false);
         }
@@ -228,32 +246,32 @@ export const NewCreateAppModal: React.FC<CreateAppointmentModalProps> = ({ show,
             vehicle_id: 0,
             service_id: 0,
         });
-        setSelectData(new Date());
+        setSelectData(getInitialDate());
         setSelectedTime('09:00');
         setCurrentStep(1);
         setError(null);
     };
 
     const handleClose = () => {
-        resetForm();    
+        resetForm();
         onClose();
     };
 
     if (!show) return null;
 
     return (
-        <div 
-            className="modal show d-block" 
+        <div
+            className="modal show d-block"
             style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
             onClick={handleClose}
         >
-            <div 
+            <div
                 className="modal-dialog modal-dialog-centered modal-lg"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="modal-content">
                     {/* Progress Bar */}
-                    
+
                     {/* Cabeçalho */}
                     <div className="modal-header">
                         <h5 className="modal-title">
@@ -270,17 +288,17 @@ export const NewCreateAppModal: React.FC<CreateAppointmentModalProps> = ({ show,
                     <div className="px-3 pt-4 pb-3">
                         <div className="d-flex justify-content-between align-items-center mb-2">
                             <span className="fw-medium">
-                                {currentStep === 1 ? "Selecione o serviço e horário" : currentStep === 2 ? "Escolha o veículo" : "Confirme os detalhes"}
+                                {currentStep === 1 ? t('appointmentModal.step1Title', { defaultValue: 'Selecione o serviço e horário' }) : currentStep === 2 ? t('appointmentModal.step2Title', { defaultValue: 'Escolha o veículo' }) : t('appointmentModal.step3Title', { defaultValue: 'Confirme os detalhes' })}
                             </span>
                             <span className="text-muted small">
-                                {Math.round((currentStep / 3) * 100)}% completo
+                                {t('appointmentModal.progress', { percent: Math.round((currentStep / 3) * 100), defaultValue: '{{percent}}% completo' })}
                             </span>
                         </div>
                         <div className="progress" style={{ height: '8px', borderRadius: '50rem', backgroundColor: '#e9ecef' }}>
-                            <div 
-                                className="progress-bar bg-danger" 
+                            <div
+                                className="progress-bar bg-danger"
                                 role="progressbar"
-                                style={{ 
+                                style={{
                                     width: `${(currentStep / 3) * 100}%`,
                                     transition: 'width 0.3s ease-in-out',
                                     borderRadius: '50rem'
@@ -295,29 +313,29 @@ export const NewCreateAppModal: React.FC<CreateAppointmentModalProps> = ({ show,
                     {/* Corpo */}
                     <div className="modal-body">
                         <form onSubmit={handleSubmit}>
-                            
-                            {currentStep === 1 &&(
+
+                            {currentStep === 1 && (
                                 <>
                                     {/* Data */}
                                     <div className="mb-3">
                                         <label className="form-label fw-semibold">
                                             <LucideCalendar size={16} className="me-1" />
-                                            Data *
+                                            {t('appointmentModal.dateLabel', { defaultValue: 'Data *' })}
                                         </label>
                                         <DatePicker
                                             selected={selectData}
                                             onChange={date => setSelectData(date)}
                                             dateFormat="dd/MM/yyyy"
-                                            minDate={new Date()}
+                                            minDate={getInitialDate()}
                                             filterDate={date => date.getDay() !== 0}
                                             className="form-control"
-                                            locale={enUS} // ← aqui!
+                                            locale={locales[i18n.language] || pt}
                                         />
                                     </div>
 
                                     {/* Horário */}
                                     <div className="mb-3">
-                                        <label className="form-label fw-semibold">Horário *</label>
+                                        <label className="form-label fw-semibold">{t('appointmentModal.timeLabel', { defaultValue: 'Horário *' })}</label>
                                         <select
                                             value={selectedTime}
                                             onChange={(e) => setSelectedTime(e.target.value)}
@@ -335,7 +353,7 @@ export const NewCreateAppModal: React.FC<CreateAppointmentModalProps> = ({ show,
                                         {selectData && selectData.toDateString() === new Date().toDateString() && (
                                             <small className="form-text text-muted">
                                                 <i className="bi bi-info-circle me-1"></i>
-                                                Horários passados não estão disponíveis
+                                                {t('appointmentModal.pastTimesUnavailable', { defaultValue: 'Horários passados não estão disponíveis' })}
                                             </small>
                                         )}
                                     </div>
@@ -371,7 +389,7 @@ export const NewCreateAppModal: React.FC<CreateAppointmentModalProps> = ({ show,
                                         {services.length === 0 && !loading && (
                                             <div className="form-text text-warning">
                                                 <i className="bi bi-exclamation-triangle me-1"></i>
-                                                Nenhum serviço encontrado
+                                                {t('appointmentModal.noServicesFound', { defaultValue: 'Nenhum serviço encontrado' })}
                                             </div>
                                         )}
                                     </div>
@@ -381,115 +399,115 @@ export const NewCreateAppModal: React.FC<CreateAppointmentModalProps> = ({ show,
                                         <div className="alert alert-info">
                                             <i className="bi bi-info-circle me-2"></i>
                                             <strong>
-                                                {t('appointmentModal.loginRequired', { 
-                                                    defaultValue: 'Login necessário:' 
+                                                {t('appointmentModal.loginRequired', {
+                                                    defaultValue: 'Login necessário:'
                                                 })}
                                             </strong>{' '}
-                                            {t('appointmentModal.loginRequiredMessage', { 
-                                                defaultValue: 'Você será redirecionado para fazer login antes de continuar.' 
+                                            {t('appointmentModal.loginRequiredMessage', {
+                                                defaultValue: 'Você será redirecionado para fazer login antes de continuar.'
                                             })}
                                         </div>
                                     )}
                                 </>
                             )}
-                        
-                            {currentStep === 2 && ( <>
-                            
-                            {/* Veículo */}
-                            <div className="mb-3">
-                                <label className="form-label fw-semibold">
-                                    <i className="bi bi-car-front me-1"></i>
-                                    {t('vehicle', { defaultValue: 'Veículo' })} *
-                                </label>
-                                <select
-                                    className="form-select"
-                                    value={formData.vehicle_id}
-                                    onChange={(e) =>
-                                        setFormData(prev => ({
-                                            ...prev,
-                                            vehicle_id: parseInt(e.target.value)
-                                        }))
-                                    }
-                                    required
-                                >
-                                    <option value="">
-                                        {t('appointmentModal.selectVehiclePlaceholder', {
-                                            defaultValue: 'Selecione um veículo'
-                                        })}
-                                    </option>
-                                    {vehicles.map(vehicle => (
-                                        <option key={vehicle.id} value={vehicle.id}>
-                                            {vehicle.brand} {vehicle.model} - {vehicle.plate}
-                                        </option>
-                                    ))}
-                                </select>
-                                {vehicles.length === 0 && !loading && (
-                                    <div className="form-text text-warning">
-                                        <i className="bi bi-exclamation-triangle me-1"></i>
-                                        {t('appointmentModal.noVehiclesFound', {
-                                            defaultValue: 'Nenhum veículo encontrado'
-                                        })}
-                                    </div>
-                                )}
-                            </div>
 
-                            {/* Descrição */}
-                            <div className="mb-3">
-                                <label className="form-label fw-semibold">Descrição</label>
-                                <textarea
-                                    className="form-control"
-                                    rows={3}
-                                    value={formData.description}
-                                    onChange={(e) =>
-                                        setFormData(prev => ({
-                                            ...prev,
-                                            description: e.target.value
-                                        }))
-                                    }
-                                    placeholder="Descreva o problema ou serviço necessário..."
-                                />
-                            </div>
+                            {currentStep === 2 && (<>
+
+                                {/* Veículo */}
+                                <div className="mb-3">
+                                    <label className="form-label fw-semibold">
+                                        <i className="bi bi-car-front me-1"></i>
+                                        {t('vehicle', { defaultValue: 'Veículo' })} *
+                                    </label>
+                                    <select
+                                        className="form-select"
+                                        value={formData.vehicle_id}
+                                        onChange={(e) =>
+                                            setFormData(prev => ({
+                                                ...prev,
+                                                vehicle_id: parseInt(e.target.value)
+                                            }))
+                                        }
+                                        required
+                                    >
+                                        <option value="">
+                                            {t('appointmentModal.selectVehiclePlaceholder', {
+                                                defaultValue: 'Selecione um veículo'
+                                            })}
+                                        </option>
+                                        {vehicles.map(vehicle => (
+                                            <option key={vehicle.id} value={vehicle.id}>
+                                                {vehicle.brand} {vehicle.model} - {vehicle.plate}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {vehicles.length === 0 && !loading && (
+                                        <div className="form-text text-warning">
+                                            <i className="bi bi-exclamation-triangle me-1"></i>
+                                            {t('appointmentModal.noVehiclesFound', {
+                                                defaultValue: 'Nenhum veículo encontrado'
+                                            })}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Descrição */}
+                                <div className="mb-3">
+                                    <label className="form-label fw-semibold">{t('appointmentModal.descriptionLabel', { defaultValue: 'Descrição' })}</label>
+                                    <textarea
+                                        className="form-control"
+                                        rows={3}
+                                        value={formData.description}
+                                        onChange={(e) =>
+                                            setFormData(prev => ({
+                                                ...prev,
+                                                description: e.target.value
+                                            }))
+                                        }
+                                        placeholder={t('appointmentModal.descriptionPlaceholder', { defaultValue: 'Descreva o problema ou serviço necessário...' })}
+                                    />
+                                </div>
                             </>
                             )}
 
                             {currentStep === 3 && (
                                 <div className="bg-light rounded p-4 border">
-                                    <h5 className="fw-bold text-danger mb-3"> 
-                                    Resumo do Agendamento   
+                                    <h5 className="fw-bold text-danger mb-3">
+                                        {t('appointmentModal.summaryTitle', { defaultValue: 'Resumo do Agendamento' })}
                                     </h5>
                                     <div className="d-flex flex-column gap-2 small">
                                         <div className="d-flex justify-content-between">
-                                            <span className="text-muted">Serviço:</span>
+                                            <span className="text-muted">{t('appointmentModal.serviceLabel', { defaultValue: 'Serviço:' })}</span>
                                             <span className="fw-medium">
                                                 {services.find(s => s.id === formData.service_id)?.name || '-'}
                                             </span>
                                         </div>
                                         <div className="d-flex justify-content-between">
-                                            <span className="text-muted">Data:</span>
+                                            <span className="text-muted">{t('appointmentModal.dateLabelSummary', { defaultValue: 'Data:' })}</span>
                                             <span className="fw-medium">
                                                 {selectData?.toLocaleDateString('pt-PT')}
                                             </span>
                                         </div>
                                         <div className="d-flex justify-content-between">
-                                            <span className="text-muted">Hora:</span>
+                                            <span className="text-muted">{t('appointmentModal.timeLabelSummary', { defaultValue: 'Hora:' })}</span>
                                             <span className="fw-medium">{selectedTime}</span>
                                         </div>
                                         <div className="d-flex justify-content-between">
-                                            <span className="text-muted">Veículo:</span>
+                                            <span className="text-muted">{t('appointmentModal.vehicleLabelSummary', { defaultValue: 'Veículo:' })}</span>
                                             <span className="fw-medium">
                                                 {vehicles.find(v => v.id === formData.vehicle_id)?.brand}{' '}
                                                 {vehicles.find(v => v.id === formData.vehicle_id)?.model}
                                             </span>
                                         </div>
                                         <div className="d-flex justify-content-between">
-                                            <span className="text-muted">Matrícula:</span>
+                                            <span className="text-muted">{t('appointmentModal.plateLabelSummary', { defaultValue: 'Matrícula:' })}</span>
                                             <span className="fw-medium">
                                                 {vehicles.find(v => v.id === formData.vehicle_id)?.plate}
                                             </span>
                                         </div>
                                         {formData.description && (
                                             <div className="d-flex justify-content-between">
-                                                <span className="text-muted">Descrição:</span>
+                                                <span className="text-muted">{t('appointmentModal.descriptionLabelSummary', { defaultValue: 'Descrição:' })}</span>
                                                 <span className="fw-medium text-end" style={{ maxWidth: '60%' }}>
                                                     {formData.description}
                                                 </span>
@@ -497,7 +515,7 @@ export const NewCreateAppModal: React.FC<CreateAppointmentModalProps> = ({ show,
                                         )}
                                         <hr className="my-2" />
                                         <div className="d-flex justify-content-between">
-                                            <span className="fw-semibold">Preço Estimado:</span>
+                                            <span className="fw-semibold">{t('appointmentModal.estimatedPriceLabel', { defaultValue: 'Preço Estimado:' })}</span>
                                             <span className="fw-bold text-success">
                                                 {services.find(s => s.id === formData.service_id)?.price}€
                                             </span>
@@ -525,7 +543,7 @@ export const NewCreateAppModal: React.FC<CreateAppointmentModalProps> = ({ show,
                                     className="btn btn-secondary"
                                     onClick={handleClose}
                                 >
-                                    Cancelar
+                                    {t('appointmentModal.cancelButton', { defaultValue: 'Cancelar' })}
                                 </button>
                                 <button
                                     type="button"
@@ -537,13 +555,13 @@ export const NewCreateAppModal: React.FC<CreateAppointmentModalProps> = ({ show,
                                     {!isLoggedIn ? (
                                         <>
                                             <i className="bi bi-box-arrow-in-right me-1"></i>
-                                            {t('appointmentModal.loginToContinue', { 
-                                                defaultValue: 'Fazer Login para Continuar' 
+                                            {t('appointmentModal.loginToContinue', {
+                                                defaultValue: 'Fazer Login para Continuar'
                                             })}
                                         </>
                                     ) : (
                                         <>
-                                            Próximo
+                                            {t('appointmentModal.nextButton', { defaultValue: 'Próximo' })}
                                         </>
                                     )}
                                 </button>
@@ -557,14 +575,14 @@ export const NewCreateAppModal: React.FC<CreateAppointmentModalProps> = ({ show,
                                     className="btn btn-secondary"
                                     onClick={goToPreviousStep}
                                 >
-                                    Voltar
+                                    {t('appointmentModal.backButton', { defaultValue: 'Voltar' })}
                                 </button>
                                 <button
                                     type="button"
                                     className="btn btn-primary"
                                     onClick={goToNextStep}
                                 >
-                                    Próximo
+                                    {t('appointmentModal.nextButton', { defaultValue: 'Próximo' })}
                                 </button>
                             </>
                         )}
@@ -576,7 +594,7 @@ export const NewCreateAppModal: React.FC<CreateAppointmentModalProps> = ({ show,
                                     className="btn btn-secondary"
                                     onClick={goToPreviousStep}
                                 >
-                                    Voltar
+                                    {t('appointmentModal.backButton', { defaultValue: 'Voltar' })}
                                 </button>
                                 <button
                                     type="button"
@@ -587,12 +605,12 @@ export const NewCreateAppModal: React.FC<CreateAppointmentModalProps> = ({ show,
                                     {loading ? (
                                         <>
                                             <span className="spinner-border spinner-border-sm me-2"></span>
-                                            A criar...
+                                            {t('appointmentModal.creatingButton', { defaultValue: 'A criar...' })}
                                         </>
                                     ) : (
                                         <>
                                             <i className="bi bi-check-circle text-white me-2"></i>
-                                            Confirmar Agendamento
+                                            {t('appointmentModal.confirmButton', { defaultValue: 'Confirmar Agendamento' })}
                                         </>
                                     )}
                                 </button>
