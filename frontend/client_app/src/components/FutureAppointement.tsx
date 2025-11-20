@@ -7,6 +7,8 @@ import '../styles/FutureAppointments.css';
 import { createAppointmentCheckoutSession } from '../services/payment';
 import { AppointmentStatusModal } from './AppointmentDetailsModal';
 import type { Appointment } from '../interfaces/appointment';
+import { NewCreateAppModal } from './NewCreateAppModal';
+import { Button } from './Button';
 
 export function FutureAppointments() {
     const { t } = useTranslation();
@@ -15,6 +17,7 @@ export function FutureAppointments() {
     const [checkoutLoadingId, setCheckoutLoadingId] = useState<number | null>(null);
     const [paymentError, setPaymentError] = useState<string | null>(null);
     const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+    const [showCreateModal, setShowCreateModal] = useState(false);
 
     const toggleMonth = (monthYear: string) => {
         setExpandedMonths(prev => ({
@@ -51,6 +54,22 @@ export function FutureAppointments() {
 
     return (
         <div className="appointments-page">
+            <Button
+                className="mb-4"
+                onClick={() => setShowCreateModal(true)}
+            >
+                {t('createAppointment', { defaultValue: 'Criar Agendamento' })}
+            </Button>
+
+            <NewCreateAppModal
+                show={showCreateModal}
+                onClose={() => setShowCreateModal(false)}
+                onSuccess={() => {
+                    setShowCreateModal(false);
+                    // (Opcional) disparar refetch de appointments aqui
+                }}
+            />
+
             {error && (
                 <div className="alert alert-danger" role="alert">
                     <i className="bi bi-exclamation-triangle me-2"></i>

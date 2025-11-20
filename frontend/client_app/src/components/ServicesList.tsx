@@ -14,6 +14,7 @@ import { type ServiceInfo } from '../interfaces/service';
 
 // Styles
 import '../styles/ServicesList.css';
+import { NewCreateAppModal } from './NewCreateAppModal';
 
 export function ServicesList() {
   const { t } = useTranslation();
@@ -342,7 +343,7 @@ export function ServicesList() {
       </Modal>
 
       {/* Appointment Modal */}
-      <CreateAppointmentModal
+      <NewCreateAppModal
         show={showCreateModal}
         onClose={() => setShowCreateModal(false)}
         onSuccess={() => {

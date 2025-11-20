@@ -29,6 +29,8 @@ const isDisabledDate = (dateString: string): boolean => {
   return dayOfWeek === 0; // 0 = Domingo
 };
 
+
+
 const getTimeRestrictions = (dateString: string): { min: string; max: string } => {
   const dayOfWeek = getDayOfWeek(dateString);
   
