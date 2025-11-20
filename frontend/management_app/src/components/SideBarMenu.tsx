@@ -303,7 +303,7 @@ export default function SideBarMenu() {
                   size={collapsed ? 25 : 27}
                 />
               }
-              component={<NavLink to="/clients" />}
+              component={<NavLink to="/customers" />}
             >
               {!collapsed && "Clientes"}
             </MenuItem>
