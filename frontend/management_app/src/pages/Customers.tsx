@@ -1,46 +1,183 @@
 import { useState, useMemo } from "react";
-import { useFetchCustomers } from '../hooks/useCustomers';
-import { Form, Button, Badge, Table, InputGroup, Spinner, Alert } from "react-bootstrap";
-import { Search, Plus, Eye } from "lucide-react";
+import { Button } from "./../components/ui/button";
+import { Input } from "./../components/ui/input";
+import { Label } from "./../components/ui/label";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "./../components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./../components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "./../components/ui/alert-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./../components/ui/select";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Plus, Search, Pencil, Trash2, Eye } from "lucide-react";
+import { toast } from "../hooks/use-toast";
+import Badge from "react-bootstrap/Badge";
 import { Link } from "react-router-dom";
-import "../styles/Customers.css";
+import { Spinner, Alert } from "react-bootstrap";
+import { useFetchCustomers } from '../hooks/useCustomers';
+
+const clienteSchema = z.object({
+  name: z.string().min(1, "Nome é obrigatório"),
+  email: z.string().email("Email inválido"),
+  phone: z.string().optional(),
+  address: z.string().optional(),
+  city: z.string().optional(),
+  postalCode: z.string().optional(),
+  status: z.enum(["Ativo", "Inativo"]),
+});
+
+type Cliente = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  postalCode: string;
+  status: "Ativo" | "Inativo";
+  lastVisit: string;
+  vehicles: number;
+};
+
+const statusOptions = ["Ativo", "Inativo"] as const;
 
 export default function Customers() {
-  //Hook call
+  // Hook call to fetch customers from backend
   const { customers: rawCustomers, loading, error } = useFetchCustomers();
   
-  // Local state for search term
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFiltro, setStatusFiltro] = useState("todos");
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingCliente, setEditingCliente] = useState<Cliente | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [clienteToDelete, setClienteToDelete] = useState<string | null>(null);
 
-  // Mapping and filtering customers based on search term
-  const filteredCustomers = useMemo(() => {
-    // Map the complete profile data to the structure your table needs
-    const tableData = rawCustomers.map(profile => ({
-      id: profile.customer.id,
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { errors },
+  } = useForm<z.infer<typeof clienteSchema>>({
+    resolver: zodResolver(clienteSchema),
+  });
+
+  // Map backend data to Cliente type
+  const clientes = useMemo(() => {
+    return rawCustomers.map(profile => ({
+      id: profile.customer.id.toString(),
       name: profile.customer.name,
       email: profile.auth.email,
       phone: profile.customer.phone || 'N/A',
-      address: `${profile.customer.address || ''}, ${profile.customer.city || ''}`.replace(/^,|,$/g, '').trim() || 'N/A',
-      lastVisit: profile.customer.updated_at ? new Date(profile.customer.updated_at).toLocaleDateString('pt-PT') : 'N/A',
-      status: profile.auth.is_active ? 'Ativo' : 'Inativo',
+      address: profile.customer.address || 'N/A',
+      city: profile.customer.city || 'N/A',
+      postalCode: profile.customer.postal_code || 'N/A',
+      status: profile.auth.is_active ? 'Ativo' as const : 'Inativo' as const,
+      lastVisit: profile.customer.updated_at ? new Date(profile.customer.updated_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+      vehicles: 0, // TODO: Get from backend when available
     }));
+  }, [rawCustomers]);
 
-    // Filter based on the search term
-    if (!searchTerm) {
-      return tableData;
-    }
-    
-    const lowercasedFilter = searchTerm.toLowerCase();
-
-    return tableData.filter(customer => {
-      // Safely check name and email before calling .toLowerCase()
-      const nameMatch = customer.name ? customer.name.toLowerCase().includes(lowercasedFilter) : false;
-      const emailMatch = customer.email ? customer.email.toLowerCase().includes(lowercasedFilter) : false;
-      return nameMatch || emailMatch;
+  // Filter customers based on search and status
+  const filteredClientes = useMemo(() => {
+    return clientes.filter((cliente) => {
+      const matchesSearch =
+        cliente.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        cliente.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        cliente.phone.includes(searchTerm);
+      const matchesStatus =
+        statusFiltro === "todos" || cliente.status === statusFiltro;
+      return matchesSearch && matchesStatus;
     });
-  }, [rawCustomers, searchTerm]);
+  }, [clientes, searchTerm, statusFiltro]);
 
+  const onSubmit = (data: z.infer<typeof clienteSchema>) => {
+    // TODO: Implement API calls for create/update
+    if (editingCliente) {
+      toast({
+        title: "Cliente atualizado",
+        description: "O cliente foi atualizado com sucesso.",
+      });
+    } else {
+      toast({
+        title: "Cliente adicionado",
+        description: "O novo cliente foi adicionado com sucesso.",
+      });
+    }
+    setDialogOpen(false);
+    setEditingCliente(null);
+    reset();
+  };
 
+  const handleEdit = (cliente: Cliente) => {
+    setEditingCliente(cliente);
+    setValue("name", cliente.name);
+    setValue("email", cliente.email);
+    setValue("phone", cliente.phone !== 'N/A' ? cliente.phone : '');
+    setValue("address", cliente.address !== 'N/A' ? cliente.address : '');
+    setValue("city", cliente.city !== 'N/A' ? cliente.city : '');
+    setValue("postalCode", cliente.postalCode !== 'N/A' ? cliente.postalCode : '');
+    setValue("status", cliente.status);
+    setDialogOpen(true);
+  };
+
+  const handleDelete = (id: string) => {
+    setClienteToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    // TODO: Implement API call for delete
+    if (clienteToDelete) {
+      toast({
+        title: "Cliente eliminado",
+        description: "O cliente foi eliminado com sucesso.",
+      });
+    }
+    setDeleteDialogOpen(false);
+    setClienteToDelete(null);
+  };
+
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+    setEditingCliente(null);
+    reset();
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('pt-PT');
+  };
+
+  // Loading state
   if (loading) {
     return (
       <div className="d-flex justify-content-center align-items-center vh-100">
@@ -50,84 +187,269 @@ export default function Customers() {
     );
   }
 
+  // Error state
   if (error) {
     return <Alert variant="danger" className="m-4">{error}</Alert>;
   }
 
   return (
-    <div className="customers-page">
-      <div className="customers-header">
-        <h1>Clientes</h1>
-        <Button variant="danger" className="add-customer-btn">
-          <Plus size={18} className="me-2" />
-          Novo Cliente
-        </Button>
+    <div className="container my-4">
+      <div className="d-flex align-items-center justify-content-between mb-3">
+        <div>
+          <h1 className="h1 fw-bold text-dark">Gestão de Clientes</h1>
+          <p className="text-muted mt-1">
+            Gerencie os clientes da oficina
+          </p>
+        </div>
+        <Dialog
+          open={dialogOpen}
+          onOpenChange={(open: boolean) => {
+            setDialogOpen(open);
+            if (!open) {
+              setEditingCliente(null);
+              reset();
+            }
+          }}
+        >
+          <DialogTrigger asChild>
+            <Button variant="destructive">
+              <Plus className="mr-2 h-4 w-4" />
+              Novo Cliente
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>
+                {editingCliente ? "Editar Cliente" : "Novo Cliente"}
+              </DialogTitle>
+              <DialogDescription>
+                {editingCliente
+                  ? "Atualize as informações do cliente"
+                  : "Adicione um novo cliente ao sistema"}
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Nome Completo</Label>
+                  <Input id="name" {...register("name")} />
+                  {errors.name && (
+                    <p className="text-sm text-destructive">
+                      {errors.name.message}
+                    </p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" type="email" {...register("email")} />
+                  {errors.email && (
+                    <p className="text-sm text-destructive">
+                      {errors.email.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Telefone</Label>
+                  <Input id="phone" {...register("phone")} />
+                  {errors.phone && (
+                    <p className="text-sm text-destructive">
+                      {errors.phone.message}
+                    </p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="postalCode">Código Postal</Label>
+                  <Input id="postalCode" {...register("postalCode")} />
+                  {errors.postalCode && (
+                    <p className="text-sm text-destructive">
+                      {errors.postalCode.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="address">Endereço</Label>
+                <Input id="address" {...register("address")} />
+                {errors.address && (
+                  <p className="text-sm text-destructive">
+                    {errors.address.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="city">Cidade</Label>
+                  <Input id="city" {...register("city")} />
+                  {errors.city && (
+                    <p className="text-sm text-destructive">
+                      {errors.city.message}
+                    </p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="status">Status</Label>
+                  <Select
+                    onValueChange={(value) => setValue("status", value as "Ativo" | "Inativo")}
+                    defaultValue={editingCliente?.status}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {statusOptions.map((status) => (
+                        <SelectItem key={status} value={status}>
+                          {status}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.status && (
+                    <p className="text-sm text-destructive">
+                      {errors.status.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleDialogClose}
+                >
+                  Cancelar
+                </Button>
+                <Button type="submit">
+                  {editingCliente ? "Atualizar" : "Adicionar"}
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
 
-      <div className="search-section">
-        <InputGroup>
-          <InputGroup.Text>
-            <Search size={18} />
-          </InputGroup.Text>
-          <Form.Control
-            type="text"
-            placeholder="Buscar por nome ou email..."
+      <div className="d-flex gap-3 mb-3">
+        <div className="position-relative flex-grow-1">
+          <Search className="position-absolute start-0 top-50 translate-middle-y ms-3 text-muted" />
+          <Input
+            placeholder="Pesquisar clientes por nome, email ou telefone..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            className="ps-5"
           />
-        </InputGroup>
-      </div>
-
-      <div className="customers-table-container">
-        <Table hover responsive className="customers-table">
-          <thead>
-            <tr>
-              <th>Nome</th>
-              <th>Email</th>
-              <th>Telefone</th>
-              <th>Endereço</th>
-              <th className="text-center">Veículos</th>
-              <th>Última Visita</th>
-              <th>Status</th>
-              <th className="text-center">Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredCustomers.map((customer) => (
-              <tr key={customer.id}>
-                <td className="fw-semibold">{customer.name}</td>
-                <td>{customer.email}</td>
-                <td>{customer.phone}</td>
-                <td>{customer.address}</td>
-                <td className="text-center">0</td>
-                <td>{customer.lastVisit}</td>
-                <td>
-                  <Badge 
-                    bg={customer.status === "Ativo" ? "danger" : "secondary"}
-                    className="status-badge"
-                  >
-                    {customer.status}
-                  </Badge>
-                </td>
-                <td className="text-center">
-                  <Link 
-                    to={`/clientes/${customer.id}`}
-                    className="view-btn"
-                  >
-                    <Eye size={18} />
-                  </Link>
-                </td>
-              </tr>
+        </div>
+        <Select value={statusFiltro} onValueChange={setStatusFiltro}>
+          <SelectTrigger style={{ width: 200 }}>
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todos">Todos Status</SelectItem>
+            {statusOptions.map((status) => (
+              <SelectItem key={status} value={status}>
+                {status}
+              </SelectItem>
             ))}
-          </tbody>
-        </Table>
-
-        {filteredCustomers.length === 0 && !loading && (
-          <div className="no-results">
-            <p>Nenhum cliente encontrado.</p>
-          </div>
-        )}
+          </SelectContent>
+        </Select>
       </div>
+
+      <div className="table-responsive border rounded">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Nome</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Telefone</TableHead>
+              <TableHead>Cidade</TableHead>
+              <TableHead className="text-center">Veículos</TableHead>
+              <TableHead>Última Visita</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="text-right">Ações</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredClientes.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={8}
+                  className="text-center text-muted-foreground"
+                >
+                  Nenhum cliente encontrado
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredClientes.map((cliente) => (
+                <TableRow key={cliente.id}>
+                  <TableCell className="font-medium">
+                    {cliente.name}
+                  </TableCell>
+                  <TableCell>{cliente.email}</TableCell>
+                  <TableCell>{cliente.phone}</TableCell>
+                  <TableCell>{cliente.city}</TableCell>
+                  <TableCell className="text-center">
+                    {cliente.vehicles}
+                  </TableCell>
+                  <TableCell>{formatDate(cliente.lastVisit)}</TableCell>
+                  <TableCell>
+                    <Badge bg={cliente.status === "Ativo" ? "danger" : "secondary"}>
+                      {cliente.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Link to={`/clientes/${cliente.id}`}>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </Link>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => handleEdit(cliente)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        onClick={() => handleDelete(cliente.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser desfeita. O cliente será permanentemente
+              eliminado do sistema.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
