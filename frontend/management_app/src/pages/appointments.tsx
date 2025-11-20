@@ -1,112 +1,293 @@
-import { useState } from "react";
-import { Calendar, Clock, Search, Plus, Phone, Mail, Trash2, Edit, AlertTriangle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Calendar, Clock, Search, Plus, Phone, Mail, Trash2, Edit } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../components/ui/alert-dialog";
 import { Label } from "../components/ui/label";
 import { Textarea } from "../components/ui/textarea";
 import { toast } from "../hooks/use-toast";
+import { appointmentService } from "../services/appointmentService";
+import type { Appointment, AppointmentCreate, AppointmentUpdate } from "../services/appointmentService";
+import { customerService } from "../services/customerService";
+import type { Customer } from "../services/customerService";
+import { vehicleService } from "../services/vehicleService";
+import type { Vehicle } from "../services/vehicleService";
+import { serviceService } from "../services/serviceService";
+import type { Service } from "../services/serviceService";
+import { statusService } from "../services/statusService";
+import type { Status } from "../services/statusService";
 
-interface Agendamento {
-  id: string;
-  cliente: string;
-  telefone: string;
-  email: string;
-  veiculo: string;
-  data: string;
-  hora: string;
-  servico: string;
-  status: "confirmado" | "pendente" | "cancelado";
-  observacoes?: string;
+interface FormData {
+  customer_id: string;
+  vehicle_id: string;
+  service_id: string;
+  appointment_date: string;
+  appointment_time: string;
+  description: string;
+  estimated_budget: string;
+  status_id?: string;
 }
 
-const mockAgendamentos: Agendamento[] = [
-  { id: "AG001", cliente: "João Silva", telefone: "(11) 98765-4321", email: "joao.silva@email.com", veiculo: "Honda Civic - ABC1234", data: "2025-11-02", hora: "09:00", servico: "Revisão 10.000 km", status: "confirmado", observacoes: "Cliente solicitou troca de óleo sintético" },
-  { id: "AG002", cliente: "Maria Santos", telefone: "(11) 91234-5678", email: "maria.santos@email.com", veiculo: "Toyota Corolla - XYZ5678", data: "2025-11-02", hora: "14:00", servico: "Troca de pastilhas de freio", status: "pendente" },
-  { id: "AG003", cliente: "Carlos Oliveira", telefone: "(11) 99876-5432", email: "carlos.oliveira@email.com", veiculo: "Ford Focus - DEF9012", data: "2025-11-03", hora: "10:30", servico: "Alinhamento e balanceamento", status: "confirmado" },
-  { id: "AG004", cliente: "Ana Paula", telefone: "(11) 93456-7890", email: "ana.paula@email.com", veiculo: "Volkswagen Golf - GHI3456", data: "2025-11-03", hora: "16:00", servico: "Diagnóstico de motor", status: "cancelado", observacoes: "Cliente cancelou por motivos pessoais" },
-  { id: "AG005", cliente: "Pedro Costa", telefone: "(11) 94567-8901", email: "pedro.costa@email.com", veiculo: "Chevrolet Onix - JKL7890", data: "2025-11-04", hora: "11:00", servico: "Troca de óleo e filtros", status: "confirmado" }
-];
-
-const initialFormData: Omit<Agendamento, 'id' | 'status'> = {
-  cliente: "", telefone: "", email: "", veiculo: "", data: "", hora: "", servico: "", observacoes: "",
+const initialFormData: FormData = {
+  customer_id: "",
+  vehicle_id: "",
+  service_id: "",
+  appointment_date: "",
+  appointment_time: "",
+  description: "",
+  estimated_budget: "",
+  status_id: "",
 };
 
 export default function Agendamentos() {
-  const [agendamentos, setAgendamentos] = useState<Agendamento[]>(mockAgendamentos);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]); // Kept for potential future use or if needed by other logic
+  const [services, setServices] = useState<Service[]>([]);
+  const [statuses, setStatuses] = useState<Status[]>([]);
+  const [customerVehicles, setCustomerVehicles] = useState<Vehicle[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("todos");
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [formData, setFormData] = useState(initialFormData);
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [formData, setFormData] = useState<FormData>(initialFormData);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    loadAppointments();
+    loadCustomers();
+    loadServices();
+    loadStatuses();
+  }, []);
+
+  const loadAppointments = async () => {
+    try {
+      console.log("🔄 Iniciando carregamento de agendamentos...");
+      setLoading(true);
+      const data = await appointmentService.getAll();
+      console.log("✅ Agendamentos carregados:", data);
+      setAppointments(data);
+    } catch (error) {
+      console.error("❌ Erro ao carregar agendamentos:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível carregar os agendamentos.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadCustomers = async () => {
+    try {
+      console.log("🔄 Carregando clientes...");
+      const data = await customerService.getAll();
+      console.log("✅ Clientes carregados:", data);
+      setCustomers(data);
+    } catch (error) {
+      console.error("❌ Erro ao carregar clientes:", error);
+    }
+  };
+
+  const loadServices = async () => {
+    try {
+      console.log("🔄 Carregando serviços...");
+      const data = await serviceService.getAll();
+      console.log("✅ Serviços carregados:", data);
+      setServices(data.filter(s => s.is_active));
+    } catch (error) {
+      console.error("❌ Erro ao carregar serviços:", error);
+    }
+  };
+
+  const loadStatuses = async () => {
+    try {
+      console.log("🔄 Carregando status...");
+      const data = await statusService.getAll();
+      console.log("✅ Status carregados:", data);
+      setStatuses(data);
+    } catch (error) {
+      console.error("❌ Erro ao carregar status:", error);
+    }
+  };
+
+  const loadVehiclesByCustomer = async (customerId: number) => {
+    try {
+      const allVehicles = await vehicleService.getAll();
+      const filtered = allVehicles.filter(v => v.customer_id === customerId);
+      setCustomerVehicles(filtered);
+    } catch (error) {
+      console.error("Erro ao carregar veículos:", error);
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
     setFormData(prev => ({ ...prev, [id]: value }));
   };
 
-  const handleStatusChange = (value: Agendamento['status']) => {
-    setFormData(prev => ({ ...prev, status: value } as Agendamento));
-  };
+  const handleSelectChange = (field: keyof FormData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "confirmado": return "bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20";
-      case "pendente": return "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20";
-      case "cancelado": return "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20";
-      default: return "bg-muted";
+    // When customer changes, load their vehicles
+    if (field === "customer_id" && value) {
+      loadVehiclesByCustomer(parseInt(value));
+      setFormData(prev => ({ ...prev, vehicle_id: "" }));
     }
   };
 
-  const filteredAgendamentos = agendamentos.filter((agendamento) => {
+  const translateStatus = (statusName?: string): string => {
+    if (!statusName) return "Pendente";
+    const lower = statusName.toLowerCase();
+    if (lower.includes("finalizad") || lower.includes("finalized")) return "Finalizado";
+    if (lower.includes("aguarda") || lower.includes("waiting")) return "Aguarda Pagamento";
+    return "Pendente";
+  };
+
+  const getStatusColor = (statusName?: string) => {
+    if (!statusName) return "bg-yellow-100 text-yellow-800"; // Default to Pendente color
+    const lower = statusName.toLowerCase();
+    if (lower.includes("finalizad") || lower.includes("finalized")) return "bg-green-100 text-green-800";
+    if (lower.includes("aguarda") || lower.includes("waiting")) return "bg-orange-100 text-orange-800";
+    return "bg-yellow-100 text-yellow-800"; // Pendente
+  };
+
+  const filteredAppointments = appointments.filter((appointment) => {
+    const customerName = appointment.customer?.name || "";
+    const vehicleInfo = appointment.vehicle ? `${appointment.vehicle.brand} ${appointment.vehicle.model} - ${appointment.vehicle.license_plate}` : "";
+    const serviceName = appointment.service?.name || "";
+    const statusName = appointment.status?.name || "";
+    const translatedStatus = translateStatus(statusName).toLowerCase();
+
     const matchesSearch =
-      agendamento.cliente.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      agendamento.veiculo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      agendamento.id.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === "todos" || agendamento.status === statusFilter;
+      customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      vehicleInfo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      serviceName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      appointment.id.toString().includes(searchTerm);
+
+    const matchesStatus = statusFilter === "todos" ||
+      translatedStatus.includes(statusFilter.toLowerCase()) ||
+      statusName.toLowerCase().includes(statusFilter.toLowerCase());
+
     return matchesSearch && matchesStatus;
   });
 
-  const handleOpenDialog = (agendamento: Agendamento | null) => {
-    if (agendamento) {
-      setEditingId(agendamento.id);
-      setFormData(agendamento);
+  const handleOpenDialog = (appointment: Appointment | null) => {
+    if (appointment) {
+      setEditingId(appointment.id);
+      const appointmentDateTime = new Date(appointment.appointment_date);
+      const dateStr = appointmentDateTime.toISOString().split('T')[0];
+      const timeStr = appointmentDateTime.toTimeString().slice(0, 5);
+
+      setFormData({
+        customer_id: appointment.customer_id?.toString() || "",
+        vehicle_id: appointment.vehicle_id?.toString() || "",
+        service_id: appointment.service_id?.toString() || "",
+        appointment_date: dateStr,
+        appointment_time: timeStr,
+        description: appointment.description,
+        estimated_budget: appointment.estimated_budget.toString(),
+        status_id: appointment.status_id?.toString() || "",
+      });
+
+      if (appointment.customer_id) {
+        loadVehiclesByCustomer(appointment.customer_id);
+      }
     } else {
       setEditingId(null);
       setFormData(initialFormData);
+      setCustomerVehicles([]);
     }
     setIsFormOpen(true);
   };
 
-  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!formData.cliente || !formData.data || !formData.hora || !formData.servico) {
-      toast({ title: "Erro de Validação", description: "Preencha os campos obrigatórios.", variant: "destructive" });
+
+    if (!formData.customer_id || !formData.vehicle_id || !formData.service_id || !formData.appointment_date || !formData.appointment_time) {
+      toast({
+        title: "Erro de Validação",
+        description: "Preencha todos os campos obrigatórios.",
+        variant: "destructive"
+      });
       return;
     }
 
-    if (editingId) {
-      // Lógica de Edição
-      setAgendamentos(prev => prev.map(ag => ag.id === editingId ? { ...ag, ...formData, id: editingId } : ag));
-      toast({ title: "Sucesso!", description: "Agendamento atualizado." });
-    } else {
-      // Lógica de Criação
-      const novoAgendamento: Agendamento = { id: `AG${Date.now()}`, ...formData, status: "pendente" };
-      setAgendamentos(prev => [novoAgendamento, ...prev]);
-      toast({ title: "Sucesso!", description: "Novo agendamento criado." });
-    }
+    try {
+      setLoading(true);
 
-    setIsFormOpen(false);
-    setEditingId(null);
+      // Combine date and time into ISO string
+      const appointmentDateTime = new Date(`${formData.appointment_date}T${formData.appointment_time}`);
+
+      if (editingId) {
+        // Update existing appointment
+        const updateData: AppointmentUpdate = {
+          appointment_date: appointmentDateTime.toISOString(),
+          description: formData.description,
+          estimated_budget: parseFloat(formData.estimated_budget) || 0,
+          status_id: formData.status_id ? parseInt(formData.status_id) : undefined,
+        };
+
+        await appointmentService.update(editingId, updateData);
+        toast({ title: "Sucesso!", description: "Agendamento atualizado." });
+      } else {
+        // Create new appointment
+        const createData: AppointmentCreate = {
+          customer_id: parseInt(formData.customer_id),
+          vehicle_id: parseInt(formData.vehicle_id),
+          service_id: parseInt(formData.service_id),
+          appointment_date: appointmentDateTime.toISOString(),
+          description: formData.description,
+          estimated_budget: parseFloat(formData.estimated_budget) || 0,
+          actual_budget: 0,
+        };
+
+        await appointmentService.create(createData);
+        toast({ title: "Sucesso!", description: "Novo agendamento criado." });
+      }
+
+      await loadAppointments();
+      setIsFormOpen(false);
+      setEditingId(null);
+      setFormData(initialFormData);
+      setCustomerVehicles([]);
+    } catch (error) {
+      console.error("Erro ao salvar agendamento:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível salvar o agendamento.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDelete = (id: string) => {
-    setAgendamentos(prev => prev.filter(ag => ag.id !== id));
-    toast({ title: "Eliminado", description: "O agendamento foi eliminado com sucesso.", variant: "destructive" });
+  const handleDelete = async (id: number) => {
+    try {
+      setLoading(true);
+      await appointmentService.delete(id);
+      await loadAppointments();
+      toast({
+        title: "Eliminado",
+        description: "O agendamento foi eliminado com sucesso.",
+        variant: "destructive"
+      });
+    } catch (error) {
+      console.error("Erro ao eliminar agendamento:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível eliminar o agendamento.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -132,62 +313,101 @@ export default function Agendamentos() {
           <SelectTrigger className="w-full sm:w-[200px]"><SelectValue placeholder="Filtrar por status" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="todos">Todos os status</SelectItem>
-            <SelectItem value="confirmado">Confirmado</SelectItem>
             <SelectItem value="pendente">Pendente</SelectItem>
-            <SelectItem value="cancelado">Cancelado</SelectItem>
+            <SelectItem value="aguarda pagamento">Aguarda Pagamento</SelectItem>
+            <SelectItem value="finalizado">Finalizado</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       {/* Grid de Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {filteredAgendamentos.map((agendamento) => (
-          <Card key={agendamento.id} className="flex flex-col hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div>
-                  <CardTitle className="text-lg">{agendamento.cliente}</CardTitle>
-                  <CardDescription className="mt-1">{agendamento.veiculo}</CardDescription>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+        {filteredAppointments.map((appointment) => {
+          const appointmentDate = new Date(appointment.appointment_date);
+          const dateStr = appointmentDate.toLocaleDateString('pt-BR');
+          const timeStr = appointmentDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+          const vehicleInfo = appointment.vehicle
+            ? `${appointment.vehicle.brand} ${appointment.vehicle.model} - ${appointment.vehicle.license_plate}`
+            : 'N/A';
+
+          return (
+            <Card key={appointment.id} className="flex flex-col hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="space-y-2">
+                  <Badge className={getStatusColor(appointment.status?.name)} variant="outline">
+                    {translateStatus(appointment.status?.name)}
+                  </Badge>
+                  <CardTitle className="text-lg">{appointment.customer?.name || 'N/A'}</CardTitle>
+                  <CardDescription className="mt-1">{vehicleInfo}</CardDescription>
                 </div>
-                <Badge className={getStatusColor(agendamento.status)} variant="outline">{agendamento.status.charAt(0).toUpperCase() + agendamento.status.slice(1)}</Badge>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3 flex-1">
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center gap-2 text-muted-foreground"><Calendar className="h-4 w-4" /><span>{agendamento.data ? new Date(agendamento.data + 'T00:00:00').toLocaleDateString('pt-BR') : 'N/A'}</span><Clock className="h-4 w-4 ml-2" /><span>{agendamento.hora}</span></div>
-                <div className="flex items-center gap-2 text-muted-foreground"><Phone className="h-4 w-4" /><span>{agendamento.telefone}</span></div>
-                <div className="flex items-center gap-2 text-muted-foreground"><Mail className="h-4 w-4" /><span className="truncate">{agendamento.email}</span></div>
-              </div>
-              <div className="pt-3 border-t">
-                <p className="font-medium text-sm">{agendamento.servico}</p>
-                {agendamento.observacoes && <p className="text-xs text-muted-foreground mt-1">{agendamento.observacoes}</p>}
-              </div>
-            </CardContent>
-            <div className="flex gap-2 p-4 pt-0">
-              <Button variant="outline" size="sm" className="flex-1 gap-2" onClick={() => handleOpenDialog(agendamento)}><Edit className="h-3 w-3" />Editar</Button>
-                  <AlertDialog>
+              </CardHeader>
+              <CardContent className="space-y-3 flex-1">
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Calendar className="h-4 w-4" />
+                    <span>{dateStr}</span>
+                    <Clock className="h-4 w-4 ml-2" />
+                    <span>{timeStr}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Phone className="h-4 w-4" />
+                    <span>{appointment.customer?.phone || 'N/A'}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Mail className="h-4 w-4" />
+                    <span className="truncate">{appointment.customer?.email || 'N/A'}</span>
+                  </div>
+                </div>
+                <div className="pt-3 border-t">
+                  <p className="font-medium text-sm">{appointment.service?.name || 'N/A'}</p>
+                  {appointment.description && <p className="text-xs text-muted-foreground mt-1">{appointment.description}</p>}
+                  {appointment.estimated_budget > 0 && (
+                    <p className="text-xs font-semibold mt-1">Orçamento: €{appointment.estimated_budget.toFixed(2)}</p>
+                  )}
+                </div>
+              </CardContent>
+
+              <div className="flex gap-2 p-4 pt-0">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="bg-transparent hover:bg-white"
+                  onClick={() => handleOpenDialog(appointment)}
+                >
+                  <Edit className="h-4 w-4 text-red-600" />
+                </Button>
+
+                <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button variant="destructive" size="sm" className="flex-1 gap-2"><Trash2 className="h-3 w-3" />Eliminar</Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="bg-transparent hover:bg-white"
+                    >
+                      <Trash2 className="h-4 w-4 text-red-600" />
+                    </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                    <AlertDialogTitle>Tem a certeza absoluta?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Esta ação não pode ser desfeita. Isto irá eliminar permanentemente o agendamento.
-                    </AlertDialogDescription>
+                      <AlertDialogTitle>Tem a certeza absoluta?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Esta ação não pode ser desfeita. Isto irá eliminar permanentemente o agendamento.
+                      </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => handleDelete(agendamento.id)}>Continuar</AlertDialogAction>
+                      <AlertDialogCancel className="hover:bg-gray-100 hover:text-gray-900 focus-visible:ring-0 focus-visible:ring-offset-0">Cancelar</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => handleDelete(appointment.id)}>Continuar</AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
-                  </AlertDialog></div>
-          </Card>
-        ))}
+                </AlertDialog>
+              </div>
+            </Card>
+          );
+        })}
       </div>
 
       {/* Mensagem de Nenhum Resultado */}
-      {filteredAgendamentos.length === 0 && (
+      {filteredAppointments.length === 0 && (
         <Card><CardContent className="flex flex-col items-center justify-center py-12"><Calendar className="h-12 w-12 text-muted-foreground mb-4" /><h3 className="text-lg font-semibold mb-2">Nenhum agendamento encontrado</h3><p className="text-sm text-muted-foreground">Tente ajustar os filtros ou criar um novo agendamento</p></CardContent></Card>
       )}
 
@@ -200,35 +420,149 @@ export default function Agendamentos() {
               <DialogDescription>{editingId ? "Altere os dados do agendamento abaixo." : "Preencha os dados para criar um novo agendamento."}</DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
-              <div className="grid gap-2"><Label htmlFor="cliente">Cliente</Label><Input id="cliente" value={formData.cliente} onChange={handleInputChange} required /></div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2"><Label htmlFor="telefone">Telefone</Label><Input id="telefone" value={formData.telefone} onChange={handleInputChange} /></div>
-                <div className="grid gap-2"><Label htmlFor="email">Email</Label><Input id="email" type="email" value={formData.email} onChange={handleInputChange} /></div>
+              <div className="grid gap-2">
+                <Label htmlFor="customer_id">Cliente *</Label>
+                <Select
+                  value={formData.customer_id}
+                  onValueChange={(value) => handleSelectChange("customer_id", value)}
+                  disabled={!!editingId}
+                >
+                  <SelectTrigger id="customer_id">
+                    <SelectValue placeholder="Selecione um cliente" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {customers.map((customer) => (
+                      <SelectItem key={customer.id} value={customer.id.toString()}>
+                        {customer.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-              <div className="grid gap-2"><Label htmlFor="veiculo">Veículo</Label><Input id="veiculo" value={formData.veiculo} onChange={handleInputChange} /></div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2"><Label htmlFor="data">Data</Label><Input id="data" type="date" value={formData.data} onChange={handleInputChange} required /></div>
-                <div className="grid gap-2"><Label htmlFor="hora">Hora</Label><Input id="hora" type="time" value={formData.hora} onChange={handleInputChange} required /></div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="vehicle_id">Veículo *</Label>
+                <Select
+                  value={formData.vehicle_id}
+                  onValueChange={(value) => handleSelectChange("vehicle_id", value)}
+                  disabled={!formData.customer_id || !!editingId}
+                >
+                  <SelectTrigger id="vehicle_id">
+                    <SelectValue placeholder="Selecione um veículo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {customerVehicles.map((vehicle) => (
+                      <SelectItem key={vehicle.id} value={vehicle.id.toString()}>
+                        {vehicle.brand} {vehicle.model} - {vehicle.license_plate}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-              <div className="grid gap-2"><Label htmlFor="servico">Serviço</Label><Input id="servico" value={formData.servico} onChange={handleInputChange} required /></div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="service_id">Serviço *</Label>
+                <Select
+                  value={formData.service_id}
+                  onValueChange={(value) => handleSelectChange("service_id", value)}
+                  disabled={!!editingId}
+                >
+                  <SelectTrigger id="service_id">
+                    <SelectValue placeholder="Selecione um serviço" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {services.map((service) => (
+                      <SelectItem key={service.id} value={service.id.toString()}>
+                        {service.name} - €{service.price.toFixed(2)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="appointment_date">Data *</Label>
+                  <Input
+                    id="appointment_date"
+                    type="date"
+                    value={formData.appointment_date}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="appointment_time">Hora *</Label>
+                  <Input
+                    id="appointment_time"
+                    type="time"
+                    value={formData.appointment_time}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="estimated_budget">Orçamento Estimado (€)</Label>
+                <Input
+                  id="estimated_budget"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.estimated_budget}
+                  onChange={handleInputChange}
+                />
+              </div>
+
               {editingId && (
                 <div className="grid gap-2">
-                  <Label htmlFor="status">Status</Label>
-                  <Select value={(formData as Agendamento).status} onValueChange={handleStatusChange}>
-                    <SelectTrigger id="status"><SelectValue /></SelectTrigger>
+                  <Label htmlFor="status_id">Status</Label>
+                  <Select
+                    value={formData.status_id}
+                    onValueChange={(value) => handleSelectChange("status_id", value)}
+                  >
+                    <SelectTrigger id="status_id">
+                      <SelectValue placeholder="Selecione um status" />
+                    </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="pendente">Pendente</SelectItem>
-                      <SelectItem value="confirmado">Confirmado</SelectItem>
-                      <SelectItem value="cancelado">Cancelado</SelectItem>
+                      {statuses.map((status) => (
+                        <SelectItem key={status.id} value={status.id.toString()}>
+                          {translateStatus(status.name)}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
               )}
-              <div className="grid gap-2"><Label htmlFor="observacoes">Observações</Label><Textarea id="observacoes" value={formData.observacoes} onChange={handleInputChange} /></div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="description">Descrição</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  placeholder="Observações ou detalhes adicionais"
+                />
+              </div>
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsFormOpen(false)}>Cancelar</Button>
-              <Button type="submit">{editingId ? "Salvar Alterações" : "Criar Agendamento"}</Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="hover:bg-gray-100 hover:text-gray-900 focus-visible:ring-0 focus-visible:ring-offset-0"
+                onClick={() => {
+                  setIsFormOpen(false);
+                  setEditingId(null);
+                  setFormData(initialFormData);
+                  setCustomerVehicles([]);
+                }}
+              >
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={loading}>
+                {loading ? "A processar..." : (editingId ? "Salvar Alterações" : "Criar Agendamento")}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>

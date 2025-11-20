@@ -101,6 +101,37 @@ def add_extra_service_request(
     return db_request
 
 
+@router.put("/{appointment_id}", response_model=Appointment)
+def update_appointment(
+    appointment_id: int,
+    appointment_data: AppointmentUpdate,
+    repo: AppointmentRepository = Depends(get_appointment_repo)
+):
+    """
+    Update an existing appointment.
+    """
+    db_appointment = repo.update(appointment_id=appointment_id, appointment_data=appointment_data)
+    if not db_appointment:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Appointment not found")
+    return db_appointment
+
+
+@router.delete("/{appointment_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_appointment(
+    appointment_id: int,
+    repo: AppointmentRepository = Depends(get_appointment_repo)
+):
+    """
+    Delete an appointment.
+    """
+    db_appointment = repo.get_by_id(appointment_id=appointment_id)
+    if not db_appointment:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Appointment not found")
+    
+    repo.db.delete(db_appointment)
+    repo.db.commit()
+
+
 @router.get("/{appointment_id}/extra_service_requests", response_model=List[AppointmentExtraServiceSchema])
 def list_extra_service_requests(
     appointment_id: int,
