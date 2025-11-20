@@ -48,6 +48,7 @@ export interface Appointment {
   customer_id?: number;
   vehicle_id?: number;
   service_id?: number;
+  status_id?: number;
   customer?: Customer;
   vehicle?: Vehicle;
   service?: Service;
