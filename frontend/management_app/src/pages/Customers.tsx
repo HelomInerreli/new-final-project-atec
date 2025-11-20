@@ -6,13 +6,13 @@ import { Link } from "react-router-dom";
 import "../styles/Customers.css";
 
 export default function Customers() {
-  // 1. Get raw data from the hook
+  //Hook call
   const { customers: rawCustomers, loading, error } = useFetchCustomers();
   
-  // 2. Add state for the search term
+  // Local state for search term
   const [searchTerm, setSearchTerm] = useState('');
 
-  // 3. Map and filter the customer data
+  // Mapping and filtering customers based on search term
   const filteredCustomers = useMemo(() => {
     // First, map the raw data to the structure your table needs
     const tableData = rawCustomers.map(customer => ({
@@ -21,7 +21,7 @@ export default function Customers() {
       email: customer.email,
       phone: customer.phone || 'N/A',
       address: `${customer.address || ''}, ${customer.city || ''}`.replace(/^,|,$/g, '').trim(),
-      // NOTE: These fields are placeholders. You should add them to your backend response.
+      //PLACEHOLDERS FOR NOW
       vehicles: 0, // Placeholder
       lastVisit: new Date(customer.updated_at).toLocaleDateString('pt-PT'),
       status: 'Ativo', // Placeholder
@@ -31,10 +31,15 @@ export default function Customers() {
     if (!searchTerm) {
       return tableData;
     }
-    return tableData.filter(customer =>
-      customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      customer.email.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    
+    const lowercasedFilter = searchTerm.toLowerCase();
+
+    return tableData.filter(customer => {
+      // Safely check name and email before calling .toLowerCase()
+      const nameMatch = customer.name ? customer.name.toLowerCase().includes(lowercasedFilter) : false;
+      const emailMatch = customer.email ? customer.email.toLowerCase().includes(lowercasedFilter) : false;
+      return nameMatch || emailMatch;
+    });
   }, [rawCustomers, searchTerm]);
 
 
