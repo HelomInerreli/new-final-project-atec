@@ -27,20 +27,6 @@ from app.models.extra_service import ExtraService as ExtraServiceModel
 # Configuration
 NUM_APPOINTMENTS = 12
 MIN_VEHICLES_PER_CUSTOMER = 1  # Garantir que todos têm pelo menos 1 veículo
-MAX_VEHICLES_PER_CUSTOMER = 3
-MAX_EXTRA_SERVICES_PER_APPOINTMENT = 2
-
-fake = Faker("pt_PT")  # Portuguese provider for realistic data
-
-VEHICLE_BRANDS = ["Toyota", "Ford", "Honda", "BMW", "Mercedes-Benz", "Volkswagen", "Audi", "Nissan", "Hyundai"]
-VEHICLE_MODELS = {
-    "Toyota": ["Corolla", "Camry", "RAV4"],
-    "Ford": ["Focus", "Fiesta", "Mustang"],
-    "Honda": ["Civic", "Accord", "CR-V"],
-    "BMW": ["3 Series", "5 Series", "X5"],
-    "Mercedes-Benz": ["C-Class", "E-Class", "GLC"],
-    "Volkswagen": ["Golf", "Passat", "Tiguan"],
-    "Audi": ["A4", "A6", "Q5"],
     "Nissan": ["Qashqai", "Micra", "Juke"],
     "Hyundai": ["i30", "Tucson", "Kona"],
 }
@@ -54,23 +40,6 @@ MAIN_SERVICES = [
 
 EXTRA_SERVICE_CATALOG = [
     {"name": "Pastilhas de travão", "description": "Substituição de pastilhas de travão", "price": 120.0, "duration_minutes": 60},
-    {"name": "Limpeza de injetores", "description": "Limpeza de injetores", "price": 90.0, "duration_minutes": 45},
-    {"name": "Carregamento de Ar Condicionado", "description": "Carregamento de Ar Condicionado", "price": 60.0, "duration_minutes": 30},
-    {"name": "Troca de escovas limpa-vidros", "description": "Troca de escovas limpa-vidros", "price": 25.0, "duration_minutes": 15},
-]
-
-# Keep statuses in the DB
-STATUSES = [
-    "Pendente",
-    "Canceled",
-    "Finalized",
-    "In Repair",
-    "Awaiting Approval"
-]
-
-
-def seed_data(db: Session):
-    """
     Seed database:
     - create statuses
     - create main services

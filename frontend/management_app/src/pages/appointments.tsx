@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
-import { Calendar, Clock, Search, Plus, Phone, Mail, Trash2, Edit, AlertTriangle } from "lucide-react";
+import { Calendar, Clock, Search, Plus, Phone, Mail, Trash2, Edit } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../components/ui/alert-dialog";
 import { Label } from "../components/ui/label";
 import { Textarea } from "../components/ui/textarea";
@@ -18,6 +18,8 @@ import { vehicleService } from "../services/vehicleService";
 import type { Vehicle } from "../services/vehicleService";
 import { serviceService } from "../services/serviceService";
 import type { Service } from "../services/serviceService";
+import { statusService } from "../services/statusService";
+import type { Status } from "../services/statusService";
 
 interface FormData {
   customer_id: string;
@@ -27,6 +29,7 @@ interface FormData {
   appointment_time: string;
   description: string;
   estimated_budget: string;
+  status_id?: string;
 }
 
 const initialFormData: FormData = {
@@ -37,13 +40,15 @@ const initialFormData: FormData = {
   appointment_time: "",
   description: "",
   estimated_budget: "",
+  status_id: "",
 };
 
 export default function Agendamentos() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]); // Kept for potential future use or if needed by other logic
   const [services, setServices] = useState<Service[]>([]);
+  const [statuses, setStatuses] = useState<Status[]>([]);
   const [customerVehicles, setCustomerVehicles] = useState<Vehicle[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("todos");
@@ -56,6 +61,7 @@ export default function Agendamentos() {
     loadAppointments();
     loadCustomers();
     loadServices();
+    loadStatuses();
   }, []);
 
   const loadAppointments = async () => {
@@ -99,6 +105,17 @@ export default function Agendamentos() {
     }
   };
 
+  const loadStatuses = async () => {
+    try {
+      console.log("🔄 Carregando status...");
+      const data = await statusService.getAll();
+      console.log("✅ Status carregados:", data);
+      setStatuses(data);
+    } catch (error) {
+      console.error("❌ Erro ao carregar status:", error);
+    }
+  };
+
   const loadVehiclesByCustomer = async (customerId: number) => {
     try {
       const allVehicles = await vehicleService.getAll();
@@ -116,7 +133,7 @@ export default function Agendamentos() {
 
   const handleSelectChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    
+
     // When customer changes, load their vehicles
     if (field === "customer_id" && value) {
       loadVehiclesByCustomer(parseInt(value));
@@ -127,25 +144,17 @@ export default function Agendamentos() {
   const translateStatus = (statusName?: string): string => {
     if (!statusName) return "Pendente";
     const lower = statusName.toLowerCase();
-    if (lower.includes("finalized") || lower.includes("finalizado")) return "Finalizado";
-    if (lower.includes("waitting payment") || lower.includes("waiting payment")) return "Aguarda Pagamento";
-    if (lower.includes("pendente") || lower === "pending") return "Pendente";
-    if (lower.includes("canceled") || lower.includes("cancelado")) return "Cancelado";
-    if (lower.includes("in repair") || lower.includes("em reparação")) return "Em Reparação";
-    if (lower.includes("awaiting approval")) return "Aguarda Aprovação";
-    return statusName;
+    if (lower.includes("finalizad") || lower.includes("finalized")) return "Finalizado";
+    if (lower.includes("aguarda") || lower.includes("waiting")) return "Aguarda Pagamento";
+    return "Pendente";
   };
 
   const getStatusColor = (statusName?: string) => {
-    if (!statusName) return "bg-muted";
+    if (!statusName) return "bg-yellow-100 text-yellow-800"; // Default to Pendente color
     const lower = statusName.toLowerCase();
-    if (lower.includes("confirmad") || lower.includes("agendad")) return "bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20";
-    if (lower.includes("pendent") || lower.includes("aguard") || lower === "pending") return "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20";
-    if (lower.includes("cancelad") || lower.includes("rejeitad") || lower.includes("canceled")) return "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20";
-    if (lower.includes("finalizad") || lower.includes("conclu") || lower.includes("finalized")) return "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20";
-    if (lower.includes("waitting") || lower.includes("waiting")) return "bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-500/20";
-    if (lower.includes("repair")) return "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20";
-    return "bg-muted";
+    if (lower.includes("finalizad") || lower.includes("finalized")) return "bg-green-100 text-green-800";
+    if (lower.includes("aguarda") || lower.includes("waiting")) return "bg-orange-100 text-orange-800";
+    return "bg-yellow-100 text-yellow-800"; // Pendente
   };
 
   const filteredAppointments = appointments.filter((appointment) => {
@@ -154,27 +163,17 @@ export default function Agendamentos() {
     const serviceName = appointment.service?.name || "";
     const statusName = appointment.status?.name || "";
     const translatedStatus = translateStatus(statusName).toLowerCase();
-    
+
     const matchesSearch =
       customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       vehicleInfo.toLowerCase().includes(searchTerm.toLowerCase()) ||
       serviceName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       appointment.id.toString().includes(searchTerm);
-    
-    // Se não estiver filtrando por "finalizado", ocultar os finalizados
-    const isFinalized = translatedStatus === "finalizado" || statusName.toLowerCase().includes("finalized");
-    const showFinalized = statusFilter === "finalizado";
-    
-    // Ocultar cancelados e em reparação sempre
-    const isCanceled = translatedStatus === "cancelado" || statusName.toLowerCase().includes("canceled");
-    const isInRepair = translatedStatus === "em reparação" || statusName.toLowerCase().includes("repair");
-    
-    if (isCanceled || isInRepair) return false;
-    if (isFinalized && !showFinalized) return false;
-    
-    const matchesStatus = statusFilter === "todos" || 
-                          translatedStatus.includes(statusFilter.toLowerCase()) ||
-                          statusName.toLowerCase().includes(statusFilter.toLowerCase());
+
+    const matchesStatus = statusFilter === "todos" ||
+      translatedStatus.includes(statusFilter.toLowerCase()) ||
+      statusName.toLowerCase().includes(statusFilter.toLowerCase());
+
     return matchesSearch && matchesStatus;
   });
 
@@ -184,7 +183,7 @@ export default function Agendamentos() {
       const appointmentDateTime = new Date(appointment.appointment_date);
       const dateStr = appointmentDateTime.toISOString().split('T')[0];
       const timeStr = appointmentDateTime.toTimeString().slice(0, 5);
-      
+
       setFormData({
         customer_id: appointment.customer_id?.toString() || "",
         vehicle_id: appointment.vehicle_id?.toString() || "",
@@ -193,8 +192,9 @@ export default function Agendamentos() {
         appointment_time: timeStr,
         description: appointment.description,
         estimated_budget: appointment.estimated_budget.toString(),
+        status_id: appointment.status_id?.toString() || "",
       });
-      
+
       if (appointment.customer_id) {
         loadVehiclesByCustomer(appointment.customer_id);
       }
@@ -208,30 +208,31 @@ export default function Agendamentos() {
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+
     if (!formData.customer_id || !formData.vehicle_id || !formData.service_id || !formData.appointment_date || !formData.appointment_time) {
-      toast({ 
-        title: "Erro de Validação", 
-        description: "Preencha todos os campos obrigatórios.", 
-        variant: "destructive" 
+      toast({
+        title: "Erro de Validação",
+        description: "Preencha todos os campos obrigatórios.",
+        variant: "destructive"
       });
       return;
     }
 
     try {
       setLoading(true);
-      
+
       // Combine date and time into ISO string
       const appointmentDateTime = new Date(`${formData.appointment_date}T${formData.appointment_time}`);
-      
+
       if (editingId) {
         // Update existing appointment
         const updateData: AppointmentUpdate = {
           appointment_date: appointmentDateTime.toISOString(),
           description: formData.description,
           estimated_budget: parseFloat(formData.estimated_budget) || 0,
+          status_id: formData.status_id ? parseInt(formData.status_id) : undefined,
         };
-        
+
         await appointmentService.update(editingId, updateData);
         toast({ title: "Sucesso!", description: "Agendamento atualizado." });
       } else {
@@ -245,7 +246,7 @@ export default function Agendamentos() {
           estimated_budget: parseFloat(formData.estimated_budget) || 0,
           actual_budget: 0,
         };
-        
+
         await appointmentService.create(createData);
         toast({ title: "Sucesso!", description: "Novo agendamento criado." });
       }
@@ -272,10 +273,10 @@ export default function Agendamentos() {
       setLoading(true);
       await appointmentService.delete(id);
       await loadAppointments();
-      toast({ 
-        title: "Eliminado", 
-        description: "O agendamento foi eliminado com sucesso.", 
-        variant: "destructive" 
+      toast({
+        title: "Eliminado",
+        description: "O agendamento foi eliminado com sucesso.",
+        variant: "destructive"
       });
     } catch (error) {
       console.error("Erro ao eliminar agendamento:", error);
@@ -325,10 +326,10 @@ export default function Agendamentos() {
           const appointmentDate = new Date(appointment.appointment_date);
           const dateStr = appointmentDate.toLocaleDateString('pt-BR');
           const timeStr = appointmentDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-          const vehicleInfo = appointment.vehicle 
-            ? `${appointment.vehicle.brand} ${appointment.vehicle.model} - ${appointment.vehicle.license_plate}` 
+          const vehicleInfo = appointment.vehicle
+            ? `${appointment.vehicle.brand} ${appointment.vehicle.model} - ${appointment.vehicle.license_plate}`
             : 'N/A';
-          
+
           return (
             <Card key={appointment.id} className="flex flex-col hover:shadow-lg transition-shadow">
               <CardHeader>
@@ -365,22 +366,22 @@ export default function Agendamentos() {
                   )}
                 </div>
               </CardContent>
-              
+
               <div className="flex gap-2 p-4 pt-0">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
+                <Button
+                  variant="ghost"
+                  size="sm"
                   className="bg-transparent hover:bg-white"
                   onClick={() => handleOpenDialog(appointment)}
                 >
                   <Edit className="h-4 w-4 text-red-600" />
                 </Button>
-                
+
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       className="bg-transparent hover:bg-white"
                     >
                       <Trash2 className="h-4 w-4 text-red-600" />
@@ -421,8 +422,8 @@ export default function Agendamentos() {
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
                 <Label htmlFor="customer_id">Cliente *</Label>
-                <Select 
-                  value={formData.customer_id} 
+                <Select
+                  value={formData.customer_id}
                   onValueChange={(value) => handleSelectChange("customer_id", value)}
                   disabled={!!editingId}
                 >
@@ -441,8 +442,8 @@ export default function Agendamentos() {
 
               <div className="grid gap-2">
                 <Label htmlFor="vehicle_id">Veículo *</Label>
-                <Select 
-                  value={formData.vehicle_id} 
+                <Select
+                  value={formData.vehicle_id}
                   onValueChange={(value) => handleSelectChange("vehicle_id", value)}
                   disabled={!formData.customer_id || !!editingId}
                 >
@@ -461,8 +462,8 @@ export default function Agendamentos() {
 
               <div className="grid gap-2">
                 <Label htmlFor="service_id">Serviço *</Label>
-                <Select 
-                  value={formData.service_id} 
+                <Select
+                  value={formData.service_id}
                   onValueChange={(value) => handleSelectChange("service_id", value)}
                   disabled={!!editingId}
                 >
@@ -482,53 +483,74 @@ export default function Agendamentos() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="appointment_date">Data *</Label>
-                  <Input 
-                    id="appointment_date" 
-                    type="date" 
-                    value={formData.appointment_date} 
-                    onChange={handleInputChange} 
-                    required 
+                  <Input
+                    id="appointment_date"
+                    type="date"
+                    value={formData.appointment_date}
+                    onChange={handleInputChange}
+                    required
                   />
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="appointment_time">Hora *</Label>
-                  <Input 
-                    id="appointment_time" 
-                    type="time" 
-                    value={formData.appointment_time} 
-                    onChange={handleInputChange} 
-                    required 
+                  <Input
+                    id="appointment_time"
+                    type="time"
+                    value={formData.appointment_time}
+                    onChange={handleInputChange}
+                    required
                   />
                 </div>
               </div>
 
               <div className="grid gap-2">
                 <Label htmlFor="estimated_budget">Orçamento Estimado (€)</Label>
-                <Input 
-                  id="estimated_budget" 
-                  type="number" 
+                <Input
+                  id="estimated_budget"
+                  type="number"
                   step="0.01"
                   min="0"
-                  value={formData.estimated_budget} 
-                  onChange={handleInputChange} 
+                  value={formData.estimated_budget}
+                  onChange={handleInputChange}
                 />
               </div>
 
+              {editingId && (
+                <div className="grid gap-2">
+                  <Label htmlFor="status_id">Status</Label>
+                  <Select
+                    value={formData.status_id}
+                    onValueChange={(value) => handleSelectChange("status_id", value)}
+                  >
+                    <SelectTrigger id="status_id">
+                      <SelectValue placeholder="Selecione um status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {statuses.map((status) => (
+                        <SelectItem key={status.id} value={status.id.toString()}>
+                          {translateStatus(status.name)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
               <div className="grid gap-2">
                 <Label htmlFor="description">Descrição</Label>
-                <Textarea 
-                  id="description" 
-                  value={formData.description} 
+                <Textarea
+                  id="description"
+                  value={formData.description}
                   onChange={handleInputChange}
                   placeholder="Observações ou detalhes adicionais"
                 />
               </div>
             </div>
             <DialogFooter>
-              <Button 
-                type="button" 
-                variant="outline" 
-                className="hover:bg-gray-100 hover:text-gray-900 focus-visible:ring-0 focus-visible:ring-offset-0" 
+              <Button
+                type="button"
+                variant="outline"
+                className="hover:bg-gray-100 hover:text-gray-900 focus-visible:ring-0 focus-visible:ring-offset-0"
                 onClick={() => {
                   setIsFormOpen(false);
                   setEditingId(null);
