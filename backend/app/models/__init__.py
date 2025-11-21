@@ -10,3 +10,4 @@ from .appoitment_extra_service import AppointmentExtraService
 from .customerAuth import CustomerAuth
 from .invoice import Invoice
 from .agendamento import Agendamento, StatusAgendamento
+from .order_comment import OrderComment

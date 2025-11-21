@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Body, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 
@@ -7,6 +7,9 @@ from app.crud.appoitment import AppointmentRepository
 from app.schemas.appointment import Appointment, AppointmentCreate, AppointmentUpdate
 from app.schemas.appointment_extra_service import AppointmentExtraService as AppointmentExtraServiceSchema, AppointmentExtraServiceCreate
 from app.email_service.email_service import EmailService
+from app.schemas.order_comment import CommentCreate, CommentOut
+from app.models.order_comment import OrderComment
+from app.models.appoitment import Appointment as AppointmentModel
 
 router = APIRouter()
 
@@ -83,6 +86,33 @@ def finalize_appointment(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Appointment not found")
     return db_appointment
 
+@router.patch("/{appointment_id}/start", status_code=200)
+def start_appointment(appointment_id: int, db: Session = Depends(get_db)):
+    """
+    Inicia a appointment (PATCH /api/v1/appointments/{id}/start).
+    Chama AppointmentRepository.start.
+    """
+    repo = AppointmentRepository(db)
+    appt = repo.start(appointment_id=appointment_id)
+    if not appt:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Appointment not found")
+    return appt
+
+@router.patch("/{appointment_id}", status_code=200)
+def patch_appointment(
+    appointment_id: int,
+    payload: AppointmentUpdate = Body(...),
+    db: Session = Depends(get_db),
+):
+    """
+    Partial update for an appointment. Uses AppointmentUpdate with exclude_unset in the repo.
+    This enables frontend PATCH /api/v1/appointments/{id} to change status and other fields.
+    """
+    repo = AppointmentRepository(db)
+    updated = repo.update(appointment_id=appointment_id, appointment_data=payload)
+    if not updated:
+        raise HTTPException(status_code=404, detail="Appointment not found")
+    return updated
 
 @router.post("/{appointment_id}/extra_services", response_model=AppointmentExtraServiceSchema, status_code=status.HTTP_201_CREATED)
 def add_extra_service_request(
@@ -114,3 +144,46 @@ def list_extra_service_requests(
     if not appointment:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Appointment not found")
     return getattr(appointment, "extra_service_associations", [])
+
+
+@router.post("/{appointment_id}/comments", response_model=CommentOut, status_code=201)
+def add_comment(
+    appointment_id: int,
+    payload: CommentCreate,
+    db: Session = Depends(get_db)
+):
+    """Adiciona um comentário à ordem de serviço"""
+    appt = db.query(AppointmentModel).filter(AppointmentModel.id == appointment_id).first()
+    if not appt:
+        raise HTTPException(status_code=404, detail="Appointment not found")
+    
+    # Valida service_id (opcional)
+    if payload.service_id:
+        from app.models.service import Service
+        service = db.query(Service).filter(Service.id == payload.service_id).first()
+        if not service:
+            raise HTTPException(status_code=404, detail="Service not found")
+    
+    comment = OrderComment(
+        service_order_id=appointment_id,
+        service_id=payload.service_id,
+        comment=payload.comment
+    )
+    db.add(comment)
+    db.commit()
+    db.refresh(comment)
+    return comment
+
+
+@router.get("/{appointment_id}/comments", response_model=List[CommentOut])
+def list_comments(
+    appointment_id: int,
+    db: Session = Depends(get_db)
+):
+    """Lista todos os comentários de uma ordem (mais recentes primeiro)"""
+    return (
+        db.query(OrderComment)
+        .filter(OrderComment.service_order_id == appointment_id)
+        .order_by(OrderComment.created_at.desc())
+        .all()
+    )

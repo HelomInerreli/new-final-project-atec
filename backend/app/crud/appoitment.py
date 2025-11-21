@@ -54,6 +54,8 @@ class AppointmentRepository:
                     joinedload(Appointment.customer),
                     joinedload(Appointment.vehicle),
                     joinedload(Appointment.extra_service_associations),
+                    joinedload(Appointment.status),  # <-- adicionado
+
                 )
                 .filter(Appointment.id == appointment_id)
                 .first()
@@ -64,7 +66,7 @@ class AppointmentRepository:
         # carregar customer e vehicle para que os campos customer_id/vehicle_id e os objetos apareçam no response. #Henrique
         return (
             self.db.query(Appointment)
-            .options(joinedload(Appointment.customer), joinedload(Appointment.vehicle))
+            .options(joinedload(Appointment.customer), joinedload(Appointment.vehicle))  # <-- adicionadoHenrique
             .order_by(Appointment.id.desc())
             .offset(skip)
             .limit(limit)
@@ -103,20 +105,59 @@ class AppointmentRepository:
                     )
                     print(f"Confirmação de agendamento enviada para {customer.email}.")
             except Exception as e:
-                # Não abortar a criação por falha no envio de email; só log
                 print(f"ERRO ao enviar confirmação de agendamento: {e}")
 
         return db_appointment
 
+    # def update(self, appointment_id: int, appointment_data: AppointmentUpdate) -> Optional[Appointment]:
+    #     """Atualiza campos de uma appointment."""
+    #     db_appointment = self.get_by_id(appointment_id=appointment_id)
+    #     if not db_appointment:
+    #         return None
+
+    #     update_data = appointment_data.model_dump(exclude_unset=True)
+    #     for key, value in update_data.items():
+    #         setattr(db_appointment, key, value)
+
+    #     self.db.commit()
+    #     self.db.refresh(db_appointment)
+    #     return db_appointment
+    
     def update(self, appointment_id: int, appointment_data: AppointmentUpdate) -> Optional[Appointment]:
-        """Atualiza campos de uma appointment."""
+        """Atualiza campos de uma appointment. Mapeia status name -> status_id quando aplicável."""
         db_appointment = self.get_by_id(appointment_id=appointment_id)
         if not db_appointment:
             return None
 
         update_data = appointment_data.model_dump(exclude_unset=True)
+
+        # Se foi enviado "status" como nome, faz o mapeamento para status_id
+        if "status" in update_data:
+            status_name = update_data.pop("status")
+            try:
+                status_obj = self.db.query(Status).filter(Status.name == status_name).first()
+                if status_obj and hasattr(db_appointment, "status_id"):
+                    db_appointment.status_id = status_obj.id
+                else:
+                    
+                    if hasattr(db_appointment, "status"):
+                        setattr(db_appointment, "status", status_name)
+            except Exception:
+                if hasattr(db_appointment, "status"):
+                    setattr(db_appointment, "status", status_name)
+        
+        if "status_id" in update_data:
+            try:
+                db_appointment.status_id = update_data.pop("status_id")
+            except Exception:
+                pass
+
         for key, value in update_data.items():
-            setattr(db_appointment, key, value)
+            try:
+                if hasattr(db_appointment, key):
+                    setattr(db_appointment, key, value)
+            except Exception:
+                pass
 
         self.db.commit()
         self.db.refresh(db_appointment)
@@ -139,7 +180,64 @@ class AppointmentRepository:
 
         update_data = AppointmentUpdate(status=finalized_status.name)
         return self.update(appointment_id=appointment_id, appointment_data=update_data)
+  
 
+    def start(self, appointment_id: int) -> Optional[Appointment]:
+        """
+        Inicia uma appointment: define start_time e altera o status para um estado existente.
+        Procura por vários nomes (prioridade) presentes no seeder e aplica status_id.
+        """
+        db_appointment = self.get_by_id(appointment_id=appointment_id)
+        if not db_appointment:
+            return None
+
+        # define hora de início
+        db_appointment.start_time = datetime.utcnow()
+
+        # persiste start_time antes de procurar status
+        self.db.add(db_appointment)
+        self.db.commit()
+        self.db.refresh(db_appointment)
+
+        # lista completa dos nomes que o seeder cria — prioridade por cima
+        candidates = [
+            "In Repair",
+            "Pendente",
+            "Awaiting Approval",
+            "Waitting Payment",
+            "Finalized",
+            "Canceled",
+        ]
+
+        found_status = None
+        for name in candidates:
+            found_status = self.db.query(Status).filter(Status.name == name).first()
+            if found_status:
+                break
+
+        if found_status:
+            # aplica status_id quando disponível
+            if hasattr(db_appointment, "status_id"):
+                db_appointment.status_id = found_status.id
+            elif hasattr(db_appointment, "status"):
+                db_appointment.status = found_status.name
+
+            self.db.add(db_appointment)
+            self.db.commit()
+            self.db.refresh(db_appointment)
+            return db_appointment
+
+        # fallback: escreve texto no campo 'status' se existir
+        try:
+            if hasattr(db_appointment, "status"):
+                db_appointment.status = candidates[0]  # "In Repair" por defeito
+                self.db.add(db_appointment)
+                self.db.commit()
+                self.db.refresh(db_appointment)
+        except Exception:
+            pass
+
+        return db_appointment
     #
     # Extra service requests (association object pattern)
     #

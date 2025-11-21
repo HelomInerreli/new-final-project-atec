@@ -1,6 +1,9 @@
 import React, { useEffect, useState, type FC } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getOrder, updateOrder, updateOrderStatus } from "../services/OrderDetails";
+import { getOrder, updateOrder } from "../services/OrderDetails";
+import Input from "./Input";
+import TextArea from "./TextArea";
+import { normalizeStatus } from "../hooks/useServiceOrder";
 import "../styles/ServiceOrderDetail.css";
 
 const ServiceOrderDetail: FC = () => {
@@ -44,7 +47,13 @@ const ServiceOrderDetail: FC = () => {
     if (!d) return "-";
     try {
       const dt = new Date(d);
-      return isNaN(dt.getTime()) ? String(d) : dt.toLocaleString();
+      return isNaN(dt.getTime()) ? String(d) : dt.toLocaleString("pt-PT", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
     } catch {
       return String(d);
     }
@@ -62,15 +71,56 @@ const ServiceOrderDetail: FC = () => {
     return parts.join(" ");
   };
 
-  const changeStatus = async (newStatus: string) => {
-    if (!id) return;
-    if (!confirm(`Confirmar alteração de status para "${newStatus}"?`)) return;
+  const getRawStatusName = (o: any): string => {
+    if (!o) return "";
+    const s = o.status ?? o;
+    if (!s) return "";
+    if (typeof s === "string") return s;
+    if (typeof s === "object") return String(s.name ?? s.label ?? "");
+    return "";
+  };
+
+  const changeStatus = async (action: "start" | "pause" | "finish") => {
+    if (!id || !order) return;
+
+    const STATUS_LABEL_TO_ID: Record<string, number> = {
+      "Pendente": 1,
+      "Cancelada": 2,
+      "Concluída": 3,
+      "Em Andamento": 4,
+      "Aguardando Aprovação": 5,
+      "Aguardando Pagamento": 6,
+    };
+
+    const newStatusLabel = action === "start" ? "Em Andamento" : action === "pause" ? "Pendente" : "Concluída";
+    const currentRaw = getRawStatusName(order);
+    const currentNormalized = normalizeStatus(currentRaw);
+
+    if (currentNormalized === newStatusLabel) return;
+    if (currentNormalized === "Concluída" && action !== "finish") {
+      alert("Ordem já concluída.");
+      return;
+    }
+
+    const ok = confirm(`Confirmar alteração de status para "${newStatusLabel}"?`);
+    if (!ok) return;
+
+    const newStatusId = STATUS_LABEL_TO_ID[newStatusLabel];
+    if (!newStatusId) {
+      alert("Status inválido");
+      return;
+    }
+
     setSaving(true);
+    const previous = order;
+    setOrder({ ...order, status_id: newStatusId });
+
     try {
-      await updateOrderStatus(id, newStatus);
+      await updateOrder(id, { status_id: newStatusId });
       await fetchOrder();
     } catch (e: any) {
-      alert("Erro ao atualizar status: " + (e?.message ?? e));
+      setOrder(previous);
+      alert("Erro ao atualizar status.");
     } finally {
       setSaving(false);
     }
@@ -80,12 +130,21 @@ const ServiceOrderDetail: FC = () => {
     if (!id || !comment.trim()) return;
     setSaving(true);
     try {
-      const newComments = [...(order?.comments ?? []), { text: comment.trim(), created_at: new Date().toISOString() }];
-      await updateOrder(id, { comments: newComments });
+      const response = await fetch(`http://localhost:8000/api/v1/appointments/${id}/comments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          comment: comment.trim(),
+          service_id: order.service_id
+        }),
+      });
+
+      if (!response.ok) throw new Error();
+
       setComment("");
       await fetchOrder();
-    } catch (e: any) {
-      alert("Erro ao adicionar comentário: " + (e?.message ?? e));
+    } catch {
+      alert("Erro ao adicionar comentário.");
     } finally {
       setSaving(false);
     }
@@ -100,81 +159,197 @@ const ServiceOrderDetail: FC = () => {
       setPartName("");
       setPartQty(1);
       await fetchOrder();
-    } catch (e: any) {
-      alert("Erro ao adicionar peça: " + (e?.message ?? e));
+    } catch {
+      alert("Erro ao adicionar peça.");
     } finally {
       setSaving(false);
     }
   };
 
-  if (loading) return <div className="p-4">Carregando...</div>;
-  if (!order) return <div className="p-4">Ordem não encontrada</div>;
+  if (loading) return <div className="so-loading">Carregando...</div>;
+  if (!order) return <div className="so-loading">Ordem não encontrada</div>;
+
+  const currentRaw = getRawStatusName(order);
+  const currentNormalized = normalizeStatus(currentRaw);
 
   return (
-    <div className="so-fullscreen">
-      <div className="so-header">
-        <h2>Ordem #{order.id}</h2>
-        <div>
-          <button className="btn btn-outline-secondary me-2" onClick={() => navigate(-1)}>Voltar</button>
-          <button className="btn btn-primary me-1" onClick={() => changeStatus("Em Andamento")} disabled={saving || order.status === "Em Andamento"}>Iniciar</button>
-          <button className="btn btn-warning me-1" onClick={() => changeStatus("Pendente")} disabled={saving || order.status === "Pendente"}>Pausar</button>
-          <button className="btn btn-success" onClick={() => changeStatus("Concluída")} disabled={saving || order.status === "Concluída"}>Finalizar</button>
+    <div className="so-page-wrapper">
+      <div className="so-card">
+        
+        {/* Header DENTRO do card */}
+        <div className="so-card-header">
+          <button className="so-back-btn" onClick={() => navigate(-1)}>
+            ← Voltar
+          </button>
+          <h2 className="so-card-title">Ordem de Serviço #{order.id}</h2>
         </div>
-      </div>
 
-      <div className="so-content">
-        <div className="row gy-4 align-items-start w-100">
-          <div className="col-12 col-lg-4">
-            <div><strong>Cliente:</strong> {formatField(order.customer_name ?? order.client_name ?? order.customer)}</div>
-            <div><strong>Veículo:</strong> {formatVehicle(order.vehicle_info ?? order.vehicle ?? order.selected_vehicle)}</div>
-            <div><strong>Serviço:</strong> {formatField(order.service_name ?? order.service)}</div>
-            <div><strong>Data:</strong> {formatDate(order.appointment_date ?? order.date)}</div>
-            <div><strong>Status:</strong> {formatField(order.status)}</div>
-          </div>
+        {/* Botões de ação */}
+        <div className="so-action-bar">
+          <button
+            className="btn btn-primary"
+            onClick={() => changeStatus("start")}
+            disabled={saving || ["Em Andamento", "Concluída"].includes(currentNormalized)}
+          >
+            Iniciar
+          </button>
 
-          <div className="col-12 col-lg-4">
-            <h5 className="text-center">Comentários</h5>
-            {(order.comments ?? []).length ? (
-              <ul className="comments-list">
-                {(order.comments ?? []).map((c: any, i: number) => (
-                  <li key={i}>
-                    <small className="text-muted">{c.created_at ? formatDate(c.created_at) + " — " : ""}</small>
-                    <div>{c.text}</div>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div className="text-muted text-center mb-2">Sem comentários</div>
-            )}
-            <textarea className="form-control mb-2" rows={3} value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Adicionar comentário..." />
-            <div className="d-flex justify-content-center">
-              <button className="btn btn-primary" onClick={submitComment} disabled={saving || !comment.trim()}>Adicionar comentário</button>
+          <button
+            className="btn btn-warning"
+            onClick={() => changeStatus("pause")}
+            disabled={saving || ["Pendente", "Concluída"].includes(currentNormalized)}
+          >
+            Pausar
+          </button>
+
+          <button
+            className="btn btn-success"
+            onClick={() => changeStatus("finish")}
+            disabled={saving || currentNormalized === "Concluída"}
+          >
+            Finalizar
+          </button>
+        </div>
+
+        {/* Título da secção */}
+        <h5 className="so-section-title">Informações do Cliente e Serviço</h5>
+
+        {/* Grid de informações (read-only) */}
+        <div className="so-info-grid">
+          <div className="so-info-row">
+            <div className="so-info-col">
+              <Input
+                label="Cliente"
+                value={formatField(order.customer_name ?? order.customer)}
+                readOnly
+              />
+            </div>
+            <div className="so-info-col">
+              <Input
+                label="Veículo"
+                value={formatVehicle(order.vehicle_info ?? order.vehicle)}
+                readOnly
+              />
+            </div>
+            <div className="so-info-col">
+              <Input
+                label="Serviço"
+                value={formatField(order.service_name ?? order.service)}
+                readOnly
+              />
+            </div>
+            <div className="so-info-col">
+              <Input
+                label="Status"
+                value={formatField(order.status)}
+                readOnly
+              />
             </div>
           </div>
 
-          <div className="col-12 col-lg-4">
-            <h5>Peças utilizadas</h5>
-            {(order.parts ?? []).length ? (
-              <ul>
-                {(order.parts ?? []).map((p: any, i: number) => (
-                  <li key={i}>{formatField(p.name ?? p)} — qty: {p.qty ?? p.quantity ?? 1}</li>
-                ))}
-              </ul>
-            ) : (
-              <div className="text-muted">Nenhuma peça registada</div>
-            )}
-            <div className="row g-2 align-items-end mt-3">
-              <div className="col-md-7">
-                <input className="form-control" placeholder="Nome da peça" value={partName} onChange={(e) => setPartName(e.target.value)} />
-              </div>
-              <div className="col-md-3">
-                <input type="number" min={1} className="form-control" value={partQty} onChange={(e) => setPartQty(Number(e.target.value) || 1)} />
-              </div>
-              <div className="col-md-2">
-                <button className="btn btn-outline-primary w-100" onClick={addPart} disabled={saving || !partName.trim()}>Adicionar</button>
-              </div>
+          <div className="so-info-row">
+            <div className="so-info-col">
+              <Input
+                label="Data"
+                value={formatDate(order.appointment_date)}
+                readOnly
+              />
+            </div>
+            <div className="so-info-col">
+              <Input
+                label="Orçamento Estimado"
+                value={`€ ${Number(order.estimated_budget ?? 0).toFixed(2)}`}
+                readOnly
+              />
+            </div>
+            <div className="so-info-col">
+              <Input
+                label="Orçamento Real"
+                value={`€ ${Number(order.actual_budget ?? 0).toFixed(2)}`}
+                readOnly
+              />
             </div>
           </div>
+        </div>
+
+        {/* Divisória */}
+        <div className="so-divider" />
+
+        {/* Grid 2 colunas: Comentários + Peças */}
+        <div className="so-panels-grid">
+          
+          {/* Painel Comentários */}
+          <div className="so-panel">
+            <h6 className="so-panel-title so-panel-title-comments">Comentários</h6>
+
+            <div className="so-panel-list">
+              {(order.comments ?? []).length === 0 ? (
+                <div className="so-empty-message">Sem comentários</div>
+              ) : (
+                (order.comments ?? []).map((c: any, i: number) => (
+                  <div key={i} className="so-comment-item">
+                    <div className="so-comment-date">{formatDate(c.created_at)}</div>
+                    <div className="so-comment-text">{c.comment}</div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <TextArea
+              rows={2}
+              value={comment}
+              onChange={(e: any) => setComment(e.target.value)}
+              placeholder="Escrever comentário..."
+            />
+            <button
+              className="btn btn-primary so-full-btn"
+              onClick={submitComment}
+              disabled={saving || !comment.trim()}
+            >
+              Adicionar Comentário
+            </button>
+          </div>
+
+          {/* Painel Peças */}
+          <div className="so-panel">
+            <h6 className="so-panel-title so-panel-title-parts">Peças Utilizadas</h6>
+
+            <div className="so-panel-list">
+              {(order.parts ?? []).length === 0 ? (
+                <div className="so-empty-message">Sem peças</div>
+              ) : (
+                (order.parts ?? []).map((p: any, i: number) => (
+                  <div key={i} className="so-part-item">
+                    <span className="so-part-name">{formatField(p.name)}</span>
+                    <span className="so-part-qty">Qtd: {p.qty ?? p.quantity ?? 1}</span>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className="so-add-part-form">
+              <Input
+                label="Peça"
+                placeholder="Nome"
+                value={partName}
+                onChange={(e: any) => setPartName(e.target.value)}
+              />
+              <Input
+                label="Qtd"
+                type="number"
+                value={String(partQty)}
+                onChange={(e: any) => setPartQty(Number(e.target.value) || 1)}
+              />
+              <button
+                className="btn btn-success so-add-btn"
+                onClick={addPart}
+                disabled={saving || !partName.trim()}
+              >
+                +
+              </button>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>

@@ -3,12 +3,25 @@ import { getAppointments, getCustomerVehicles } from "../services/ServiceOrders"
 import type { Appointment } from "../interfaces/Appointment";
 import type { Order } from "../interfaces/Order";
 
-const normalizeStatus = (s?: string | null): Order["status"] => {
-  const str = String(s ?? "").toLowerCase();
+
+export function normalizeStatus(s?: string | null): Order["status"] {
+  const raw = String(s ?? "").trim();
+  const str = raw.toLowerCase();
   if (!str) return "Pendente";
-  if (str.includes("pend")) return "Pendente";
-  if (str.includes("concl") || str.includes("finish") || str.includes("completed")) return "Concluída";
+
+  // "Awaiting Approval" -> Pendente
+  if (str.includes("pend") || str.includes("await") || str.includes("approval")) return "Pendente";
+
+  // pagamentos pendentes -> Em Andamento
+  if (str.includes("waitt") || str.includes("payment")) return "Em Andamento";
+
+  // In Repair -> Em Andamento
+  if (str.includes("in repair") || str.includes("repair")) return "Em Andamento";
+
+  if (str.includes("concl") || str.includes("finish") || str.includes("completed") || str.includes("final")) return "Concluída";
   if (str.includes("cancel")) return "Cancelada";
+
+  // fallback
   return "Em Andamento";
 };
 
