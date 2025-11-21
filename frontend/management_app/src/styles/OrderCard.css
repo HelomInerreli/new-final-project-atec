@@ -2,13 +2,14 @@
   border: 2px solid #dc3545;
   border-radius: 12px;
   background-color: #fff;
-  padding: 26px 28px; /* Aumentado o padding */
+  padding: 24px 28px;
   transition: box-shadow 0.2s, transform 0.2s;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: calc(100% + 200px);
+  width: 100%;
   box-sizing: border-box;
+  margin-bottom: 0;
 }
 
 .order-card:hover {
@@ -16,27 +17,27 @@
   transform: translateY(-2px);
 }
 
-.order-card > div:first-child {
+.card-main {
   flex: 1;
-  min-width: 0; /* Permite que o texto quebre */
+  min-width: 0;
 }
 
 .order-card h3 {
-  font-size: 1.25rem; /* Aumentado */
+  font-size: 1.25rem;
   font-weight: 700;
   color: #000;
-  margin: 0 0 12px 0; /* Aumentado o espaço */
+  margin: 0 0 12px 0;
   display: flex;
   align-items: center;
-  gap: 12px; /* Mais espaço entre ID e badge */
+  gap: 12px;
   flex-wrap: wrap;
 }
 
 /* Chips de status */
 .status-chip {
-  padding: 6px 14px; /* Aumentado */
+  padding: 6px 14px;
   border-radius: 12px;
-  font-size: 0.85rem; /* Ligeiramente maior */
+  font-size: 0.85rem;
   font-weight: 600;
   text-transform: capitalize;
   white-space: nowrap;
@@ -62,28 +63,40 @@
   color: #842029;
 }
 
-.order-card p {
-  color: #555;
+/* Meta - informações do card em linha */
+.meta {
+  display: flex;
+  gap: 24px;
+  color: #666;
   font-size: 0.95rem;
-  margin: 6px 0;
-  line-height: 1.5;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
 }
 
-.order-card .price {
-  font-size: 1.5rem; /* Aumentado */
+.meta > div {
+  color: #666;
+}
+
+.meta strong {
+  color: #333;
+  font-weight: 600;
+}
+
+.price {
+  font-size: 1.5rem;
   font-weight: 700;
   color: #dc3545;
-  margin-top: 12px;
+  margin: 0;
 }
 
-.order-card > div:last-child {
+.card-actions {
   margin-left: 20px;
-  flex-shrink: 0; /* Não encolhe o botão */
+  flex-shrink: 0;
 }
 
-.order-card button {
-  background-color: transparent;
-  color: #dc3545;
+.btn-action {
+  background-color: #dc3545;
+  color: white;
   border: 2px solid #dc3545;
   padding: 10px 20px;
   border-radius: 8px;
@@ -97,16 +110,9 @@
   gap: 8px;
 }
 
-.order-card button:hover {
+.btn-action:hover {
   background-color: #dc3545;
   color: white;
-  transform: translateX(2px);
-}
-
-/* Ícone de olho no botão */
-.order-card button::before {
-  content: '👁️';
-  font-size: 1.1rem;
 }
 
 /* Responsividade */
@@ -117,13 +123,22 @@
     gap: 15px;
   }
   
-  .order-card > div:last-child {
+  .card-actions {
     margin-left: 0;
     width: 100%;
   }
   
-  .order-card button {
+  .btn-action {
     width: 100%;
     justify-content: center;
   }
+  
+  .meta {
+    flex-direction: column;
+    gap: 8px;
+  }
 }
+
+
+
+
