@@ -1,264 +1,41 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '../api/auth';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom'; // ✅ ADICIONAR
-import type { AppointmentForm, CreateAppointmentData, CreateAppointmentModalProps } from '../interfaces/appointment';
-import http from '../api/http';
-import { vehicleService } from '../services/vehicleServices';
-import type { Vehicle } from '../interfaces/vehicle';
 import { LucideCalendar } from 'lucide-react';
 import DatePicker from 'react-datepicker';
-import { pt, fr, es, enUS } from 'date-fns/locale';
-import { formatDate } from '../utils/dateUtils';
-import { h5 } from 'framer-motion/m';
-import type { Locale } from 'date-fns';
-
-const locales: { [key: string]: Locale } = {
-    pt: pt,
-    fr: fr,
-    es: es,
-    en: enUS
-};
-
-interface Service {
-    id: number;
-    name: string;
-    description: string | null;  // ✅
-    price: number;
-    duration_minutes: number | null;  // ✅
-    is_active: boolean;
-};
-
-const getServices = async (): Promise<Service[]> => {
-    const response = await http.get('/services');
-    return response.data;
-}
+import type { CreateAppointmentModalProps } from '../interfaces/appointment';
+import { useAppointmentModal } from '../hooks/useAppointmentModal';
+import { generateTimeSlots } from '../utils/timeSlots';
+import { locales } from '../utils/locales';
+import { pt } from 'date-fns/locale';
 
 export const NewCreateAppModal: React.FC<CreateAppointmentModalProps> = ({ show, onClose, onSuccess }) => {
     const { t, i18n } = useTranslation();
-    const navigate = useNavigate(); // ✅ ADICIONAR
-    const [currentStep, setCurrentStep] = useState<number>(1);
-    const { loggedInCustomerId, isLoggedIn } = useAuth();
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
-    const [formData, setFormData] = useState<AppointmentForm>({
-        appointment_date: '',
-        description: '',
-        estimated_budget: 0,
-        vehicle_id: 0,
-        service_id: 0,
-    });
-    const [vehicles, setVehicles] = useState<Vehicle[]>([]);
-    const [services, setServices] = useState<Service[]>([]);
-    const getInitialDate = () => {
-        const now = new Date();
-        if (now.getHours() >= 17) {
-            const tomorrow = new Date();
-            tomorrow.setDate(now.getDate() + 1);
-            return tomorrow;
-        }
-        return now;
-    };
+    const timeSlots = generateTimeSlots();
+    
+    const {
+        currentStep,
+        loading,
+        error,
+        formData,
+        setFormData,
+        vehicles,
+        services,
+        selectData,
+        setSelectData,
+        selectedTime,
+        setSelectedTime,
+        isLoggedIn,
+        goToNextStep,
+        goToPreviousStep,
+        handleSubmit,
+        handleClose,
+        isTimeSlotAvailable,
+        getInitialDate,
+    } = useAppointmentModal(show, onSuccess, onClose);
 
-    const [selectData, setSelectData] = useState<Date | null>(getInitialDate());
-    const [selectedTime, setSelectedTime] = useState<string>('09:00');
-
-    const timeSlots: string[] = [];
-
-    for (let hour = 9; hour <= 17; hour++) {
-        timeSlots.push(`${hour.toString().padStart(2, '0')}:00`);
-        if (hour < 17) {
-            timeSlots.push(`${hour.toString().padStart(2, '0')}:30`);
-        }
+    if (!show) {
+        return null;
     }
-
-    const goToNextStep = () => {
-        if (currentStep === 1) {
-            // ✅ VERIFICAR LOGIN PRIMEIRO (antes da validação)
-            if (!isLoggedIn) {
-                navigate('/register', {
-                    state: {
-                        message: t('appointmentModal.loginRequired', { defaultValue: 'Por favor, faça login para agendar um serviço' }),
-                        returnTo: '/appointments'
-                    }
-                });
-                onClose(); // Fecha o modal DEPOIS do navigate
-                return;
-            }
-
-            // Validação SÓ se estiver logado
-            if (!formData.service_id || !selectData || !selectedTime) {
-                setError(t('appointmentModal.errorStep1', { defaultValue: 'Preencha todos os campos obrigatórios do passo 1' }));
-                return;
-            }
-
-            // Combinar data + hora no appointment_date
-            const dateTime = new Date(selectData);
-            const [hours, minutes] = selectedTime.split(':');
-            dateTime.setHours(parseInt(hours), parseInt(minutes));
-
-            setFormData(prev => ({
-                ...prev,
-                appointment_date: dateTime.toISOString()
-            }));
-
-            setError(null);
-            setCurrentStep(2);
-        }
-
-        if (currentStep === 2) {
-            if (!formData.vehicle_id) {
-                setError(t('appointmentModal.errorVehicle', { defaultValue: 'Selecione um veículo' }));
-                return;
-            }
-            setError(null);
-            setCurrentStep(3);
-        }
-    };
-
-    const goToPreviousStep = () => {
-        if (currentStep > 1) {
-            setCurrentStep(currentStep - 1);
-            setError(null);
-        }
-    }
-
-    const createAppointment = async (appointmentData: CreateAppointmentData) => {
-        try {
-            console.log("Criando appointment:", appointmentData);
-            const response = await http.post("/appointments", appointmentData);
-            console.log("Appointment criado:", response.data);
-            return response.data;
-        } catch (error) {
-            console.error("Erro ao criar appointment:", error);
-            throw error;
-        }
-    };
-
-    // ✅ Função para verificar se o horário está disponível
-    const isTimeSlotAvailable = (time: string): boolean => {
-        if (!selectData) return true;
-
-        const selectedDate = new Date(selectData);
-        const today = new Date();
-
-        // Se a data selecionada não é hoje, todos os horários estão disponíveis
-        if (selectedDate.toDateString() !== today.toDateString()) {
-            return true;
-        }
-
-        // Se é hoje, verificar se o horário já passou
-        const [hours, minutes] = time.split(':').map(Number);
-        const currentHour = today.getHours();
-        const currentMinutes = today.getMinutes();
-
-        // Horário já passou
-        if (hours < currentHour) {
-            return false;
-        }
-
-        // Mesma hora mas minutos já passaram
-        if (hours === currentHour && minutes <= currentMinutes) {
-            return false;
-        }
-
-        return true;
-    };
-
-    useEffect(() => {
-        if (!isLoggedIn || !loggedInCustomerId) {
-            setLoading(false);
-            return;
-        }
-
-        const fetchData = async () => {
-            try {
-                setLoading(true);
-                const vehicles = await vehicleService.getByCustomer(loggedInCustomerId);
-                setVehicles(vehicles);
-                const services = await getServices();
-                setServices(services);
-                setLoading(false);
-            }
-            catch (error) {
-                setError(t('appointmentModal.errorLoad', { defaultValue: 'Erro ao carregar dados' }));
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-    }, [isLoggedIn, loggedInCustomerId]);
-
-    // ✅ NOVO useEffect específico para validar horário quando a data muda
-    useEffect(() => {
-        if (selectData && !isTimeSlotAvailable(selectedTime)) {
-            // Encontrar o primeiro horário disponível
-            const availableTime = timeSlots.find(time => isTimeSlotAvailable(time));
-            if (availableTime) {
-                setSelectedTime(availableTime);
-            }
-        }
-    }, [selectData]); // Executa quando selectData muda
-
-    const isTodayAndAfterLastSlot = () => {
-        if (!selectData) return false;
-        const now = new Date();
-        const selected = new Date(selectData);
-        return (
-            selected.toDateString() === now.toDateString() &&
-            now.getHours() >= 17
-        );
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!isLoggedIn || !loggedInCustomerId) {
-            setError(t('appointmentModal.errorLogin', { defaultValue: 'Usuário não está logado' }));
-            return;
-        }
-
-        if (!formData.vehicle_id || !formData.service_id || !formData.appointment_date) {
-            setError(t('appointmentModal.errorAllFields', { defaultValue: 'Preencha todos os campos obrigatórios' }));
-            return;
-        }
-        try {
-            setLoading(true);
-            const appointmentData: CreateAppointmentData = {
-                ...formData,
-                customer_id: loggedInCustomerId,
-            };
-            await createAppointment(appointmentData);
-            onSuccess();
-            resetForm();
-            handleClose();
-        } catch (error) {
-            setError(t('appointmentModal.errorCreate', { defaultValue: 'Erro ao criar agendamento' }));
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const resetForm = () => {
-        setFormData({
-            appointment_date: '',
-            description: '',
-            estimated_budget: 0,
-            vehicle_id: 0,
-            service_id: 0,
-        });
-        setSelectData(getInitialDate());
-        setSelectedTime('09:00');
-        setCurrentStep(1);
-        setError(null);
-    };
-
-    const handleClose = () => {
-        resetForm();
-        onClose();
-    };
-
-    if (!show) return null;
-
+    
     return (
         <div
             className="modal show d-block"
@@ -275,7 +52,7 @@ export const NewCreateAppModal: React.FC<CreateAppointmentModalProps> = ({ show,
                     {/* Cabeçalho */}
                     <div className="modal-header">
                         <h5 className="modal-title">
-                            {t('createAppointment', { defaultValue: 'Criar Agendamento' })}
+                            {t('appointmentModal.createAppointment', { defaultValue: 'Criar Agendamento' })}
                         </h5>
                         <button
                             type="button"
