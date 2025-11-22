@@ -85,5 +85,31 @@ export function useFetchCustomerById(customerId: string | undefined) {
     fetchCustomer();
   }, [customerId]);
 
-  return { customerData, loading, error };
+  const updateCustomer = async (updatedData: any) => {
+    if (!customerId) return;
+    try {
+      const response = await http.put(`/customers/${customerId}`, updatedData);
+      
+      setCustomerData(prev => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          auth: {
+            ...prev.auth,
+            email: updatedData.email || prev.auth.email
+          },
+          customer: {
+            ...prev.customer,
+            ...response.data
+          }
+        };
+      });
+      return response.data;
+    } catch (err: any) {
+      console.error('Failed to update customer:', err);
+      throw err;
+    }
+  };
+
+  return { customerData, loading, error, updateCustomer };
 }

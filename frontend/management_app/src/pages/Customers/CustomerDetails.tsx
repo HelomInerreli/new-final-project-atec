@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "./../../components/ui/card";
 import { Button } from "./../../components/ui/button";
 import { Input } from "./../../components/ui/input";
 import { Label } from "./../../components/ui/label";
 import { Badge } from "./../../components/ui/badge";
-import { Separator } from "./../../components/ui/separator";
-import { ArrowLeft, Edit, Trash2, Car, Calendar } from "lucide-react";
+import { ArrowLeft, Edit, Trash2, Car, Calendar, Save, X } from "lucide-react";
 import { useToast } from "./../../hooks/use-toast";
 import { useFetchCustomerById } from "./../../hooks/useCustomerDetails";
 import { Spinner, Alert } from "react-bootstrap";
+import "./../../styles/CustomerDetails.css";
+
 
 type Veiculo = {
   id: number;
@@ -17,16 +17,20 @@ type Veiculo = {
   brand: string;
   model: string;
   kilometers: number;
+  deleted_at: string | null;
 };
 
 type ClienteForm = {
   name: string;
   email: string;
   phone: string;
+  birthDate: string;
   address: string;
+  country: string;
   city: string;
   postalCode: string;
 };
+
 
 export default function CustomerDetails() {
   const { id } = useParams<{ id: string }>();
@@ -37,13 +41,15 @@ export default function CustomerDetails() {
     name: "",
     email: "",
     phone: "",
+    birthDate: "",
     address: "",
+    country: "",
     city: "",
     postalCode: "",
   });
 
   // Fetch customer data from backend
-  const { customerData, loading, error } = useFetchCustomerById(id);
+  const { customerData, loading, error, updateCustomer } = useFetchCustomerById(id);
 
   // Update form data when customer data is loaded
   useEffect(() => {
@@ -52,20 +58,39 @@ export default function CustomerDetails() {
         name: customerData.customer.name || "",
         email: customerData.auth.email || "",
         phone: customerData.customer.phone || "",
+        birthDate: customerData.customer.birth_date || "",
         address: customerData.customer.address || "",
+        country: customerData.customer.country || "",
         city: customerData.customer.city || "",
         postalCode: customerData.customer.postal_code || "",
       });
     }
   }, [customerData]);
 
-  const handleSave = () => {
-    // TODO: Implement API call to update customer
-    setIsEditing(false);
-    toast({
-      title: "Alterações salvas",
-      description: "Os dados do cliente foram atualizados com sucesso.",
-    });
+  const handleSave = async () => {
+    try {
+      await updateCustomer({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        birth_date: formData.birthDate,
+        address: formData.address,
+        city: formData.city,
+        postal_code: formData.postalCode,
+        country: formData.country,
+      });
+      setIsEditing(false);
+      toast({
+        title: "Alterações salvas",
+        description: "Os dados do cliente foram atualizados com sucesso.",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro ao salvar",
+        description: "Não foi possível atualizar os dados do cliente.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleDelete = () => {
@@ -117,7 +142,11 @@ export default function CustomerDetails() {
       {/* Header */}
       <div className="d-flex align-items-center gap-3 mb-4">
         <Link to="/customers">
-          <Button variant="ghost" size="icon">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="back-button-custom"
+          >
             <ArrowLeft className="h-5 w-5" />
           </Button>
         </Link>
@@ -125,36 +154,45 @@ export default function CustomerDetails() {
       </div>
 
       {/* Customer Information Card */}
-      <div className="card mb-4" style={{ border: '2px solid #dc3545', borderRadius: '8px' }}>
+      <div className="card mb-4" style={{ border: '1px solid #dc3545', borderRadius: '8px' }}>
         <div className="card-body p-4">
           <div className="d-flex justify-content-between align-items-center mb-4">
             <div className="d-flex align-items-center gap-3">
               <h5 className="mb-0 fw-semibold">Informações do Cliente</h5>
               <Badge 
-                bg={status === "Ativo" ? "danger" : "secondary"}
+                variant={status === "Ativo" ? "destructive" : "secondary"}
                 style={{ fontSize: '0.75rem', padding: '0.25rem 0.75rem' }}
               >
                 {status}
               </Badge>
             </div>
             <div className="d-flex gap-2">
+              {isEditing && (
+                 <Button 
+                 onClick={() => setIsEditing(false)}
+                 variant="outline"
+                 className="btn-custom-outline"
+               >
+                 <X className="me-2" style={{ width: '16px', height: '16px' }} />
+                 Cancelar
+               </Button>
+              )}
               <Button 
-                onClick={() => setIsEditing(!isEditing)} 
-                variant="outline"
-                style={{ 
-                  borderColor: '#dc3545', 
-                  color: '#dc3545',
-                  fontSize: '0.875rem',
-                  padding: '0.5rem 1rem'
-                }}
+                onClick={isEditing ? handleSave : () => setIsEditing(true)} 
+                variant={isEditing ? "destructive" : "outline"}
+                className={isEditing ? "btn-custom-filled" : "btn-custom-outline"}
               >
-                <Edit className="me-2" style={{ width: '16px', height: '16px' }} />
-                Editar
+                {isEditing ? (
+                  <Save className="me-2" style={{ width: '16px', height: '16px' }} />
+                ) : (
+                  <Edit className="me-2" style={{ width: '16px', height: '16px' }} />
+                )}
+                {isEditing ? "Salvar" : "Editar"}
               </Button>
               <Button 
                 variant="destructive" 
                 onClick={handleDelete}
-                style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}
+                className="btn-custom-filled"
               >
                 <Trash2 className="me-2" style={{ width: '16px', height: '16px' }} />
                 Excluir
@@ -163,12 +201,13 @@ export default function CustomerDetails() {
           </div>
 
           <div className="row g-4">
+            {/* Row 1: Name and Email */}
             <div className="col-md-6">
-              <Label htmlFor="nome" className="form-label small text-muted mb-1">
+              <Label htmlFor="name" className="form-label small text-muted mb-1 d-block text-start">
                 Nome Completo
               </Label>
               <Input
-                id="nome"
+                id="name"
                 value={formData.name}
                 onChange={(e) => handleInputChange("name", e.target.value)}
                 disabled={!isEditing}
@@ -177,7 +216,7 @@ export default function CustomerDetails() {
               />
             </div>
             <div className="col-md-6">
-              <Label htmlFor="email" className="form-label small text-muted mb-1">
+              <Label htmlFor="email" className="form-label small text-muted mb-1 d-block text-start">
                 Email
               </Label>
               <Input
@@ -190,12 +229,14 @@ export default function CustomerDetails() {
                 style={{ backgroundColor: '#f8f9fa' }}
               />
             </div>
+
+            {/* Row 2: Phone and Birth Date */}
             <div className="col-md-6">
-              <Label htmlFor="telefone" className="form-label small text-muted mb-1">
+              <Label htmlFor="phone" className="form-label small text-muted mb-1 d-block text-start">
                 Telefone
               </Label>
               <Input
-                id="telefone"
+                id="phone"
                 value={formData.phone}
                 onChange={(e) => handleInputChange("phone", e.target.value)}
                 disabled={!isEditing}
@@ -204,8 +245,65 @@ export default function CustomerDetails() {
               />
             </div>
             <div className="col-md-6">
-              <Label htmlFor="postalCode" className="form-label small text-muted mb-1">
-                NIF
+              <Label htmlFor="birthDate" className="form-label small text-muted mb-1 d-block text-start">
+                Data de Nascimento
+              </Label>
+              <Input
+                id="birthDate"
+                type="date"
+                value={formData.birthDate}
+                onChange={(e) => handleInputChange("birthDate", e.target.value)}
+                disabled={!isEditing}
+                className="form-control"
+                style={{ backgroundColor: '#f8f9fa' }}
+              />
+            </div>
+
+            {/* Row 3: Address */}
+            <div className="col-12">
+              <Label htmlFor="address" className="form-label small text-muted mb-1 d-block text-start">
+                Endereço
+              </Label>
+              <Input
+                id="address"
+                value={formData.address}
+                onChange={(e) => handleInputChange("address", e.target.value)}
+                disabled={!isEditing}
+                className="form-control"
+                style={{ backgroundColor: '#f8f9fa' }}
+              />
+            </div>
+
+            {/* Row 4: Country, City, Postal Code */}
+            <div className="col-md-4">
+              <Label htmlFor="country" className="form-label small text-muted mb-1 d-block text-start">
+                País
+              </Label>
+              <Input
+                id="country"
+                value={formData.country}
+                onChange={(e) => handleInputChange("country", e.target.value)}
+                disabled={!isEditing}
+                className="form-control"
+                style={{ backgroundColor: '#f8f9fa' }}
+              />
+            </div>
+            <div className="col-md-4">
+              <Label htmlFor="city" className="form-label small text-muted mb-1 d-block text-start">
+                Cidade
+              </Label>
+              <Input
+                id="city"
+                value={formData.city}
+                onChange={(e) => handleInputChange("city", e.target.value)}
+                disabled={!isEditing}
+                className="form-control"
+                style={{ backgroundColor: '#f8f9fa' }}
+              />
+            </div>
+            <div className="col-md-4">
+              <Label htmlFor="postalCode" className="form-label small text-muted mb-1 d-block text-start">
+                Código Postal
               </Label>
               <Input
                 id="postalCode"
@@ -216,21 +314,10 @@ export default function CustomerDetails() {
                 style={{ backgroundColor: '#f8f9fa' }}
               />
             </div>
+
+            {/* Row 5: Registration Date */}
             <div className="col-12">
-              <Label htmlFor="endereco" className="form-label small text-muted mb-1">
-                Endereço
-              </Label>
-              <Input
-                id="endereco"
-                value={formData.address}
-                onChange={(e) => handleInputChange("address", e.target.value)}
-                disabled={!isEditing}
-                className="form-control"
-                style={{ backgroundColor: '#f8f9fa' }}
-              />
-            </div>
-            <div className="col-md-6">
-              <Label className="form-label small text-muted mb-1">
+              <Label className="form-label small text-muted mb-1 d-block text-start">
                 Data de Cadastro
               </Label>
               <Input
@@ -245,13 +332,13 @@ export default function CustomerDetails() {
       </div>
 
       {/* Vehicles Card */}
-      <div className="card" style={{ border: '2px solid #dc3545', borderRadius: '8px' }}>
+      <div className="card" style={{ border: '1px solid #dc3545', borderRadius: '8px' }}>
         <div className="card-body p-4">
           <div className="d-flex justify-content-between align-items-center mb-4">
             <h5 className="mb-0 fw-semibold">Veículos do Cliente</h5>
             <Button 
               variant="destructive"
-              style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}
+              className="btn-custom-filled"
             >
               <Car className="me-2" style={{ width: '16px', height: '16px' }} />
               Adicionar Veículo
@@ -270,27 +357,27 @@ export default function CustomerDetails() {
                   
                   <div className="row g-3">
                     <div className="col-md-4">
-                      <p className="small text-muted mb-1">Marca/Modelo</p>
+                      <p className="small text-muted mb-1 text-start">Marca/Modelo</p>
                       <p className="mb-0 fw-semibold">
                         {veiculo.brand} {veiculo.model}
                       </p>
                     </div>
                     <div className="col-md-4">
-                      <p className="small text-muted mb-1">Matrícula</p>
+                      <p className="small text-muted mb-1 text-start">Matrícula</p>
                       <p className="mb-0 fw-semibold">{veiculo.plate}</p>
                     </div>
                     <div className="col-md-4">
-                      <p className="small text-muted mb-1">Ano</p>
+                      <p className="small text-muted mb-1 text-start">Ano</p>
                       <p className="mb-0 fw-semibold">
                         {new Date().getFullYear() - Math.floor(veiculo.kilometers / 15000)}
                       </p>
                     </div>
                     <div className="col-md-4">
-                      <p className="small text-muted mb-1">Cor</p>
+                      <p className="small text-muted mb-1 text-start">Cor</p>
                       <p className="mb-0">N/A</p>
                     </div>
                     <div className="col-md-8">
-                      <p className="small text-muted mb-1">
+                      <p className="small text-muted mb-1 text-start">
                         <Calendar className="me-1" style={{ width: '14px', height: '14px' }} />
                         Última Revisão
                       </p>

@@ -50,6 +50,8 @@ class CustomerRepository:
         db_customer = self.get_by_id(customer_id)
         if db_customer:
             update_data = customer_data.model_dump(exclude_unset=True)
+            if 'email' in update_data:
+                del update_data['email']
             for field, value in update_data.items():
                 setattr(db_customer, field, value)
             self.db.commit()
