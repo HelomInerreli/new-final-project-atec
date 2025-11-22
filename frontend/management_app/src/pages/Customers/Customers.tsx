@@ -147,18 +147,6 @@ export default function Customers() {
     reset();
   };
 
-  const handleEdit = (cliente: Cliente) => {
-    setEditingCliente(cliente);
-    setValue("name", cliente.name);
-    setValue("email", cliente.email);
-    setValue("phone", cliente.phone !== 'N/A' ? cliente.phone : '');
-    setValue("address", cliente.address !== 'N/A' ? cliente.address : '');
-    setValue("city", cliente.city !== 'N/A' ? cliente.city : '');
-    setValue("postalCode", cliente.postalCode !== 'N/A' ? cliente.postalCode : '');
-    setValue("status", cliente.status);
-    setDialogOpen(true);
-  };
-
   const handleDelete = (id: string) => {
     setClienteToDelete(id);
     setDeleteDialogOpen(true);
@@ -421,13 +409,6 @@ export default function Customers() {
                           <Eye className="h-4 w-4" />
                         </Button>
                       </Link>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => handleEdit(cliente)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
                       <Button
                         variant="destructive"
                         size="icon"
