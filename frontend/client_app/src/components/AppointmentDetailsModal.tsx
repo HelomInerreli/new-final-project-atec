@@ -1,5 +1,6 @@
-import { useEffect } from 'react';
-import type { AppointmentStatusModalProps, Appointment } from '../interfaces/appointment';
+import { useEffect, useState } from 'react';
+import type { AppointmentStatusModalProps, Appointment, ExtraService } from '../interfaces/appointment';
+import { approveExtraService, rejectExtraService } from '../services/extraServices';
 import '../styles/modal.css';
 
 // Fases de status baseadas no banco de dados (ordem de progressão)
@@ -14,14 +15,14 @@ const statusPhases = [
 // Função para calcular o progresso baseado no status
 const getProgressValue = (status: string): number => {
   const statusLower = status?.toLowerCase();
-  
+
   // Se for "canceled", retorna 0% (não progride)
   if (statusLower === "canceled") return 0;
-  
+
   const currentIndex = statusPhases.findIndex(phase => phase.key === statusLower);
-  
+
   if (currentIndex === -1) return 0;  // Status desconhecido
-  
+
   // Calcula porcentagem baseado no índice
   return ((currentIndex + 1) / statusPhases.length) * 100;
 };
@@ -57,6 +58,42 @@ export function AppointmentStatusModal({ appointment, open, onOpenChange }: Appo
     return () => document.body.classList.remove('modal-open');
   }, [open]);
 
+  // State for extra services
+  const [extraServices, setExtraServices] = useState<ExtraService[]>([]);
+  const [loadingAction, setLoadingAction] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (appointment) {
+      if (appointment.extra_service_associations && appointment.extra_service_associations.length > 0) {
+        setExtraServices(appointment.extra_service_associations);
+      } else {
+        setExtraServices([]);
+      }
+    }
+  }, [appointment]);
+
+  const handleServiceAction = async (serviceId: number, action: 'approved' | 'rejected') => {
+    try {
+      setLoadingAction(serviceId);
+      let updatedService: ExtraService;
+
+      if (action === 'approved') {
+        updatedService = await approveExtraService(serviceId);
+      } else {
+        updatedService = await rejectExtraService(serviceId);
+      }
+
+      setExtraServices(prev => prev.map(service =>
+        service.id === serviceId ? updatedService : service
+      ));
+    } catch (error) {
+      console.error("Error updating service status:", error);
+      alert("Erro ao atualizar o serviço. Tente novamente.");
+    } finally {
+      setLoadingAction(null);
+    }
+  };
+
   if (!appointment) return null;
 
   const statusLower = appointment.status?.name?.toLowerCase();
@@ -66,11 +103,11 @@ export function AppointmentStatusModal({ appointment, open, onOpenChange }: Appo
   );
 
   // Cor da barra: vermelha para canceled, verde para finalized, azul para outros
-  const barColor = statusLower === "canceled" 
-    ? "bg-danger" 
-    : statusLower === "finalized" 
-    ? "bg-success" 
-    : "bg-primary";
+  const barColor = statusLower === "canceled"
+    ? "bg-danger"
+    : statusLower === "finalized"
+      ? "bg-success"
+      : "bg-primary";
 
   return (
     <>
@@ -133,6 +170,86 @@ export function AppointmentStatusModal({ appointment, open, onOpenChange }: Appo
                 </div>
               </div>
 
+              {/* Serviços Extras Propostos */}
+              {extraServices.length > 0 && (
+                <div className="mb-4">
+                  <div className="d-flex align-items-center mb-3">
+                    <div className="flex-grow-1 border-bottom"></div>
+                    <span className="px-3 text-muted small fw-bold text-uppercase">Serviços Extras Propostos</span>
+                    <div className="flex-grow-1 border-bottom"></div>
+                  </div>
+
+                  <div className="alert alert-danger d-flex align-items-start mb-3" role="alert">
+                    <i className="bi bi-exclamation-circle-fill me-2 mt-1"></i>
+                    <div>
+                      <div className="fw-bold">Novos Serviços Recomendados</div>
+                      <div className="small">O mecânico identificou {extraServices.length} serviços adicionais que requerem atenção.</div>
+                    </div>
+                  </div>
+
+                  <div className="d-flex flex-column gap-3">
+                    {extraServices.map((service) => (
+                      <div key={service.id} className="card border-primary-subtle shadow-sm">
+                        <div className="card-body">
+                          <div className="d-flex justify-content-between align-items-start mb-2">
+                            <div className="d-flex align-items-start">
+                              <div className="rounded-circle bg-primary-subtle p-2 me-3 text-primary">
+                                <i className="bi bi-wrench-adjustable"></i>
+                              </div>
+                              <div>
+                                <h6 className="fw-bold mb-1">{service.name || "Serviço Extra"}</h6>
+                                <p className="text-muted small mb-0">{service.description || "Sem descrição"}</p>
+                              </div>
+                            </div>
+                            <div className="text-primary fw-bold">
+                              €{service.price?.toFixed(2) || "0.00"}
+                            </div>
+                          </div>
+
+                          {service.status === 'pending' ? (
+                            <div className="d-flex gap-2 mt-3">
+                              <button
+                                className="btn btn-success flex-grow-1"
+                                onClick={() => handleServiceAction(service.id, 'approved')}
+                                disabled={loadingAction === service.id}
+                              >
+                                {loadingAction === service.id ? (
+                                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                ) : (
+                                  <i className="bi bi-check-lg me-2"></i>
+                                )}
+                                Aceitar
+                              </button>
+                              <button
+                                className="btn btn-outline-danger flex-grow-1"
+                                onClick={() => handleServiceAction(service.id, 'rejected')}
+                                disabled={loadingAction === service.id}
+                              >
+                                {loadingAction === service.id ? (
+                                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                ) : (
+                                  <i className="bi bi-x-lg me-2"></i>
+                                )}
+                                Recusar
+                              </button>
+                            </div>
+                          ) : (
+                            <div className={`mt-3 p-2 rounded text-center fw-bold ${service.status === 'approved' ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'
+                              }`}>
+                              {service.status === 'approved' ? (
+                                <><i className="bi bi-check-circle-fill me-2"></i>Aceite</>
+                              ) : (
+                                <><i className="bi bi-x-circle-fill me-2"></i>Recusado</>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Estado da Reparação */}
               <div className="border-top pt-4">
                 <div className="d-flex align-items-center mb-4">
@@ -151,15 +268,14 @@ export function AppointmentStatusModal({ appointment, open, onOpenChange }: Appo
                         <div key={phase.key} className="d-flex flex-column align-items-center" style={{ flex: 1, zIndex: 10, position: 'relative' }}>
                           {/* Ponto */}
                           <div
-                            className={`rounded-circle d-flex align-items-center justify-content-center transition-all ${
-                              isCurrent
+                            className={`rounded-circle d-flex align-items-center justify-content-center transition-all ${isCurrent
                                 ? 'border border-3 border-primary bg-primary shadow'
                                 : isActive
-                                ? 'border border-3 border-success bg-success'
-                                : statusLower === "canceled"
-                                ? 'border border-3 border-danger bg-danger'
-                                : 'border border-3 border-secondary bg-light'
-                            }`}
+                                  ? 'border border-3 border-success bg-success'
+                                  : statusLower === "canceled"
+                                    ? 'border border-3 border-danger bg-danger'
+                                    : 'border border-3 border-secondary bg-light'
+                              }`}
                             style={{ width: '40px', height: '40px' }}
                           >
                             <i className={`bi bi-check-circle-fill ${isActive || statusLower === "canceled" ? 'text-white' : 'text-muted'}`} style={{ fontSize: '20px' }}></i>
@@ -174,20 +290,20 @@ export function AppointmentStatusModal({ appointment, open, onOpenChange }: Appo
                   </div>
 
                   {/* Linha de conexão */}
-                  <div 
-                    className="position-absolute bg-secondary" 
-                    style={{ 
-                      top: '20px', 
-                      left: 'calc(10% + 20px)', 
-                      right: 'calc(10% + 20px)', 
-                      height: '4px', 
-                      zIndex: 0 
+                  <div
+                    className="position-absolute bg-secondary"
+                    style={{
+                      top: '20px',
+                      left: 'calc(10% + 20px)',
+                      right: 'calc(10% + 20px)',
+                      height: '4px',
+                      zIndex: 0
                     }}
                   >
                     <div
                       className={`${barColor} transition-all`}
-                      style={{ 
-                        width: `${progressValue}%`, 
+                      style={{
+                        width: `${progressValue}%`,
                         height: '100%',
                         transition: 'width 0.5s ease-in-out'
                       }}

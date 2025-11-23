@@ -55,7 +55,7 @@ export function FutureAppointments() {
     return (
         <div className="appointments-page">
             <Button
-                className="mb-4"
+                className="mb-4 btn btn-danger"
                 onClick={() => setShowCreateModal(true)}
             >
                 {t('createAppointment', { defaultValue: 'Criar Agendamento' })}

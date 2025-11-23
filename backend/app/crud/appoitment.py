@@ -7,8 +7,8 @@ from app.models.appoitment import Appointment
 from app.models.appoitment_extra_service import AppointmentExtraService
 from app.models.extra_service import ExtraService
 from app.models.status import Status
-from app.models.customer import Customer  # ✅ ADICIONAR
-from app.models.customerAuth import CustomerAuth  # ✅ ADICIONAR
+from app.models.customer import Customer
+from app.models.customerAuth import CustomerAuth
 
 from app.schemas.appointment import AppointmentCreate, AppointmentUpdate
 from app.schemas.appointment_extra_service import AppointmentExtraServiceCreate
@@ -44,9 +44,9 @@ class AppointmentRepository:
             self.db.query(Appointment)
             .options(
                 joinedload(Appointment.customer),
-                joinedload(Appointment.service),  # ← Adicionado
-                joinedload(Appointment.vehicle),  # ← Adicionado
-                joinedload(Appointment.status),  # ← Adicionado
+                joinedload(Appointment.service),
+                joinedload(Appointment.vehicle),
+                joinedload(Appointment.status),
                 joinedload(Appointment.extra_service_associations)
             )
             .filter(Appointment.id == appointment_id)
@@ -148,28 +148,70 @@ class AppointmentRepository:
     #
     # Extra service requests (association object pattern)
     #
-    def add_extra_service_request(self, appointment_id: int, request_data: AppointmentExtraServiceCreate) -> Optional[AppointmentExtraService]:
+    def add_extra_service_request(self, appointment_id: int, request_data: AppointmentExtraServiceCreate, email_service: Optional[EmailService] = None) -> Optional[AppointmentExtraService]:
         """
         Cria um pedido de extra service ligado a uma appointment (status 'pending').
         Não atualiza actual_budget — apenas quando o pedido for aprovado.
         """
-        db_appointment = self.get_by_id(appointment_id=appointment_id)
+        # Carregar com relações para ter dados do cliente/veículo para o email
+        db_appointment = self.get_by_id_with_relations(appointment_id=appointment_id)
         if not db_appointment:
             return None
 
         data = request_data.model_dump()
+        
+        # Se vier extra_service_id mas sem nome/preço, buscar ao catálogo
+        extra_service_id = data.get("extra_service_id")
+        name = data.get("name")
+        description = data.get("description")
+        price = data.get("price")
+        duration_minutes = data.get("duration_minutes")
+
+        if extra_service_id and (not name or price is None):
+            catalog_item = self.db.query(ExtraService).filter(ExtraService.id == extra_service_id).first()
+            if catalog_item:
+                if not name:
+                    name = catalog_item.name
+                if price is None:
+                    price = catalog_item.price
+                if not description: # Opcional: preencher descrição se não vier no request
+                    description = catalog_item.description
+                # duration_minutes pode não existir no catálogo ou ser diferente, manter lógica se existir
+
         db_request = AppointmentExtraService(
             appointment_id=appointment_id,
-            extra_service_id=data.get("extra_service_id"),
-            name=data.get("name"),
-            description=data.get("description"),
-            price=data.get("price"),
-            duration_minutes=data.get("duration_minutes"),
+            extra_service_id=extra_service_id,
+            name=name,
+            description=description,
+            price=price,
+            duration_minutes=duration_minutes,
             status="pending",
         )
         self.db.add(db_request)
         self.db.commit()
         self.db.refresh(db_request)
+
+        # Enviar email se o serviço for fornecido
+        if email_service:
+            try:
+                customer_email = self._get_customer_email(db_appointment.customer_id)
+                if customer_email:
+                    customer_name = db_appointment.customer.name if db_appointment.customer else "Cliente"
+                    # ✅ CORRIGIDO: vehicle.plate em vez de license_plate
+                    vehicle_plate = db_appointment.vehicle.plate if db_appointment.vehicle else "N/A"
+                    
+                    email_service.send_extra_service_proposal_email(
+                        customer_email=customer_email,
+                        customer_name=customer_name,
+                        vehicle_plate=vehicle_plate,
+                        extra_service_name=db_request.name or "Serviço Extra",
+                        price=db_request.price or 0.0,
+                        description=db_request.description or ""
+                    )
+                    print(f"✅ Proposta de serviço extra enviada para {customer_email}.")
+            except Exception as e:
+                print(f"❌ ERRO ao enviar proposta de serviço extra: {e}")
+
         return db_request
 
     def approve_extra_service_request(self, request_id: int) -> Optional[AppointmentExtraService]:

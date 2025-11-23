@@ -10,7 +10,7 @@ export interface Appointment {
   vehicle_id: number;
   service_id: number;
   status_id: number;
-  
+
   // Related objects from API response
   service?: {
     id: number;
@@ -18,18 +18,32 @@ export interface Appointment {
     description?: string;
     price: number;
   };
-  
+
   vehicle?: {
     id: number;
     brand: string;
     model: string;
     plate: string;
   };
-  
+
   status?: {
     id: number;
     name: string;
   };
+
+  extra_service_associations?: ExtraService[];
+}
+
+export interface ExtraService {
+  id: number;
+  appointment_id: number;
+  extra_service_id: number;
+  name?: string;
+  description?: string;
+  price?: number;
+  duration_minutes?: number;
+  status: 'pending' | 'approved' | 'rejected';
+  created_at?: string;
 }
 
 export interface AppointmentForm {
