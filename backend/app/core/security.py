@@ -7,6 +7,9 @@ from passlib.context import CryptContext
 from jose import JWTError, jwt
 from authlib.integrations.starlette_client import OAuth
 from starlette.config import Config
+from starlette.datastructures import Secret
+
+config = Config(".env")
 from sqlalchemy.orm import Session
 from sqlalchemy.orm import joinedload
 
