@@ -53,11 +53,10 @@ export function InvoiceDetail({ appointmentId }: InvoiceDetailProps) {
                     <div className="invoice-title-section">
                         <h1>MECATEC</h1>
                     </div>
-                    <p>Serviços Automotivos</p>
-                    <p>Rua da Oficina, 123</p>
-                    <p>4000-000 Porto, Portugal</p>
-                    <p>Tel: +351 220 000 000</p>
-                    <p>Email: info@mecatec.pt</p>
+                    <p>Avenida Mário Brito (EN107), nº 3570</p>
+                    <p>4455-491 Perafita, Portugal</p>
+                    <p>Tel: +351 123 456 789</p>
+                    <p>Email: projetodghhn@gmail.com</p>
                 </div>
 
                 {/* Client Info */}

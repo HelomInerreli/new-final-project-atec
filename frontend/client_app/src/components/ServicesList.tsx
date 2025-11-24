@@ -4,7 +4,7 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 
 // Components
-import { CreateAppointmentModal } from './CreateAppointmentModal';
+
 
 // Hooks
 import { useCarousel } from '../hooks/useCarousel';

@@ -7,8 +7,6 @@ import '../styles/FutureAppointments.css';
 import { createAppointmentCheckoutSession } from '../services/payment';
 import { AppointmentStatusModal } from './AppointmentDetailsModal';
 import type { Appointment } from '../interfaces/appointment';
-import { NewCreateAppModal } from './NewCreateAppModal';
-import { Button } from './Button';
 
 export function FutureAppointments() {
     const { t } = useTranslation();
@@ -17,7 +15,6 @@ export function FutureAppointments() {
     const [checkoutLoadingId, setCheckoutLoadingId] = useState<number | null>(null);
     const [paymentError, setPaymentError] = useState<string | null>(null);
     const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
-    const [showCreateModal, setShowCreateModal] = useState(false);
 
     const toggleMonth = (monthYear: string) => {
         setExpandedMonths(prev => ({
@@ -54,22 +51,6 @@ export function FutureAppointments() {
 
     return (
         <div className="appointments-page">
-            <Button
-                className="mb-4 btn btn-danger"
-                onClick={() => setShowCreateModal(true)}
-            >
-                {t('createAppointment', { defaultValue: 'Criar Agendamento' })}
-            </Button>
-
-            <NewCreateAppModal
-                show={showCreateModal}
-                onClose={() => setShowCreateModal(false)}
-                onSuccess={() => {
-                    setShowCreateModal(false);
-                    // (Opcional) disparar refetch de appointments aqui
-                }}
-            />
-
             {error && (
                 <div className="alert alert-danger" role="alert">
                     <i className="bi bi-exclamation-triangle me-2"></i>
@@ -96,7 +77,9 @@ export function FutureAppointments() {
                                 onClick={() => toggleMonth(monthYear)}
                             >
                                 <div className="month-header-content">
-                                    <h2 className="month-title">{monthYear}</h2>
+                                    <h2 className="month-title">
+                                        {monthYear.charAt(0).toUpperCase() + monthYear.slice(1)}
+                                    </h2>
                                     <span className="appointment-count">
                                         {appointments.length} {appointments.length === 1 ? t('appointment') : t('appointments')}
                                     </span>
