@@ -128,6 +128,22 @@ export default function Agendamentos() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
+
+    // Validate date to ensure it's a weekday
+    if (id === 'appointment_date' && value) {
+      const selectedDate = new Date(value + 'T00:00:00');
+      const dayOfWeek = selectedDate.getDay();
+      // 0 = Sunday, 6 = Saturday
+      if (dayOfWeek === 0 || dayOfWeek === 6) {
+        toast({
+          title: "Data Inválida",
+          description: "Por favor, selecione um dia de semana (segunda a sexta-feira).",
+          variant: "destructive"
+        });
+        return;
+      }
+    }
+
     setFormData(prev => ({ ...prev, [id]: value }));
   };
 
@@ -297,7 +313,7 @@ export default function Agendamentos() {
           <h1 className="text-3xl font-bold tracking-tight">Agendamentos</h1>
           <p className="text-muted-foreground">Gerencie os agendamentos de serviços da oficina</p>
         </div>
-        <Button className="gap-2" onClick={() => handleOpenDialog(null)}>
+        <Button variant="destructive" className="gap-2" onClick={() => handleOpenDialog(null)}>
           <Plus className="h-4 w-4" />
           Novo Agendamento
         </Button>
@@ -488,18 +504,38 @@ export default function Agendamentos() {
                     type="date"
                     value={formData.appointment_date}
                     onChange={handleInputChange}
+                    min={new Date().toISOString().split('T')[0]}
                     required
+                    className="[&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:sepia [&::-webkit-calendar-picker-indicator]:saturate-[500%] [&::-webkit-calendar-picker-indicator]:hue-rotate-[-15deg] [&::-webkit-calendar-picker-indicator]:brightness-90"
                   />
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="appointment_time">Hora *</Label>
-                  <Input
-                    id="appointment_time"
-                    type="time"
+                  <Select
                     value={formData.appointment_time}
-                    onChange={handleInputChange}
-                    required
-                  />
+                    onValueChange={(value) => handleSelectChange("appointment_time", value)}
+                  >
+                    <SelectTrigger id="appointment_time">
+                      <SelectValue placeholder="Selecione a hora" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[
+                        "09:00", "09:15", "09:30", "09:45",
+                        "10:00", "10:15", "10:30", "10:45",
+                        "11:00", "11:15", "11:30", "11:45",
+                        "12:00", "12:15", "12:30", "12:45",
+                        "13:00", "13:15", "13:30", "13:45",
+                        "14:00", "14:15", "14:30", "14:45",
+                        "15:00", "15:15", "15:30", "15:45",
+                        "16:00", "16:15", "16:30", "16:45",
+                        "17:00"
+                      ].map((time) => (
+                        <SelectItem key={time} value={time}>
+                          {time}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
@@ -560,7 +596,7 @@ export default function Agendamentos() {
               >
                 Cancelar
               </Button>
-              <Button type="submit" disabled={loading}>
+              <Button type="submit" variant="destructive" disabled={loading}>
                 {loading ? "A processar..." : (editingId ? "Salvar Alterações" : "Criar Agendamento")}
               </Button>
             </DialogFooter>
