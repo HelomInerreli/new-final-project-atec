@@ -2,15 +2,16 @@ import { useState, useEffect } from "react";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import { Search, Plus, Edit, Trash2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "../hooks/use-toast";
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "../components/ui/table";
-import {Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle} from "../components/ui/dialog";
-import {AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle} from "../components/ui/alert-dialog";
-import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "../components/ui/form";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../components/ui/alert-dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../components/ui/form";
 import { Textarea } from "../components/ui/textarea";
 import { serviceService, type Service } from "../services/serviceService";
 
@@ -66,7 +67,7 @@ export default function ServicesManagement() {
   };
 
   const filteredServicos = servicos.filter((servico) => {
-    const matchesSearch = 
+    const matchesSearch =
       servico.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (servico.description?.toLowerCase().includes(searchTerm.toLowerCase()) || false);
     return matchesSearch;
@@ -174,7 +175,7 @@ export default function ServicesManagement() {
           <h1 className="text-3xl font-bold">Gestão de Serviços</h1>
           <p className="text-muted-foreground">Gerir serviços e preços da oficina</p>
         </div>
-        <Button onClick={() => handleOpenDialog()}>
+        <Button variant="destructive" onClick={() => handleOpenDialog()}>
           <Plus className="mr-2 h-4 w-4" />
           Novo Serviço
         </Button>
@@ -224,7 +225,7 @@ export default function ServicesManagement() {
                     <TableCell className="text-right font-medium">
                       {formatPreco(servico.price)}
                     </TableCell>
-                    <TableCell className="text-center">{formatDuracao(servico.duration_minutes)}</TableCell>
+                    <TableCell className="text-center">{formatDuracao(servico.duration_minutes ?? null)}</TableCell>
                     <TableCell className="text-center">
                       <Badge variant={servico.is_active ? "default" : "secondary"}>
                         {servico.is_active ? "Ativo" : "Inativo"}
@@ -232,17 +233,17 @@ export default function ServicesManagement() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => handleOpenDialog(servico)}
                           className="bg-transparent hover:bg-white"
                         >
                           <Edit className="h-4 w-4 text-red-600" />
                         </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => handleDeleteClick(servico.id)}
                           className="bg-transparent hover:bg-white"
                         >
@@ -307,10 +308,10 @@ export default function ServicesManagement() {
                     <FormItem>
                       <FormLabel>Preço (€)</FormLabel>
                       <FormControl>
-                        <Input 
-                          type="number" 
-                          step="0.01" 
-                          min="0" 
+                        <Input
+                          type="number"
+                          step="0.01"
+                          min="0"
                           {...field}
                           onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                         />
@@ -325,29 +326,38 @@ export default function ServicesManagement() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Duração (min)</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          min="1" 
-                          {...field}
-                          onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                        />
-                      </FormControl>
+                      <Select
+                        value={field.value?.toString()}
+                        onValueChange={(value) => field.onChange(parseInt(value))}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione a duração" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {[15, 30, 45, 60, 75, 90, 105, 120, 135, 150, 165, 180, 195, 210, 225, 240].map((minutes) => (
+                            <SelectItem key={minutes} value={minutes.toString()}>
+                              {minutes < 60 ? `${minutes} min` : `${Math.floor(minutes / 60)}h ${minutes % 60 > 0 ? `${minutes % 60}min` : ''}`.trim()}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
               <DialogFooter>
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   onClick={() => setDialogOpen(false)}
                   className="hover:bg-gray-100 hover:text-gray-900 focus-visible:ring-0 focus-visible:ring-offset-0"
                 >
                   Cancelar
                 </Button>
-                <Button type="submit">
+                <Button type="submit" variant="destructive">
                   {editingServico ? "Guardar" : "Criar"}
                 </Button>
               </DialogFooter>
