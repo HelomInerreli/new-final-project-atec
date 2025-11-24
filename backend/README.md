@@ -12,6 +12,13 @@
 Para testar a API entre do Swager da API e teste seus endpoints.
 `http://127.0.0.1:8000/docs/`
 
+## Funcionamento STRIPE
+
+1. Instalar Stripe
+2. Dentro CMD na Pasta do Stripe excutar 
+3. stripe listen --forward-to localhost:8000/api/v1/payments/webhook
+
+
 ## Gerar/Atualizar o Ficheiro de Dependências
 
 Sempre que instalar uma nova biblioteca (`pip install nome-da-biblioteca`), é uma boa prática atualizar o ficheiro `requirements.txt`.

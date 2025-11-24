@@ -4,8 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { useFutureAppointments } from '../hooks/useFutureAppointments';
 import { formatDate } from '../utils/dateUtils';
 import '../styles/FutureAppointments.css';
-import { useNavigate } from 'react-router-dom';
 import { createAppointmentCheckoutSession } from '../services/payment';
+import { AppointmentStatusModal } from './AppointmentDetailsModal';
+import type { Appointment } from '../interfaces/appointment';
 
 export function FutureAppointments() {
     const { t } = useTranslation();
@@ -13,7 +14,7 @@ export function FutureAppointments() {
     const [expandedMonths, setExpandedMonths] = useState<Record<string, boolean>>({});
     const [checkoutLoadingId, setCheckoutLoadingId] = useState<number | null>(null);
     const [paymentError, setPaymentError] = useState<string | null>(null);
-    const navigate = useNavigate();
+    const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
 
     const toggleMonth = (monthYear: string) => {
         setExpandedMonths(prev => ({
@@ -76,7 +77,9 @@ export function FutureAppointments() {
                                 onClick={() => toggleMonth(monthYear)}
                             >
                                 <div className="month-header-content">
-                                    <h2 className="month-title">{monthYear}</h2>
+                                    <h2 className="month-title">
+                                        {monthYear.charAt(0).toUpperCase() + monthYear.slice(1)}
+                                    </h2>
                                     <span className="appointment-count">
                                         {appointments.length} {appointments.length === 1 ? t('appointment') : t('appointments')}
                                     </span>
@@ -140,8 +143,9 @@ export function FutureAppointments() {
                                                     </div>
                                                 </div>
 
-                                                {isWaitingPayment && (
-                                                    <div className="appointment-card-footer">
+                                                {/* Botões na mesma linha */}
+                                                <div className="appointment-card-footer d-flex gap-2">
+                                                    {isWaitingPayment && (
                                                         <button
                                                             type="button"
                                                             className="payment-button"
@@ -152,8 +156,15 @@ export function FutureAppointments() {
                                                                 ? t('appointmentsPage.redirectingPayment', { defaultValue: 'A redirecionar…' })
                                                                 : t('appointmentsPage.goToPayment', { defaultValue: 'Ir para pagamento' })}
                                                         </button>
-                                                    </div>
-                                                )}
+                                                    )}
+
+                                                    <button
+                                                        className={`btn btn-primary ${isWaitingPayment ? '' : 'w-100'}`}
+                                                        onClick={() => setSelectedAppointment(appointment)}
+                                                    >
+                                                        {t('viewDetails', { defaultValue: 'Ver Detalhes' })}
+                                                    </button>
+                                                </div>
                                             </div>
                                         );
                                     })}
@@ -169,6 +180,12 @@ export function FutureAppointments() {
                     {paymentError}
                 </div>
             )}
+
+            <AppointmentStatusModal
+                appointment={selectedAppointment}
+                open={!!selectedAppointment}
+                onOpenChange={(open: boolean) => !open && setSelectedAppointment(null)}
+            />
         </div>
     );
 }

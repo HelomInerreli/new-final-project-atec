@@ -13,9 +13,7 @@ import { FutureAppointments } from "./components/FutureAppointement";
 import { SobrePage } from "./pages/Sobre/SobrePage";
 import { ContactPage } from "./pages/contact/ContactPage";
 import { ClientLayout } from "./pages/clientLayout/ClientLayout";
-
-
-
+import Profile from "./pages/profile/profile";
 
 function App() {
   return (
@@ -35,6 +33,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/about" element={<SobrePage />} />
+          <Route path="/profile" element={<Profile />} />
           {/* <Route path="/contact" element={<ClientMenu />} /> */}
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/my-services" element={<ClientLayout />} />

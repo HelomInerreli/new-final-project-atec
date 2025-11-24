@@ -127,7 +127,7 @@ export function SobrePage() {
                 <div className="destaque-card">
                   <div className="destaque-icon">{t("sobrePage.highlights.service.icon")}</div>
                   <img
-                    src="https://blog.nakata.com.br/wp-content/uploads/2018/11/255698-tarefa-para-1911-ate-12h-confira-x-dicas-de-atendimento-ao-cliente-para-mecanicos.jpg"
+                    src="https://img.freepik.com/fotos-gratis/mecanico-feliz-cumprimentando-seus-clientes-na-oficina-de-reparacao-de-automoveis_637285-11563.jpg"
                     alt={t("sobrePage.highlights.service.label")}
                     className="destaque-img"
                   />

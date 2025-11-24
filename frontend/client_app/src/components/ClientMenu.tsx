@@ -15,10 +15,9 @@ export type ClientSection =
   | "dashboard" 
   | "appointments" 
   | "vehicles" 
-  | "schedule" 
   | "service-history" 
   | "invoices" 
-  | "profile";
+
 
 interface ClientMenuProps {
   activeSection: ClientSection;
@@ -57,12 +56,6 @@ export function ClientMenu({ activeSection, onSectionChange }: ClientMenuProps) 
             </button>
           </li>
 
-          <li className={activeSection === "schedule" ? "active" : ""}>
-            <button onClick={() => handleClick("schedule")}>
-              <FaCalendarPlus className="menu-icon" />
-              <span>{t("scheduleNewService")}</span>
-            </button>
-          </li>
 
           <li className={activeSection === "service-history" ? "active" : ""}>
             <button onClick={() => handleClick("service-history")}>
@@ -77,13 +70,8 @@ export function ClientMenu({ activeSection, onSectionChange }: ClientMenuProps) 
               <span>{t("myInvoices")}</span>
             </button>
           </li>
-
-          <li className={activeSection === "profile" ? "active" : ""}>
-            <button onClick={() => handleClick("profile")}>
-              <FaUser className="menu-icon" />
-              <span>{t("myProfile")}</span>
-            </button>
-          </li>
+          
+          
         </ul>
       </nav>
     </div>

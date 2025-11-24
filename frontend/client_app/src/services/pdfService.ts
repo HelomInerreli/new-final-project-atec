@@ -34,22 +34,25 @@ export const generateInvoicePDF = async (elementId: string, invoiceNumber: strin
             format: 'a4'
         });
 
-        const imgWidth = 210; // A4 width in mm
+        // Definir margens (em mm)
+        const margin = 10; // 10mm de margem em todos os lados
+        const pageWidth = 210; // A4 width in mm
         const pageHeight = 297; // A4 height in mm
+        const imgWidth = pageWidth - (2 * margin); // Largura da imagem considerando margens
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
         let heightLeft = imgHeight;
-        let position = 0;
+        let position = margin; // Começa com margem superior
 
         // Adicionar primeira página
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
+        pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+        heightLeft -= (pageHeight - 2 * margin);
 
         // Adicionar páginas extras se necessário
         while (heightLeft > 0) {
-            position = heightLeft - imgHeight;
+            position = margin - (imgHeight - heightLeft);
             pdf.addPage();
-            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-            heightLeft -= pageHeight;
+            pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+            heightLeft -= (pageHeight - 2 * margin);
         }
 
         // Download do PDF
@@ -61,4 +64,3 @@ export const generateInvoicePDF = async (elementId: string, invoiceNumber: strin
         throw error;
     }
 };
-

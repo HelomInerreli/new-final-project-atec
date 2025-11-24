@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePastAppointments } from '../../hooks/usePastAppointments';
 import { InvoiceDetail } from '../../components/InvoiceDetail';
@@ -10,6 +10,19 @@ export function Invoices() {
     const { groupedAppointments, loading, error, isLoggedIn } = usePastAppointments();
     const [selectedAppointmentId, setSelectedAppointmentId] = useState<number | null>(null);
     const [expandedMonths, setExpandedMonths] = useState<Record<string, boolean>>({});
+
+    // Detectar appointment_id da URL ao carregar
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const appointmentParam = urlParams.get('appointment');
+        
+        if (appointmentParam) {
+            const appointmentId = parseInt(appointmentParam, 10);
+            if (!isNaN(appointmentId)) {
+                setSelectedAppointmentId(appointmentId);
+            }
+        }
+    }, []);
 
     const handleViewInvoice = (appointmentId: number) => {
         setSelectedAppointmentId(appointmentId);

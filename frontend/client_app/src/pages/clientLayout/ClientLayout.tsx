@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ClientMenu } from "../../components/ClientMenu";
 import { Vehicles } from "../vehicles/vehicles";
 import { Appointments } from "../future_appointments/FutureAppointments";
@@ -14,15 +14,25 @@ export type ClientSection =
   | "dashboard" 
   | "appointments" 
   | "vehicles" 
-  | "schedule" 
   | "service-history" 
   | "invoices" 
-  | "profile";
 
 export function ClientLayout() {
   const [activeSection, setActiveSection] = useState<ClientSection>("dashboard");
   const { isLoggedIn } = useAuth();
   const { t } = useTranslation();
+
+  // Ler parâmetros da URL ao carregar
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const section = urlParams.get('section') as ClientSection;
+    
+    if (section) {
+      setActiveSection(section);
+      // Limpar parâmetros da URL após processar
+      window.history.replaceState({}, '', '/my-services');
+    }
+  }, []);
 
   if (!isLoggedIn) {
     return (
@@ -42,21 +52,12 @@ export function ClientLayout() {
         return <Appointments />;
       case "vehicles":
         return <Vehicles />;
-      case "schedule":
-        return (
-          <div className="content-section">
-            <h2>{t('scheduleService')}</h2>
-            <p>{t('underDevelopment')}</p>
-          </div>
-        );
       case "service-history":
         return <PastAppointmentsPage />;
       case "invoices":
         return (
           <Invoices />
         );
-      case "profile":
-        return <Profile />;
       default:
         return <Dashboard />;
     }
