@@ -1,4 +1,12 @@
 export type StockStatus = "Normal" | "Baixo" | "Crítico" | "Esgotado";
+export type ProductCategory =
+  | "Peças"
+  | "Acessórios"
+  | "Fluidos"
+  | "Consumíveis"
+  | "Ferramentas"
+  | "Equipamentos"
+  | "Outros";
 
 export interface Product {
   id: string;

@@ -9,6 +9,8 @@ from app.api.v1.routes import (
 	payment,
 	vehicleApi,
 	product,
+	notification,
+	userNotification,
 )
 from app.api.v1.routes import customer, vehicle, appointment, extra_service, customerAuth, service, payment, vehicleApi, status
 
@@ -25,4 +27,6 @@ api_router.include_router(extra_service.router, prefix="/extra_services", tags=[
 api_router.include_router(service.router, prefix="/services", tags=["services"])
 api_router.include_router(payment.router, prefix="/payments", tags=["payments"]) 
 api_router.include_router(product.router, prefix="/products", tags=["products"])
+api_router.include_router(notification.router, prefix="/notifications", tags=["notifications"])
+api_router.include_router(userNotification.router, prefix="", tags=["user-notifications"])
 api_router.include_router(status.router, prefix="/statuses", tags=["statuses"])

@@ -1,11 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Sidebar,
-  Menu,
-  MenuItem,
-  SubMenu,
-  MenuContext,
-} from "react-pro-sidebar";
+import { Sidebar, Menu, MenuItem } from "react-pro-sidebar";
 import { NavLink } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -19,20 +13,115 @@ import {
   Wrench,
   Settings,
   LogOut,
+  Bell,
+  X,
 } from "lucide-react";
 import { FiMenu, FiChevronLeft } from "react-icons/fi";
 import { Logo } from "./Logo";
 import Badge from "react-bootstrap/esm/Badge";
+import { Modal, Button, ListGroup, Spinner, Alert } from "react-bootstrap";
+import http from "../api/http";
+import "./SideBarMenu.css";
+import "./SideBarMenu.css";
+
+const USER_ID = 1; // TODO: Get from auth context
+
+interface NotificationData {
+  id: number;
+  notification_id: number;
+  user_id: number;
+  read_at: string | null;
+  created_at: string;
+  component: string;
+  text: string;
+  insertedAt: string;
+  alertType: string;
+}
 
 export default function SideBarMenu() {
   const [collapsed, setCollapsed] = useState(false);
+  const [showNotificationModal, setShowNotificationModal] = useState(false);
+  const [notifications, setNotifications] = useState<NotificationData[]>([]);
+  const [loadingNotifications, setLoadingNotifications] = useState(false);
+  const [notificationCounts, setNotificationCounts] = useState<
+    Record<string, number>
+  >({});
+  const [totalUnread, setTotalUnread] = useState(0);
 
   const user = "Helom Valentim"; // placeholder user name
 
-  // small helper to render an icon with an optional overlay badge and configurable size
+  // Fetch notification counts - total unread for all components
+  const fetchNotificationCounts = async () => {
+    try {
+      // Get total count
+      const response = await http.get(`/users/${USER_ID}/notifications/count`);
+      const totalCount = response.data.count || 0;
 
-  // Allow specifying explicit icon size; if icon is a React element from react-icons,
-  // inject the `size` prop via cloneElement. Fallback: apply fontSize style to wrapper.
+      setTotalUnread(totalCount);
+
+      // Set the same count for all components (total unread)
+      setNotificationCounts({
+        Stock: totalCount,
+        Appointment: totalCount,
+        Payment: totalCount,
+        Service: totalCount,
+        ServiceOrder: totalCount,
+      });
+    } catch (error) {
+      console.error("Error fetching notification counts:", error);
+    }
+  };
+
+  // Fetch detailed notifications for modal
+  const fetchNotifications = async () => {
+    try {
+      setLoadingNotifications(true);
+      const response = await http.get(`/users/${USER_ID}/notifications`);
+      setNotifications(response.data || []);
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+      setNotifications([]);
+    } finally {
+      setLoadingNotifications(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotificationCounts();
+    const interval = setInterval(fetchNotificationCounts, 30000); // refresh every 30 seconds
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleOpenModal = () => {
+    fetchNotifications();
+    setShowNotificationModal(true);
+  };
+
+  const handleMarkAsRead = async (userNotificationId: number) => {
+    try {
+      await http.put(`/user-notifications/${userNotificationId}/read`);
+      // Remove from list and update counts
+      setNotifications((prev) =>
+        prev.filter((n) => n.id !== userNotificationId)
+      );
+      fetchNotificationCounts();
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+    }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      await http.put(`/users/${USER_ID}/notifications/read-all`);
+      setNotifications([]);
+      setNotificationCounts({});
+      setTotalUnread(0);
+    } catch (error) {
+      console.error("Error marking all as read:", error);
+    }
+  };
+
+  // small helper to render an icon with an optional overlay badge and configurable size
   const IconWithBadgeSized = ({
     icon,
     count,
@@ -60,7 +149,7 @@ export default function SideBarMenu() {
         }}
       >
         {injectedIcon}
-        {typeof count === "number" && (
+        {typeof count === "number" && count > 0 && (
           <Badge
             pill
             bg="warning"
@@ -139,7 +228,28 @@ export default function SideBarMenu() {
     padding: "0.5rem 0.75rem",
   };
 
-  // create icon that shows badge as overlay near icon (same in collapsed and expanded)
+  // Header with bell icon and user name
+  const userHeaderStyle: React.CSSProperties = {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: collapsed ? "center" : "space-between",
+    padding: "0.5rem 0.75rem",
+    fontSize: 14,
+    color: "#fff",
+    gap: "0.5rem",
+  };
+
+  const bellButtonStyle: React.CSSProperties = {
+    background: "transparent",
+    border: "none",
+    color: "inherit",
+    cursor: "pointer",
+    position: "relative",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "0.5rem",
+  };
 
   return (
     <aside style={sidebarStyle} aria-hidden={false} className="remove-border">
@@ -198,12 +308,50 @@ export default function SideBarMenu() {
         )}
       </div>
 
+      {/* User section with bell icon */}
+      <div
+        style={
+          collapsed
+            ? { display: "flex", justifyContent: "center", padding: "0.5rem" }
+            : userHeaderStyle
+        }
+      >
+        {!collapsed && (
+          <span style={{ flex: 1, textAlign: "left" }}>{user}</span>
+        )}
+        <button
+          style={bellButtonStyle}
+          onClick={handleOpenModal}
+          title="Notificações"
+        >
+          <span style={{ position: "relative" }}>
+            <Bell size={20} />
+            {totalUnread > 0 && (
+              <Badge
+                pill
+                bg="danger"
+                style={{
+                  position: "absolute",
+                  top: -5,
+                  right: -8,
+                  fontSize: "0.65rem",
+                  padding: "0.05rem 0.25rem",
+                  lineHeight: 1,
+                }}
+              >
+                {totalUnread}
+              </Badge>
+            )}
+          </span>
+        </button>
+      </div>
+
       <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden" }}>
         <Sidebar
           backgroundColor="transparent"
           style={{ border: "none", boxShadow: "none", outline: "none" }}
         >
-          {/* User login name and logout option */}
+          {/* User login name and logout option
           <div
             style={{
               padding: "0.2rem 0.5rem",
@@ -214,7 +362,7 @@ export default function SideBarMenu() {
             }}
           >
             {!collapsed && `Olá, ${user}!`}
-          </div>
+          </div> */}
           <Menu
             menuItemStyles={{
               button: {
@@ -272,7 +420,7 @@ export default function SideBarMenu() {
               icon={
                 <IconWithBadgeSized
                   icon={<Calendar />}
-                  count={5}
+                  count={notificationCounts["Appointment"]}
                   size={collapsed ? 25 : 27}
                 />
               }
@@ -323,7 +471,7 @@ export default function SideBarMenu() {
               icon={
                 <IconWithBadgeSized
                   icon={<Package />}
-                  count={3}
+                  count={notificationCounts["Stock"]}
                   size={collapsed ? 25 : 27}
                 />
               }
@@ -399,6 +547,96 @@ export default function SideBarMenu() {
       <div style={{ padding: "0.2rem 0.5rem", fontSize: 12, opacity: 0.9 }}>
         {!collapsed && "© 2025 Mecatec. Todos os direitos reservados."}
       </div>
+
+      {/* Notifications Modal */}
+      <Modal
+        show={showNotificationModal}
+        onHide={() => setShowNotificationModal(false)}
+        size="lg"
+        centered
+        className="notification-modal"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Notificações</Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ maxHeight: "500px", overflowY: "auto" }}>
+          {loadingNotifications && (
+            <div className="text-center py-5">
+              <Spinner animation="border" role="status">
+                <span className="visually-hidden">Carregando...</span>
+              </Spinner>
+            </div>
+          )}
+
+          {!loadingNotifications && notifications.length === 0 && (
+            <Alert variant="info" className="mb-0">
+              Nenhuma notificação não lida.
+            </Alert>
+          )}
+
+          {!loadingNotifications && notifications.length > 0 && (
+            <>
+              <ListGroup variant="flush">
+                {notifications.map((notif) => (
+                  <ListGroup.Item
+                    key={notif.id}
+                    className={`notification-item alert-${notif.alertType}`}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "start",
+                        gap: "0.5rem",
+                      }}
+                    >
+                      <div style={{ flex: 1 }}>
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "0.5rem",
+                            marginBottom: "0.3rem",
+                          }}
+                        >
+                          <strong>{notif.component}</strong>
+                          <span className={`badge bg-${notif.alertType}`}>
+                            {notif.alertType}
+                          </span>
+                        </div>
+                        <p style={{ margin: "0.3rem 0", fontSize: "0.9rem" }}>
+                          {notif.text}
+                        </p>
+                        <small style={{ opacity: 0.7 }}>
+                          {new Date(notif.created_at).toLocaleString("pt-BR")}
+                        </small>
+                      </div>
+                      <Button
+                        variant="link"
+                        size="sm"
+                        className="p-0"
+                        onClick={() => handleMarkAsRead(notif.id)}
+                        title="Marcar como lida"
+                      >
+                        <X size={18} />
+                      </Button>
+                    </div>
+                  </ListGroup.Item>
+                ))}
+              </ListGroup>
+              <div style={{ marginTop: "1rem" }}>
+                <Button
+                  variant="outline-secondary"
+                  size="sm"
+                  onClick={handleMarkAllAsRead}
+                  className="w-100"
+                >
+                  Marcar todas como lidas
+                </Button>
+              </div>
+            </>
+          )}
+        </Modal.Body>
+      </Modal>
     </aside>
   );
 }

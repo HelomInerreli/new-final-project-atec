@@ -3,13 +3,14 @@ import * as React from "react";
 import type { ToastActionElement, ToastProps } from "../components/ui/toast";
 
 const TOAST_LIMIT = 1;
-const TOAST_REMOVE_DELAY = 1000000;
+const TOAST_REMOVE_DELAY = 3000; // 3 segundos
 
 type ToasterToast = ToastProps & {
   id: string;
   title?: React.ReactNode;
   description?: React.ReactNode;
   action?: ToastActionElement;
+  duration?: number; // duração em ms (padrão: TOAST_REMOVE_DELAY)
 };
 
 const actionTypes = {
@@ -52,7 +53,10 @@ interface State {
 
 const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
 
-const addToRemoveQueue = (toastId: string) => {
+const addToRemoveQueue = (
+  toastId: string,
+  duration: number = TOAST_REMOVE_DELAY
+) => {
   if (toastTimeouts.has(toastId)) {
     return;
   }
@@ -63,7 +67,7 @@ const addToRemoveQueue = (toastId: string) => {
       type: "REMOVE_TOAST",
       toastId: toastId,
     });
-  }, TOAST_REMOVE_DELAY);
+  }, duration);
 
   toastTimeouts.set(toastId, timeout);
 };
@@ -79,7 +83,9 @@ export const reducer = (state: State, action: Action): State => {
     case "UPDATE_TOAST":
       return {
         ...state,
-        toasts: state.toasts.map((t) => (t.id === action.toast.id ? { ...t, ...action.toast } : t)),
+        toasts: state.toasts.map((t) =>
+          t.id === action.toast.id ? { ...t, ...action.toast } : t
+        ),
       };
 
     case "DISMISS_TOAST": {
@@ -88,10 +94,11 @@ export const reducer = (state: State, action: Action): State => {
       // ! Side effects ! - This could be extracted into a dismissToast() action,
       // but I'll keep it here for simplicity
       if (toastId) {
-        addToRemoveQueue(toastId);
+        const toast = state.toasts.find((t) => t.id === toastId);
+        addToRemoveQueue(toastId, toast?.duration || TOAST_REMOVE_DELAY);
       } else {
         state.toasts.forEach((toast) => {
-          addToRemoveQueue(toast.id);
+          addToRemoveQueue(toast.id, toast.duration || TOAST_REMOVE_DELAY);
         });
       }
 
@@ -103,7 +110,7 @@ export const reducer = (state: State, action: Action): State => {
                 ...t,
                 open: false,
               }
-            : t,
+            : t
         ),
       };
     }
@@ -136,6 +143,7 @@ type Toast = Omit<ToasterToast, "id">;
 
 function toast({ ...props }: Toast) {
   const id = genId();
+  const duration = props.duration || TOAST_REMOVE_DELAY;
 
   const update = (props: ToasterToast) =>
     dispatch({
@@ -149,12 +157,18 @@ function toast({ ...props }: Toast) {
     toast: {
       ...props,
       id,
+      duration,
       open: true,
       onOpenChange: (open: boolean) => {
         if (!open) dismiss();
       },
     },
   });
+
+  // Auto-dismiss após a duration
+  setTimeout(() => {
+    dismiss();
+  }, duration);
 
   return {
     id: id,

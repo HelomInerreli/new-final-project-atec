@@ -1,0 +1,26 @@
+.notifications-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.notification-card {
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.notification-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.notification-card.border-start {
+  border-left-width: 4px !important;
+}
+
+.notification-card .badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
