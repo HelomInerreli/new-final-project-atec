@@ -2,49 +2,26 @@ import { useState, useMemo } from "react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "../../components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+import {Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger,
 } from "../../components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
+import {AlertDialog, AlertDialogAction, AlertDialogCancel,AlertDialogContent,AlertDialogDescription,AlertDialogFooter,AlertDialogHeader,AlertDialogTitle,
 } from "../../components/ui/alert-dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "../../components/ui/select";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Plus, Search, Pencil, Trash2, Eye } from "lucide-react";
+import { Plus, Search, Trash2, Eye, Calendar, Key } from "lucide-react";
 import { toast } from "../../hooks/use-toast";
 import Badge from "react-bootstrap/Badge";
 import { Link } from "react-router-dom";
 import { Spinner, Alert } from "react-bootstrap";
 import { useFetchCustomers } from '../../hooks/useCustomers';
 import { useFetchVehicleCounts } from '../../hooks/useVehicles';
+import { useFetchCustomerAppointments } from '../../hooks/useAppointments';
+import { CustomerAppointmentsModal } from '../../components/CustomerAppointmentsModal';
 
 const clienteSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
@@ -81,6 +58,8 @@ export default function Customers() {
   const [editingCliente, setEditingCliente] = useState<Cliente | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [clienteToDelete, setClienteToDelete] = useState<string | null>(null);
+  const [appointmentsDialogOpen, setAppointmentsDialogOpen] = useState(false);
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
 
   const {
     register,
@@ -99,6 +78,15 @@ export default function Customers() {
 
   // Fetch vehicle counts for all customers
   const { vehicleCounts } = useFetchVehicleCounts(customerIds);
+
+  // Fetch appointments for selected customer
+  const { appointments: customerAppointments, loading: appointmentsLoading } = useFetchCustomerAppointments(selectedCustomerId);
+
+  // Handler to open appointments modal
+  const handleViewAppointments = (customerId: string) => {
+    setSelectedCustomerId(customerId);
+    setAppointmentsDialogOpen(true);
+  };
 
   // Map backend data to Cliente type with vehicle counts
   const clientes = useMemo(() => {
@@ -164,6 +152,35 @@ export default function Customers() {
     setClienteToDelete(null);
   };
 
+  const handleResetPassword = async (id: string) => {
+    console.log("Resetting password for ID:", id);
+    try {
+      const response = await fetch(`http://localhost:8000/api/v1/customersauth/reset-password/${id}`, {
+        method: 'POST',
+      });
+      
+      console.log("Response status:", response.status);
+      
+      if (response.ok) {
+        toast({
+          title: "Password Resetada",
+          description: "A password foi alterada para '12345678'.",
+        });
+      } else {
+        const errorText = await response.text();
+        console.error("Reset failed:", errorText);
+        throw new Error('Falha ao resetar password');
+      }
+    } catch (error) {
+      console.error("Reset error:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível resetar a password.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleDialogClose = () => {
     setDialogOpen(false);
     setEditingCliente(null);
@@ -194,9 +211,7 @@ export default function Customers() {
       <div className="d-flex align-items-center justify-content-between mb-3">
         <div>
           <h1 className="h1 fw-bold text-dark">Gestão de Clientes</h1>
-          <p className="text-muted">
-            Gerencie os clientes da oficina
-          </p>
+          <p className="text-muted">Gerencie os clientes da oficina</p>
         </div>
         <Dialog
           open={dialogOpen}
@@ -401,6 +416,22 @@ export default function Customers() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        title="Resetar Password"
+                        onClick={() => handleResetPassword(cliente.id)}
+                      >
+                        <Key className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        title="Ver Agendamentos"
+                        onClick={() => handleViewAppointments(cliente.id)}
+                      >
+                        <Calendar className="h-4 w-4" />
+                      </Button>
                       <Link to={`/customers/${cliente.id}`}>
                         <Button
                           variant="outline"
@@ -442,6 +473,14 @@ export default function Customers() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Appointments Modal */}
+      <CustomerAppointmentsModal
+        open={appointmentsDialogOpen}
+        onOpenChange={setAppointmentsDialogOpen}
+        appointments={customerAppointments}
+        loading={appointmentsLoading}
+      />
     </div>
   );
 }
