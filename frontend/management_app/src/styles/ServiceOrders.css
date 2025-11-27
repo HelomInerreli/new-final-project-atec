@@ -24,7 +24,7 @@
 /* CABEÇALHO - Título centralizado */
 .so-header {
   display: flex;
-  justify-content: center;
+  justify-content: flex;
   align-items: center;
   margin-bottom: 40px;
 }
