@@ -166,7 +166,7 @@
   height: 100%;
 }
 
-/* ✅ NOVO: Wrapper para título + botão na mesma linha */
+
 .so-panel-header {
   display: flex;
   align-items: center;
@@ -188,7 +188,7 @@
 .so-panel-title-comments { border-bottom: 2px solid var(--so-primary); }
 .so-panel-title-parts { border-bottom: 2px solid #28a745; }
 
-/* ✅ NOVO: Botão "+" */
+
 .so-add-icon-btn {
   width: 32px;
   height: 32px;
