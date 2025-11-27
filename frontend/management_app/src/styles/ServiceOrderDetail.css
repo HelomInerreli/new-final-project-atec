@@ -229,7 +229,6 @@
   min-height: 0;
 }
 
-/* ✅ ALINHAMENTO PERFEITO COM PADDING FIXO */
 .timeline-item {
   position: relative;
   padding-left: var(--timeline-indent);
@@ -290,12 +289,23 @@
   box-shadow: 0 0 0 3px rgba(220,53,69,0.15);
 }
 
-/* ✅ BADGE E TEXTO EM BLOCO (UM EMBAIXO DO OUTRO) */
+/* ✅ TEXTO À ESQUERDA E BADGE À DIREITA */
 .timeline-content { 
   padding-top: 0;
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.timeline-text {
+  font-size: 0.88rem;
+  color: #2b2b2b;
+  line-height: 1.4;
+  word-break: break-word;
+  flex: 1;
+  text-align: left;
 }
 
 .timeline-badge,
@@ -307,7 +317,7 @@
   padding: 3px 8px;
   border-radius: 999px;
   line-height: 1;
-  align-self: flex-start;
+  flex-shrink: 0;
 }
 
 .timeline-badge {
@@ -316,14 +326,6 @@
 
 .timeline-badge-part {
   background: #28a745;
-}
-
-.timeline-text {
-  font-size: 0.88rem;
-  color: #2b2b2b;
-  line-height: 1.4;
-  word-break: break-word;
-  display: block;
 }
 
 .so-add-part-form {

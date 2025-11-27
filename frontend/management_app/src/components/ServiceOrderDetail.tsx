@@ -342,7 +342,6 @@
 
 // export default ServiceOrderDetail;
 
-
 import React, { useEffect, useState, type FC } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getOrder, updateOrder } from "../services/OrderDetails";
@@ -607,8 +606,8 @@ const ServiceOrderDetail: FC = () => {
                       </div>
                       <div className="timeline-line"></div>
                       <div className="timeline-content">
-                        {isLatest && <span className="timeline-badge">NOVO</span>}
                         <span className="timeline-text">{c.comment}</span>
+                        {isLatest && <span className="timeline-badge">NOVO</span>}
                       </div>
                     </div>
                   );
@@ -650,10 +649,10 @@ const ServiceOrderDetail: FC = () => {
                       </div>
                       <div className="timeline-line"></div>
                       <div className="timeline-content">
-                        {isLatest && <span className="timeline-badge-part">NOVO</span>}
                         <span className="timeline-text">
                           {formatField(p.name)} <strong>(Qtd: {p.qty ?? p.quantity ?? 1})</strong>
                         </span>
+                        {isLatest && <span className="timeline-badge-part">NOVO</span>}
                       </div>
                     </div>
                   );
