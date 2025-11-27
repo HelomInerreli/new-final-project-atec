@@ -372,4 +372,5 @@ const NewCustomerModal: React.FC<NewCustomerModalProps> = ({
   );
 };
 
+
 export default NewCustomerModal;
