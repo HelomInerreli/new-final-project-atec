@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 from app.deps import get_db
 from app.schemas import product as product_schema
 from app.crud import product as crud_product
@@ -30,9 +30,18 @@ def read_product(product_id: int, db: Session = Depends(get_db)):
     return db_product
 
 
+# @router.get("/", response_model=List[product_schema.Product])
+# def list_products(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+#     return crud_product.get_products(db, skip=skip, limit=limit)
+
 @router.get("/", response_model=List[product_schema.Product])
-def list_products(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    return crud_product.get_products(db, skip=skip, limit=limit)
+def list_products(
+    skip: int = 0, 
+    limit: int = 100, 
+    search: Optional[str] = Query(None),
+    db: Session = Depends(get_db)
+):
+    return crud_product.get_products(db, skip=skip, limit=limit, search=search)
 
 
 @router.get("/by-part/{part_number}", response_model=product_schema.Product)
