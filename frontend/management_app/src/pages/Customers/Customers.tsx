@@ -1,18 +1,11 @@
 import { useState, useMemo } from "react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
-import { Label } from "../../components/ui/label";
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "../../components/ui/table";
-import {Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger,
-} from "../../components/ui/dialog";
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "../../components/ui/table";
 import {AlertDialog, AlertDialogAction, AlertDialogCancel,AlertDialogContent,AlertDialogDescription,AlertDialogFooter,AlertDialogHeader,AlertDialogTitle,
 } from "../../components/ui/alert-dialog";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "../../components/ui/select";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { Plus, Search, Trash2, Eye, Calendar, Key } from "lucide-react";
 import { toast } from "../../hooks/use-toast";
 import Badge from "react-bootstrap/Badge";
@@ -22,31 +15,8 @@ import { useFetchCustomers } from '../../hooks/useCustomers';
 import { useFetchVehicleCounts } from '../../hooks/useVehicles';
 import { useFetchCustomerAppointments } from '../../hooks/useAppointments';
 import { CustomerAppointmentsModal } from '../../components/CustomerAppointmentsModal';
+import NewCustomerModal from '../../components/NewCustomerModal';
 
-const clienteSchema = z.object({
-  name: z.string().min(1, "Nome é obrigatório"),
-  email: z.string().email("Email inválido"),
-  phone: z.string().optional(),
-  address: z.string().optional(),
-  city: z.string().optional(),
-  postalCode: z.string().optional(),
-  status: z.enum(["Ativo", "Inativo"]),
-});
-
-type Cliente = {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  address: string;
-  city: string;
-  postalCode: string;
-  status: "Ativo" | "Inativo";
-  lastVisit: string;
-  vehicles: number;
-};
-
-const statusOptions = ["Ativo", "Inativo"] as const;
 
 export default function Customers() {
   // Hook call to fetch customers from backend
@@ -54,22 +24,14 @@ export default function Customers() {
   
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFiltro, setStatusFiltro] = useState("todos");
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingCliente, setEditingCliente] = useState<Cliente | null>(null);
+  const [newCustomerModalOpen, setNewCustomerModalOpen] = useState(false);
+  const [creatingCustomer, setCreatingCustomer] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [clienteToDelete, setClienteToDelete] = useState<string | null>(null);
+  const [resetPasswordDialogOpen, setResetPasswordDialogOpen] = useState(false);
+  const [clienteToResetPassword, setClienteToResetPassword] = useState<string | null>(null);
   const [appointmentsDialogOpen, setAppointmentsDialogOpen] = useState(false);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
-
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    formState: { errors },
-  } = useForm<z.infer<typeof clienteSchema>>({
-    resolver: zodResolver(clienteSchema),
-  });
 
   // Extract customer IDs for vehicle count fetching
   const customerIds = useMemo(() => {
@@ -117,24 +79,6 @@ export default function Customers() {
     });
   }, [clientes, searchTerm, statusFiltro]);
 
-  const onSubmit = (data: z.infer<typeof clienteSchema>) => {
-    // TODO: Implement API calls for create/update
-    if (editingCliente) {
-      toast({
-        title: "Cliente atualizado",
-        description: "O cliente foi atualizado com sucesso.",
-      });
-    } else {
-      toast({
-        title: "Cliente adicionado",
-        description: "O novo cliente foi adicionado com sucesso.",
-      });
-    }
-    setDialogOpen(false);
-    setEditingCliente(null);
-    reset();
-  };
-
   const handleDelete = (id: string) => {
     setClienteToDelete(id);
     setDeleteDialogOpen(true);
@@ -152,10 +96,51 @@ export default function Customers() {
     setClienteToDelete(null);
   };
 
-  const handleResetPassword = async (id: string) => {
-    console.log("Resetting password for ID:", id);
+  const handleCreateCustomer = async (customerData: any) => {
+    setCreatingCustomer(true);
     try {
-      const response = await fetch(`http://localhost:8000/api/v1/customersauth/reset-password/${id}`, {
+      const response = await fetch('http://localhost:8000/api/v1/customersauth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(customerData),
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Cliente Criado",
+          description: "O novo cliente foi criado com sucesso.",
+        });
+        setNewCustomerModalOpen(false);
+        // TODO: Refresh customer list
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Falha ao criar cliente');
+      }
+    } catch (error) {
+      console.error("Create customer error:", error);
+      toast({
+        title: "Erro",
+        description: error instanceof Error ? error.message : "Não foi possível criar o cliente.",
+        variant: "destructive",
+      });
+    } finally {
+      setCreatingCustomer(false);
+    }
+  };
+
+  const handleResetPassword = (id: string) => {
+    setClienteToResetPassword(id);
+    setResetPasswordDialogOpen(true);
+  };
+
+  const confirmResetPassword = async () => {
+    if (!clienteToResetPassword) return;
+    
+    console.log("Resetting password for ID:", clienteToResetPassword);
+    try {
+      const response = await fetch(`http://localhost:8000/api/v1/customersauth/reset-password/${clienteToResetPassword}`, {
         method: 'POST',
       });
       
@@ -178,13 +163,10 @@ export default function Customers() {
         description: "Não foi possível resetar a password.",
         variant: "destructive",
       });
+    } finally {
+      setResetPasswordDialogOpen(false);
+      setClienteToResetPassword(null);
     }
-  };
-
-  const handleDialogClose = () => {
-    setDialogOpen(false);
-    setEditingCliente(null);
-    reset();
   };
 
   const formatDate = (dateString: string) => {
@@ -213,136 +195,13 @@ export default function Customers() {
           <h1 className="h1 fw-bold text-dark">Gestão de Clientes</h1>
           <p className="text-muted">Gerencie os clientes da oficina</p>
         </div>
-        <Dialog
-          open={dialogOpen}
-          onOpenChange={(open: boolean) => {
-            setDialogOpen(open);
-            if (!open) {
-              setEditingCliente(null);
-              reset();
-            }
-          }}
+        <Button 
+          variant="destructive"
+          onClick={() => setNewCustomerModalOpen(true)}
         >
-          <DialogTrigger asChild>
-            <Button variant="destructive">
-              <Plus className="mr-2 h-4 w-4" />
-              Novo Cliente
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>
-                {editingCliente ? "Editar Cliente" : "Novo Cliente"}
-              </DialogTitle>
-              <DialogDescription>
-                {editingCliente
-                  ? "Atualize as informações do cliente"
-                  : "Adicione um novo cliente ao sistema"}
-              </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Nome Completo</Label>
-                  <Input id="name" {...register("name")} />
-                  {errors.name && (
-                    <p className="text-sm text-destructive">
-                      {errors.name.message}
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" {...register("email")} />
-                  {errors.email && (
-                    <p className="text-sm text-destructive">
-                      {errors.email.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Telefone</Label>
-                  <Input id="phone" {...register("phone")} />
-                  {errors.phone && (
-                    <p className="text-sm text-destructive">
-                      {errors.phone.message}
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="postalCode">Código Postal</Label>
-                  <Input id="postalCode" {...register("postalCode")} />
-                  {errors.postalCode && (
-                    <p className="text-sm text-destructive">
-                      {errors.postalCode.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="address">Endereço</Label>
-                <Input id="address" {...register("address")} />
-                {errors.address && (
-                  <p className="text-sm text-destructive">
-                    {errors.address.message}
-                  </p>
-                )}
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="city">Cidade</Label>
-                  <Input id="city" {...register("city")} />
-                  {errors.city && (
-                    <p className="text-sm text-destructive">
-                      {errors.city.message}
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="status">Status</Label>
-                  <Select
-                    onValueChange={(value) => setValue("status", value as "Ativo" | "Inativo")}
-                    defaultValue={editingCliente?.status}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {statusOptions.map((status) => (
-                        <SelectItem key={status} value={status}>
-                          {status}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {errors.status && (
-                    <p className="text-sm text-destructive">
-                      {errors.status.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-2 pt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleDialogClose}
-                >
-                  Cancelar
-                </Button>
-                <Button type="submit">
-                  {editingCliente ? "Atualizar" : "Adicionar"}
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+          <Plus className="mr-2 h-4 w-4" />
+          Novo Cliente
+        </Button>
       </div>
 
       <div className="d-flex gap-3 mb-3">
@@ -361,11 +220,8 @@ export default function Customers() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="todos">Todos Status</SelectItem>
-            {statusOptions.map((status) => (
-              <SelectItem key={status} value={status}>
-                {status}
-              </SelectItem>
-            ))}
+            <SelectItem value="Ativo">Ativo</SelectItem>
+            <SelectItem value="Inativo">Inativo</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -387,10 +243,7 @@ export default function Customers() {
           <TableBody>
             {filteredClientes.length === 0 ? (
               <TableRow>
-                <TableCell
-                  colSpan={8}
-                  className="text-center text-muted-foreground"
-                >
+                <TableCell colSpan={8} className="text-center text-muted-foreground">
                   Nenhum cliente encontrado
                 </TableCell>
               </TableRow>
@@ -474,12 +327,39 @@ export default function Customers() {
         </AlertDialogContent>
       </AlertDialog>
 
+      {/* Reset Password Confirmation Dialog */}
+      <AlertDialog open={resetPasswordDialogOpen} onOpenChange={setResetPasswordDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Resetar Password?</AlertDialogTitle>
+            <AlertDialogDescription>
+              A password deste cliente será alterada para '12345678'. 
+              O cliente deverá alterar a password no próximo login.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmResetPassword}>
+              Resetar Password
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Appointments Modal */}
       <CustomerAppointmentsModal
         open={appointmentsDialogOpen}
         onOpenChange={setAppointmentsDialogOpen}
         appointments={customerAppointments}
         loading={appointmentsLoading}
+      />
+
+      {/* New Customer Modal */}
+      <NewCustomerModal
+        isOpen={newCustomerModalOpen}
+        onClose={() => setNewCustomerModalOpen(false)}
+        onSubmit={handleCreateCustomer}
+        loading={creatingCustomer}
       />
     </div>
   );
