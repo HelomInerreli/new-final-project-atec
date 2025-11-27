@@ -78,8 +78,7 @@ const CreateServiceOrderModal: FC<CreateServiceOrderModalProps> = ({ show, onClo
         description: form.description,
         estimated_budget: form.estimated_budget || 0,
       };
-      // chama a API real aqui:
-      // await createAppointment(payload);
+  
       onSuccess();
       onClose();
       setForm({
@@ -246,4 +245,3 @@ const CreateServiceOrderModal: FC<CreateServiceOrderModalProps> = ({ show, onClo
 };
 
 export default CreateServiceOrderModal;
-// ...existing code...
