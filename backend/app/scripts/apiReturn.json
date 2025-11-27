@@ -1,0 +1,205 @@
+{
+  "vehicleId": 56184,
+  "categoryId": 103099,
+  "countArticles": 18,
+  "articles": [
+    {
+      "articleId": 18414267,
+      "articleNo": "H60027BTA",
+      "supplierName": "BTA",
+      "supplierId": 4693,
+      "articleProductName": "Wheel Nut",
+      "productId": 658,
+      "articleMediaType": "JPEG",
+      "articleMediaFileName": "7d8620955e238b42ad13713abf24b9445db2a270.webp",
+      "s3image": "https://fsn1.your-objectstorage.com/tecdoc2025/media_files/images/4693/7d8620955e238b42ad13713abf24b9445db2a270.webp"
+    },
+    {
+      "articleId": 7439494,
+      "articleNo": "H60008BTA",
+      "supplierName": "BTA",
+      "supplierId": 4693,
+      "articleProductName": "Wheel Stud",
+      "productId": 657,
+      "articleMediaType": "JPEG",
+      "articleMediaFileName": "ce72fc176a7470377f9b324a256cc3b712c6cd0d.webp",
+      "s3image": "https://fsn1.your-objectstorage.com/tecdoc2025/media_files/images/4693/ce72fc176a7470377f9b324a256cc3b712c6cd0d.webp"
+    },
+    {
+      "articleId": 404541,
+      "articleNo": "0384-001",
+      "supplierName": "FEBEST",
+      "supplierId": 4674,
+      "articleProductName": "Wheel Stud",
+      "productId": 657,
+      "articleMediaType": "JPEG",
+      "articleMediaFileName": "1a88fcfda62f238e73f3f1ec7f880f47eccbaae5.webp",
+      "s3image": "https://fsn1.your-objectstorage.com/tecdoc2025/media_files/images/4674/1a88fcfda62f238e73f3f1ec7f880f47eccbaae5.webp"
+    },
+    {
+      "articleId": 404542,
+      "articleNo": "0384-001-PCS10",
+      "supplierName": "FEBEST",
+      "supplierId": 4674,
+      "articleProductName": "Wheel Stud",
+      "productId": 657,
+      "articleMediaType": "JPEG",
+      "articleMediaFileName": "e3417cb1b29ab4166a392c1a23570d226aeacb33.webp",
+      "s3image": "https://fsn1.your-objectstorage.com/tecdoc2025/media_files/images/4674/e3417cb1b29ab4166a392c1a23570d226aeacb33.webp"
+    },
+    {
+      "articleId": 404837,
+      "articleNo": "0385-003",
+      "supplierName": "FEBEST",
+      "supplierId": 4674,
+      "articleProductName": "Wheel Nut",
+      "productId": 658,
+      "articleMediaType": "JPEG",
+      "articleMediaFileName": "04190dc720521f570c8d6b5f367a951d00902275.webp",
+      "s3image": "https://fsn1.your-objectstorage.com/tecdoc2025/media_files/images/4674/04190dc720521f570c8d6b5f367a951d00902275.webp"
+    },
+    {
+      "articleId": 404835,
+      "articleNo": "0385-001",
+      "supplierName": "FEBEST",
+      "supplierId": 4674,
+      "articleProductName": "Wheel Nut",
+      "productId": 658,
+      "articleMediaType": "JPEG",
+      "articleMediaFileName": "a184ba8cfafae41368f537e87ef3354b4c3b35e0.webp",
+      "s3image": "https://fsn1.your-objectstorage.com/tecdoc2025/media_files/images/4674/a184ba8cfafae41368f537e87ef3354b4c3b35e0.webp"
+    },
+    {
+      "articleId": 2742944,
+      "articleNo": "32479",
+      "supplierName": "FEBI BILSTEIN",
+      "supplierId": 101,
+      "articleProductName": "Wheel Nut",
+      "productId": 658,
+      "articleMediaType": "JPEG",
+      "articleMediaFileName": "30df3be5d5353a47b847171ed9691215358ca2f0.webp",
+      "s3image": "https://fsn1.your-objectstorage.com/tecdoc2025/media_files/images/101/30df3be5d5353a47b847171ed9691215358ca2f0.webp"
+    },
+    {
+      "articleId": 3427858,
+      "articleNo": "46688",
+      "supplierName": "FEBI BILSTEIN",
+      "supplierId": 101,
+      "articleProductName": "Wheel Nut",
+      "productId": 658,
+      "articleMediaType": "JPEG",
+      "articleMediaFileName": "30df3be5d5353a47b847171ed9691215358ca2f0.webp",
+      "s3image": "https://fsn1.your-objectstorage.com/tecdoc2025/media_files/images/101/30df3be5d5353a47b847171ed9691215358ca2f0.webp"
+    },
+    {
+      "articleId": 3483774,
+      "articleNo": "49-5092",
+      "supplierName": "MAXGEAR",
+      "supplierId": 403,
+      "articleProductName": "Wheel Stud",
+      "productId": 657,
+      "articleMediaType": "JPEG",
+      "articleMediaFileName": "087f3179dc2dab103a6f460993c6fd19f796b2ee.webp",
+      "s3image": "https://fsn1.your-objectstorage.com/tecdoc2025/media_files/images/403/087f3179dc2dab103a6f460993c6fd19f796b2ee.webp"
+    },
+    {
+      "articleId": 1428132,
+      "articleNo": "15224",
+      "supplierName": "MWD",
+      "supplierId": 2414,
+      "articleProductName": "Rim",
+      "productId": 661,
+      "articleMediaType": "JPEG",
+      "articleMediaFileName": "a583af1a5ae2767dc2b94aaf052f2d542000b4e2.webp",
+      "s3image": "https://fsn1.your-objectstorage.com/tecdoc2025/media_files/images/2414/a583af1a5ae2767dc2b94aaf052f2d542000b4e2.webp"
+    },
+    {
+      "articleId": 7821010,
+      "articleNo": "KSP-HD-001",
+      "supplierName": "NTY",
+      "supplierId": 6355,
+      "articleProductName": "Wheel Stud",
+      "productId": 657,
+      "articleMediaType": "JPG",
+      "articleMediaFileName": "bc4e8df713c1e7bc4bddcb615d56fdd77c7954cc.webp",
+      "s3image": "https://fsn1.your-objectstorage.com/tecdoc2025/media_files/images/6355/bc4e8df713c1e7bc4bddcb615d56fdd77c7954cc.webp"
+    },
+    {
+      "articleId": 11595479,
+      "articleNo": "OP-UWN10014-1",
+      "supplierName": "OPTIMAL",
+      "supplierId": 129,
+      "articleProductName": "Wheel Nut",
+      "productId": 658,
+      "articleMediaType": "JPG",
+      "articleMediaFileName": "0bae3db1dd2f7b0c86c695177de1ed46378b0aa2.webp",
+      "s3image": "https://fsn1.your-objectstorage.com/tecdoc2025/media_files/images/129/0bae3db1dd2f7b0c86c695177de1ed46378b0aa2.webp"
+    },
+    {
+      "articleId": 3602450,
+      "articleNo": "50L4001-OYO",
+      "supplierName": "Oyodo",
+      "supplierId": 6984,
+      "articleProductName": "Wheel Nut",
+      "productId": 658,
+      "articleMediaType": "JPEG",
+      "articleMediaFileName": "ad6ffc94f24bdcdd4b7477839bddcbf429b10d6d.webp",
+      "s3image": "https://fsn1.your-objectstorage.com/tecdoc2025/media_files/images/6984/ad6ffc94f24bdcdd4b7477839bddcbf429b10d6d.webp"
+    },
+    {
+      "articleId": 4053835,
+      "articleNo": "60L4001-OYO",
+      "supplierName": "Oyodo",
+      "supplierId": 6984,
+      "articleProductName": "Wheel Stud",
+      "productId": 657,
+      "articleMediaType": "JPEG",
+      "articleMediaFileName": "5984185c5bfe3a912aa4753fceae7085a35bbb16.webp",
+      "s3image": "https://fsn1.your-objectstorage.com/tecdoc2025/media_files/images/6984/5984185c5bfe3a912aa4753fceae7085a35bbb16.webp"
+    },
+    {
+      "articleId": 31326493,
+      "articleNo": "M1215KUOZ",
+      "supplierName": "SCC Fahrzeugtechnik",
+      "supplierId": 5615,
+      "articleProductName": "Wheel Nut",
+      "productId": 658,
+      "articleMediaType": "JPEG",
+      "articleMediaFileName": "1adfe5bda2d23dc3ae2c70d9e2961bf3abfe1e1d.webp",
+      "s3image": "https://fsn1.your-objectstorage.com/tecdoc2025/media_files/images/5615/1adfe5bda2d23dc3ae2c70d9e2961bf3abfe1e1d.webp"
+    },
+    {
+      "articleId": 29715488,
+      "articleNo": "M1215KUGZ",
+      "supplierName": "SCC Fahrzeugtechnik",
+      "supplierId": 5615,
+      "articleProductName": "Wheel Nut",
+      "productId": 658,
+      "articleMediaType": "JPEG",
+      "articleMediaFileName": "187cf6b5c7ca890321692bce3a6b3ed6c33eb230.webp",
+      "s3image": "https://fsn1.your-objectstorage.com/tecdoc2025/media_files/images/5615/187cf6b5c7ca890321692bce3a6b3ed6c33eb230.webp"
+    },
+    {
+      "articleId": 4610600,
+      "articleNo": "79-02113-SX",
+      "supplierName": "STELLOX",
+      "supplierId": 4595,
+      "articleProductName": "Wheel Nut",
+      "productId": 658,
+      "articleMediaType": "JPEG",
+      "articleMediaFileName": "a4472e607909fecaaa8bf00cce421756b1b069ed.webp",
+      "s3image": "https://fsn1.your-objectstorage.com/tecdoc2025/media_files/images/4595/a4472e607909fecaaa8bf00cce421756b1b069ed.webp"
+    },
+    {
+      "articleId": 4879450,
+      "articleNo": "85 93 2479",
+      "supplierName": "SWAG",
+      "supplierId": 151,
+      "articleProductName": "Wheel Nut",
+      "productId": 658,
+      "articleMediaType": "JPEG",
+      "articleMediaFileName": "e196a7f4b0f11b1ee824a3e4f745158ff0b34896.webp",
+      "s3image": "https://fsn1.your-objectstorage.com/tecdoc2025/media_files/images/151/e196a7f4b0f11b1ee824a3e4f745158ff0b34896.webp"
+    }
+  ]
+}

@@ -26,6 +26,9 @@ app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
 origins = [
     "http://localhost:5173",  # Endereço padrão do Vite
     "http://localhost:3000",  # Endereço padrão do Create React App
+    "http://localhost:3001",  # Endereço do backend (FastAPI)
+    "http://localhost:3002",  # Management app
+    "http://localhost:3003",  # Client app
 ]
 
 # Adiciona o middleware de CORS

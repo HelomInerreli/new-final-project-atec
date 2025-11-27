@@ -6,7 +6,10 @@ from app.core.config import settings
 from app.database import get_db
 from app.models.appoitment import Appointment
 from app.models.customerAuth import CustomerAuth
+from app.models.customer import Customer
+from app.models.vehicle import Vehicle
 from app.models.invoice import Invoice
+from app.models.status import Status
 import json
 from datetime import datetime
 
@@ -105,8 +108,8 @@ async def create_checkout_session(request: CheckoutRequest, db: Session = Depend
             payment_method_types=["card", "klarna", "mb_way"],
             mode="payment",
             line_items=line_items,
-            success_url=f"{settings.CLIENT_URL}/success.html",
-            cancel_url=f"{settings.CLIENT_URL}/cancel.html",
+            success_url=f"{settings.CLIENT_URL}/my-services?section=invoices&appointment={appointment.id}",
+            cancel_url=f"{settings.CLIENT_URL}/my-services?section=appointments",
             metadata={"appointment_id": str(appointment.id)}
         )
         return {"url": session.url}
@@ -125,7 +128,7 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
     """
     try:
         payload = await request.body()
-        print(f"📥 Received webhook payload: {payload[:200]}")  # Log first 200 chars
+        print(f"📥 Received webhook payload: {payload[:200]}")
         
         # Parse event WITHOUT signature validation for testing
         try:
@@ -166,6 +169,9 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
             appointment.status_id = 3
             print(f"🔄 Changing status from {old_status} to 3 (Finalized)")
             
+            db.flush()
+            print(f"✅ Status após flush: {appointment.status_id}")
+            
             # Create invoice
             try:
                 invoice = create_invoice_from_session(db, appointment, session)
@@ -179,7 +185,7 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
             try:
                 db.commit()
                 print(f"✅ Payment confirmed for appointment {appointment_id}")
-                print(f"✅ Invoice created: {invoice.invoice_number}")
+                print(f"✅ New status confirmed: {appointment.status_id}")
             except Exception as e:
                 print(f"❌ Failed to commit changes: {str(e)}")
                 db.rollback()
@@ -194,7 +200,6 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
         import traceback
         traceback.print_exc()
         raise HTTPException(status_code=400, detail=str(e))
-
 
 
 def create_invoice_from_session(db: Session, appointment: Appointment, session):
@@ -212,8 +217,8 @@ def create_invoice_from_session(db: Session, appointment: Appointment, session):
             "name": appointment.service.name,
             "description": appointment.service.description,
             "quantity": 1,
-            "unit_price": appointment.service.price,
-            "total": appointment.service.price
+            "unit_price": float(appointment.service.price),
+            "total": float(appointment.service.price)
         })
     
     # Extra services
@@ -228,8 +233,8 @@ def create_invoice_from_session(db: Session, appointment: Appointment, session):
             "name": name,
             "description": description,
             "quantity": 1,
-            "unit_price": price,
-            "total": price
+            "unit_price": float(price),
+            "total": float(price)
         })
     
     # Generate unique invoice number
@@ -245,7 +250,6 @@ def create_invoice_from_session(db: Session, appointment: Appointment, session):
         customer_name = appointment.customer.name
         customer_phone = appointment.customer.phone
         
-        # Get email from CustomerAuth
         customer_auth = db.query(CustomerAuth).filter(
             CustomerAuth.id_customer == appointment.customer.id
         ).first()
@@ -266,9 +270,9 @@ def create_invoice_from_session(db: Session, appointment: Appointment, session):
         stripe_session_id=session.id,
         stripe_payment_intent_id=session.payment_intent if hasattr(session, 'payment_intent') else None,
         invoice_number=invoice_number,
-        subtotal=subtotal,
-        tax=0,  # Add tax logic if needed
-        total=subtotal,
+        subtotal=float(subtotal),
+        tax=0.0,
+        total=float(subtotal),
         currency="EUR",
         payment_status="paid",
         customer_name=customer_name,
@@ -285,32 +289,92 @@ def create_invoice_from_session(db: Session, appointment: Appointment, session):
 # ==================== INVOICE ENDPOINTS ====================
 
 @router.get("/invoices/{appointment_id}")
-async def get_appointment_invoices(appointment_id: int, db: Session = Depends(get_db)):
-    """Get all invoices for a specific appointment"""
-    invoices = db.query(Invoice).filter(Invoice.appointment_id == appointment_id).all()
-    if not invoices:
-        raise HTTPException(status_code=404, detail="No invoices found for this appointment")
-    
-    return [
-        {
-            "id": inv.id,
-            "invoice_number": inv.invoice_number,
-            "appointment_id": inv.appointment_id,
-            "subtotal": inv.subtotal,
-            "tax": inv.tax,
-            "total": inv.total,
-            "currency": inv.currency,
-            "payment_status": inv.payment_status,
-            "customer_name": inv.customer_name,
-            "customer_email": inv.customer_email,
-            "customer_phone": inv.customer_phone,
-            "line_items": json.loads(inv.line_items) if inv.line_items else [],
-            "created_at": inv.created_at,
-            "paid_at": inv.paid_at,
-            "stripe_session_id": inv.stripe_session_id,
+async def get_invoice_by_appointment(appointment_id: int, db: Session = Depends(get_db)):
+    """Retorna a invoice de um appointment formatada para o componente"""
+    try:
+        print(f"🔍 Fetching invoice for appointment {appointment_id}")
+        
+        invoice = db.query(Invoice).filter(Invoice.appointment_id == appointment_id).first()
+        
+        if not invoice:
+            print(f"❌ Invoice not found for appointment {appointment_id}")
+            appointment = db.query(Appointment).filter(Appointment.id == appointment_id).first()
+            if not appointment:
+                raise HTTPException(status_code=404, detail="Appointment not found")
+            raise HTTPException(
+                status_code=404, 
+                detail="Invoice not found for this appointment. Payment may not have been completed yet."
+            )
+        
+        print(f"✅ Invoice found: {invoice.invoice_number}")
+        
+        appointment = db.query(Appointment).filter(Appointment.id == appointment_id).first()
+        if not appointment:
+            raise HTTPException(status_code=404, detail="Appointment not found")
+        
+        # Obter informações do cliente
+        customer = db.query(Customer).filter(Customer.id == appointment.customer_id).first()
+        customer_auth = db.query(CustomerAuth).filter(
+            CustomerAuth.id_customer == appointment.customer_id
+        ).first()
+        
+        # Obter informações do veículo
+        vehicle = db.query(Vehicle).filter(Vehicle.id == appointment.vehicle_id).first()
+        vehicle_info = f"{vehicle.brand} {vehicle.model} - {vehicle.plate}" if vehicle else ""
+        
+        # Parse line items com tratamento de erro
+        items = []
+        try:
+            if invoice.line_items:
+                # Se já for uma lista, usa diretamente
+                if isinstance(invoice.line_items, list):
+                    items = invoice.line_items
+                # Se for string JSON, faz parse
+                elif isinstance(invoice.line_items, str):
+                    items = json.loads(invoice.line_items)
+                else:
+                    print(f"⚠️ Unexpected line_items type: {type(invoice.line_items)}")
+                    items = []
+        except Exception as e:
+            print(f"⚠️ Failed to parse line_items: {e}")
+            items = []
+        
+        print(f"📋 Parsed {len(items)} line items")
+        
+        # Build response - REMOVIDO updated_at
+        response = {
+            "id": invoice.id,
+            "invoiceNumber": invoice.invoice_number,
+            "appointmentId": invoice.appointment_id,
+            "appointmentDate": appointment.appointment_date.isoformat() if appointment.appointment_date else None,
+            "dueDate": invoice.paid_at.isoformat() if invoice.paid_at else None,
+            "clientName": customer.name if customer else invoice.customer_name or "",
+            "clientEmail": customer_auth.email if customer_auth else invoice.customer_email or "",
+            "clientPhone": customer.phone if customer else invoice.customer_phone or "",
+            "clientAddress": f"{customer.address}, {customer.postal_code} {customer.city}" if customer else "",
+            "vehicle": vehicle_info,
+            "items": items,
+            "subtotal": float(invoice.subtotal) if invoice.subtotal else 0.0,
+            "tax": float(invoice.tax) if invoice.tax else 0.0,
+            "total": float(invoice.total) if invoice.total else 0.0,
+            "status": invoice.payment_status or "paid",
+            "paymentMethod": "Stripe",
+            "stripePaymentIntentId": invoice.stripe_payment_intent_id,
+            "notes": None,
+            "createdAt": invoice.created_at.isoformat() if hasattr(invoice, 'created_at') and invoice.created_at else None,
+            "updatedAt": None  # Campo não existe no modelo
         }
-        for inv in invoices
-    ]
+        
+        print(f"✅ Returning invoice data: {response['invoiceNumber']}")
+        return response
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Error fetching invoice: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Failed to fetch invoice: {str(e)}")
 
 
 @router.get("/invoice/{invoice_id}")
@@ -320,21 +384,26 @@ async def get_invoice_by_id(invoice_id: int, db: Session = Depends(get_db)):
     if not invoice:
         raise HTTPException(status_code=404, detail="Invoice not found")
     
+    try:
+        line_items = json.loads(invoice.line_items) if invoice.line_items else []
+    except:
+        line_items = []
+    
     return {
         "id": invoice.id,
         "invoice_number": invoice.invoice_number,
         "appointment_id": invoice.appointment_id,
-        "subtotal": invoice.subtotal,
-        "tax": invoice.tax,
-        "total": invoice.total,
+        "subtotal": float(invoice.subtotal),
+        "tax": float(invoice.tax),
+        "total": float(invoice.total),
         "currency": invoice.currency,
         "payment_status": invoice.payment_status,
         "customer_name": invoice.customer_name,
         "customer_email": invoice.customer_email,
         "customer_phone": invoice.customer_phone,
-        "line_items": json.loads(invoice.line_items) if invoice.line_items else [],
-        "created_at": invoice.created_at,
-        "paid_at": invoice.paid_at,
+        "line_items": line_items,
+        "created_at": invoice.created_at.isoformat() if invoice.created_at else None,
+        "paid_at": invoice.paid_at.isoformat() if invoice.paid_at else None,
         "stripe_session_id": invoice.stripe_session_id,
         "stripe_payment_intent_id": invoice.stripe_payment_intent_id,
     }
@@ -347,21 +416,26 @@ async def get_invoice_by_number(invoice_number: str, db: Session = Depends(get_d
     if not invoice:
         raise HTTPException(status_code=404, detail="Invoice not found")
     
+    try:
+        line_items = json.loads(invoice.line_items) if invoice.line_items else []
+    except:
+        line_items = []
+    
     return {
         "id": invoice.id,
         "invoice_number": invoice.invoice_number,
         "appointment_id": invoice.appointment_id,
-        "subtotal": invoice.subtotal,
-        "tax": invoice.tax,
-        "total": invoice.total,
+        "subtotal": float(invoice.subtotal),
+        "tax": float(invoice.tax),
+        "total": float(invoice.total),
         "currency": invoice.currency,
         "payment_status": invoice.payment_status,
         "customer_name": invoice.customer_name,
         "customer_email": invoice.customer_email,
         "customer_phone": invoice.customer_phone,
-        "line_items": json.loads(invoice.line_items) if invoice.line_items else [],
-        "created_at": invoice.created_at,
-        "paid_at": invoice.paid_at,
+        "line_items": line_items,
+        "created_at": invoice.created_at.isoformat() if invoice.created_at else None,
+        "paid_at": invoice.paid_at.isoformat() if invoice.paid_at else None,
         "stripe_session_id": invoice.stripe_session_id,
         "stripe_payment_intent_id": invoice.stripe_payment_intent_id,
     }

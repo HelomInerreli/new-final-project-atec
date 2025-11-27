@@ -1,101 +1,180 @@
-import React, { useMemo, useState } from "react";
-import "../../styles/invoices.css";
+import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { usePastAppointments } from '../../hooks/usePastAppointments';
+import { InvoiceDetail } from '../../components/InvoiceDetail';
+import '../../styles/PastAppointments.css';
+import '../../styles/invoiceDetail.css';
 
-type InvoiceStatus = "paga" | "pendente" | "vencida";
+export function Invoices() {
+    const { t } = useTranslation();
+    const { groupedAppointments, loading, error, isLoggedIn } = usePastAppointments();
+    const [selectedAppointmentId, setSelectedAppointmentId] = useState<number | null>(null);
+    const [expandedMonths, setExpandedMonths] = useState<Record<string, boolean>>({});
 
-type Invoice = {
-  id: string;
-  number: string;
-  client: string;
-  issueDate: string; // ISO yyyy-mm-dd
-  total: number;     // EUR
-  status: InvoiceStatus;
-};
+    // Detectar appointment_id da URL ao carregar
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const appointmentParam = urlParams.get('appointment');
+        
+        if (appointmentParam) {
+            const appointmentId = parseInt(appointmentParam, 10);
+            if (!isNaN(appointmentId)) {
+                setSelectedAppointmentId(appointmentId);
+            }
+        }
+    }, []);
 
-const MOCK_INVOICES: Invoice[] = [
-  { id: "1", number: "FT-2025-001", client: "Acme Lda.",  issueDate: "2025-01-15", total: 1240.5, status: "paga" },
-  { id: "2", number: "FT-2025-002", client: "Blue Ocean", issueDate: "2025-02-10", total: 320.0,  status: "pendente" },
-  { id: "3", number: "FT-2025-003", client: "NuvemTech",  issueDate: "2025-03-01", total: 980.75, status: "paga" },
-  { id: "4", number: "FT-2025-004", client: "Café Bairro",issueDate: "2025-04-05", total: 65.2,   status: "vencida" },
-];
+    const handleViewInvoice = (appointmentId: number) => {
+        setSelectedAppointmentId(appointmentId);
+    };
 
-const currency = new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" });
+    const handleBackToList = () => {
+        setSelectedAppointmentId(null);
+    };
 
-const Invoices: React.FC = () => {
-  const [query, setQuery] = useState("");
-  const [status, setStatus] = useState<"todas" | InvoiceStatus>("todas");
+    const toggleMonth = (monthYear: string) => {
+        setExpandedMonths(prev => ({
+            ...prev,
+            [monthYear]: !prev[monthYear]
+        }));
+    };
 
-  const items = useMemo(() => {
-    return MOCK_INVOICES.filter((inv) => {
-      const matchesQuery =
-        !query ||
-        inv.number.toLowerCase().includes(query.toLowerCase()) ||
-        inv.client.toLowerCase().includes(query.toLowerCase());
-      const matchesStatus = status === "todas" || inv.status === status;
-      return matchesQuery && matchesStatus;
-    });
-  }, [query, status]);
+    if (!isLoggedIn) {
+        return (
+            <div className="alert alert-info">
+                {t('pleaseLogin')}
+            </div>
+        );
+    }
 
-  return (
-    <div className="invoices">
-      <h2>Faturas</h2>
+    if (loading) {
+        return (
+            <div className="text-center past-loading-container">
+                <div className="spinner-border text-danger" role="status">
+                    <span className="visually-hidden">{t('loading')}...</span>
+                </div>
+                <p className="mt-3">{t('invoices.loading')}</p>
+            </div>
+        );
+    }
 
-      <div className="inv-toolbar">
-        <input
-          className="inv-input"
-          placeholder="Pesquisar nº ou cliente"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
-        <select
-          className="inv-input"
-          value={status}
-          onChange={(e) => setStatus(e.target.value as any)}
-        >
-          <option value="todas">Todas</option>
-          <option value="paga">Paga</option>
-          <option value="pendente">Pendente</option>
-          <option value="vencida">Vencida</option>
-        </select>
-        <button className="btn primary">+ Nova fatura</button>
-      </div>
+    if (error) {
+        return (
+            <div className="alert alert-danger">
+                {error}
+            </div>
+        );
+    }
 
-      <div className="inv-card">
-        <table className="inv-table">
-          <thead>
-            <tr>
-              <th>Número</th>
-              <th>Cliente</th>
-              <th>Emissão</th>
-              <th className="right">Total</th>
-              <th>Estado</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.length === 0 && (
-              <tr>
-                <td colSpan={5} className="empty">Sem resultados</td>
-              </tr>
+    // Se selecionou uma fatura, mostra o detalhe
+    if (selectedAppointmentId) {
+        return (
+            <div className="past-appointments-page">
+                <button 
+                    className="btn btn-secondary mb-4"
+                    onClick={handleBackToList}
+                    style={{ 
+                        background: '#6c757d',
+                        color: 'white',
+                        border: 'none',
+                        padding: '0.75rem 1.5rem',
+                        borderRadius: '8px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'background 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = '#5a6268'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = '#6c757d'}
+                >
+                    ← {t('invoices.backButton')}
+                </button>
+                <InvoiceDetail appointmentId={selectedAppointmentId} />
+            </div>
+        );
+    }
+
+    // Lista de faturas
+    return (
+        <div className="past-appointments-page">
+            <div className="past-appointments-header">
+                <h1 className="past-appointments-title">
+                    {t('invoices.title')}
+                </h1>
+            </div>
+
+            {Object.keys(groupedAppointments).length === 0 ? (
+                <div className="past-empty-state">
+                    <div className="past-empty-icon">📄</div>
+                    <h3>{t('invoices.noInvoicesFound')}</h3>
+                    <p>{t('invoices.noInvoicesMessage')}</p>
+                </div>
+            ) : (
+                <div className="past-appointments-content">
+                    {Object.entries(groupedAppointments).map(([monthYear, appointments]) => (
+                        <div key={monthYear} className="past-month-section">
+                            <div 
+                                className="past-month-header"
+                                onClick={() => toggleMonth(monthYear)}
+                            >
+                                <div className="past-month-header-content">
+                                    <h2 className="past-month-title">{monthYear}</h2>
+                                    <span className="past-appointment-count">
+                                        {appointments.length} {appointments.length === 1 ? t('invoices.invoice_singular') : t('invoices.invoice_plural')}
+                                    </span>
+                                </div>
+                                <span className={`past-toggle-icon ${expandedMonths[monthYear] ? 'past-expanded' : ''}`}>
+                                    ❯
+                                </span>
+                            </div>
+
+                            {expandedMonths[monthYear] && (
+                                <div className="past-appointments-list">
+                                    {appointments.map((appointment) => (
+                                        <div key={appointment.id} className="card mb-3">
+                                            <div className="card-body">
+                                                <h5 className="card-title">{appointment.service?.name || t('service')}</h5>
+                                                <p className="card-text">
+                                                    {appointment.date && new Date(appointment.date).toLocaleDateString()}
+                                                </p>
+                                                <button 
+                                                    className="btn btn-danger w-100"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        handleViewInvoice(appointment.id);
+                                                    }}
+                                                    style={{
+                                                        background: '#dc3545',
+                                                        border: 'none',
+                                                        padding: '0.75rem 1.5rem',
+                                                        borderRadius: '6px',
+                                                        fontWeight: '600',
+                                                        color: 'white',
+                                                        cursor: 'pointer',
+                                                        transition: 'all 0.2s ease'
+                                                    }}
+                                                    onMouseEnter={(e) => {
+                                                        e.currentTarget.style.background = '#c82333';
+                                                        e.currentTarget.style.transform = 'translateY(-2px)';
+                                                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(220, 53, 69, 0.3)';
+                                                    }}
+                                                    onMouseLeave={(e) => {
+                                                        e.currentTarget.style.background = '#dc3545';
+                                                        e.currentTarget.style.transform = 'translateY(0)';
+                                                        e.currentTarget.style.boxShadow = 'none';
+                                                    }}
+                                                >
+                                    📄 {t('invoices.viewInvoice')}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
             )}
-            {items.map((inv) => (
-              <tr key={inv.id}>
-                <td>{inv.number}</td>
-                <td>{inv.client}</td>
-                <td>{new Date(inv.issueDate).toLocaleDateString("pt-PT")}</td>
-                <td className="right">{currency.format(inv.total)}</td>
-                <td>
-                  <span className={`status-pill ${inv.status}`}>
-                    {inv.status === "paga" ? "Paga" : inv.status === "pendente" ? "Pendente" : "Vencida"}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-    </div>
-  );
-};
-
-export default Invoices;
+        </div>
+    );
+}

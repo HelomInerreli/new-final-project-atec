@@ -46,6 +46,13 @@ class Appointment(Base):
         cascade="all, delete-orphan"
     )
     status = relationship("Status", back_populates="appointments")
+    
+    comments = relationship(
+        "OrderComment",
+        back_populates="appointment",
+        cascade="all, delete-orphan",
+        order_by="OrderComment.created_at.desc()" 
+    )
 
     # Conveniência: propriedades para compatibilidade com schemas / código que esperam esses atributos.
     @property

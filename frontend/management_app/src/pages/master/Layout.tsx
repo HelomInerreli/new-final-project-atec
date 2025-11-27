@@ -1,43 +1,46 @@
 import type { ReactNode } from "react";
 import SideBarMenu from "../../components/SideBarMenu";
+import "./../../styles/Layout.css";
 
 interface LayoutProps {
   children: ReactNode;
   className?: string;
 }
 
-export function Layout({ children, className = "" }: LayoutProps) {
+export function Layout({ children, className }: LayoutProps) {
   return (
     <div
-      className={`min-vh-100 ${className}`}
+      className={className}
       style={{
         display: "flex",
-        flexDirection: "column",
+        width: "100vw",
+        height: "100vh",
+        flexDirection: "row",
         backgroundColor: "#f8f9fa",
+        overflow: "hidden",
       }}
     >
       <SideBarMenu />
-      {/* Conteúdo Principal com padding para compensar header e footer fixos */}
+      {/* Conteúdo Principal com scroll fixo e fundo degradado */}
       <main
         className="flex-grow-1"
         style={{
-          paddingTop: "90px", // Espaço para header fixo
-          paddingBottom: "80px", // Espaço para footer fixo
-          minHeight: "calc(100vh - 170px)",
-          // push content to the right of the fixed sidebar. --sidebar-width is updated by the sidebar component
-          marginLeft: 'var(--sidebar-width, 260px)',
+          flex: 1,
+          marginLeft: "var(--sidebar-width, 260px)",
+          height: "100vh",
+          overflowY: "auto",
+          overflowX: "hidden",
+          background: "linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)",
+          backgroundAttachment: "fixed",
         }}
       >
-        {/* Container responsivo que ocupa 80% da largura */}
-        <div className="container-fluid px-3 px-md-4 px-lg-5">
+        {/* Container responsivo com padding */}
+        <div className="container-fluid px-3 px-md-4 px-lg-5 py-4">
           <div className="row justify-content-center">
-            <div className="col-12 col-xl-10" style={{ maxWidth: "80%" }}>
-              {children}
-            </div>
+            <div className="col-12 col-xl-10">{children}</div>
           </div>
         </div>
       </main>
-
     </div>
   );
 }

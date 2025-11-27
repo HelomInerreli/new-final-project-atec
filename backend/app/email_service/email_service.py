@@ -71,3 +71,28 @@ class EmailService:
         """
 
         return self.send_email(customer_email, subject, html_content)
+
+    def send_extra_service_proposal_email(self, customer_email: str, customer_name: str, vehicle_plate: str, extra_service_name: str, price: float, description: str):
+        """Envia email com proposta de serviço extra"""
+        subject = f"Proposta de Serviço Extra - Veículo {vehicle_plate}"
+        
+        html_content = f"""
+        <html>
+            <body>
+                <h2>Proposta de Serviço Adicional</h2>
+                <p>Caro(a) {customer_name},</p>
+                <p>Durante a inspeção do seu veículo ({vehicle_plate}), identificámos a necessidade de um serviço adicional:</p>
+                <div style="background-color: #f9f9f9; padding: 15px; border-left: 4px solid #007bff; margin: 20px 0;">
+                    <h3>{extra_service_name}</h3>
+                    <p>{description}</p>
+                    <p><strong>Valor Adicional:</strong> €{price:.2f}</p>
+                </div>
+                <p>Por favor, aceda à sua área de cliente para aprovar ou rejeitar este serviço.</p>
+                <br>
+                <p>Atenciosamente,</p>
+                <p>A Equipa da Oficina</p>
+            </body>
+        </html>
+        """
+
+        return self.send_email(customer_email, subject, html_content)

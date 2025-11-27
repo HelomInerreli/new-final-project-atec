@@ -1,27 +1,26 @@
 import React from "react";
-import { createBrowserRouter, Navigate } from "react-router-dom";
-import ClientMenu from "../components/ClientMenu";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { ClientLayout } from "../pages/clientLayout/ClientLayout";
 import Dashboard from "../pages/dashboard/Dashboard";
 import Appointments from "../pages/schedule/schedule";
+import { Vehicles } from "../pages/vehicles/vehicles";
+import { PastAppointments } from "../components/PastAppointments";
+import { Invoices } from "../pages/invoices/invoices";
+import Profile from "../pages/profile/profile";
 
-
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <ClientMenu />,
-    children: [
-      { index: true, element: <Navigate to="dashboard" replace /> },
-      { path: "dashboard", element: <Dashboard /> },
-      { path: "schedule", element: <Schedule /> },
-      { path: "vehicles", element: <Vehicles /> },
-      { path: "new-service", element: <NewService /> },
-      { path: "history", element: <History /> },
-      { path: "invoices", element: <Invoices /> },
-      { path: "profile", element: <Profile /> },
-      { path: "logout", element: <Logout /> },
-      { path: "*", element: <Navigate to="dashboard" replace /> },
-    ],
-  },
-]);
-
-export default router;
+export function AppRoutes() {
+  return (
+    <Routes>
+      <Route path="/client" element={<ClientLayout />}>
+        <Route index element={<Navigate to="dashboard" replace />} />
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="appointments" element={<Appointments />} />
+        <Route path="vehicles" element={<Vehicles />} />
+        <Route path="service-history" element={<PastAppointments />} />
+        <Route path="invoices" element={<Invoices />} />
+        <Route path="profile" element={<Profile />} />
+        <Route path="*" element={<Navigate to="dashboard" replace />} />
+      </Route>
+    </Routes>
+  );
+}

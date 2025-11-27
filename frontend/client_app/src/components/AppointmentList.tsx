@@ -18,6 +18,8 @@ interface Appointment {
   }
 }
 
+
+
 export function AppointmentList() {
   const { t } = useTranslation();
   const { customerId } = useParams();

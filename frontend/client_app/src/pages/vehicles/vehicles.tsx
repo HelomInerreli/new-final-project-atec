@@ -1,49 +1,106 @@
-import React from "react";
-import "../../styles/vehicles.css";
+import { VehicleCard } from '../../components/VehicleCard';
+import { VehicleModal } from '../../components/VehicleModal';
+import { FaPlus, FaCar } from 'react-icons/fa';
+import { useVehicles } from '../../hooks/useVehicles';
+import '../../styles/Vehicles.css';
+import { useTranslation } from 'react-i18next';
 
-const Vehicles: React.FC = () => {
-  return (
-    <div className="vehicles-container">
-      <h1 className="title">As minhas Viaturas</h1>
+export function Vehicles() {
+  const {
+    vehicles,
+    loading,
+    error,
+    showModal,
+    selectedVehicle,
+    loggedInCustomerId,
+    isLoggedIn,
+    loadVehicles,
+    handleEdit,
+    handleDelete,
+    handleAddVehicle,
+    handleCloseModal,
+    handleSaveVehicle,
+  } = useVehicles();
 
-      <div className="vehicle-card">
-        <div className="vehicle-header">
-          <div>
-            <h2 className="vehicle-name">AUDI A3 Sportback (8VA,…)</h2>
-            <p className="vehicle-plate">78-TJ-90</p>
-          </div>
-          <span className="status-dot"></span>
-        </div>
+  const { t } = useTranslation(); // Assuming useTranslation is imported
 
-        <div className="vehicle-options">
-          <div className="option">
-            <span>Marcações</span> <span className="count">0</span>
-          </div>
-          <div className="option">
-            <span>Simulações Online</span> <span className="count">0</span>
-          </div>
-          <div className="option disabled">
-            <span>Check-ups</span>
-          </div>
-          <div className="option disabled">
-            <span>Orçamentos</span>
-          </div>
-          <div className="option disabled">
-            <span>Faturas</span>
-          </div>
-        </div>
-
-        <div className="buttons">
-          <button className="btn primary">Marcar Serviço</button>
-          <button className="btn secondary">Simular Revisão</button>
+  if (!isLoggedIn) {
+    return (
+      <div className="vehicles-page">
+        <div className="alert alert-warning">
+          {t('vehiclesPage.pleaseLogin')}
         </div>
       </div>
+    );
+  }
 
-      <button className="add-btn">
-        <span className="plus">+</span> Acrescentar Viatura
-      </button>
+  if (loading) {
+    return (
+      <div className="vehicles-page">
+        <div className="text-center py-5">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">{t('loading')}</span>
+          </div>
+          <p className="mt-3">{t('vehiclesPage.loading')}</p>
+        </div>
+      </div>
+    );
+  }
+
+  const hasVehicles = vehicles.length > 0;
+
+  return (
+    <div className="vehicles-page">
+      <div className="vehicles-header">
+        <h1>{t('vehiclesPage.title')}</h1>
+        <button className="btn btn-danger" onClick={handleAddVehicle}>
+          <FaPlus /> {t('vehiclesPage.addVehicle')}
+        </button>
+      </div>
+
+      {error && (
+        <div className="alert alert-danger" role="alert">
+          <strong>{t('vehiclesPage.errorLoading')}:</strong> {error}
+          <br />
+          <small>{t('vehiclesPage.customerIdLabel')} {loggedInCustomerId}</small>
+          <br />
+          <button className="btn btn-sm btn-outline-danger mt-2" onClick={loadVehicles}>
+            {t('vehiclesPage.tryAgain')}
+          </button>
+        </div>
+      )}
+
+      {!error && !hasVehicles ? (
+        <div className="no-vehicles">
+          <FaCar size={60} color="#ccc" />
+          <h3>{t('vehiclesPage.noVehicles')}</h3>
+          <p>{t('vehiclesPage.noVehiclesMessage')}</p>
+          <button className="btn btn-primary" onClick={handleAddVehicle}>
+            <FaPlus /> {t('vehiclesPage.addVehicle')}
+          </button>
+        </div>
+      ) : (
+        <div className="vehicles-grid">
+          {vehicles.map((vehicle) => (
+            <VehicleCard
+              key={vehicle.id}
+              vehicle={vehicle}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
+          ))}
+        </div>
+      )}
+
+      <VehicleModal
+        show={showModal}
+        vehicle={selectedVehicle}
+        customerId={loggedInCustomerId!}
+        onClose={handleCloseModal}
+        onSave={handleSaveVehicle}
+      />
     </div>
   );
-};
+}
 
 export default Vehicles;

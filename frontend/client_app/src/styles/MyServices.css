@@ -1,0 +1,42 @@
+.my-services-page {
+  display: flex;
+  min-height: 100vh;
+  padding-top: 70px; /* Altura do header */
+}
+
+.my-services-content {
+  flex: 1;
+  padding: 20px;
+  background-color: #f8f9fa;
+}
+
+.my-services-page h1 {
+  color: #333;
+  font-weight: 600;
+}
+
+.my-services-page .card {
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.my-services-page .card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.my-services-page .card-body {
+  padding: 2rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .my-services-page {
+    flex-direction: column;
+  }
+  
+  .my-services-content {
+    padding: 15px;
+  }
+}

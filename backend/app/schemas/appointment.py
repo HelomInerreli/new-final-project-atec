@@ -5,6 +5,9 @@ from .extra_service import ExtraService as ExtraServiceSchema
 from .service import Service as ServiceSchema
 from .status import Status as StatusSchema
 from .appointment_extra_service import AppointmentExtraService
+from .customer import Customer as CustomerSchema 
+from .vehicle import Vehicle as VehicleSchema 
+from .order_comment import CommentOut  
 
 class AppointmentBase(BaseModel):
     appointment_date: datetime
@@ -26,10 +29,15 @@ class AppointmentUpdate(BaseModel):
 
 class Appointment(AppointmentBase):
     id: int
+    customer_id: Optional[int] = None           
+    vehicle_id: Optional[int] = None    
+    customer: Optional[CustomerSchema] = None 
+    vehicle: Optional[VehicleSchema] = None  
     status: Optional[StatusSchema]
     service: Optional[ServiceSchema]
     service_id: Optional[int]
     extra_service_associations: List[AppointmentExtraService] = []
+    comments: List[CommentOut] = []
 
     class Config:
         from_attributes = True

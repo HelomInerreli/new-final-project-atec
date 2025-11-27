@@ -1,0 +1,357 @@
+.appointments-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.appointments-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.appointments-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.appointments-subtitle {
+  font-size: 1.1rem;
+  color: #7f8c8d;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Grouped Appointments */
+.grouped-appointments {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Month Section */
+.month-section {
+  background: transparent;
+}
+
+/* Month Header (Dropdown) */
+.month-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  transition: all 0.2s ease;
+}
+
+.month-header:hover .month-title {
+  color: #dc3545;
+}
+
+.month-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+  transition: color 0.2s ease;
+}
+
+.toggle-icon {
+  font-size: 1rem;
+  color: #666;
+  transition: transform 0.3s ease;
+  display: inline-block;
+}
+
+.toggle-icon.expanded {
+  transform: rotate(90deg);
+}
+
+/* Appointments List */
+.appointments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+/* Appointment Card */
+.appointment-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+}
+
+.appointment-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.appointment-card-header {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.appointment-icon {
+  color: white;
+  display: flex;
+  align-items: center;
+}
+
+.appointment-status {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-completed {
+  background: rgba(255, 255, 255, 0.3);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.status-default,
+.status-pendente {
+  background: rgba(255, 255, 255, 0.3);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.status-waitting-payment {
+  background: #ffe082;
+  color: #7f4400;
+  border: 1px solid rgba(255, 193, 7, 0.6);
+}
+
+.appointment-card-body {
+  padding: 1.5rem;
+}
+
+.appointment-service {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.appointment-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.info-item {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.info-icon {
+  color: #dc3545;
+  margin-top: 0.25rem;
+  flex-shrink: 0;
+}
+
+.info-label {
+  font-size: 0.875rem;
+  color: #7f8c8d;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.info-value {
+  font-size: 1rem;
+  color: #2c3e50;
+  font-weight: 500;
+  display: block;
+}
+
+.info-description {
+  color: #546e7a;
+  line-height: 1.6;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.appointment-budget {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #ecf0f1;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.budget-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.budget-label {
+  font-size: 0.75rem;
+  color: #7f8c8d;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.budget-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #dc3545;
+}
+
+.budget-value.text-muted {
+  color: #95a5a6 !important;
+  font-size: 1rem;
+}
+
+.appointment-card-footer {
+  padding: 1rem 1.5rem;
+  background: #f8f9fa;
+  border-top: 1px solid #ecf0f1;
+  text-align: right;
+}
+
+.appointments-summary {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  text-align: center;
+  font-size: 1.25rem;
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.appointments-summary strong {
+  font-size: 1.5rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.empty-icon {
+  color: #bdc3c7;
+  margin-bottom: 2rem;
+}
+
+.empty-state h3 {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
+.empty-state p {
+  color: #7f8c8d;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+  .appointments-page {
+    padding: 1rem;
+  }
+
+  .appointments-title {
+    font-size: 2rem;
+  }
+
+  .month-title {
+    font-size: 1.25rem;
+  }
+
+  .appointment-budget {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}
+
+/* Adicione após .month-header */
+.month-header-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.appointment-count {
+  font-size: 0.875rem;
+  color: #666;
+  font-weight: 500;
+  background: #f0f0f0;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+}
+
+.payment-button {
+  background: #ffc107;
+  color: #2c3e50;
+  border: none;
+  padding: 0.6rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.payment-button:hover {
+  background: #ffb300;
+  transform: translateY(-1px);
+}
+
+.payment-button:active {
+  transform: translateY(0);
+}
+
+.payment-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.future-appointment-action-btn.view-invoice {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.future-appointment-action-btn.view-invoice:hover {
+    background: linear-gradient(135deg, #5568d3 0%, #653a8b 100%);
+    transform: translateY(-2px);
+}
+
+.future-appointment-status-badge.finalized {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+}
+
+.month-title {
+    text-transform: capitalize;
+}
