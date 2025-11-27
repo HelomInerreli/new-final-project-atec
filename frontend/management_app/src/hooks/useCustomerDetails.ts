@@ -45,18 +45,13 @@ export function useFetchCustomerById(customerId: string | undefined) {
       setError('No customer ID provided');
       return;
     }
-
     const fetchCustomer = async () => {
       setLoading(true);
       try {
-        // Fetch customer basic info
-        const customerResponse = await http.get(`/customers/${customerId}`);
-        
-        // Fetch customer's vehicles
-        const vehiclesResponse = await http.get(`/vehicles/by_customer/${customerId}`);
-        
         // Fetch customer auth info from all-profiles (we'll filter it)
         const allProfilesResponse = await http.get('/customers/all-profiles');
+        // Fetch customer's vehicles
+        const vehiclesResponse = await http.get(`/vehicles/by_customer/${customerId}`);
         const customerProfile = allProfilesResponse.data.find(
           (profile: CompleteCustomerProfile) => profile.customer.id === parseInt(customerId)
         );
@@ -64,7 +59,6 @@ export function useFetchCustomerById(customerId: string | undefined) {
         if (!customerProfile) {
           throw new Error('Customer profile not found');
         }
-
         const data: CustomerDetailsData = {
           auth: customerProfile.auth,
           customer: customerProfile.customer,
@@ -74,7 +68,6 @@ export function useFetchCustomerById(customerId: string | undefined) {
         setCustomerData(data);
         setError(null);
       } catch (err: any) {
-        console.error('Failed to fetch customer:', err);
         setError(err.response?.data?.detail || 'Could not load customer details.');
         setCustomerData(null);
       } finally {

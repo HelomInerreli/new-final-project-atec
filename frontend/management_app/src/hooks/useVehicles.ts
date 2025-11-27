@@ -20,7 +20,6 @@ export function useFetchVehicleCounts(customerIds: number[]) {
       setLoading(true);
       try {
         const counts: VehicleCountMap = {};
-        
         // Fetch vehicle count for each customer
         await Promise.all(
           customerIds.map(async (customerId) => {
@@ -28,16 +27,13 @@ export function useFetchVehicleCounts(customerIds: number[]) {
               const response = await http.get(`/vehicles/by_customer/${customerId}`);
               counts[customerId.toString()] = response.data?.length || 0;
             } catch (err) {
-              console.error(`Failed to fetch vehicles for customer ${customerId}:`, err);
               counts[customerId.toString()] = 0;
             }
           })
         );
-        
         setVehicleCounts(counts);
         setError(null);
       } catch (err: any) {
-        console.error("Failed to fetch vehicle counts:", err);
         setError(err.response?.data?.detail || 'Could not load vehicle counts.');
       } finally {
         setLoading(false);
@@ -46,6 +42,5 @@ export function useFetchVehicleCounts(customerIds: number[]) {
 
     fetchVehicleCounts();
   }, [customerIds.join(',')]); // Re-run when customer IDs change
-
   return { vehicleCounts, loading, error };
 }
