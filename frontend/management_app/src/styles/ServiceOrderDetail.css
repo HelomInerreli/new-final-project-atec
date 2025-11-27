@@ -229,6 +229,7 @@
   min-height: 0;
 }
 
+/* ✅ ALINHAMENTO PERFEITO COM PADDING FIXO */
 .timeline-item {
   position: relative;
   padding-left: var(--timeline-indent);
@@ -289,16 +290,12 @@
   box-shadow: 0 0 0 3px rgba(220,53,69,0.15);
 }
 
+/* ✅ BADGE E TEXTO EM BLOCO (UM EMBAIXO DO OUTRO) */
 .timeline-content { 
   padding-top: 0;
-}
-
-/* ✅ BADGE ACIMA DO TEXTO */
-.timeline-text-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  align-items: flex-start;
+  gap: 6px;
 }
 
 .timeline-badge,
@@ -310,7 +307,7 @@
   padding: 3px 8px;
   border-radius: 999px;
   line-height: 1;
-  margin-bottom: 2px;
+  align-self: flex-start;
 }
 
 .timeline-badge {
@@ -326,7 +323,7 @@
   color: #2b2b2b;
   line-height: 1.4;
   word-break: break-word;
-  width: 100%;
+  display: block;
 }
 
 .so-add-part-form {

@@ -146,7 +146,6 @@
 //     return tb - ta;
 //   });
 
-//   // ✅ ORDENA AS PEÇAS DO MAIS RECENTE PARA O MAIS ANTIGO
 //   const parts = (order.parts ?? []).slice().sort((a: any, b: any) => {
 //     const ta = new Date(a.created_at ?? a.added_at ?? 0).getTime();
 //     const tb = new Date(b.created_at ?? b.added_at ?? 0).getTime();
@@ -230,7 +229,7 @@
 //         <div className="so-divider" />
 
 //         <div className="so-panels-grid">
-//           {/* PAINEL DE COMENTÁRIOS */}
+//           {/* COMENTÁRIOS */}
 //           <div className="so-panel">
 //             <div className="so-panel-header">
 //               <h6 className="so-panel-title so-panel-title-comments">
@@ -261,11 +260,11 @@
 //                         <div className="timeline-month">{day}</div>
 //                         <div className="timeline-time">{time}</div>
 //                       </div>
-//                       <div className="timeline-line" />
+//                       <div className="timeline-line"></div>
 //                       <div className="timeline-content">
 //                         <div className="timeline-text-wrapper">
 //                           {isLatest && <span className="timeline-badge">NOVO</span>}
-//                           <div className="timeline-text">{c.comment}</div>
+//                           <span className="timeline-text">{c.comment}</span>
 //                         </div>
 //                       </div>
 //                     </div>
@@ -275,7 +274,7 @@
 //             </div>
 //           </div>
 
-//           {/* ✅ PAINEL DE PEÇAS ORDENADAS */}
+//           {/* PEÇAS */}
 //           <div className="so-panel">
 //             <div className="so-panel-header">
 //               <h6 className="so-panel-title so-panel-title-parts">
@@ -295,7 +294,7 @@
 //                 <div className="so-empty-message">Sem peças</div>
 //               ) : (
 //                 parts.map((p: any, i: number) => {
-//                   const isLatest = i === 0; // ✅ AGORA A PRIMEIRA É A MAIS RECENTE
+//                   const isLatest = i === 0;
 //                   const dt = new Date(p.created_at ?? p.added_at ?? Date.now());
 //                   const day = dt.toLocaleDateString("pt-PT", { day: "2-digit", month: "short" });
 //                   const time = dt.toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" });
@@ -306,13 +305,13 @@
 //                         <div className="timeline-month">{day}</div>
 //                         <div className="timeline-time">{time}</div>
 //                       </div>
-//                       <div className="timeline-line" />
+//                       <div className="timeline-line"></div>
 //                       <div className="timeline-content">
 //                         <div className="timeline-text-wrapper">
 //                           {isLatest && <span className="timeline-badge-part">NOVO</span>}
-//                           <div className="timeline-text">
+//                           <span className="timeline-text">
 //                             {formatField(p.name)} <strong>(Qtd: {p.qty ?? p.quantity ?? 1})</strong>
-//                           </div>
+//                           </span>
 //                         </div>
 //                       </div>
 //                     </div>
@@ -342,7 +341,6 @@
 // };
 
 // export default ServiceOrderDetail;
-
 
 
 import React, { useEffect, useState, type FC } from "react";
@@ -609,10 +607,8 @@ const ServiceOrderDetail: FC = () => {
                       </div>
                       <div className="timeline-line"></div>
                       <div className="timeline-content">
-                        <div className="timeline-text-wrapper">
-                          {isLatest && <span className="timeline-badge">NOVO</span>}
-                          <span className="timeline-text">{c.comment}</span>
-                        </div>
+                        {isLatest && <span className="timeline-badge">NOVO</span>}
+                        <span className="timeline-text">{c.comment}</span>
                       </div>
                     </div>
                   );
@@ -654,12 +650,10 @@ const ServiceOrderDetail: FC = () => {
                       </div>
                       <div className="timeline-line"></div>
                       <div className="timeline-content">
-                        <div className="timeline-text-wrapper">
-                          {isLatest && <span className="timeline-badge-part">NOVO</span>}
-                          <span className="timeline-text">
-                            {formatField(p.name)} <strong>(Qtd: {p.qty ?? p.quantity ?? 1})</strong>
-                          </span>
-                        </div>
+                        {isLatest && <span className="timeline-badge-part">NOVO</span>}
+                        <span className="timeline-text">
+                          {formatField(p.name)} <strong>(Qtd: {p.qty ?? p.quantity ?? 1})</strong>
+                        </span>
                       </div>
                     </div>
                   );
