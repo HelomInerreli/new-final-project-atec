@@ -10,6 +10,7 @@
   width: 100%;
   box-sizing: border-box;
   margin-bottom: 0;
+  cursor: pointer;
 }
 
 .order-card:hover {
@@ -69,7 +70,6 @@
   gap: 24px;
   color: #666;
   font-size: 0.95rem;
-  margin-bottom: 12px;
   flex-wrap: wrap;
 }
 
@@ -80,13 +80,6 @@
 .meta strong {
   color: #333;
   font-weight: 600;
-}
-
-.price {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #dc3545;
-  margin: 0;
 }
 
 .card-actions {
@@ -111,8 +104,8 @@
 }
 
 .btn-action:hover {
-  background-color: #dc3545;
-  color: white;
+  background-color: #c82333;
+  border-color: #c82333;
 }
 
 /* Responsividade */
@@ -138,7 +131,3 @@
     gap: 8px;
   }
 }
-
-
-
-
