@@ -136,7 +136,7 @@ def create_invoice_for_appointment(db: Session, appointment: Appointment, invoic
 
 MIN_VEHICLES_PER_CUSTOMER = 1  # Garantir que todos têm pelo menos 1 veículo
 def seed_data(db: Session):
-    """Seed database with initial data"""
+    """Seed database with initial data
     Seed database:
     - create statuses
     - create main services
