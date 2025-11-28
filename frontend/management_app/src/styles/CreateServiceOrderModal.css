@@ -24,7 +24,6 @@
   animation: slideUp 0.3s ease-out;
 }
 
-
 .service-order-modal-header {
   padding: 1.5rem 2rem;
   border-bottom: 1px solid #e5e7eb;
@@ -59,7 +58,7 @@
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  color: white;
+  color: white !important;
   font-size: 1.5rem;
   font-weight: 700;
   line-height: 1;
@@ -74,6 +73,8 @@
 .modal-close-btn i {
   display: block;
   line-height: 1;
+  color: white !important;
+  font-size: 1.5rem;
 }
 
 .progress-section {
@@ -117,7 +118,6 @@
   box-shadow: 0 0 10px rgba(220, 53, 69, 0.3);
 }
 
-
 .service-order-modal-body {
   padding: 2rem;
   max-height: calc(90vh - 280px);
@@ -142,7 +142,6 @@
   background: #9ca3af;
 }
 
-
 .loading-container {
   text-align: center;
   padding: 3rem 0;
@@ -163,7 +162,6 @@
   font-size: 1rem;
   margin: 0;
 }
-
 
 .service-order-modal .form-group {
   margin-bottom: 1.5rem;
@@ -213,13 +211,13 @@
 .service-order-modal .form-control[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
   opacity: 1;
-  filter: invert(30%) sepia(90%) saturate(3000%) hue-rotate(340deg) brightness(90%);
+  filter: invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%);
   font-size: 1.2rem;
   padding: 0.25rem;
 }
 
 .service-order-modal .form-control[type="date"]::-webkit-calendar-picker-indicator:hover {
-  filter: invert(25%) sepia(80%) saturate(2500%) hue-rotate(340deg) brightness(85%);
+  filter: invert(20%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(30%);
 }
 
 .service-order-modal textarea.form-control {
@@ -245,7 +243,6 @@
   color: #f59e0b;
 }
 
-
 .service-order-modal .alert {
   padding: 1rem;
   border-radius: 8px;
@@ -266,7 +263,6 @@
   font-size: 1.25rem;
   flex-shrink: 0;
 }
-
 
 .summary-card {
   background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
@@ -335,7 +331,6 @@
   font-size: 1.25rem;
 }
 
-
 .service-order-modal-footer {
   padding: 1.25rem 2rem;
   border-top: 1px solid #e5e7eb;
@@ -344,7 +339,6 @@
   justify-content: space-between;
   gap: 1rem;
 }
-
 
 .service-order-modal-footer .btn {
   padding: 0.75rem 1.5rem;
@@ -409,7 +403,6 @@
   animation: spin 0.75s linear infinite;
 }
 
-
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -447,7 +440,6 @@
   }
 }
 
-
 @media (max-width: 768px) {
   .service-order-modal {
     width: 100%;
@@ -480,7 +472,6 @@
     max-width: 50%;
   }
 }
-
 
 .service-order-modal .row {
   display: flex;
