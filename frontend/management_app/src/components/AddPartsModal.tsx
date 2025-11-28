@@ -119,7 +119,7 @@ const AddPartsModal: React.FC<AddPartsModalProps> = ({ isOpen, onClose, orderId,
                     >
                       <div className="product-info">
                         <div className="product-name">{product.name}</div>
-                        {product.sku && <div className="product-sku">SKU: {product.sku}</div>}
+                        {product.sku && <div className="product-sku">Código: {product.sku}</div>}
                       </div>
                       <div className="product-details">
                         <div className="product-stock">

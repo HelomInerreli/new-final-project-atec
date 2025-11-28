@@ -19,7 +19,6 @@
   border-radius: 16px;
   width: 90%;
   max-width: 650px;
-  max-height: 85vh;
   display: flex;
   flex-direction: column;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
@@ -287,7 +286,7 @@
   justify-content: flex-end;
   gap: 0.75rem;
   padding: 1.25rem 2rem;
-  border-top: 1px solid #fefefe;
+  border-top: 1px solid #e5e7eb;
   background-color: #ffffff;
   flex-shrink: 0;
 }
@@ -364,7 +363,7 @@
   .modal-content {
     width: 100%;
     max-height: 100vh;
-    border-radius: 0;
+    border-radius: 16px;
   }
 
   .modal-header,
