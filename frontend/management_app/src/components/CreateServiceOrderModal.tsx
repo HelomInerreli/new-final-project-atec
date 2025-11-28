@@ -315,6 +315,18 @@ const CreateServiceOrderModal: FC<CreateServiceOrderModalProps> = ({ show, onClo
       .finally(() => setLoadingData(false));
   }, [form.customer_id]);
 
+  // Gera data mínima (hoje) e máxima (60 dias à frente) no formato YYYY-MM-DD
+  const getMinDate = () => {
+    const today = new Date();
+    return today.toISOString().split("T")[0];
+  };
+
+  const getMaxDate = () => {
+    const maxDate = new Date();
+    maxDate.setDate(maxDate.getDate() + 60);
+    return maxDate.toISOString().split("T")[0];
+  };
+
   const goToNextStep = () => {
     setError(null);
 
@@ -487,9 +499,14 @@ const CreateServiceOrderModal: FC<CreateServiceOrderModalProps> = ({ show, onClo
                             className="form-control"
                             value={form.appointment_date}
                             onChange={(e) => setForm((f) => ({ ...f, appointment_date: e.target.value }))}
-                            min={new Date().toISOString().split("T")[0]}
+                            min={getMinDate()}
+                            max={getMaxDate()}
                             required
                           />
+                          <small className="form-text text-muted">
+                            <i className="bi bi-info-circle me-1"></i>
+                            Agende até 60 dias à frente
+                          </small>
                         </div>
 
                         <div className="col-md-6 mb-3">
@@ -502,8 +519,14 @@ const CreateServiceOrderModal: FC<CreateServiceOrderModalProps> = ({ show, onClo
                             className="form-control"
                             value={form.appointment_time}
                             onChange={(e) => setForm((f) => ({ ...f, appointment_time: e.target.value }))}
+                            min="08:00"
+                            max="18:00"
                             required
                           />
+                          <small className="form-text text-muted">
+                            <i className="bi bi-clock me-1"></i>
+                            Horário de funcionamento: 08:00 - 18:00
+                          </small>
                         </div>
                       </div>
                     </>
@@ -581,7 +604,7 @@ const CreateServiceOrderModal: FC<CreateServiceOrderModalProps> = ({ show, onClo
                           <span className="text-muted">Data:</span>
                           <span className="fw-medium">
                             {form.appointment_date
-                              ? new Date(form.appointment_date).toLocaleDateString("pt-PT")
+                              ? new Date(form.appointment_date + "T00:00:00").toLocaleDateString("pt-PT")
                               : "-"}
                           </span>
                         </div>
