@@ -25,7 +25,7 @@ const CreateServiceOrderModal: FC<CreateServiceOrderModalProps> = ({ show, onClo
     estimated_budget: 0,
   });
 
-  // ✅ Array de horários disponíveis (igual ao appointments.tsx)
+
   const availableTimes = [
     "09:00", "09:15", "09:30", "09:45",
     "10:00", "10:15", "10:30", "10:45",
@@ -78,7 +78,7 @@ const CreateServiceOrderModal: FC<CreateServiceOrderModalProps> = ({ show, onClo
       .finally(() => setLoadingData(false));
   }, [form.customer_id]);
 
-  // ✅ Validação de data (não permitir fins de semana)
+ 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
 
@@ -86,7 +86,7 @@ const CreateServiceOrderModal: FC<CreateServiceOrderModalProps> = ({ show, onClo
       const selectedDate = new Date(value + 'T00:00:00');
       const dayOfWeek = selectedDate.getDay();
       
-      // 0 = Domingo, 6 = Sábado
+      
       if (dayOfWeek === 0 || dayOfWeek === 6) {
         setError("Por favor, selecione um dia de semana (segunda a sexta-feira).");
         return;
@@ -173,7 +173,7 @@ const CreateServiceOrderModal: FC<CreateServiceOrderModalProps> = ({ show, onClo
             <button type="button" className="btn-close" onClick={handleClose} aria-label="Fechar" />
           </div>
 
-          {/* ✅ Progress Bar (mantida) */}
+          {/*  Progress Bar (mantida) */}
           <div className="px-3 pt-4 pb-3">
             <div className="d-flex justify-content-between align-items-center mb-2">
               <span className="fw-medium">
@@ -259,7 +259,7 @@ const CreateServiceOrderModal: FC<CreateServiceOrderModalProps> = ({ show, onClo
                       </div>
 
                       <div className="row">
-                        {/* ✅ Calendário com validação de fins de semana */}
+                        {/*  Calendário com validação de fins de semana */}
                         <div className="col-md-6 mb-3">
                           <label className="form-label fw-semibold">
                             <i className="bi bi-calendar3 me-1"></i>
@@ -279,7 +279,7 @@ const CreateServiceOrderModal: FC<CreateServiceOrderModalProps> = ({ show, onClo
                           </small>
                         </div>
 
-                        {/* ✅ Seletor de horários (igual ao appointments.tsx) */}
+                        {/*  Seletor de horários (igual ao appointments.tsx) */}
                         <div className="col-md-6 mb-3">
                           <label className="form-label fw-semibold">
                             <i className="bi bi-clock me-1"></i>
