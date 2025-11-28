@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Integer, String, DateTime, Float, ForeignKey, Text
+from sqlalchemy import JSON, Column, Integer, String, DateTime, Float, ForeignKey, Text
 from sqlalchemy.orm import relationship
 from datetime import datetime
+from app.models.order_part import OrderPart
 
 from app.database import Base
 
@@ -28,6 +29,7 @@ class Appointment(Base):
     # Flags e metadados
     created_at = Column(DateTime, default=datetime.utcnow)
     reminder_sent = Column(Integer, default=0)  # 0 = Não enviado, 1 = Enviado
+    
 
     # Foreign Keys
     vehicle_id = Column(Integer, ForeignKey("vehicles.id"), nullable=True)
@@ -46,6 +48,21 @@ class Appointment(Base):
         cascade="all, delete-orphan"
     )
     status = relationship("Status", back_populates="appointments")
+    
+    comments = relationship(
+        "OrderComment",
+        back_populates="appointment",
+        cascade="all, delete-orphan",
+        order_by="OrderComment.created_at.desc()" 
+    )
+    
+    parts = relationship(
+        "OrderPart",  
+        back_populates="appointment",
+        cascade="all, delete-orphan",
+        order_by="OrderPart.created_at.desc()"  
+    )
+
 
     # Conveniência: propriedades para compatibilidade com schemas / código que esperam esses atributos.
     @property

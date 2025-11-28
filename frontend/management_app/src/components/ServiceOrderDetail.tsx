@@ -1,6 +1,10 @@
 import React, { useEffect, useState, type FC } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getOrder, updateOrder, updateOrderStatus } from "../services/OrderDetails";
+import { getOrder, updateOrder } from "../services/OrderDetails";
+import Input from "./Input";
+import { normalizeStatus } from "../hooks/useServiceOrder";
+import AddPartsModal from "./AddPartsModal";
+import AddCommentModal from "./AddCommentModal";
 import "../styles/ServiceOrderDetail.css";
 
 const ServiceOrderDetail: FC = () => {
@@ -10,13 +14,12 @@ const ServiceOrderDetail: FC = () => {
   const [order, setOrder] = useState<any | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
-  const [comment, setComment] = useState<string>("");
-  const [partName, setPartName] = useState<string>("");
-  const [partQty, setPartQty] = useState<number>(1);
+  const [isPartsModalOpen, setIsPartsModalOpen] = useState(false);
+  const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
 
-  const fetchOrder = async () => {
+  const fetchOrder = async (silent = false) => {
     if (!id) return;
-    setLoading(true);
+    if (!silent) setLoading(true);
     try {
       const data = await getOrder(id);
       setOrder(data);
@@ -24,13 +27,21 @@ const ServiceOrderDetail: FC = () => {
       alert("Erro ao carregar ordem: " + (e?.message ?? e));
       setOrder(null);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchOrder();
   }, [id]);
+
+  useEffect(() => {
+    if (!id || !order) return;
+    const iv = setInterval(() => {
+      fetchOrder(true);
+    }, 10000);
+    return () => clearInterval(iv);
+  }, [id, order]);
 
   const formatField = (v: any): string => {
     if (v === null || v === undefined) return "-";
@@ -44,7 +55,13 @@ const ServiceOrderDetail: FC = () => {
     if (!d) return "-";
     try {
       const dt = new Date(d);
-      return isNaN(dt.getTime()) ? String(d) : dt.toLocaleString();
+      return isNaN(dt.getTime()) ? String(d) : dt.toLocaleString("pt-PT", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
     } catch {
       return String(d);
     }
@@ -62,121 +79,264 @@ const ServiceOrderDetail: FC = () => {
     return parts.join(" ");
   };
 
-  const changeStatus = async (newStatus: string) => {
-    if (!id) return;
-    if (!confirm(`Confirmar alteração de status para "${newStatus}"?`)) return;
+  const getRawStatusName = (o: any): string => {
+    if (!o) return "";
+    const s = o.status ?? o;
+    if (!s) return "";
+    if (typeof s === "string") return s;
+    if (typeof s === "object") return String(s.name ?? s.label ?? "");
+    return "";
+  };
+
+  const changeStatus = async (action: "start" | "pause" | "finish") => {
+    if (!id || !order) return;
+
+    const STATUS_LABEL_TO_ID: Record<string, number> = {
+      "Pendente": 1,
+      "Cancelada": 2,
+      "Concluída": 3,
+      "Em Andamento": 4,
+      "Aguardando Aprovação": 5,
+      "Aguardando Pagamento": 6,
+    };
+
+    const newStatusLabel = action === "start" ? "Em Andamento" : action === "pause" ? "Pendente" : "Concluída";
+    const currentRaw = getRawStatusName(order);
+    const currentNormalized = normalizeStatus(currentRaw);
+
+    if (currentNormalized === newStatusLabel) return;
+    if (currentNormalized === "Concluída" && action !== "finish") {
+      alert("Ordem já concluída.");
+      return;
+    }
+
+    const ok = confirm(`Confirmar alteração de status para "${newStatusLabel}"?`);
+    if (!ok) return;
+
+    const newStatusId = STATUS_LABEL_TO_ID[newStatusLabel];
+    if (!newStatusId) {
+      alert("Status inválido");
+      return;
+    }
+
     setSaving(true);
+    const previous = order;
+    setOrder({ ...order, status_id: newStatusId });
+
     try {
-      await updateOrderStatus(id, newStatus);
+      await updateOrder(id, { status_id: newStatusId });
       await fetchOrder();
     } catch (e: any) {
-      alert("Erro ao atualizar status: " + (e?.message ?? e));
+      setOrder(previous);
+      alert("Erro ao atualizar status.");
     } finally {
       setSaving(false);
     }
   };
 
-  const submitComment = async () => {
-    if (!id || !comment.trim()) return;
-    setSaving(true);
-    try {
-      const newComments = [...(order?.comments ?? []), { text: comment.trim(), created_at: new Date().toISOString() }];
-      await updateOrder(id, { comments: newComments });
-      setComment("");
-      await fetchOrder();
-    } catch (e: any) {
-      alert("Erro ao adicionar comentário: " + (e?.message ?? e));
-    } finally {
-      setSaving(false);
-    }
-  };
+  if (loading) return <div className="so-loading">Carregando...</div>;
+  if (!order) return <div className="so-loading">Ordem não encontrada</div>;
 
-  const addPart = async () => {
-    if (!id || !partName.trim()) return;
-    setSaving(true);
-    try {
-      const newParts = [...(order?.parts ?? []), { name: partName.trim(), qty: partQty }];
-      await updateOrder(id, { parts: newParts });
-      setPartName("");
-      setPartQty(1);
-      await fetchOrder();
-    } catch (e: any) {
-      alert("Erro ao adicionar peça: " + (e?.message ?? e));
-    } finally {
-      setSaving(false);
-    }
-  };
+  const currentRaw = getRawStatusName(order);
+  const currentNormalized = normalizeStatus(currentRaw);
 
-  if (loading) return <div className="p-4">Carregando...</div>;
-  if (!order) return <div className="p-4">Ordem não encontrada</div>;
+  const comments = (order.comments ?? []).slice().sort((a: any, b: any) => {
+    const ta = new Date(a.created_at).getTime();
+    const tb = new Date(b.created_at).getTime();
+    return tb - ta;
+  });
+
+  // ✅ ORDENA AS PEÇAS DO MAIS RECENTE PARA O MAIS ANTIGO
+  const parts = (order.parts ?? []).slice().sort((a: any, b: any) => {
+    const ta = new Date(a.created_at ?? a.added_at ?? 0).getTime();
+    const tb = new Date(b.created_at ?? b.added_at ?? 0).getTime();
+    return tb - ta;
+  });
 
   return (
-    <div className="so-fullscreen">
-      <div className="so-header">
-        <h2>Ordem #{order.id}</h2>
-        <div>
-          <button className="btn btn-outline-secondary me-2" onClick={() => navigate(-1)}>Voltar</button>
-          <button className="btn btn-primary me-1" onClick={() => changeStatus("Em Andamento")} disabled={saving || order.status === "Em Andamento"}>Iniciar</button>
-          <button className="btn btn-warning me-1" onClick={() => changeStatus("Pendente")} disabled={saving || order.status === "Pendente"}>Pausar</button>
-          <button className="btn btn-success" onClick={() => changeStatus("Concluída")} disabled={saving || order.status === "Concluída"}>Finalizar</button>
+    <div className="so-page-wrapper">
+      <div className="so-card">
+        <div className="so-card-header">
+          <button className="so-back-btn" onClick={() => navigate(-1)}>← Voltar</button>
+          <h2 className="so-card-title">Ordem de Serviço #{order.id}</h2>
         </div>
-      </div>
 
-      <div className="so-content">
-        <div className="row gy-4 align-items-start w-100">
-          <div className="col-12 col-lg-4">
-            <div><strong>Cliente:</strong> {formatField(order.customer_name ?? order.client_name ?? order.customer)}</div>
-            <div><strong>Veículo:</strong> {formatVehicle(order.vehicle_info ?? order.vehicle ?? order.selected_vehicle)}</div>
-            <div><strong>Serviço:</strong> {formatField(order.service_name ?? order.service)}</div>
-            <div><strong>Data:</strong> {formatDate(order.appointment_date ?? order.date)}</div>
-            <div><strong>Status:</strong> {formatField(order.status)}</div>
-          </div>
+        <h5 className="so-section-title">Informações do Cliente e Serviço</h5>
 
-          <div className="col-12 col-lg-4">
-            <h5 className="text-center">Comentários</h5>
-            {(order.comments ?? []).length ? (
-              <ul className="comments-list">
-                {(order.comments ?? []).map((c: any, i: number) => (
-                  <li key={i}>
-                    <small className="text-muted">{c.created_at ? formatDate(c.created_at) + " — " : ""}</small>
-                    <div>{c.text}</div>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div className="text-muted text-center mb-2">Sem comentários</div>
-            )}
-            <textarea className="form-control mb-2" rows={3} value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Adicionar comentário..." />
-            <div className="d-flex justify-content-center">
-              <button className="btn btn-primary" onClick={submitComment} disabled={saving || !comment.trim()}>Adicionar comentário</button>
+        <div className="so-info-with-actions">
+          <div className="so-info-grid-horizontal">
+            <div className="so-info-column">
+              <Input
+                label="Cliente"
+                value={formatField(order.customer_name ?? order.customer)}
+                className="readonly-input"
+              />
+              <Input
+                label="Veículo"
+                value={formatVehicle(order.vehicle_info ?? order.vehicle)}
+                className="readonly-input"
+              />
+              <Input
+                label="Serviço"
+                value={formatField(order.service_name ?? order.service)}
+                className="readonly-input"
+              />
+            </div>
+
+            <div className="so-info-column">
+              <Input
+                label="Status"
+                value={formatField(order.status)}
+                className="readonly-input"
+              />
+              <Input
+                label="Data"
+                value={formatDate(order.appointment_date)}
+                className="readonly-input"
+              />
+              <Input
+                label="Estimado"
+                value={`€ ${Number(order.estimated_budget ?? 0).toFixed(2)}`}
+                className="readonly-input"
+              />
             </div>
           </div>
 
-          <div className="col-12 col-lg-4">
-            <h5>Peças utilizadas</h5>
-            {(order.parts ?? []).length ? (
-              <ul>
-                {(order.parts ?? []).map((p: any, i: number) => (
-                  <li key={i}>{formatField(p.name ?? p)} — qty: {p.qty ?? p.quantity ?? 1}</li>
-                ))}
-              </ul>
-            ) : (
-              <div className="text-muted">Nenhuma peça registada</div>
-            )}
-            <div className="row g-2 align-items-end mt-3">
-              <div className="col-md-7">
-                <input className="form-control" placeholder="Nome da peça" value={partName} onChange={(e) => setPartName(e.target.value)} />
-              </div>
-              <div className="col-md-3">
-                <input type="number" min={1} className="form-control" value={partQty} onChange={(e) => setPartQty(Number(e.target.value) || 1)} />
-              </div>
-              <div className="col-md-2">
-                <button className="btn btn-outline-primary w-100" onClick={addPart} disabled={saving || !partName.trim()}>Adicionar</button>
-              </div>
+          <div className="so-action-column">
+            <button
+              className="btn btn-primary so-action-btn"
+              onClick={() => changeStatus("start")}
+              disabled={saving || ["Em Andamento", "Concluída"].includes(currentNormalized)}
+            >
+              Iniciar
+            </button>
+            <button
+              className="btn btn-warning so-action-btn"
+              onClick={() => changeStatus("pause")}
+              disabled={saving || ["Pendente", "Concluída"].includes(currentNormalized)}
+            >
+              Pausar
+            </button>
+            <button
+              className="btn btn-success so-action-btn"
+              onClick={() => changeStatus("finish")}
+              disabled={saving || currentNormalized === "Concluída"}
+            >
+              Finalizar
+            </button>
+          </div>
+        </div>
+
+        <div className="so-divider" />
+
+        <div className="so-panels-grid">
+          {/* PAINEL DE COMENTÁRIOS */}
+          <div className="so-panel">
+            <div className="so-panel-header">
+              <h6 className="so-panel-title so-panel-title-comments">
+                Comentários (Acompanhamento)
+              </h6>
+              <button 
+                className="so-add-icon-btn"
+                onClick={() => setIsCommentModalOpen(true)}
+                title="Adicionar comentário"
+              >
+                +
+              </button>
+            </div>
+
+            <div className="timeline">
+              {comments.length === 0 ? (
+                <div className="so-empty-message">Sem comentários</div>
+              ) : (
+                comments.map((c: any, i: number) => {
+                  const isLatest = i === 0;
+                  const dt = new Date(c.created_at);
+                  const day = dt.toLocaleDateString("pt-PT", { day: "2-digit", month: "short" });
+                  const time = dt.toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" });
+                  
+                  return (
+                    <div key={c.id ?? i} className={`timeline-item ${isLatest ? "active" : ""}`}>
+                      <div className="timeline-left">
+                        <div className="timeline-month">{day}</div>
+                        <div className="timeline-time">{time}</div>
+                      </div>
+                      <div className="timeline-line" />
+                      <div className="timeline-content">
+                        <div className="timeline-text-wrapper">
+                          {isLatest && <span className="timeline-badge">NOVO</span>}
+                          <div className="timeline-text">{c.comment}</div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+
+          {/* ✅ PAINEL DE PEÇAS ORDENADAS */}
+          <div className="so-panel">
+            <div className="so-panel-header">
+              <h6 className="so-panel-title so-panel-title-parts">
+                Peças Utilizadas
+              </h6>
+              <button 
+                className="so-add-icon-btn"
+                onClick={() => setIsPartsModalOpen(true)}
+                title="Adicionar peça"
+              >
+                +
+              </button>
+            </div>
+
+            <div className="timeline">
+              {parts.length === 0 ? (
+                <div className="so-empty-message">Sem peças</div>
+              ) : (
+                parts.map((p: any, i: number) => {
+                  const isLatest = i === 0; // ✅ AGORA A PRIMEIRA É A MAIS RECENTE
+                  const dt = new Date(p.created_at ?? p.added_at ?? Date.now());
+                  const day = dt.toLocaleDateString("pt-PT", { day: "2-digit", month: "short" });
+                  const time = dt.toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" });
+                  
+                  return (
+                    <div key={i} className={`timeline-item ${isLatest ? "active" : ""}`}>
+                      <div className="timeline-left">
+                        <div className="timeline-month">{day}</div>
+                        <div className="timeline-time">{time}</div>
+                      </div>
+                      <div className="timeline-line" />
+                      <div className="timeline-content">
+                        <div className="timeline-text-wrapper">
+                          {isLatest && <span className="timeline-badge-part">NOVO</span>}
+                          <div className="timeline-text">
+                            {formatField(p.name)} <strong>(Qtd: {p.qty ?? p.quantity ?? 1})</strong>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
             </div>
           </div>
         </div>
       </div>
+
+      <AddCommentModal
+        isOpen={isCommentModalOpen}
+        onClose={() => setIsCommentModalOpen(false)}
+        orderId={id!}
+        onSuccess={fetchOrder}
+      />
+
+      <AddPartsModal
+        isOpen={isPartsModalOpen}
+        onClose={() => setIsPartsModalOpen(false)}
+        orderId={id!}
+        onSuccess={fetchOrder}
+      />
     </div>
   );
 };

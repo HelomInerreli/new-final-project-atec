@@ -108,8 +108,8 @@ async def create_checkout_session(request: CheckoutRequest, db: Session = Depend
             payment_method_types=["card", "klarna", "mb_way"],
             mode="payment",
             line_items=line_items,
-            success_url=f"{settings.CLIENT_URL}/client/invoices",
-            cancel_url=f"{settings.CLIENT_URL}/client/appointments",
+            success_url=f"{settings.CLIENT_URL}/my-services?section=invoices&appointment={appointment.id}",
+            cancel_url=f"{settings.CLIENT_URL}/my-services?section=appointments",
             metadata={"appointment_id": str(appointment.id)}
         )
         return {"url": session.url}

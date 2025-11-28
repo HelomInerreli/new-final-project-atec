@@ -60,12 +60,14 @@ export function PastAppointments() {
                 <div className="past-appointments-content">
                     {Object.entries(groupedAppointments).map(([monthYear, appointments]) => (
                         <div key={monthYear} className="past-month-section">
-                            <div 
+                                                        <div 
                                 className="past-month-header"
                                 onClick={() => toggleMonth(monthYear)}
                             >
                                 <div className="past-month-header-content">
-                                    <h2 className="past-month-title">{monthYear}</h2>
+                                    <h2 className="past-month-title">
+                                        {monthYear.charAt(0).toUpperCase() + monthYear.slice(1)}
+                                    </h2>
                                     <span className="past-appointment-count">
                                         {appointments.length} {appointments.length === 1 ? t('appointment') : t('appointments')}
                                     </span>

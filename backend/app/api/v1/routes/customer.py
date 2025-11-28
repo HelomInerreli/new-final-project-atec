@@ -12,6 +12,7 @@ from app.deps import get_db
 from app.core.security import get_current_user_id
 from app.models.customerAuth import CustomerAuth
 from app.models.customer import Customer as CustomerModel
+from app.models.vehicle import Vehicle as VehicleModel
 
 
 router = APIRouter()
@@ -32,16 +33,64 @@ def create_customer(
     return repo.create(customer=customer_in)
 
 
-# @router.get("/", response_model=List[Customer])
-# def list_customers(
-#     skip: int = 0,
-#     limit: int = 100,
-#     repo: CustomerRepository = Depends(get_customer_repo)
-# ):
-#     """
-#     Retrieve a list of customers.
-#     """
-#     return repo.get_all(skip=skip, limit=limit)
+@router.get("/all-profiles")
+def get_all_customer_profiles(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db)
+):
+    """
+    Get all customer profiles with their complete information (admin endpoint).
+    """
+    try:
+        customers = db.query(CustomerModel).offset(skip).limit(limit).all()
+        print(f"Found {len(customers)} customers")
+        
+        result = []
+        for customer in customers:
+            print(f"Processing customer: {customer.id}, {customer.name}")
+            
+            # Fetch associated CustomerAuth
+            customer_auth = db.query(CustomerAuth).filter(
+                CustomerAuth.id_customer == customer.id
+            ).first()
+            
+            print(f"Found auth: {customer_auth.email if customer_auth else 'None'}")
+            
+            # Handle None values and convert dates properly
+            customer_data = {
+                "auth": {
+                    "id": str(customer_auth.id) if customer_auth else "",
+                    "email": customer_auth.email if customer_auth else "N/A",
+                    "is_active": customer_auth.is_active if customer_auth else False,
+                    "created_at": str(customer_auth.created_at) if customer_auth and customer_auth.created_at else "",
+                    "updated_at": str(customer_auth.updated_at) if customer_auth and customer_auth.updated_at else ""
+                },
+                "customer": {
+                    "id": customer.id,
+                    "name": customer.name if customer.name else "N/A",
+                    "phone": customer.phone if customer.phone else "",
+                    "address": customer.address if customer.address else "",
+                    "city": customer.city if customer.city else "",
+                    "postal_code": customer.postal_code if customer.postal_code else "",
+                    "country": customer.country if customer.country else "",
+                    "birth_date": str(customer.birth_date) if customer.birth_date else "",
+                    "created_at": str(customer.created_at) if customer.created_at else "",
+                    "updated_at": str(customer.updated_at) if customer.updated_at else ""
+                }
+            }
+            
+            result.append(customer_data)
+            print(f"Added customer to result: {customer.name}")
+        
+        print(f"Returning {len(result)} customers")
+        return result
+        
+    except Exception as e:
+        print(f"Error in get_all_customer_profiles: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
 
 
 @router.get("/{customer_id}", response_model=Customer)
@@ -134,3 +183,72 @@ def update_customer_profile(
     
     return {"message": "Profile updated successfully", "customer": customer}
 
+@router.get("/me/complete-profile")
+def get_complete_customer_profile(
+    current_user_id: str = Depends(get_current_user_id),
+    db: Session = Depends(get_db)
+):
+    """
+    Get complete customer profile including auth info, personal details, vehicles, and appointments.
+    """
+    # Fetch the authenticated user's CustomerAuth record
+    customer_auth = db.query(CustomerAuth).filter(CustomerAuth.id == current_user_id).first()
+    if not customer_auth:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Fetch the associated customer with relationships
+    customer = db.query(CustomerModel).filter(CustomerModel.id == customer_auth.id_customer).first()
+    if not customer:
+        raise HTTPException(status_code=404, detail="Customer not found")
+    
+    # Fetch vehicles associated with this customer
+    vehicles = db.query(VehicleModel).filter(VehicleModel.id_customer == customer.id).all()
+    
+    # Build comprehensive response
+    return {
+        "auth": {
+            "id": customer_auth.id,
+            "email": customer_auth.email,
+            "is_active": customer_auth.is_active,
+            "created_at": customer_auth.created_at,
+            "updated_at": customer_auth.updated_at
+        },
+        "customer": {
+            "id": customer.id,
+            "name": customer.name,
+            "phone": customer.phone,
+            "address": customer.address,
+            "city": customer.city,
+            "postal_code": customer.postal_code,
+            "country": customer.country,
+            "birth_date": customer.birth_date,
+            "created_at": customer.created_at,
+            "updated_at": customer.updated_at
+        },
+        "vehicles": [
+            {
+                "id": vehicle.id,
+                "plate": vehicle.plate,
+                "brand": vehicle.brand,
+                "model": vehicle.model,
+                "kilometers": vehicle.kilometers,
+                "deleted_at": vehicle.deleted_at
+            }
+            for vehicle in vehicles
+        ],
+        # "appointments": [
+        #     {
+        #         "id": appointment.id,
+        #         "appointment_date": appointment.appointment_date,
+        #         "time": appointment.time,
+        #         "status": appointment.status,
+        #         "service_type": appointment.service_type,
+        #         "notes": appointment.notes,
+        #         "id_vehicle": appointment.id_vehicle,
+        #         "id_employee": appointment.id_employee,
+        #         "created_at": appointment.created_at,
+        #         "updated_at": appointment.updated_at
+        #     }
+        #     for appointment in customer.appointments
+        # ]
+    }

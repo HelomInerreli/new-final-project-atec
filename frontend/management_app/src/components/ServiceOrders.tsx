@@ -1,3 +1,4 @@
+
 import { useState, type FC } from "react";
 import { useServiceOrder } from "../hooks/useServiceOrder";
 import OrderCard from "../components/OrderCard";
@@ -26,29 +27,7 @@ const ServiceOrders: FC = () => {
       <div className="so-content-wrapper">
         <header className="so-header">
           <h1 className="so-title">Ordens de Serviço</h1>
-          <div className="so-actions">
-            <input
-              type="text"
-              placeholder="Buscar por cliente, veículo ou número..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input form-control me-2"
-              style={{ maxWidth: 420 }}
-            />
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="form-select"
-              style={{ width: 200 }}
-            >
-              <option>Todos os Status</option>
-              <option>Em Andamento</option>
-              <option>Pendente</option>
-              <option>Concluída</option>
-              <option>Cancelada</option>
-            </select>
-          </div>
-
+          
           <button
             className="new-order-button"
             onClick={() => setShowNewModal(true)}
@@ -58,11 +37,32 @@ const ServiceOrders: FC = () => {
           </button>
         </header>
 
-        {loading && <div className="mt-4">Carregando ordens...</div>}
-        {error && <div className="alert alert-danger mt-3">{error}</div>}
+        <div className="so-actions">
+          <input
+            type="text"
+            placeholder="Buscar por cliente, veículo ou número..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className="form-select"
+          >
+            <option>Todos os Status</option>
+            <option>Em Andamento</option>
+            <option>Pendente</option>
+            <option>Concluída</option>
+            <option>Cancelada</option>
+          </select>
+        </div>
+
+        {loading && <div className="loading-message">Carregando ordens...</div>}
+        {error && <div className="alert alert-danger">{error}</div>}
 
         {!loading && !error && (
-          <main className="orders-list mt-3">
+          <main className="orders-list">
             {filtered.length > 0 ? (
               filtered.map((order) => <OrderCard key={order.id} order={order} />)
             ) : (
@@ -85,4 +85,11 @@ const ServiceOrders: FC = () => {
 };
 
 export default ServiceOrders;
+
+
+
+
+
+
+
 

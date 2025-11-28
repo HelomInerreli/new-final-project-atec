@@ -151,3 +151,5 @@ def list_vehicles(
     List all vehicles with pagination (skip/limit).
     """
     return repo.get_all(skip=skip, limit=limit)
+
+

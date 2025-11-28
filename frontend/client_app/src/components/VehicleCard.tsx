@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { formatKilometers } from '../utils/formatters';
 import type { VehicleCardProps } from '../interfaces/vehicle'; // Importa a interface
 import '../styles/VehicleCard.css';
+import { Edit, Trash2 } from 'lucide-react';
 
 export function VehicleCard({ vehicle, onEdit, onDelete }: VehicleCardProps) {
   const { t } = useTranslation();
@@ -13,26 +14,26 @@ export function VehicleCard({ vehicle, onEdit, onDelete }: VehicleCardProps) {
         <div className="vehicle-icon">
           <FaCar size={32} />
         </div>
-        <div className="vehicle-actions">
-          {onEdit && (
-            <button
-              className="btn btn-light btn-sm action-btn edit-btn"
-              onClick={() => onEdit(vehicle)}
-              title={t('vehicleCard.edit')}
-            >
-              <i className="bi bi-pencil-fill text-warning"></i>
-            </button>
-          )}
-          {onDelete && vehicle.id && (
-            <button
-              className="btn btn-light btn-sm action-btn delete-btn"
-              onClick={() => onDelete(vehicle.id!)}
-              title={t('vehicleCard.delete')}
-            >
-              <i className="bi bi-pencil-fill text-danger"></i>
-            </button>
-          )}
-        </div>
+          <div className="absolute top-2 right-5 d-flex gap-2">
+            {onEdit && (
+              <button
+                className="btn btn-light btn-sm"
+                onClick={() => onEdit(vehicle)}
+                title={t('vehicleCard.edit')}
+              >
+                <Edit className="h-4 w-4" />
+              </button>
+            )}
+            {onDelete && vehicle.id && (
+              <button
+                className="btn btn-light btn-sm"
+                onClick={() => onDelete(vehicle.id!)}
+                title={t('vehicleCard.delete')}
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            )}
+          </div>
       </div>
 
       <div className="vehicle-card-body">

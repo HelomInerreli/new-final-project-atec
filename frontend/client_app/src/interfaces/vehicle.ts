@@ -32,4 +32,10 @@ export interface VehicleCardProps {
 }
 
 
-
+export interface VehicleModalProps {
+    show: boolean;
+    vehicle?: Vehicle | null;
+    customerId: number;
+    onClose: () => void;
+    onSave: (vehicle: Vehicle) => Promise<void>;
+}

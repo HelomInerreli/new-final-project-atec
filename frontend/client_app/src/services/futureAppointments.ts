@@ -18,12 +18,12 @@ export async function getGroupedAppointments(customerId: number): Promise<Record
         const filteredAppointments = data.filter((appointment: Appointment) => {
             const statusId = appointment.status?.id ?? appointment.status_id;
             const statusName = appointment.status?.name?.toLowerCase();
-            
+
             const matchCustomer = appointment.customer_id === customerId;
             const matchStatus =
                 (typeof statusId === 'number' && allowedStatusIds.has(statusId)) ||
                 (statusName && allowedStatusNames.has(statusName));
-            
+
             // Excluir appointments com status "Finalized" ou outros
             return matchCustomer && matchStatus;
         });
@@ -43,15 +43,22 @@ export async function getGroupedAppointments(customerId: number): Promise<Record
             grouped[monthYear].push(appointment);
         });
 
-        // Ordenar grupos por data decrescente
+        // Ordenar grupos por data crescente (mais próximo primeiro)
         const sortedGrouped: Record<string, Appointment[]> = {};
-        Object.keys(grouped)
-            .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
-            .forEach((key) => {
-                sortedGrouped[key] = grouped[key].sort(
-                    (a, b) => new Date(b.appointment_date).getTime() - new Date(a.appointment_date).getTime()
-                );
-            });
+
+        const entries = Object.entries(grouped);
+
+        entries.sort(([, appsA], [, appsB]) => {
+            const dateA = appsA[0] ? new Date(appsA[0].appointment_date).getTime() : 0;
+            const dateB = appsB[0] ? new Date(appsB[0].appointment_date).getTime() : 0;
+            return dateA - dateB;
+        });
+
+        entries.forEach(([key, apps]) => {
+            sortedGrouped[key] = apps.sort(
+                (a, b) => new Date(a.appointment_date).getTime() - new Date(b.appointment_date).getTime()
+            );
+        });
 
         return sortedGrouped;
     } catch (error) {
