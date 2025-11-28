@@ -291,7 +291,7 @@
 }
 
 .so-panel:last-child .timeline-item.active::before {
-  background: #ed8413;
+  background: #28a745;
   box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.15);
 }
 /*  TEXTO À ESQUERDA E BADGE POSICIONADA À DIREITA */
