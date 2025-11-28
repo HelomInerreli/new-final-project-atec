@@ -274,67 +274,65 @@ const ServiceOrderDetail: FC = () => {
 
           {/* PEÇAS */}
           <div className="so-panel">
-  <div className="so-panel-header">
-    <h6 className="so-panel-title so-panel-title-parts">
-      Peças Utilizadas
-    </h6>
-    <button 
-      className="so-add-icon-btn so-add-icon-btn-parts"
-      onClick={() => setIsPartsModalOpen(true)}
-      title="Adicionar peça"
-    >
-      +
-    </button>
-  </div>
+        <div className="so-panel-header">
+          <h6 className="so-panel-title so-panel-title-parts">
+            Peças Utilizadas
+          </h6>
+          <button 
+            className="so-add-icon-btn so-add-icon-btn-parts"
+            onClick={() => setIsPartsModalOpen(true)}
+            title="Adicionar peça"
+          >
+            +
+          </button>
+        </div>
 
-  <div className="parts-table-wrapper">
-    {parts.length === 0 ? (
-      <div className="so-empty-message">Sem peças adicionadas</div>
-    ) : (
-      <table className="parts-table">
-        <thead>
-          <tr>
-            <th>Nome</th>
-            <th>SKU</th>
-            <th>Qtd</th>
-            <th>Preço</th>
-            <th>Data</th>
-          </tr>
-        </thead>
-        <tbody>
-          {parts.map((p: any, i: number) => {
-            const isLatest = i === 0;
-            const dt = new Date(p.created_at ?? p.added_at ?? Date.now());
-            const dateStr = dt.toLocaleDateString("pt-PT", { 
-              day: "2-digit", 
-              month: "2-digit",
-              year: "numeric"
-            });
-            const timeStr = dt.toLocaleTimeString("pt-PT", { 
-              hour: "2-digit", 
-              minute: "2-digit" 
-            });
-            
-            return (
-              <tr key={i} className={isLatest ? "part-row-new" : ""}>
-                <td className="part-name-cell">
-                  {formatField(p.name)}
-                  {isLatest && <span className="part-badge-new">NOVO</span>}
-                </td>
-                <td className="part-sku-cell">{p.sku ?? "-"}</td>
-                <td className="part-qty-cell">{p.qty ?? p.quantity ?? 1}</td>
-                <td className="part-price-cell">€{Number(p.price ?? 0).toFixed(2)}</td>
-                <td className="part-date-cell">
-                  {dateStr}
-                  <span className="part-time">{timeStr}</span>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    )}
-  </div>
+        <div className="parts-table-wrapper">
+          {parts.length === 0 ? (
+            <div className="so-empty-message">Sem peças adicionadas</div>
+          ) : (
+            <table className="parts-table">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>SKU</th>
+                  <th>Qtd</th>
+                  <th>Preço</th>
+                  <th>Data</th>
+                </tr>
+              </thead>
+              <tbody>
+                {parts.map((p: any, i: number) => {
+                  const dt = new Date(p.created_at ?? p.added_at ?? Date.now());
+                  const dateStr = dt.toLocaleDateString("pt-PT", { 
+                    day: "2-digit", 
+                    month: "2-digit",
+                    year: "numeric"
+                  });
+                  const timeStr = dt.toLocaleTimeString("pt-PT", { 
+                    hour: "2-digit", 
+                    minute: "2-digit" 
+                  });
+                  
+                  const sku = p.part_number || p.sku || p.product_sku || p.code || "-";
+                  
+                  return (
+                    <tr key={i}>
+                      <td className="part-name-cell">{formatField(p.name)}</td>
+                      <td className="part-sku-cell">{sku}</td>
+                      <td className="part-qty-cell">{p.qty ?? p.quantity ?? 1}</td>
+                      <td className="part-price-cell">€{Number(p.price ?? 0).toFixed(2)}</td>
+                      <td className="part-date-cell">
+                        {dateStr}
+                        <span className="part-time">{timeStr}</span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+        </div>
 </div>
         </div>
       </div>
