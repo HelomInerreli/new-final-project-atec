@@ -10,6 +10,7 @@ from app.email_service.email_service import EmailService
 from app.schemas.order_comment import CommentCreate, CommentOut
 from app.models.order_comment import OrderComment
 from app.models.appoitment import Appointment as AppointmentModel
+from fastapi import APIRouter, Body, Depends, HTTPException, status
 
 router = APIRouter()
 
@@ -275,6 +276,21 @@ def list_extra_service_requests(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Appointment not found")
     return getattr(appointment, "extra_service_associations", [])
 
+@router.post("/{appointment_id}/parts")
+def add_part_to_appointment(
+    appointment_id: int,
+    product_id: int = Body(...),
+    quantity: int = Body(...),
+    db: Session = Depends(get_db)
+):
+    """
+    Adiciona uma peça a uma ordem de serviço.
+    """
+    repo = AppointmentRepository(db)
+    appointment = repo.add_part(appointment_id=appointment_id, product_id=product_id, quantity=quantity)
+    if not appointment:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Appointment not found")
+    return appointment
 
 @router.post("/{appointment_id}/comments", response_model=CommentOut, status_code=201)
 def add_comment(
