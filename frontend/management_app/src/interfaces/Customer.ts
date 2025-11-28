@@ -8,3 +8,4 @@ export interface CustomerDetails {
 }
 
 
+export type Customer = CustomerDetails;
