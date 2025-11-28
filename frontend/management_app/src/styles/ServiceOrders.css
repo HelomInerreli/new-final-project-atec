@@ -1,6 +1,6 @@
 :root {
   --page-padding: 32px;
-  --bg: #f8f9fa;
+  --bg: rgb (248, 249, 250);
   --accent: #dc3545;
   --border-radius: 12px;
 }
