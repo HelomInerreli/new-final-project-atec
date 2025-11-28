@@ -295,7 +295,7 @@ const ServiceOrderDetail: FC = () => {
               <thead>
                 <tr>
                   <th>Nome</th>
-                  <th>SKU</th>
+                  <th>Código</th>
                   <th>Qtd</th>
                   <th>Preço</th>
                   <th>Data</th>
@@ -314,12 +314,12 @@ const ServiceOrderDetail: FC = () => {
                     minute: "2-digit" 
                   });
                   
-                  const sku = p.part_number || p.sku || p.product_sku || p.code || "-";
+                  const codigo = p.part_number|| "-";
                   
                   return (
                     <tr key={i}>
                       <td className="part-name-cell">{formatField(p.name)}</td>
-                      <td className="part-sku-cell">{sku}</td>
+                      <td className="part-sku-cell">{codigo}</td>
                       <td className="part-qty-cell">{p.qty ?? p.quantity ?? 1}</td>
                       <td className="part-price-cell">€{Number(p.price ?? 0).toFixed(2)}</td>
                       <td className="part-date-cell">
