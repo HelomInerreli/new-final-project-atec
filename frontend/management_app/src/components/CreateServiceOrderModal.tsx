@@ -1,165 +1,32 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import type { FC } from "react";
-import { getCustomers, getCustomerVehicles, getServices, createAppointment } from "../services/ServiceOrders";
 import type { CreateServiceOrderModalProps } from "../interfaces/ServiceOrderModal";
-import type { Service } from "../interfaces/Service";
-import type { Vehicle } from "../interfaces/Vehicle";
-import type { Customer } from "../interfaces/Customer";
-import type { CreateAppointmentPayload } from "../interfaces/Payload";
+import { useServiceOrderModal } from "../hooks/useServiceOrderModal";
 
 const CreateServiceOrderModal: FC<CreateServiceOrderModalProps> = ({ show, onClose, onSuccess }) => {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [loadingData, setLoadingData] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [customers, setCustomers] = useState<Customer[]>([]);
-  const [services, setServices] = useState<Service[]>([]);
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
-  const [error, setError] = useState<string | null>(null);
-
-  const [form, setForm] = useState({
-    customer_id: 0,
-    vehicle_id: 0,
-    service_id: 0,
-    appointment_date: "",
-    appointment_time: "",
-    description: "",
-    estimated_budget: 0,
-  });
-
-  const availableTimes = [
-    "09:00", "09:15", "09:30", "09:45",
-    "10:00", "10:15", "10:30", "10:45",
-    "11:00", "11:15", "11:30", "11:45",
-    "12:00", "12:15", "12:30", "12:45",
-    "13:00", "13:15", "13:30", "13:45",
-    "14:00", "14:15", "14:30", "14:45",
-    "15:00", "15:15", "15:30", "15:45",
-    "16:00", "16:15", "16:30", "16:45",
-    "17:00"
-  ];
-
-  useEffect(() => {
-    if (!show) {
-      setCurrentStep(1);
-      setForm({
-        customer_id: 0,
-        vehicle_id: 0,
-        service_id: 0,
-        appointment_date: "",
-        appointment_time: "",
-        description: "",
-        estimated_budget: 0,
-      });
-      setError(null);
-      return;
-    }
-
-    setError(null);
-    setLoadingData(true);
-    Promise.all([getCustomers(), getServices()])
-      .then(([custs, svcs]) => {
-        setCustomers(Array.isArray(custs) ? custs : []);
-        setServices(Array.isArray(svcs) ? svcs : []);
-      })
-      .catch((err) => setError(String(err?.message ?? err)))
-      .finally(() => setLoadingData(false));
-  }, [show]);
-
-  useEffect(() => {
-    if (!form.customer_id) {
-      setVehicles([]);
-      setForm((f) => ({ ...f, vehicle_id: 0 }));
-      return;
-    }
-    setLoadingData(true);
-    getCustomerVehicles(form.customer_id)
-      .then((v) => setVehicles(Array.isArray(v) ? v : []))
-      .catch((err) => setError(String(err?.message ?? err)))
-      .finally(() => setLoadingData(false));
-  }, [form.customer_id]);
-
-  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-
-    if (value) {
-      const selectedDate = new Date(value + 'T00:00:00');
-      const dayOfWeek = selectedDate.getDay();
-      
-      if (dayOfWeek === 0 || dayOfWeek === 6) {
-        setError("Por favor, selecione um dia de semana (segunda a sexta-feira).");
-        return;
-      }
-    }
-
-    setForm((f) => ({ ...f, appointment_date: value }));
-    setError(null);
-  };
-
-  const goToNextStep = () => {
-    setError(null);
-
-    if (currentStep === 1) {
-      if (!form.customer_id) return setError("Selecione um cliente.");
-      if (!form.service_id) return setError("Selecione um serviço.");
-      if (!form.appointment_date) return setError("Escolha a data.");
-      if (!form.appointment_time) return setError("Escolha o horário.");
-    }
-
-    if (currentStep === 2) {
-      if (!form.vehicle_id) return setError("Selecione um veículo.");
-      if (!form.description || form.description.trim().length < 4) {
-        return setError("Descreva o serviço (mín. 4 caracteres).");
-      }
-    }
-
-    setCurrentStep((prev) => Math.min(prev + 1, 3));
-  };
-
-  const goToPreviousStep = () => {
-    setError(null);
-    setCurrentStep((prev) => Math.max(prev - 1, 1));
-  };
-
-  const handleSubmit = async (e?: React.FormEvent) => {
-    e?.preventDefault();
-    setError(null);
-
-    if (!form.customer_id || !form.service_id || !form.appointment_date || !form.appointment_time || !form.vehicle_id) {
-      return setError("Preencha todos os campos obrigatórios.");
-    }
-
-    setSubmitting(true);
-    try {
-      const payload: CreateAppointmentPayload = {
-        customer_id: form.customer_id,
-        vehicle_id: form.vehicle_id,
-        service_id: form.service_id,
-        appointment_date: `${form.appointment_date}T${form.appointment_time}`,
-        description: form.description,
-        estimated_budget: form.estimated_budget || 0,
-      };
-
-      await createAppointment(payload);
-      onSuccess();
-      onClose();
-    } catch (err: any) {
-      setError(String(err?.message ?? "Erro ao criar ordem"));
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleClose = () => {
-    setCurrentStep(1);
-    setError(null);
-    onClose();
-  };
+  const {
+    currentStep,
+    loadingData,
+    submitting,
+    customers,
+    services,
+    vehicles,
+    error,
+    form,
+    availableTimes,
+    selectedCustomer,
+    selectedVehicle,
+    selectedService,
+    setForm,
+    handleDateChange,
+    handleServiceChange,
+    goToNextStep,
+    goToPreviousStep,
+    handleSubmit,
+    handleClose,
+  } = useServiceOrderModal(show, onSuccess, onClose);
 
   if (!show) return null;
-
-  const selectedCustomer = customers.find((c) => c.id === form.customer_id);
-  const selectedVehicle = vehicles.find((v) => v.id === form.vehicle_id);
-  const selectedService = services.find((s) => s.id === form.service_id);
 
   return (
     <div className="modal show d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)" }} onClick={handleClose}>
@@ -208,7 +75,7 @@ const CreateServiceOrderModal: FC<CreateServiceOrderModalProps> = ({ show, onClo
                   </div>
                 )}
 
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
                   {/* STEP 1: Cliente, Serviço, Data e Hora */}
                   {currentStep === 1 && (
                     <>
@@ -240,11 +107,7 @@ const CreateServiceOrderModal: FC<CreateServiceOrderModalProps> = ({ show, onClo
                         <select
                           className="form-select"
                           value={form.service_id}
-                          onChange={(e) => {
-                            const sid = Number(e.target.value);
-                            const svc = services.find((s) => s.id === sid);
-                            setForm((f) => ({ ...f, service_id: sid, estimated_budget: svc?.price ?? 0 }));
-                          }}
+                          onChange={(e) => handleServiceChange(Number(e.target.value))}
                           required
                         >
                           <option value={0}>Selecione um serviço</option>
@@ -266,7 +129,7 @@ const CreateServiceOrderModal: FC<CreateServiceOrderModalProps> = ({ show, onClo
                             type="date"
                             className="form-control"
                             value={form.appointment_date}
-                            onChange={handleDateChange}
+                            onChange={(e) => handleDateChange(e.target.value)}
                             min={new Date().toISOString().split('T')[0]}
                             required
                           />
