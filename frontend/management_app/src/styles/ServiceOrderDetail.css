@@ -463,9 +463,9 @@
 }
 
 .parts-table th:nth-child(1) { width: 25%; text-align: center; }
-.parts-table th:nth-child(2) { width: 20%; text-align: center; }
+.parts-table th:nth-child(2) { width: 15%; text-align: center; }
 .parts-table th:nth-child(3) { width: 10%; text-align: center; }
-.parts-table th:nth-child(4) { width: 10%; text-align: center; }
+.parts-table th:nth-child(4) { width: 5%; text-align: center; }
 .parts-table th:nth-child(5) { width: 15%; text-align: center; }
 
 .parts-table tbody tr {
