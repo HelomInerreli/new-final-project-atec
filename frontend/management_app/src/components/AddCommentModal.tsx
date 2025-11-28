@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
+import { useAddCommentModal } from "../hooks/useAddCommentModal";
 import "../styles/AddCommentModal.css";
 
 interface AddCommentModalProps {
@@ -14,38 +15,12 @@ const AddCommentModal: React.FC<AddCommentModalProps> = ({
   orderId,
   onSuccess,
 }) => {
-  const [comment, setComment] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async () => {
-    if (!comment.trim()) {
-      alert("Digite um comentário");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const response = await fetch(
-        `http://localhost:8000/api/v1/appointments/${orderId}/comments`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ comment: comment.trim() }),
-        }
-      );
-
-      if (!response.ok) throw new Error("Erro ao adicionar comentário");
-
-      alert("Comentário adicionado com sucesso!");
-      setComment("");
-      onSuccess();
-      onClose();
-    } catch (error: any) {
-      alert(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { comment, setComment, loading, handleSubmit } = useAddCommentModal(
+    isOpen,
+    orderId,
+    onSuccess,
+    onClose
+  );
 
   if (!isOpen) return null;
 
