@@ -22,7 +22,7 @@ export const useAddPartsModal = (isOpen: boolean, orderId: string, onSuccess: ()
     } else {
       const filtered = products.filter(p =>
         p.name.toLowerCase().includes(search.toLowerCase()) ||
-        (p.sku && p.sku.toLowerCase().includes(search.toLowerCase()))
+        (p.partNumber && p.partNumber.toLowerCase().includes(search.toLowerCase()))
       );
       setFilteredProducts(filtered);
     }

@@ -60,14 +60,12 @@ const AddPartsModal: React.FC<AddPartsModalProps> = ({ isOpen, onClose, orderId,
                     >
                       <div className="product-info">
                         <div className="product-name">{product.name}</div>
-                        {product.sku && <div className="product-sku">Código: {product.sku}</div>}
-                      </div>
-                      <div className="product-details">
+                          {product.partNumber && <div className="product-sku">Código: {product.partNumber}</div>}                      </div>
+                        <div className="product-details">
                         <div className="product-stock">
                           Stock: <strong>{product.quantity}</strong>
                         </div>
-                        <div className="product-price">€ {product.price.toFixed(2)}</div>
-                      </div>
+                      <div className="product-price">€ {product.saleValue.toFixed(2)}</div>                      </div>
                     </div>
                   ))
                 )}
