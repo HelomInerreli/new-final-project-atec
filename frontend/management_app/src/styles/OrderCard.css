@@ -66,8 +66,9 @@
 
 /* Meta - informações do card em linha */
 .meta {
-  display: flex;
-  gap: 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, auto));
+  gap: 12px 24px;
   color: #666;
   font-size: 0.95rem;
   flex-wrap: wrap;
@@ -75,6 +76,7 @@
 
 .meta > div {
   color: #666;
+
 }
 
 .meta strong {
