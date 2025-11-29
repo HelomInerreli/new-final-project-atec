@@ -4,18 +4,9 @@ import type { Customer } from "../interfaces/Customer";
 import type { Service } from "../interfaces/Service";
 import type { Vehicle } from "../interfaces/Vehicle";
 import type { CreateAppointmentPayload } from "../interfaces/Payload";
+import type { ServiceOrderForm } from "../interfaces/ServiceOrderModal";
 
-interface ServiceOrderForm {
-  customer_id: number;
-  vehicle_id: number;
-  service_id: number;
-  appointment_date: string;
-  appointment_time: string;
-  description: string;
-  estimated_budget: number;
-}
-
-const initialForm: ServiceOrderForm = {
+const INITIAL_FORM: ServiceOrderForm = {
   customer_id: 0,
   vehicle_id: 0,
   service_id: 0,
@@ -25,7 +16,7 @@ const initialForm: ServiceOrderForm = {
   estimated_budget: 0,
 };
 
-const availableTimes = [
+const AVAILABLE_TIMES = [
   "09:00", "09:15", "09:30", "09:45",
   "10:00", "10:15", "10:30", "10:45",
   "11:00", "11:15", "11:30", "11:45",
@@ -37,6 +28,12 @@ const availableTimes = [
   "17:00"
 ];
 
+const isWeekend = (dateString: string): boolean => {
+  const date = new Date(dateString + 'T00:00:00');
+  const day = date.getDay();
+  return day === 0 || day === 6;
+};
+
 export const useServiceOrderModal = (show: boolean, onSuccess: () => void, onClose: () => void) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [loadingData, setLoadingData] = useState(false);
@@ -45,13 +42,13 @@ export const useServiceOrderModal = (show: boolean, onSuccess: () => void, onClo
   const [services, setServices] = useState<Service[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [form, setForm] = useState<ServiceOrderForm>(initialForm);
+  const [form, setForm] = useState<ServiceOrderForm>(INITIAL_FORM);
 
-  //  Carregar dados iniciais
+  // Carregar dados iniciais
   useEffect(() => {
     if (!show) {
       setCurrentStep(1);
-      setForm(initialForm);
+      setForm(INITIAL_FORM);
       setError(null);
       return;
     }
@@ -67,7 +64,7 @@ export const useServiceOrderModal = (show: boolean, onSuccess: () => void, onClo
       .finally(() => setLoadingData(false));
   }, [show]);
 
-  //  Carregar veículos quando seleciona cliente
+  // Carregar veículos quando seleciona cliente
   useEffect(() => {
     if (!form.customer_id) {
       setVehicles([]);
@@ -81,28 +78,27 @@ export const useServiceOrderModal = (show: boolean, onSuccess: () => void, onClo
       .finally(() => setLoadingData(false));
   }, [form.customer_id]);
 
-  //  Validar data (fins de semana)
+  // Validar data (fins de semana)
   const handleDateChange = (value: string) => {
-    if (value) {
-      const selectedDate = new Date(value + 'T00:00:00');
-      const dayOfWeek = selectedDate.getDay();
-      
-      if (dayOfWeek === 0 || dayOfWeek === 6) {
-        setError("Por favor, selecione um dia de semana (segunda a sexta-feira).");
-        return;
-      }
+    if (value && isWeekend(value)) {
+      setError("Por favor, selecione um dia de semana (segunda a sexta-feira).");
+      return;
     }
     setForm((f) => ({ ...f, appointment_date: value }));
     setError(null);
   };
 
-  //  Atualizar serviço e orçamento
+  // Atualizar serviço e orçamento
   const handleServiceChange = (serviceId: number) => {
-    const svc = services.find((s) => s.id === serviceId);
-    setForm((f) => ({ ...f, service_id: serviceId, estimated_budget: svc?.price ?? 0 }));
+    const service = services.find((s) => s.id === serviceId);
+    setForm((f) => ({ 
+      ...f, 
+      service_id: serviceId, 
+      estimated_budget: service?.price ?? 0 
+    }));
   };
 
-  //  Navegar entre steps
+  // Navegar entre steps
   const goToNextStep = () => {
     setError(null);
 
@@ -128,7 +124,7 @@ export const useServiceOrderModal = (show: boolean, onSuccess: () => void, onClo
     setCurrentStep((prev) => Math.max(prev - 1, 1));
   };
 
-  //  Submeter formulário
+  // Submeter formulário
   const handleSubmit = async () => {
     setError(null);
 
@@ -157,14 +153,14 @@ export const useServiceOrderModal = (show: boolean, onSuccess: () => void, onClo
     }
   };
 
-  //  Fechar modal
+  // Fechar modal
   const handleClose = () => {
     setCurrentStep(1);
     setError(null);
     onClose();
   };
 
- 
+  // Dados derivados
   const selectedCustomer = customers.find((c) => c.id === form.customer_id);
   const selectedVehicle = vehicles.find((v) => v.id === form.vehicle_id);
   const selectedService = services.find((s) => s.id === form.service_id);
@@ -179,7 +175,7 @@ export const useServiceOrderModal = (show: boolean, onSuccess: () => void, onClo
     vehicles,
     error,
     form,
-    availableTimes,
+    availableTimes: AVAILABLE_TIMES,
     
     // Dados derivados
     selectedCustomer,
