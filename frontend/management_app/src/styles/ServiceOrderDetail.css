@@ -66,7 +66,12 @@
 
 .so-back-btn:hover { text-decoration: underline; }
 
-.so-card-title { margin: 0; font-size: 1.4rem; color: var(--so-text); }
+.so-card-title { 
+  margin: 0; 
+  font-size: 1.4rem;
+  color: var(--so-text);   
+  font-weight: 700;
+  }
 
 .so-action-bar {
   display: none;
