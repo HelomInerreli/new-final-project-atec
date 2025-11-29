@@ -1,8 +1,7 @@
-import React, { useEffect, useState, type FC } from "react";
+import React, { type FC } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getOrder, updateOrder } from "../services/OrderDetails";
+import { useServiceOrderDetails } from "../hooks/useServiceOrderDetails";
 import Input from "./Input";
-import { normalizeStatus } from "../hooks/useServiceOrder";
 import AddPartsModal from "./AddPartsModal";
 import AddCommentModal from "./AddCommentModal";
 import "../styles/ServiceOrderDetail.css";
@@ -11,146 +10,26 @@ const ServiceOrderDetail: FC = () => {
   const { id } = useParams<{ id?: string }>();
   const navigate = useNavigate();
 
-  const [order, setOrder] = useState<any | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [saving, setSaving] = useState<boolean>(false);
-  const [isPartsModalOpen, setIsPartsModalOpen] = useState(false);
-  const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
-
-  const fetchOrder = async (silent = false) => {
-    if (!id) return;
-    if (!silent) setLoading(true);
-    try {
-      const data = await getOrder(id);
-      setOrder(data);
-    } catch (e: any) {
-      alert("Erro ao carregar ordem: " + (e?.message ?? e));
-      setOrder(null);
-    } finally {
-      if (!silent) setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchOrder();
-  }, [id]);
-
-  useEffect(() => {
-    if (!id || !order) return;
-    const iv = setInterval(() => {
-      fetchOrder(true);
-    }, 10000);
-    return () => clearInterval(iv);
-  }, [id, order]);
-
-  const formatField = (v: any): string => {
-    if (v === null || v === undefined) return "-";
-    if (typeof v === "string" || typeof v === "number" || typeof v === "boolean") return String(v);
-    if (Array.isArray(v)) return v.map(formatField).join(", ");
-    if (typeof v === "object") return String(v.name ?? JSON.stringify(v));
-    return String(v);
-  };
-
-  const formatDate = (d: any): string => {
-    if (!d) return "-";
-    try {
-      const dt = new Date(d);
-      return isNaN(dt.getTime()) ? String(d) : dt.toLocaleString("pt-PT", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit"
-      });
-    } catch {
-      return String(d);
-    }
-  };
-
-  const formatVehicle = (v: any): string => {
-    if (!v) return "-";
-    if (typeof v === "string") return v;
-    const plate = v.plate ?? "";
-    const brand = v.brand ?? "";
-    const model = v.model ?? "";
-    const km = v.kilometers ?? null;
-    const parts = [brand, model, plate].filter(Boolean);
-    if (km) parts.push(`${km} km`);
-    return parts.join(" ") || "-";
-  };
-
-  const getRawStatusName = (o: any): string => {
-    if (!o) return "";
-    const s = o.status ?? o;
-    if (!s) return "";
-    if (typeof s === "string") return s;
-    if (typeof s === "object") return String(s.name ?? "");
-    return "";
-  };
-
-  const changeStatus = async (action: "start" | "pause" | "finish") => {
-    if (!id || !order) return;
-
-    const STATUS_LABEL_TO_ID: Record<string, number> = {
-      "Pendente": 1,
-      "Cancelada": 2,
-      "Concluída": 3,
-      "Em Andamento": 4,
-      "Aguardando Aprovação": 5,
-      "Aguardando Pagamento": 6,
-    };
-
-    const newStatusLabel = action === "start" ? "Em Andamento" : action === "pause" ? "Pendente" : "Concluída";
-    const currentRaw = getRawStatusName(order);
-    const currentNormalized = normalizeStatus(currentRaw);
-
-    if (currentNormalized === newStatusLabel) return;
-    if (currentNormalized === "Concluída" && action !== "finish") {
-      alert("Ordem já concluída.");
-      return;
-    }
-
-    const ok = confirm(`Confirmar alteração de status para "${newStatusLabel}"?`);
-    if (!ok) return;
-
-    const newStatusId = STATUS_LABEL_TO_ID[newStatusLabel];
-    if (!newStatusId) {
-      alert("Status inválido");
-      return;
-    }
-
-    setSaving(true);
-    const previous = order;
-    setOrder({ ...order, status_id: newStatusId });
-
-    try {
-      await updateOrder(id, { status_id: newStatusId });
-      await fetchOrder();
-    } catch (e: any) {
-      setOrder(previous);
-      alert("Erro ao atualizar status.");
-    } finally {
-      setSaving(false);
-    }
-  };
+  const {
+    order,
+    loading,
+    saving,
+    isPartsModalOpen,
+    isCommentModalOpen,
+    comments,
+    parts,
+    currentNormalized,
+    setIsPartsModalOpen,
+    setIsCommentModalOpen,
+    changeStatus,
+    fetchOrder,
+    formatField,
+    formatDate,
+    formatVehicle,
+  } = useServiceOrderDetails(id);
 
   if (loading) return <div className="so-loading">Carregando...</div>;
   if (!order) return <div className="so-loading">Ordem não encontrada</div>;
-
-  const currentRaw = getRawStatusName(order);
-  const currentNormalized = normalizeStatus(currentRaw);
-
-  const comments = (order.comments ?? []).slice().sort((a: any, b: any) => {
-    const ta = new Date(a.created_at).getTime();
-    const tb = new Date(b.created_at).getTime();
-    return tb - ta;
-  });
-
-  const parts = (order.parts ?? []).slice().sort((a: any, b: any) => {
-    const ta = new Date(a.created_at ?? 0).getTime();
-    const tb = new Date(b.created_at ?? 0).getTime();
-    return tb - ta;
-  });
 
   return (
     <div className="so-page-wrapper">
