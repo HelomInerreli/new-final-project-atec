@@ -40,7 +40,7 @@ const ServiceOrders: FC = () => {
         <div className="so-actions">
           <input
             type="text"
-            placeholder="Buscar por cliente, veículo ou número..."
+            placeholder="Pesquisar por cliente, veículo ou número..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
