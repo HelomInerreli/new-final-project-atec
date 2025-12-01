@@ -1,5 +1,6 @@
 import React from "react";
 import { useAddCommentModal } from "../hooks/useAddCommentModal";
+import { Button } from "./ui/button";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -57,18 +58,23 @@ const AddCommentModal: React.FC<AddCommentModalProps> = ({
         </div>
 
         <div className="comment-modal-footer">
-          <button className="btn btn-secondary" onClick={onClose}>
+          <Button 
+            variant="outline" 
+            onClick={onClose}
+            type="button"
+          >
             Cancelar
-          </button>
+          </Button>
           
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <button
-                className="btn btn-primary"
+              <Button
+                variant="destructive"
                 disabled={loading || !comment.trim()}
+                type="button"
               >
                 {loading ? "Adicionando..." : "Adicionar Comentário"}
-              </button>
+              </Button>
             </AlertDialogTrigger>
             
             <AlertDialogContent>

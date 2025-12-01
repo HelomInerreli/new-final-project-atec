@@ -1,5 +1,6 @@
 import React from "react";
 import { useAddPartsModal } from "../hooks/useAddPartsModal";
+import { Button } from "./ui/button";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -101,18 +102,23 @@ const AddPartsModal: React.FC<AddPartsModalProps> = ({ isOpen, onClose, orderId,
         </div>
 
         <div className="comment-modal-footer">
-          <button className="btn btn-secondary" onClick={onClose}>
+          <Button 
+            variant="outline" 
+            onClick={onClose}
+            type="button"
+          >
             Cancelar
-          </button>
+          </Button>
           
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <button
-                className="btn btn-primary"
+              <Button
+                variant="destructive"
                 disabled={!selectedProduct || adding}
+                type="button"
               >
                 {adding ? "Adicionando..." : "Adicionar Peça"}
-              </button>
+              </Button>
             </AlertDialogTrigger>
             
             <AlertDialogContent>
