@@ -4,6 +4,17 @@ import { useServiceOrderDetails } from "../hooks/useServiceOrderDetails";
 import Input from "./Input";
 import AddPartsModal from "./AddPartsModal";
 import AddCommentModal from "./AddCommentModal";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "./ui/alert-dialog";
 import "../styles/ServiceOrderDetail.css";
 
 const ServiceOrderDetail: FC = () => {
@@ -36,7 +47,7 @@ const ServiceOrderDetail: FC = () => {
       <div className="so-card">
         <div className="so-card-header">
           <button className="so-back-btn" onClick={() => navigate(-1)}>← Voltar</button>
-          <h2 className="so-card-title">Ordem de Serviço :{order.id}</h2>
+          <h2 className="so-card-title">Ordem de Serviço #{order.id}</h2>
         </div>
 
         <h5 className="so-section-title">Informações do Cliente e Serviço</h5>
@@ -81,27 +92,86 @@ const ServiceOrderDetail: FC = () => {
           </div>
 
           <div className="so-action-column">
-            <button
-              className="btn btn-primary so-action-btn"
-              onClick={() => changeStatus("start")}
-              disabled={saving || ["Em Andamento", "Concluída"].includes(currentNormalized)}
-            >
-              Iniciar
-            </button>
-            <button
-              className="btn btn-warning so-action-btn"
-              onClick={() => changeStatus("pause")}
-              disabled={saving || ["Pendente", "Concluída"].includes(currentNormalized)}
-            >
-              Pausar
-            </button>
-            <button
-              className="btn btn-success so-action-btn"
-              onClick={() => changeStatus("finish")}
-              disabled={saving || currentNormalized === "Concluída"}
-            >
-              Finalizar
-            </button>
+            {/* BOTÃO INICIAR */}
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <button
+                  className="btn btn-primary so-action-btn"
+                  disabled={saving || ["Em Andamento", "Concluída"].includes(currentNormalized)}
+                >
+                  Iniciar
+                </button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Iniciar Ordem de Serviço?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    A ordem #{order.id} será marcada como "Em Andamento". 
+                    O cronômetro de trabalho será iniciado.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => changeStatus("start")}>
+                    Sim, Iniciar
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
+            {/* BOTÃO PAUSAR */}
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <button
+                  className="btn btn-warning so-action-btn"
+                  disabled={saving || ["Pendente", "Concluída"].includes(currentNormalized)}
+                >
+                  Pausar
+                </button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Pausar Ordem de Serviço?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    O trabalho em andamento será interrompido temporariamente. 
+                    Pode retomar a qualquer momento clicando em "Iniciar".
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => changeStatus("pause")}>
+                    Sim, Pausar
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
+            {/* BOTÃO FINALIZAR */}
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <button
+                  className="btn btn-success so-action-btn"
+                  disabled={saving || currentNormalized === "Concluída"}
+                >
+                  Finalizar
+                </button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Finalizar Ordem de Serviço?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Esta ação irá marcar a ordem #{order.id} como <strong>concluída</strong>. 
+                    Certifique-se de que todos os trabalhos foram finalizados e documentados.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => changeStatus("finish")}>
+                    Sim, Finalizar
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
 
