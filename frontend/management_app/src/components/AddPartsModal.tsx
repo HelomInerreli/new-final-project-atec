@@ -37,23 +37,21 @@ const AddPartsModal: React.FC<AddPartsModalProps> = ({ isOpen, onClose, orderId,
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
+    <div className="comment-modal-overlay" onClick={onClose}>
+      <div className="comment-modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="comment-modal-header">
           <h3>Adicionar Peça</h3>
-          <button className="modal-close-btn" onClick={onClose}>×</button>
+          <button className="comment-modal-close-btn" onClick={onClose}>×</button>
         </div>
 
-        <div className="modal-body">
-          <div className="search-section">
-            <input
-              type="text"
-              className="modal-search-input"
-              placeholder="Pesquisar por nome ou código..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
+        <div className="comment-modal-body">
+          <input
+            type="text"
+            className="modal-search-input"
+            placeholder="Pesquisar por nome ou código..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
 
           {loading ? (
             <div className="modal-loading">Carregando produtos...</div>
@@ -102,7 +100,7 @@ const AddPartsModal: React.FC<AddPartsModalProps> = ({ isOpen, onClose, orderId,
           )}
         </div>
 
-        <div className="modal-footer">
+        <div className="comment-modal-footer">
           <button className="btn btn-secondary" onClick={onClose}>
             Cancelar
           </button>
