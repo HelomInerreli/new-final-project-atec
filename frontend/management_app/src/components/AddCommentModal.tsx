@@ -1,5 +1,16 @@
 import React from "react";
 import { useAddCommentModal } from "../hooks/useAddCommentModal";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "./ui/alert-dialog";
 import "../styles/AddCommentModal.css";
 
 interface AddCommentModalProps {
@@ -49,13 +60,46 @@ const AddCommentModal: React.FC<AddCommentModalProps> = ({
           <button className="btn btn-secondary" onClick={onClose}>
             Cancelar
           </button>
-          <button
-            className="btn btn-primary"
-            onClick={handleSubmit}
-            disabled={loading || !comment.trim()}
-          >
-            {loading ? "Adicionando..." : "Adicionar Comentário"}
-          </button>
+          
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <button
+                className="btn btn-primary"
+                disabled={loading || !comment.trim()}
+              >
+                {loading ? "Adicionando..." : "Adicionar Comentário"}
+              </button>
+            </AlertDialogTrigger>
+            
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Confirmar Adição de Comentário</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Tem certeza que deseja adicionar este comentário à ordem #{orderId}?
+                  <div style={{ 
+                    marginTop: "12px", 
+                    padding: "12px", 
+                    backgroundColor: "#f8f9fa", 
+                    borderRadius: "6px",
+                    fontSize: "0.9rem",
+                    color: "#495057",
+                    maxHeight: "100px",
+                    overflowY: "auto"
+                  }}>
+                    <strong>Comentário:</strong><br />
+                    {comment}
+                  </div>
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={handleSubmit}>
+                  Sim, Adicionar
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
     </div>
