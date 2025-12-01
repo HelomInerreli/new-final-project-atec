@@ -46,10 +46,10 @@
   
 }
 
-/* WRAPPER da pesquisa com ícone */
+
 .search-wrapper {
-  flex: 1 1 auto;
-  min-width: 0;
+  flex: 0 0 auto;
+  width: calc(100% - 212px);
   position: relative;
   display: flex;
   align-items: center;
