@@ -369,6 +369,19 @@
   background: #ffffff;
   min-height: 0;
 }
+.parts-table-wrapper::-webkit-scrollbar { 
+  width: 6px; 
+  height: 6px; 
+}
+
+.parts-table-wrapper::-webkit-scrollbar-thumb { 
+  background: #e0e0e0; 
+  border-radius: 6px; 
+}
+
+.parts-table-wrapper::-webkit-scrollbar-thumb:hover { 
+  background: #d0d0d0; 
+}
 
 .parts-table {
   width: 100%;
