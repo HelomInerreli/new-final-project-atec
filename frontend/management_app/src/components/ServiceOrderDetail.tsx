@@ -1,6 +1,7 @@
 import React, { type FC } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useServiceOrderDetails } from "../hooks/useServiceOrderDetails";
+import { Button } from "./ui/button";
 import Input from "./Input";
 import AddPartsModal from "./AddPartsModal";
 import AddCommentModal from "./AddCommentModal";
@@ -95,12 +96,13 @@ const ServiceOrderDetail: FC = () => {
             {/* BOTÃO INICIAR */}
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <button
-                  className="btn btn-primary so-action-btn"
+                <Button
+                  variant="destructive"
+                  className="so-action-btn"
                   disabled={saving || ["Em Andamento", "Concluída"].includes(currentNormalized)}
                 >
                   Iniciar
-                </button>
+                </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
@@ -122,12 +124,13 @@ const ServiceOrderDetail: FC = () => {
             {/* BOTÃO PAUSAR */}
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <button
-                  className="btn btn-warning so-action-btn"
+                <Button
+                  variant="outline"
+                  className="so-action-btn btn-warning"
                   disabled={saving || ["Pendente", "Concluída"].includes(currentNormalized)}
                 >
                   Pausar
-                </button>
+                </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
@@ -147,31 +150,32 @@ const ServiceOrderDetail: FC = () => {
             </AlertDialog>
 
             {/* BOTÃO FINALIZAR */}
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <button
-                  className="btn btn-success so-action-btn"
-                  disabled={saving || currentNormalized === "Concluída"}
-                >
-                  Finalizar
-                </button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Finalizar Ordem de Serviço?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Esta ação irá marcar a ordem #{order.id} como <strong>concluída</strong>. 
-                    Certifique-se de que todos os trabalhos foram finalizados e documentados.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => changeStatus("finish")}>
-                    Sim, Finalizar
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="outline"
+                className="so-action-btn btn-success"
+                disabled={saving || currentNormalized === "Concluída"}
+              >
+                Finalizar
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Finalizar Ordem de Serviço?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Esta ação irá marcar a ordem #{order.id} como <strong>concluída</strong>. 
+                  Certifique-se de que todos os trabalhos foram finalizados e documentados.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={() => changeStatus("finish")}>
+                  Sim, Finalizar
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
           </div>
         </div>
 
