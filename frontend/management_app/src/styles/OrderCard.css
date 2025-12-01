@@ -89,22 +89,6 @@
   flex-shrink: 0;
 }
 
-.btn-action {
-  background-color: #dc3545;
-  color: white;
-  border: 2px solid #dc3545;
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
 .btn-action:hover {
   background-color: #c82333;
   border-color: #c82333;
