@@ -36,37 +36,28 @@ export const useAddPartsModal = (isOpen: boolean, orderId: string, onSuccess: ()
       setProducts(inStock);
       setFilteredProducts(inStock);
     } catch (error: any) {
-      alert("Erro ao carregar produtos: " + error.message);
+      console.error("Erro ao carregar produtos:", error);
+      setProducts([]);
+      setFilteredProducts([]);
     } finally {
       setLoading(false);
     }
   };
 
   const handleAddPart = async () => {
-    if (!selectedProduct) {
-      alert("Selecione um produto");
-      return;
-    }
-
-    if (quantity < 1) {
-      alert("Quantidade inválida");
-      return;
-    }
-
-    if (quantity > selectedProduct.quantity) {
-      alert(`Stock insuficiente! Disponível: ${selectedProduct.quantity}`);
+    // Validações (botão já está disabled no componente, mas mantemos por segurança)
+    if (!selectedProduct || quantity < 1 || quantity > selectedProduct.quantity) {
       return;
     }
 
     setAdding(true);
     try {
       await addPartToOrder(orderId, selectedProduct.id, quantity);
-      alert("Peça adicionada com sucesso!");
       resetForm();
       onSuccess();
       onClose();
     } catch (error: any) {
-      alert(error.message);
+      console.error("Erro ao adicionar peça:", error);
     } finally {
       setAdding(false);
     }

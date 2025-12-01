@@ -98,10 +98,7 @@ export const useServiceOrderDetails = (id: string | undefined) => {
       alert("Ordem já concluída.");
       return;
     }
-
-    const ok = confirm(`Confirmar alteração de status para "${newStatusLabel}"?`);
-    if (!ok) return;
-
+    
     const newStatusId = STATUS_LABEL_TO_ID[newStatusLabel];
     if (!newStatusId) {
       alert("Status inválido");

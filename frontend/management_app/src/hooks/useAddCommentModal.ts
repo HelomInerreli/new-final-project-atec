@@ -7,8 +7,8 @@ export const useAddCommentModal = (isOpen: boolean, orderId: string, onSuccess: 
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
+    // Validação (botão já está disabled no componente, mas mantemos por segurança)
     if (!comment.trim()) {
-      alert("Digite um comentário");
       return;
     }
 
@@ -25,12 +25,11 @@ export const useAddCommentModal = (isOpen: boolean, orderId: string, onSuccess: 
 
       if (!response.ok) throw new Error("Erro ao adicionar comentário");
 
-      alert("Comentário adicionado com sucesso!");
       setComment("");
       onSuccess();
       onClose();
     } catch (error: any) {
-      alert(error.message);
+      console.error("Erro ao adicionar comentário:", error);
     } finally {
       setLoading(false);
     }
