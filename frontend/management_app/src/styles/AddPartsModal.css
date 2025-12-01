@@ -329,14 +329,14 @@
 
 .btn-secondary {
   background-color: #ffffff;
-  color: #6b7280;
-  border: 2px solid #d1d5db;
+  color: #495057;
+  border: 2px solid #dee2e6;
 }
 
 .btn-secondary:hover {
-  background-color: #f3f4f6;
-  border-color: #9ca3af;
-  color: #374151;
+  background-color: #f8f9fa;
+  border-color: #adb5bd;
+  color: #212529;
 }
 
 @keyframes fadeIn {
