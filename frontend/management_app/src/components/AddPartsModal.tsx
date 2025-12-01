@@ -1,5 +1,16 @@
 import React from "react";
 import { useAddPartsModal } from "../hooks/useAddPartsModal";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "./ui/alert-dialog";
 import "../styles/AddPartsModal.css";
 
 interface AddPartsModalProps {
@@ -60,12 +71,14 @@ const AddPartsModal: React.FC<AddPartsModalProps> = ({ isOpen, onClose, orderId,
                     >
                       <div className="product-info">
                         <div className="product-name">{product.name}</div>
-                          {product.partNumber && <div className="product-sku">Código: {product.partNumber}</div>}                      </div>
-                        <div className="product-details">
+                        {product.partNumber && <div className="product-sku">Código: {product.partNumber}</div>}
+                      </div>
+                      <div className="product-details">
                         <div className="product-stock">
                           Stock: <strong>{product.quantity}</strong>
                         </div>
-                      <div className="product-price">€ {product.saleValue.toFixed(2)}</div>                      </div>
+                        <div className="product-price">€ {product.saleValue.toFixed(2)}</div>
+                      </div>
                     </div>
                   ))
                 )}
@@ -93,13 +106,69 @@ const AddPartsModal: React.FC<AddPartsModalProps> = ({ isOpen, onClose, orderId,
           <button className="btn btn-secondary" onClick={onClose}>
             Cancelar
           </button>
-          <button
-            className="btn btn-primary"
-            onClick={handleAddPart}
-            disabled={!selectedProduct || adding}
-          >
-            {adding ? "Adicionando..." : "Adicionar Peça"}
-          </button>
+          
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <button
+                className="btn btn-primary"
+                disabled={!selectedProduct || adding}
+              >
+                {adding ? "Adicionando..." : "Adicionar Peça"}
+              </button>
+            </AlertDialogTrigger>
+            
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Confirmar Adição de Peça</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Tem certeza que deseja adicionar esta peça à ordem #{orderId}?
+                  
+                  {selectedProduct && (
+                    <div style={{ 
+                      marginTop: "16px", 
+                      padding: "16px", 
+                      backgroundColor: "#f8f9fa", 
+                      borderRadius: "8px",
+                      fontSize: "0.9rem",
+                      color: "#495057"
+                    }}>
+                      <div style={{ marginBottom: "8px" }}>
+                        <strong>Peça:</strong> {selectedProduct.name}
+                      </div>
+                      {selectedProduct.partNumber && (
+                        <div style={{ marginBottom: "8px" }}>
+                          <strong>Código:</strong> {selectedProduct.partNumber}
+                        </div>
+                      )}
+                      <div style={{ marginBottom: "8px" }}>
+                        <strong>Quantidade:</strong> {quantity} un.
+                      </div>
+                      <div style={{ marginBottom: "8px" }}>
+                        <strong>Preço unitário:</strong> €{selectedProduct.saleValue.toFixed(2)}
+                      </div>
+                      <div style={{ 
+                        marginTop: "12px", 
+                        paddingTop: "12px", 
+                        borderTop: "2px solid #dee2e6",
+                        fontSize: "1rem",
+                        fontWeight: "700",
+                        color: "#28a745"
+                      }}>
+                        <strong>Total:</strong> €{(selectedProduct.saleValue * quantity).toFixed(2)}
+                      </div>
+                    </div>
+                  )}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={handleAddPart}>
+                  Sim, Adicionar
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
     </div>
