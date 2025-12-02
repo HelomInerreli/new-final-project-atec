@@ -7,8 +7,9 @@ import Examples from "./components/Examples";
 import ServiceOrders from "./components/ServiceOrders";
 import ServiceOrderDetail from "./components/ServiceOrderDetail";
 import MainStock from "./pages/Stock/mainStock";
-import Customers from "./pages/Customers";
 import ServicesManagement from "./pages/ServicesManagement";
+import Customers from "./pages/Customers/Customers";
+import CustomerDetails from "./pages/Customers/CustomerDetails";
 import { Toaster } from "./components/ui/toaster";
 
 function App() {
@@ -28,10 +29,12 @@ function App() {
               path="/servicesManagement"
               element={<ServicesManagement />}
             />
+            <Route path="/customers/:id" element={<CustomerDetails />} />
           </Routes>
         </Layout>
         <Toaster />
       </BrowserRouter>
+      <Toaster />
     </>
   );
 }

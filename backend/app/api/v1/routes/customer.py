@@ -107,6 +107,31 @@ def read_customer(
     return db_customer
 
 
+@router.put("/{customer_id}", response_model=Customer)
+def update_customer(
+    customer_id: int,
+    customer_in: CustomerUpdate,
+    repo: CustomerRepository = Depends(get_customer_repo),
+    db: Session = Depends(get_db)
+):
+    """
+    Update a customer by their ID.
+    """
+    # Update CustomerAuth if email is provided
+    if customer_in.email:
+        customer_auth = db.query(CustomerAuth).filter(CustomerAuth.id_customer == customer_id).first()
+        if customer_auth:
+            customer_auth.email = customer_in.email
+            db.add(customer_auth)
+            db.commit()
+            db.refresh(customer_auth)
+
+    db_customer = repo.update(customer_id=customer_id, customer_data=customer_in)
+    if not db_customer:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Customer not found")
+    return db_customer
+
+
 @router.get("/{customer_id}/appointments", response_model=List[Appointment])
 def list_customer_appointments(
     customer_id: int,

@@ -1,0 +1,44 @@
+/* Custom Back Button Style */
+.back-button-custom {
+  background-color: transparent !important;
+  color: #333 !important;
+  transition: all 0.2s ease-in-out !important;
+  border: none !important;
+}
+
+.back-button-custom:hover {
+  background-color: #dc3545 !important;
+  color: white !important;
+}
+
+/* Custom Outline Button (e.g. Edit) */
+/* Normal: Outline Red. Hover: Filled Red. */
+.btn-custom-outline {
+  background-color: transparent !important;
+  border: 1px solid #dc3545 !important;
+  color: #dc3545 !important;
+  font-size: 0.80rem !important;
+  padding: 0.25rem 0.80rem !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.btn-custom-outline:hover {
+  background-color: #dc3545 !important;
+  color: white !important;
+}
+
+/* Custom Filled Button (e.g. Delete, Save, Add) */
+/* Normal: Filled Red. Hover: Outline Red. */
+.btn-custom-filled {
+  background-color: #dc3545 !important;
+  border: 1px solid #dc3545 !important;
+  color: white !important;
+  font-size: 0.80rem !important;
+  padding: 0.25rem 0.80rem !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.btn-custom-filled:hover {
+  background-color: transparent !important;
+  color: #dc3545 !important;
+}
