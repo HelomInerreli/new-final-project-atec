@@ -1,8 +1,6 @@
-import { useState, useEffect } from "react";
-import { Input } from "../components/ui/input";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import { Search, Plus, Edit, Trash2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,9 +9,9 @@ import { toast } from "../hooks/use-toast";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../components/ui/alert-dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../components/ui/form";
-import { Textarea } from "../components/ui/textarea";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "../components/ui/form";
 import { serviceService, type Service } from "../services/serviceService";
+import "../components/inputs.css";
 
 const servicoSchema = z.object({
   name: z.string().min(3, "Nome deve ter no mínimo 3 caracteres"),
@@ -181,15 +179,37 @@ export default function ServicesManagement() {
         </Button>
       </div>
 
-      <div className="flex gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Pesquisar por nome ou descrição..."
+      <div className="mb-input-wrapper" style={{ maxWidth: '600px', margin: '0 auto' }}>
+        <div style={{ position: 'relative' }}>
+          <Search 
+            size={20} 
+            style={{ 
+              position: 'absolute', 
+              left: '14px', 
+              top: '50%', 
+              transform: 'translateY(-50%)',
+              color: '#6b7280',
+              pointerEvents: 'none',
+              zIndex: 1
+            }} 
+          />
+          <input
+            type="text"
+            placeholder=""
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
+            className="mb-input"
+            style={{ paddingLeft: '46px' }}
+            onFocus={(e) => e.target.nextElementSibling?.classList.add('shrunken')}
+            onBlur={(e) => {
+              if (!e.target.value) {
+                e.target.nextElementSibling?.classList.remove('shrunken');
+              }
+            }}
           />
+          <label className={`mb-input-label ${searchTerm ? 'shrunken' : ''}`} style={{ left: '46px' }}>
+            Pesquisar por nome ou descrição...
+          </label>
         </div>
       </div>
 
@@ -279,9 +299,24 @@ export default function ServicesManagement() {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nome do Serviço</FormLabel>
                     <FormControl>
-                      <Input placeholder="Ex: Mudança de Óleo" {...field} />
+                      <div className="mb-input-wrapper">
+                        <input
+                          type="text"
+                          placeholder=""
+                          className="mb-input"
+                          {...field}
+                          onFocus={(e) => e.target.nextElementSibling?.classList.add('shrunken')}
+                          onBlur={(e) => {
+                            if (!e.target.value) {
+                              e.target.nextElementSibling?.classList.remove('shrunken');
+                            }
+                          }}
+                        />
+                        <label className={`mb-input-label ${field.value ? 'shrunken' : ''}`}>
+                          Nome do Serviço
+                        </label>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -292,9 +327,24 @@ export default function ServicesManagement() {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Descrição</FormLabel>
                     <FormControl>
-                      <Textarea placeholder="Descreva o serviço..." {...field} rows={3} />
+                      <div className="mb-input-wrapper">
+                        <textarea
+                          placeholder=""
+                          className="mb-input textarea"
+                          rows={3}
+                          {...field}
+                          onFocus={(e) => e.target.nextElementSibling?.classList.add('shrunken')}
+                          onBlur={(e) => {
+                            if (!e.target.value) {
+                              e.target.nextElementSibling?.classList.remove('shrunken');
+                            }
+                          }}
+                        />
+                        <label className={`mb-input-label ${field.value ? 'shrunken' : ''}`}>
+                          Descrição
+                        </label>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -306,15 +356,27 @@ export default function ServicesManagement() {
                   name="price"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Preço (€)</FormLabel>
                       <FormControl>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          {...field}
-                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                        />
+                        <div className="mb-input-wrapper">
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            placeholder=""
+                            className="mb-input"
+                            {...field}
+                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                            onFocus={(e) => e.target.nextElementSibling?.classList.add('shrunken')}
+                            onBlur={(e) => {
+                              if (!e.target.value) {
+                                e.target.nextElementSibling?.classList.remove('shrunken');
+                              }
+                            }}
+                          />
+                          <label className={`mb-input-label ${field.value ? 'shrunken' : ''}`}>
+                            Preço (€)
+                          </label>
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -323,29 +385,70 @@ export default function ServicesManagement() {
                 <FormField
                   control={form.control}
                   name="duration_minutes"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Duração (min)</FormLabel>
-                      <Select
-                        value={field.value?.toString()}
-                        onValueChange={(value) => field.onChange(parseInt(value))}
-                      >
+                  render={({ field }) => {
+                    const [isOpen, setIsOpen] = useState(false);
+                    const [isFocused, setIsFocused] = useState(false);
+                    const menuRef = useRef<HTMLDivElement>(null);
+                    const hasValue = field.value !== undefined && field.value !== null;
+                    const durations = [15, 30, 45, 60, 75, 90, 105, 120, 135, 150, 165, 180, 195, 210, 225, 240];
+                    
+                    const formatDuration = (minutes: number) => {
+                      return minutes < 60 ? `${minutes} min` : `${Math.floor(minutes / 60)}h ${minutes % 60 > 0 ? `${minutes % 60}min` : ''}`.trim();
+                    };
+
+                    useEffect(() => {
+                      const handleClickOutside = (event: MouseEvent) => {
+                        if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                          setIsOpen(false);
+                        }
+                      };
+                      if (isOpen) {
+                        document.addEventListener('mousedown', handleClickOutside);
+                      }
+                      return () => document.removeEventListener('mousedown', handleClickOutside);
+                    }, [isOpen]);
+
+                    return (
+                      <FormItem>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione a duração" />
-                          </SelectTrigger>
+                          <div className="mb-input-wrapper" ref={menuRef} style={{ position: 'relative' }}>
+                            <button
+                              type="button"
+                              className={`mb-input select ${!hasValue && !isFocused ? 'placeholder' : ''}`}
+                              onClick={() => setIsOpen(!isOpen)}
+                              onFocus={() => setIsFocused(true)}
+                              onBlur={() => setIsFocused(false)}
+                              style={{ textAlign: 'left', cursor: 'pointer' }}
+                            >
+                              {hasValue ? formatDuration(field.value) : ''}
+                            </button>
+                            <label className={`mb-input-label ${hasValue || isFocused ? 'shrunken' : ''}`}>
+                              Duração (min)
+                            </label>
+                            <span className="mb-select-caret">▼</span>
+                            
+                            {isOpen && (
+                              <ul className="mb-select-menu" style={{ maxHeight: '250px', overflowY: 'auto' }}>
+                                {durations.map((minutes) => (
+                                  <li
+                                    key={minutes}
+                                    className={`mb-select-item ${field.value === minutes ? 'selected' : ''}`}
+                                    onClick={() => {
+                                      field.onChange(minutes);
+                                      setIsOpen(false);
+                                    }}
+                                  >
+                                    {formatDuration(minutes)}
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </div>
                         </FormControl>
-                        <SelectContent>
-                          {[15, 30, 45, 60, 75, 90, 105, 120, 135, 150, 165, 180, 195, 210, 225, 240].map((minutes) => (
-                            <SelectItem key={minutes} value={minutes.toString()}>
-                              {minutes < 60 ? `${minutes} min` : `${Math.floor(minutes / 60)}h ${minutes % 60 > 0 ? `${minutes % 60}min` : ''}`.trim()}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
                 />
               </div>
               <DialogFooter>
