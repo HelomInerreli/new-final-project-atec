@@ -10,6 +10,7 @@ from app.api.v1.routes import (
 	vehicleApi,
 	product,
 	notification,
+	managementAuth,
 	userNotification,
 )
 from app.api.v1.routes import customer, vehicle, appointment, extra_service, customerAuth, service, payment, vehicleApi, status
@@ -30,3 +31,4 @@ api_router.include_router(product.router, prefix="/products", tags=["products"])
 api_router.include_router(notification.router, prefix="/notifications", tags=["notifications"])
 api_router.include_router(userNotification.router, prefix="", tags=["user-notifications"])
 api_router.include_router(status.router, prefix="/statuses", tags=["statuses"])
+api_router.include_router(managementAuth.router, prefix="/managementauth", tags=["managementauth"])

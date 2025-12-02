@@ -20,11 +20,11 @@ import { FiMenu, FiChevronLeft } from "react-icons/fi";
 import { Logo } from "./Logo";
 import Badge from "react-bootstrap/esm/Badge";
 import { Modal, Button, ListGroup, Spinner, Alert } from "react-bootstrap";
-import http from "../api/http";
+import http, { setAuthToken } from "../api/http";
 import "./SideBarMenu.css";
 import "./SideBarMenu.css";
 
-const USER_ID = 1; // TODO: Get from auth context
+// User state comes from /managementauth/me using saved JWT
 
 interface NotificationData {
   id: number;
@@ -47,26 +47,50 @@ export default function SideBarMenu() {
     Record<string, number>
   >({});
   const [totalUnread, setTotalUnread] = useState(0);
+  const [userName, setUserName] = useState<string>("...");
+  const [userId, setUserId] = useState<number | null>(null);
 
-  const user = "Helom Valentim"; // placeholder user name
-
-  // Fetch notification counts - total unread for all components
+  // Fetch notification counts - per component and total
   const fetchNotificationCounts = async () => {
     try {
-      // Get total count
-      const response = await http.get(`/users/${USER_ID}/notifications/count`);
-      const totalCount = response.data.count || 0;
+      if (!userId) return;
 
+      // Get total count for bell icon
+      const totalResponse = await http.get(
+        `/users/${userId}/notifications/count`
+      );
+      const totalCount = totalResponse.data.count || 0;
       setTotalUnread(totalCount);
 
-      // Set the same count for all components (total unread)
-      setNotificationCounts({
-        Stock: totalCount,
-        Appointment: totalCount,
-        Payment: totalCount,
-        Service: totalCount,
-        ServiceOrder: totalCount,
-      });
+      // Get counts per component for menu icons
+      const components = [
+        "Dashboard",
+        "ServiceOrder",
+        "Appointment",
+        "Customer",
+        "Vehicle",
+        "Stock",
+        "Payment",
+        "User",
+        "Service",
+        "Settings",
+      ];
+      const counts: Record<string, number> = {};
+
+      await Promise.all(
+        components.map(async (component) => {
+          try {
+            const res = await http.get(
+              `/users/${userId}/notifications/count/${component}`
+            );
+            counts[component] = res.data.count || 0;
+          } catch (err) {
+            counts[component] = 0;
+          }
+        })
+      );
+
+      setNotificationCounts(counts);
     } catch (error) {
       console.error("Error fetching notification counts:", error);
     }
@@ -76,7 +100,8 @@ export default function SideBarMenu() {
   const fetchNotifications = async () => {
     try {
       setLoadingNotifications(true);
-      const response = await http.get(`/users/${USER_ID}/notifications`);
+      if (!userId) return;
+      const response = await http.get(`/users/${userId}/notifications`);
       setNotifications(response.data || []);
     } catch (error) {
       console.error("Error fetching notifications:", error);
@@ -86,11 +111,29 @@ export default function SideBarMenu() {
     }
   };
 
+  // Load user info from backend using token
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    if (!token) return;
+    // ensure auth header is set in case of reload
+    setAuthToken(token);
+    http
+      .get(`/managementauth/me`)
+      .then((res) => {
+        const { id, name } = res.data;
+        setUserId(id);
+        setUserName(name);
+      })
+      .catch((err) => {
+        console.error("Failed to load user info", err);
+      });
+  }, []);
+
   useEffect(() => {
     fetchNotificationCounts();
-    const interval = setInterval(fetchNotificationCounts, 30000); // refresh every 30 seconds
+    const interval = setInterval(fetchNotificationCounts, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [userId]);
 
   const handleOpenModal = () => {
     fetchNotifications();
@@ -317,7 +360,7 @@ export default function SideBarMenu() {
         }
       >
         {!collapsed && (
-          <span style={{ flex: 1, textAlign: "left" }}>{user}</span>
+          <span style={{ flex: 1, textAlign: "left" }}>{userName}</span>
         )}
         <button
           style={bellButtonStyle}
@@ -396,6 +439,7 @@ export default function SideBarMenu() {
               icon={
                 <IconWithBadgeSized
                   icon={<LayoutDashboard />}
+                  count={notificationCounts["Dashboard"]}
                   size={collapsed ? 25 : 27}
                 />
               }
@@ -408,6 +452,7 @@ export default function SideBarMenu() {
               icon={
                 <IconWithBadgeSized
                   icon={<FileText />}
+                  count={notificationCounts["ServiceOrder"]}
                   size={collapsed ? 25 : 27}
                 />
               }
@@ -433,6 +478,7 @@ export default function SideBarMenu() {
               icon={
                 <IconWithBadgeSized
                   icon={<Users />}
+                  count={notificationCounts["Customer"]}
                   size={collapsed ? 25 : 27}
                 />
               }
@@ -443,7 +489,11 @@ export default function SideBarMenu() {
 
             <MenuItem
               icon={
-                <IconWithBadgeSized icon={<Car />} size={collapsed ? 25 : 27} />
+                <IconWithBadgeSized
+                  icon={<Car />}
+                  count={notificationCounts["Vehicle"]}
+                  size={collapsed ? 25 : 27}
+                />
               }
               component={<NavLink to="/vehicles" />}
             >
@@ -484,6 +534,7 @@ export default function SideBarMenu() {
               icon={
                 <IconWithBadgeSized
                   icon={<CreditCard />}
+                  count={notificationCounts["Payment"]}
                   size={collapsed ? 25 : 27}
                 />
               }
@@ -496,6 +547,7 @@ export default function SideBarMenu() {
               icon={
                 <IconWithBadgeSized
                   icon={<UserCog />}
+                  count={notificationCounts["User"]}
                   size={collapsed ? 25 : 27}
                 />
               }
@@ -508,6 +560,7 @@ export default function SideBarMenu() {
               icon={
                 <IconWithBadgeSized
                   icon={<Wrench />}
+                  count={notificationCounts["Service"]}
                   size={collapsed ? 25 : 27}
                 />
               }
@@ -520,6 +573,7 @@ export default function SideBarMenu() {
               icon={
                 <IconWithBadgeSized
                   icon={<Settings />}
+                  count={notificationCounts["Settings"]}
                   size={collapsed ? 25 : 27}
                 />
               }
@@ -535,7 +589,12 @@ export default function SideBarMenu() {
                   size={collapsed ? 25 : 27}
                 />
               }
-              component={<NavLink to="/logout" />}
+              onClick={() => {
+                // clear token and go to login
+                setAuthToken(undefined);
+                localStorage.removeItem("access_token");
+                window.location.href = "/login";
+              }}
             >
               {!collapsed && "Sair"}
             </MenuItem>

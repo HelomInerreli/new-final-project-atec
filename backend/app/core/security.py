@@ -103,6 +103,14 @@ def verify_token(token: str) -> Optional[dict]:
     except JWTError:
         return None
 
+def decode_token(token: str) -> dict:
+    """Decode and verify a JWT token, raising exception on failure."""
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload
+    except JWTError as e:
+        raise HTTPException(status_code=401, detail=f"Invalid token: {str(e)}")
+
 def get_current_user_id(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     """Get current user ID from JWT token."""
     credentials_exception = HTTPException(
