@@ -5,9 +5,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./index.css";
 import Login from "./pages/login/login.tsx";
 
+const hasToken = !!localStorage.getItem("access_token");
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <Login />
-    {/* <App /> */}
-  </React.StrictMode>
+  <React.StrictMode>{hasToken ? <App /> : <Login />}</React.StrictMode>
 );

@@ -12,7 +12,7 @@ def create_user(db: Session, user: user_schema.UserCreate):
         email=user.email,
         password_hash=password_hash,
         role=user.role or "user",
-        twofactor_enabled=user.twofactor_enabled or False,
+        twofactor_enabled=False,
     )
     db.add(db_user)
     db.commit()

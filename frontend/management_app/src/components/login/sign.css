@@ -2,30 +2,25 @@
 .login-page-wrapper {
   position: relative;
   min-height: 100vh;
-  background: linear-gradient(135deg, #dc3545 0%, #7a1e25 50%, #111 100%);
-  background-attachment: fixed;
+  background: #ffffff;
   overflow: hidden;
 }
 
 .login-overlay {
-  position: absolute;
-  inset: 0;
-  backdrop-filter: blur(3px);
-  pointer-events: none;
+  display: none;
 }
 
 /* Card modernizado */
 .login-card {
   width: 380px;
-  min-height: 480px;
+  min-height: 420px;
   display: flex;
   flex-direction: column;
   padding: 0;
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(10px);
+  background: #dc3545;
+  border: 1px solid #dc3545;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
   color: #fff;
   position: relative;
   animation: fadeIn 450ms ease;
@@ -66,7 +61,7 @@
 /* Área do formulário */
 .login-card-body {
   flex: 1;
-  padding: 8px 26px 10px;
+  padding: 16px 26px 18px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -89,26 +84,27 @@
 /* Botões */
 .btn-login {
   padding: 10px 14px;
-  background-color: #dc3545;
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  color: #fff;
-  font-weight: 600;
+  background-color: #fff;
+  border: 1px solid #fff;
+  color: #dc3545;
+  font-weight: 700;
   letter-spacing: 0.5px;
   transition: all 0.25s ease;
 }
 
 .btn-login:hover,
 .btn-login:focus {
-  background-color: #fff;
-  color: #dc3545;
-  border-color: #fff;
+  background-color: #f8f9fa;
+  color: #b12a3a;
+  border-color: #f8f9fa;
 }
 
 /* Inputs do Bootstrap */
+
 .login-card input.form-control {
-  background: rgba(255, 255, 255, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  color: #fff;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 1);
+  color: #dc3545;
 }
 
 .login-card input.form-control::placeholder {
@@ -116,10 +112,10 @@
 }
 
 .login-card input.form-control:focus {
-  background: rgba(255, 255, 255, 0.28);
+  background: #fff;
   border-color: #fff;
-  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.35);
-  color: #fff;
+  box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.35);
+  color: #dc3545;
 }
 
 /* Botão secundário */
