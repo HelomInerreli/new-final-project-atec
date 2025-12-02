@@ -10,6 +10,7 @@
   width: 100%;
   box-sizing: border-box;
   margin-bottom: 0;
+  cursor: pointer;
 }
 
 .order-card:hover {
@@ -33,7 +34,7 @@
   flex-wrap: wrap;
 }
 
-/* Chips de status */
+
 .status-chip {
   padding: 6px 14px;
   border-radius: 12px;
@@ -65,16 +66,17 @@
 
 /* Meta - informações do card em linha */
 .meta {
-  display: flex;
-  gap: 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, auto));
+  gap: 12px 24px;
   color: #666;
   font-size: 0.95rem;
-  margin-bottom: 12px;
   flex-wrap: wrap;
 }
 
 .meta > div {
   color: #666;
+
 }
 
 .meta strong {
@@ -82,37 +84,14 @@
   font-weight: 600;
 }
 
-.price {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #dc3545;
-  margin: 0;
-}
-
 .card-actions {
   margin-left: 20px;
   flex-shrink: 0;
 }
 
-.btn-action {
-  background-color: #dc3545;
-  color: white;
-  border: 2px solid #dc3545;
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
 .btn-action:hover {
-  background-color: #dc3545;
-  color: white;
+  background-color: #c82333;
+  border-color: #c82333;
 }
 
 /* Responsividade */
@@ -138,7 +117,3 @@
     gap: 8px;
   }
 }
-
-
-
-

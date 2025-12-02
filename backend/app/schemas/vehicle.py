@@ -20,7 +20,7 @@ class VehicleUpdate(BaseModel):
 class Vehicle(VehicleBase):
     id: int
     customer_id: int
-    deleted_at: Optional[datetime] = None  # Campo adicionado
+    deleted_at: Optional[datetime] = None  
 
     class Config:
         from_attributes = True

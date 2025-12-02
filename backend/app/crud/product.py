@@ -29,8 +29,21 @@ def get_product(db: Session, product_id: int) -> Optional[Product]:
     return db.query(Product).filter(Product.id == product_id, Product.deleted_at.is_(None)).first()
 
 
-def get_products(db: Session, skip: int = 0, limit: int = 100) -> List[Product]:
-    return db.query(Product).filter(Product.deleted_at.is_(None)).order_by(Product.id).offset(skip).limit(limit).all()
+# def get_products(db: Session, skip: int = 0, limit: int = 100) -> List[Product]:
+#     return db.query(Product).filter(Product.deleted_at.is_(None)).order_by(Product.id).offset(skip).limit(limit).all()
+
+def get_products(db: Session, skip: int = 0, limit: int = 100, search: Optional[str] = None) -> List[Product]:
+    query = db.query(Product).filter(Product.deleted_at.is_(None))
+    
+    # Aplica filtro de pesquisa se fornecido
+    if search:
+        search_filter = f"%{search}%"
+        query = query.filter(
+            (Product.name.ilike(search_filter)) | 
+            (Product.part_number.ilike(search_filter))
+        )
+    
+    return query.order_by(Product.id).offset(skip).limit(limit).all()
 
 
 def get_by_part_number(db: Session, part_number: str) -> Optional[Product]:

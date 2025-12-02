@@ -2,6 +2,7 @@ from typing import List, Optional, Union
 from datetime import datetime
 
 from sqlalchemy.orm import Session, joinedload
+from fastapi import HTTPException
 
 from app.models.appoitment import Appointment
 from app.models.appoitment_extra_service import AppointmentExtraService
@@ -14,6 +15,11 @@ from app.schemas.appointment import AppointmentCreate, AppointmentUpdate
 from app.schemas.appointment_extra_service import AppointmentExtraServiceCreate
 
 from app.email_service.email_service import EmailService
+
+from app.models.product import Product
+from sqlalchemy.orm.attributes import flag_modified
+from datetime import datetime
+from app.models.order_part import OrderPart
 
 
 # Define status constants locally to avoid magic strings
@@ -48,18 +54,21 @@ class AppointmentRepository:
     #     )
 
     def get_by_id_with_relations(self, appointment_id: int) -> Optional[Appointment]:
-        """Obter appointment com relações úteis carregadas (customer, service, vehicle, status, extra requests)."""
-        return (
-            self.db.query(Appointment)
-            .options(
-                joinedload(Appointment.customer),
-                joinedload(Appointment.service),
-                joinedload(Appointment.vehicle),
-                joinedload(Appointment.status),
-                joinedload(Appointment.extra_service_associations)
-            )
-            .filter(Appointment.id == appointment_id)
-            .first()
+            """Obter appointment com relações úteis carregadas (customer, vehicle, extra requests, service)."""
+            return (
+                self.db.query(Appointment)
+                .options(
+                    joinedload(Appointment.customer),
+                    joinedload(Appointment.service),
+                    joinedload(Appointment.vehicle),
+                    joinedload(Appointment.extra_service_associations),
+                    joinedload(Appointment.status),
+                    joinedload(Appointment.parts),
+
+
+                )
+                .filter(Appointment.id == appointment_id)
+                .first()
         )
 
     def get_all(self, skip: int = 0, limit: int = 100) -> List[Appointment]:
@@ -375,6 +384,45 @@ class AppointmentRepository:
         self.db.commit()
         self.db.refresh(req)
         return req
+    
+    def add_part(self, appointment_id: int, product_id: int, quantity: int):
+        """Adiciona uma peça à ordem de serviço"""
+        
+        
+        appointment = self.db.query(Appointment).filter(Appointment.id == appointment_id).first()
+        if not appointment:
+            return None
+        
+        
+        product = self.db.query(Product).filter(Product.id == product_id).first()
+        if not product:
+            raise HTTPException(status_code=404, detail="Produto não encontrado")
+        
+        # Verifica stock
+        if product.quantity < quantity:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Stock insuficiente! Disponível: {product.quantity}"
+            )
+        
+        # Desconta do stock
+        product.quantity -= quantity
+        
+        new_part = OrderPart( 
+            appointment_id=appointment_id,
+            product_id=product.id,
+            name=product.name,
+            part_number=product.part_number,
+            quantity=quantity,
+            price=product.sale_value
+        )
+        
+        self.db.add(new_part)
+        self.db.commit()
+        self.db.refresh(appointment)
+        self.db.refresh(product)
+        
+        return appointment
 
 
 #

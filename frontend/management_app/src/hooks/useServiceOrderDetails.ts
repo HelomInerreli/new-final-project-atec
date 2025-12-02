@@ -1,0 +1,161 @@
+import { useState, useEffect, useCallback } from "react";
+import { getOrder, updateOrder } from "../services/OrderDetails";
+import { normalizeStatus } from "./useServiceOrder";
+import { STATUS_LABEL_TO_ID } from "../interfaces/ServiceOrderDetail";
+
+export const useServiceOrderDetails = (id: string | undefined) => {
+  const [order, setOrder] = useState<any | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [saving, setSaving] = useState<boolean>(false);
+  const [isPartsModalOpen, setIsPartsModalOpen] = useState(false);
+  const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
+
+  // Fetch order
+  const fetchOrder = useCallback(async (silent = false) => {
+    if (!id) return;
+    if (!silent) setLoading(true);
+    try {
+      const data = await getOrder(id);
+      setOrder(data);
+    } catch (e: any) {
+      alert("Erro ao carregar ordem: " + (e?.message ?? e));
+      setOrder(null);
+    } finally {
+      if (!silent) setLoading(false);
+    }
+  }, [id]);
+
+  // Initial load
+  useEffect(() => {
+    fetchOrder();
+  }, [fetchOrder]);
+
+  // Auto-refresh every 10 seconds
+  useEffect(() => {
+    if (!id || !order) return;
+    const interval = setInterval(() => {
+      fetchOrder(true);
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [id, order, fetchOrder]);
+
+  // Format helpers
+  const formatField = useCallback((v: any): string => {
+    if (v === null || v === undefined) return "-";
+    if (typeof v === "string" || typeof v === "number" || typeof v === "boolean") return String(v);
+    if (Array.isArray(v)) return v.map(formatField).join(", ");
+    if (typeof v === "object") return String(v.name ?? JSON.stringify(v));
+    return String(v);
+  }, []);
+
+  const formatDate = useCallback((d: any): string => {
+    if (!d) return "-";
+    try {
+      const dt = new Date(d);
+      return isNaN(dt.getTime()) ? String(d) : dt.toLocaleString("pt-PT", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    } catch {
+      return String(d);
+    }
+  }, []);
+
+  const formatVehicle = useCallback((v: any): string => {
+    if (!v) return "-";
+    if (typeof v === "string") return v;
+    const plate = v.plate ?? "";
+    const brand = v.brand ?? "";
+    const model = v.model ?? "";
+    const km = v.kilometers ?? null;
+    const parts = [brand, model, plate].filter(Boolean);
+    if (km) parts.push(`${km} km`);
+    return parts.join(" ") || "-";
+  }, []);
+
+  const getRawStatusName = useCallback((o: any): string => {
+    if (!o) return "";
+    const s = o.status ?? o;
+    if (!s) return "";
+    if (typeof s === "string") return s;
+    if (typeof s === "object") return String(s.name ?? "");
+    return "";
+  }, []);
+
+  // Change status
+  const changeStatus = useCallback(async (action: "start" | "pause" | "finish") => {
+    if (!id || !order) return;
+
+    const newStatusLabel = action === "start" ? "Em Andamento" : action === "pause" ? "Pendente" : "Concluída";
+    const currentRaw = getRawStatusName(order);
+    const currentNormalized = normalizeStatus(currentRaw);
+
+    if (currentNormalized === newStatusLabel) return;
+    if (currentNormalized === "Concluída" && action !== "finish") {
+      alert("Ordem já concluída.");
+      return;
+    }
+    
+    const newStatusId = STATUS_LABEL_TO_ID[newStatusLabel];
+    if (!newStatusId) {
+      alert("Status inválido");
+      return;
+    }
+
+    setSaving(true);
+    const previous = order;
+    setOrder({ ...order, status_id: newStatusId });
+
+    try {
+      await updateOrder(id, { status_id: newStatusId });
+      await fetchOrder();
+    } catch (e: any) {
+      setOrder(previous);
+      alert("Erro ao atualizar status.");
+    } finally {
+      setSaving(false);
+    }
+  }, [id, order, getRawStatusName, fetchOrder]);
+
+  // Sorted data
+  const comments = (order?.comments ?? []).slice().sort((a: any, b: any) => {
+    const ta = new Date(a.created_at).getTime();
+    const tb = new Date(b.created_at).getTime();
+    return tb - ta;
+  });
+
+  const parts = (order?.parts ?? []).slice().sort((a: any, b: any) => {
+    const ta = new Date(a.created_at ?? 0).getTime();
+    const tb = new Date(b.created_at ?? 0).getTime();
+    return tb - ta;
+  });
+
+  const currentRaw = getRawStatusName(order);
+  const currentNormalized = normalizeStatus(currentRaw);
+
+  return {
+    // State
+    order,
+    loading,
+    saving,
+    isPartsModalOpen,
+    isCommentModalOpen,
+    comments,
+    parts,
+    currentNormalized,
+
+    // Actions
+    setIsPartsModalOpen,
+    setIsCommentModalOpen,
+    changeStatus,
+    fetchOrder,
+
+    // Helpers
+    formatField,
+    formatDate,
+    formatVehicle,
+  };
+};
