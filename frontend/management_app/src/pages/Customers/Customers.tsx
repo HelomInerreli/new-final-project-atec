@@ -165,11 +165,22 @@ export default function Customers() {
   }
 
   return (
-    <div className="container my-2">
-      <div className="d-flex align-items-center justify-content-between mb-3">
+      <div
+        className="d-flex flex-column"
+        style={{
+          height: "100%",
+          backgroundColor: "transparent",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+      <div
+        className="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom border-light"
+        style={{ flexShrink: 0 }}
+      >
         <div>
           <h1 className="h1 fw-bold text-dark">Gestão de Clientes</h1>
-          <p className="text-muted">Gerencie os clientes da oficina</p>
+          <p className="text-muted mt-1">Gerencie os clientes da oficina</p>
         </div>
         <Button variant="destructive" onClick={() => setNewCustomerModalOpen(true)}>
           <Plus className="mr-2 h-4 w-4" /> Novo Cliente
@@ -198,9 +209,25 @@ export default function Customers() {
         </Select>
       </div>
 
-      <div className="table-responsive border rounded">
+      <div
+        className="table-responsive border rounded flex-grow-1"
+        style={{
+          overflowY: "auto",
+          backgroundColor: "#fff",
+          borderRadius: "0.375rem",
+          boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+          minHeight: 0,
+        }}
+      >
         <Table>
-          <TableHeader>
+          <TableHeader
+          style={{
+              position: "sticky",
+              top: 0,
+              zIndex: 2,
+              background: "#fff",
+            }}
+            >
             <TableRow>
               <TableHead>Nome</TableHead>
               <TableHead>Email</TableHead>
@@ -306,5 +333,5 @@ export default function Customers() {
         loading={creatingCustomer}
       />
     </div>
-  );
+  ); 
 }

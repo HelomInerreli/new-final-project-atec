@@ -4,11 +4,16 @@ import { Button } from "./../../components/ui/button";
 import { Input } from "./../../components/ui/input";
 import { Label } from "./../../components/ui/label";
 import { Badge } from "./../../components/ui/badge";
-import { ArrowLeft, Edit, Trash2, Car, Calendar, Save, X } from "lucide-react";
+import { ArrowLeft, Edit, Trash2, Car, Save} from "lucide-react";
 import { useToast } from "./../../hooks/use-toast";
 import { useFetchCustomerById } from "./../../hooks/useCustomerDetails";
-import { Spinner, Alert } from "react-bootstrap";
+import { Spinner, Alert} from "react-bootstrap";
 import "./../../styles/CustomerDetails.css";
+import { X, Calendar as CalendarIcon } from 'lucide-react';
+import { Calendar } from "../../components/ui/calendar"
+import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/popover"
+import { format, parseISO } from "date-fns"
+import { cn } from "../../components/lib/utils"
 
 
 type Veiculo = {
@@ -245,20 +250,47 @@ export default function CustomerDetails() {
               />
             </div>
             <div className="col-md-6">
-              <Label htmlFor="birthDate" className="form-label small text-muted mb-1 d-block text-start">
+              <Label className="d-flex form-label small text-muted mb-1">
                 Data de Nascimento
               </Label>
-              <Input
-                id="birthDate"
-                type="date"
-                value={formData.birthDate}
-                onChange={(e) => handleInputChange("birthDate", e.target.value)}
-                disabled={!isEditing}
-                className="form-control"
-                style={{ backgroundColor: '#f8f9fa' }}
-              />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !formData.birthDate && "text-muted-foreground"
+                    )}
+                    style={{ backgroundColor: '#f8f9fa', height: '38px', borderColor: '#dee2e6', color: '#495057' }}
+                    disabled={!isEditing}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {formData.birthDate ? format(parseISO(formData.birthDate), "dd/MM/yyyy") : "Selecione a data"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0 z-[1100]" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={formData.birthDate ? parseISO(formData.birthDate) : undefined}
+                    onSelect={(date) => {
+                      setFormData({
+                        ...formData,
+                        birthDate: date ? format(date, "yyyy-MM-dd") : ''
+                      })
+                    }}
+                    disabled={(date) =>
+                      date > new Date() || date < new Date("1900-01-01")
+                    }
+                    captionLayout="dropdown-buttons"
+                    fromYear={1900}
+                    toYear={new Date().getFullYear()}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
 
+                
             {/* Row 3: Address */}
             <div className="col-12">
               <Label htmlFor="address" className="form-label small text-muted mb-1 d-block text-start">
