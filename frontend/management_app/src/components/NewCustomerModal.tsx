@@ -195,7 +195,7 @@ const NewCustomerModal: React.FC<NewCustomerModalProps> = ({
                           "w-full justify-start text-left font-normal",
                           !formData.birth_date && "text-muted-foreground"
                         )}
-                        style={{ backgroundColor: '#f8f9fa', height: '38px', borderColor: '#dee2e6' }}
+                        style={{ backgroundColor: '#f8f9fa', height: '38px', borderColor: '#dee2e6', color: '#495057' }}
                         disabled={loading}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
