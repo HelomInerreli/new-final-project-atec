@@ -4,41 +4,27 @@ const API_URL = 'http://localhost:8000/api/v1/vehicles/';
 
 export interface Vehicle {
   id: number;
+  plate: string;
   brand: string;
   model: string;
-  year: number;
-  license_plate: string;
-  vin?: string;
+  kilometers: number;
   customer_id: number;
-  color?: string;
-  fuel_type?: string;
-  transmission?: string;
-  mileage?: number;
 }
 
 export interface VehicleCreate {
+  plate: string;
   brand: string;
   model: string;
-  year: number;
-  license_plate: string;
+  kilometers: number;
   customer_id: number;
-  vin?: string;
-  color?: string;
-  fuel_type?: string;
-  transmission?: string;
-  mileage?: number;
 }
 
 export interface VehicleUpdate {
-  brand?: string;
-  model?: string;
-  year?: number;
-  license_plate?: string;
-  vin?: string;
-  color?: string;
-  fuel_type?: string;
-  transmission?: string;
-  mileage?: number;
+  plate: string;
+  brand: string;
+  model: string;
+  kilometers: number;
+  customer_id: number;
 }
 
 export const vehicleService = {

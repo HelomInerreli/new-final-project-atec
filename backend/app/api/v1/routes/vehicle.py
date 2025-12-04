@@ -21,6 +21,16 @@ class VehicleKilometersUpdate(BaseModel):
     kilometers: int
 
 
+@router.get("/", response_model=List[Vehicle])
+def list_all_vehicles(
+    repo: VehicleRepository = Depends(get_vehicle_repo)
+):
+    """
+    List all vehicles.
+    """
+    return repo.get_all()
+
+
 @router.post("/", response_model=Vehicle, status_code=status.HTTP_201_CREATED)
 def add_vehicle(
     vehicle_in: VehicleCreate,

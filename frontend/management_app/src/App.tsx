@@ -10,6 +10,7 @@ import MainStock from "./pages/Stock/mainStock";
 import ServicesManagement from "./pages/ServicesManagement";
 import Customers from "./pages/Customers/Customers";
 import CustomerDetails from "./pages/Customers/CustomerDetails";
+import Vehicles from "./pages/Vehicles/Vehicles";
 import { Toaster } from "./components/ui/toaster";
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
               element={<ServicesManagement />}
             />
             <Route path="/customers/:id" element={<CustomerDetails />} />
+            <Route path="/vehicles" element={<Vehicles />} />
           </Routes>
         </Layout>
         <Toaster />
