@@ -652,7 +652,7 @@ export default function Agendamentos() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
-                  <div className="mb-input-wrapper">
+                  <div className="mb-input-wrapper" style={{ position: 'relative' }}>
                     <input
                       id="appointment_date"
                       type="date"
@@ -671,6 +671,17 @@ export default function Agendamentos() {
                     <label className={`mb-input-label ${formData.appointment_date ? 'shrunken' : ''}`}>
                       Data *
                     </label>
+                    <Calendar 
+                      size={20} 
+                      style={{ 
+                        position: 'absolute', 
+                        right: '14px', 
+                        top: '50%', 
+                        transform: 'translateY(-50%)',
+                        color: '#6b7280',
+                        pointerEvents: 'none'
+                      }} 
+                    />
                   </div>
                 </div>
                 <div className="grid gap-2">
