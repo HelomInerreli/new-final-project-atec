@@ -6,9 +6,12 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
 import { Badge } from "../../components/ui/badge";
-import { CalendarDays, Plus, ArrowLeft } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/popover";
+import { CalendarDays, Plus, ArrowLeft, CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { cn } from "../../components/lib/utils";
+import type { DateRange } from "react-day-picker";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -60,13 +63,10 @@ export default function Ferias() {
     const [ferias, setFerias] = useState<Ferias[]>(initialFerias);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [selectedUsuario, setSelectedUsuario] = useState<string>("");
-    const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
-        from: undefined,
-        to: undefined,
-    });
+    const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
 
     const handleMarcarFerias = () => {
-        if (!selectedUsuario || !dateRange.from || !dateRange.to) {
+        if (!selectedUsuario || !dateRange?.from || !dateRange?.to) {
             toast.error("Preencha todos os campos");
             return;
         }
@@ -86,7 +86,7 @@ export default function Ferias() {
         setFerias([...ferias, novasFerias]);
         setIsDialogOpen(false);
         setSelectedUsuario("");
-        setDateRange({ from: undefined, to: undefined });
+        setDateRange(undefined);
         toast.success("Férias marcadas com sucesso!");
     };
 
@@ -98,7 +98,7 @@ export default function Ferias() {
     return (
         <div className="container mx-auto p-6">
             <div className="flex items-center gap-4 mb-6">
-                <Button variant="outline" size="icon" onClick={() => navigate('/users')}>
+                <Button variant="ghost" size="icon" onClick={() => navigate('/users')}>
                     <ArrowLeft className="h-5 w-5" />
                 </Button>
                 <div className="flex-1">
@@ -107,7 +107,7 @@ export default function Ferias() {
                 </div>
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                     <DialogTrigger asChild>
-                        <Button variant="destructive">
+                        <Button>
                             <Plus className="mr-2 h-4 w-4" />
                             Marcar Férias
                         </Button>
@@ -133,16 +133,42 @@ export default function Ferias() {
                             </div>
                             <div>
                                 <label className="text-sm font-medium mb-2 block">Período</label>
-                                <div className="flex justify-center">
-                                    <Calendar
-                                        mode="range"
-                                        selected={dateRange}
-                                        onSelect={(range) => setDateRange({ from: range?.from, to: range?.to })}
-                                        locale={ptBR}
-                                        className="rounded-md border w-fit"
-                                        numberOfMonths={1}
-                                    />
-                                </div>
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            className={cn(
+                                                "w-full justify-start text-left font-normal",
+                                                !dateRange && "text-muted-foreground"
+                                            )}
+                                        >
+                                            <CalendarIcon className="mr-2 h-4 w-4" />
+                                            {dateRange?.from ? (
+                                                dateRange.to ? (
+                                                    <>
+                                                        {format(dateRange.from, "dd/MM/yyyy", { locale: ptBR })} -{" "}
+                                                        {format(dateRange.to, "dd/MM/yyyy", { locale: ptBR })}
+                                                    </>
+                                                ) : (
+                                                    format(dateRange.from, "dd/MM/yyyy", { locale: ptBR })
+                                                )
+                                            ) : (
+                                                "Selecione o período"
+                                            )}
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0" align="start">
+                                        <Calendar
+                                            initialFocus
+                                            mode="range"
+                                            defaultMonth={dateRange?.from}
+                                            selected={dateRange}
+                                            onSelect={setDateRange}
+                                            numberOfMonths={2}
+                                            locale={ptBR}
+                                        />
+                                    </PopoverContent>
+                                </Popover>
                             </div>
                         </div>
                         <DialogFooter>
