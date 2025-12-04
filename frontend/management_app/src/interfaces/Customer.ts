@@ -1,3 +1,47 @@
+import type { Vehicle } from "./Vehicle";
+
+export interface Customer {
+  id: number;
+  name: string;
+  email: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  postal_code?: string;
+  country?: string;
+  birth_date?: string;
+}
+export interface CustomerCreate {
+  name: string;
+  email: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  postal_code?: string;
+  country?: string;
+  birth_date?: string;
+}
+export interface CustomerRegister {
+  email: string;
+  password: string;
+  name: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  postal_code?: string;
+  country?: string;
+  birth_date?: string;
+}
+export interface CustomerUpdate {
+  email?: string;
+  name?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  postal_code?: string;
+  country?: string;
+  birth_date?: string;
+}
 export interface CustomerAuth {
   id: string;
   email: string;
@@ -5,7 +49,6 @@ export interface CustomerAuth {
   created_at: string;
   updated_at: string;
 }
-
 export interface CustomerProfileInfo {
   id: number;
   name: string;
@@ -19,18 +62,30 @@ export interface CustomerProfileInfo {
   updated_at: string;
 }
 
-export interface CustomerDetails {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  address: string;
-  age: number;
-}
-
-export type Customer = CustomerDetails;
-
-export interface CompleteCustomerProfile {
+export interface CustomerProfile {
   auth: CustomerAuth;
   customer: CustomerProfileInfo;
+}
+
+export interface CompleteCustomerProfile {
+  auth: {
+    id: string;
+    email: string;
+    is_active: boolean;
+    created_at: string;
+    updated_at: string;
+  };
+  customer: {
+    id: number;
+    name: string;
+    phone: string | null;
+    address: string | null;
+    city: string | null;
+    postal_code: string | null;
+    country: string | null;
+    birth_date: string | null;
+    created_at: string;
+    updated_at: string;
+  };
+  vehicles: Vehicle[];
 }

@@ -5,6 +5,7 @@ export interface Vehicle {
   model: string;
   kilometers: number;
   customer_id: number;
+  deleted_at?: string;
 }
 
 export interface VehicleCreate {

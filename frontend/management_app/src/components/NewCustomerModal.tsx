@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Alert, Spinner } from 'react-bootstrap';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -9,24 +9,14 @@ import { Calendar } from "../components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "../components/ui/popover"
 import { format, parseISO } from "date-fns"
 import { cn } from "../components/lib/utils"
+import type { CustomerRegister } from '../interfaces/Customer';
+import { useNewCustomerModal } from '../hooks/useNewCustomerModal';
 
 interface NewCustomerModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: CustomerInfo) => void;
+  onSubmit: (data: CustomerRegister) => void;
   loading: boolean;
-}
-
-interface CustomerInfo {
-  name: string;
-  phone?: string;
-  address?: string;
-  city?: string;
-  postal_code?: string;
-  country?: string;
-  birth_date?: string;
-  email?: string;
-  password?: string;
 }
 
 const NewCustomerModal: React.FC<NewCustomerModalProps> = ({
@@ -35,47 +25,19 @@ const NewCustomerModal: React.FC<NewCustomerModalProps> = ({
   onSubmit,
   loading
 }) => {
-  const [error, setError] = useState('');
-  const [formData, setFormData] = useState<CustomerInfo>({
-    name: '',
-    phone: '',
-    address: '',
-    city: '',
-    postal_code: '',
-    country: '',
-    birth_date: '',
-    email: '',
-    password: ''
-  });
-
-  // Lock body scroll when modal is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen]);
+  const {
+    formData,
+    error,
+    handleChange,
+    handleDateChange,
+    validateForm,
+  } = useNewCustomerModal(isOpen);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!formData.name || !formData.email || !formData.password) {
-      setError('Por favor, preencha todos os campos obrigatórios.');
-      return;
+    if (validateForm()) {
+      onSubmit(formData);
     }
-    setError('');
-    onSubmit(formData);
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
   };
 
   if (!isOpen) return null;
@@ -206,12 +168,7 @@ const NewCustomerModal: React.FC<NewCustomerModalProps> = ({
                       <Calendar
                         mode="single"
                         selected={formData.birth_date ? parseISO(formData.birth_date) : undefined}
-                        onSelect={(date) => {
-                          setFormData({
-                            ...formData,
-                            birth_date: date ? format(date, "yyyy-MM-dd") : ''
-                          })
-                        }}
+                        onSelect={handleDateChange}
                         disabled={(date) =>
                           date > new Date() || date < new Date("1900-01-01")
                         }

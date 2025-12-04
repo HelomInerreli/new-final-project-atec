@@ -13,7 +13,7 @@ import { toast } from "../hooks/use-toast";
 import { appointmentService } from "../services/appointmentService";
 import type { Appointment, AppointmentCreate, AppointmentUpdate } from "../services/appointmentService";
 import { customerService } from "../services/customerService";
-import type { Customer } from "../services/customerService";
+import type { Customer } from "../interfaces/Customer";
 import { vehicleService } from "../services/vehicleService";
 import type { Vehicle } from "../interfaces/Vehicle";
 import { serviceService } from "../services/serviceService";

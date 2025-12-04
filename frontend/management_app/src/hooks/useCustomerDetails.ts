@@ -1,41 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import http from '../api/http';
-import type { CompleteCustomerProfile } from '../interfaces/Customer';
-
-interface Vehicle {
-  id: number;
-  plate: string;
-  brand: string;
-  model: string;
-  kilometers: number;
-  deleted_at: string | null;
-}
-
-interface CustomerDetailsData {
-  auth: {
-    id: string;
-    email: string;
-    is_active: boolean;
-    created_at: string;
-    updated_at: string;
-  };
-  customer: {
-    id: number;
-    name: string;
-    phone: string | null;
-    address: string | null;
-    city: string | null;
-    postal_code: string | null;
-    country: string | null;
-    birth_date: string | null;
-    created_at: string;
-    updated_at: string;
-  };
-  vehicles: Vehicle[];
-}
+import type { CompleteCustomerProfile, CustomerUpdate } from '../interfaces/Customer';
+import { useToast } from './use-toast';
 
 export function useFetchCustomerById(customerId: string | undefined) {
-  const [customerData, setCustomerData] = useState<CustomerDetailsData | null>(null);
+  const [customerData, setCustomerData] = useState<CompleteCustomerProfile | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -59,7 +29,7 @@ export function useFetchCustomerById(customerId: string | undefined) {
         if (!customerProfile) {
           throw new Error('Customer profile not found');
         }
-        const data: CustomerDetailsData = {
+        const data: CompleteCustomerProfile = {
           auth: customerProfile.auth,
           customer: customerProfile.customer,
           vehicles: vehiclesResponse.data || []
@@ -67,8 +37,9 @@ export function useFetchCustomerById(customerId: string | undefined) {
 
         setCustomerData(data);
         setError(null);
-      } catch (err: any) {
-        setError(err.response?.data?.detail || 'Could not load customer details.');
+      } catch (err) {
+        const error = err as { response?: { data?: { detail?: string } } };
+        setError(error.response?.data?.detail || 'Could not load customer details.');
         setCustomerData(null);
       } finally {
         setLoading(false);
@@ -78,7 +49,7 @@ export function useFetchCustomerById(customerId: string | undefined) {
     fetchCustomer();
   }, [customerId]);
 
-  const updateCustomer = async (updatedData: any) => {
+  const updateCustomer = async (updatedData: CustomerUpdate) => {
     if (!customerId) return;
     try {
       const response = await http.put(`/customers/${customerId}`, updatedData);
@@ -98,11 +69,104 @@ export function useFetchCustomerById(customerId: string | undefined) {
         };
       });
       return response.data;
-    } catch (err: any) {
+    } catch (err) {
       console.error('Failed to update customer:', err);
       throw err;
     }
   };
 
   return { customerData, loading, error, updateCustomer };
+}
+
+// Enhanced hook with all business logic for CustomerDetails page
+export function useCustomerDetailsPage(customerId: string | undefined) {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState<CustomerUpdate>({
+    name: "",
+    email: "",
+    phone: "",
+    birth_date: "",
+    address: "",
+    country: "",
+    city: "",
+    postal_code: "",
+  });
+
+  const { customerData, loading, error, updateCustomer } = useFetchCustomerById(customerId);
+
+  // Update form data when customer data is loaded
+  useEffect(() => {
+    if (customerData) {
+      setFormData({
+        name: customerData.customer.name || "",
+        email: customerData.auth.email || "",
+        phone: customerData.customer.phone || "",
+        birth_date: customerData.customer.birth_date || "",
+        address: customerData.customer.address || "",
+        country: customerData.customer.country || "",
+        city: customerData.customer.city || "",
+        postal_code: customerData.customer.postal_code || "",
+      });
+    }
+  }, [customerData]);
+
+  const handleSave = async () => {
+    try {
+      await updateCustomer({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        birth_date: formData.birth_date,
+        address: formData.address,
+        city: formData.city,
+        postal_code: formData.postal_code,
+        country: formData.country,
+      });
+      setIsEditing(false);
+      toast({
+        title: "Alterações salvas",
+        description: "Os dados do cliente foram atualizados com sucesso.",
+      });
+    } catch {
+      toast({
+        title: "Erro ao salvar",
+        description: "Não foi possível atualizar os dados do cliente.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDelete = () => {
+    // TODO: Implement API call to delete customer
+    toast({
+      title: "Cliente excluído",
+      description: "O cliente foi removido do sistema.",
+      variant: "destructive",
+    });
+    navigate("/customers");
+  };
+
+  const handleInputChange = (field: keyof CustomerUpdate, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  return {
+    // Data
+    customerData,
+    loading,
+    error,
+    
+    // Form state
+    isEditing,
+    setIsEditing,
+    formData,
+    setFormData,
+    
+    // Handlers
+    handleSave,
+    handleDelete,
+    handleInputChange,
+  };
 }

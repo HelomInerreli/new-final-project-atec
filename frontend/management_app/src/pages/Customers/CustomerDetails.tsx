@@ -1,12 +1,10 @@
-import { useState, useEffect } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { Button } from "./../../components/ui/button";
 import { Input } from "./../../components/ui/input";
 import { Label } from "./../../components/ui/label";
 import { Badge } from "./../../components/ui/badge";
 import { ArrowLeft, Edit, Trash2, Car, Save} from "lucide-react";
-import { useToast } from "./../../hooks/use-toast";
-import { useFetchCustomerById } from "./../../hooks/useCustomerDetails";
+import { useCustomerDetailsPage } from "./../../hooks/useCustomerDetails";
 import { Spinner, Alert} from "react-bootstrap";
 import "./../../styles/CustomerDetails.css";
 import { X, Calendar as CalendarIcon } from 'lucide-react';
@@ -14,103 +12,24 @@ import { Calendar } from "../../components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/popover"
 import { format, parseISO } from "date-fns"
 import { cn } from "../../components/lib/utils"
-
-
-type Veiculo = {
-  id: number;
-  plate: string;
-  brand: string;
-  model: string;
-  kilometers: number;
-  deleted_at: string | null;
-};
-
-type ClienteForm = {
-  name: string;
-  email: string;
-  phone: string;
-  birthDate: string;
-  address: string;
-  country: string;
-  city: string;
-  postalCode: string;
-};
+import type { Vehicle } from "../../interfaces/Vehicle";
 
 
 export default function CustomerDetails() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState<ClienteForm>({
-    name: "",
-    email: "",
-    phone: "",
-    birthDate: "",
-    address: "",
-    country: "",
-    city: "",
-    postalCode: "",
-  });
-
-  // Fetch customer data from backend
-  const { customerData, loading, error, updateCustomer } = useFetchCustomerById(id);
-
-  // Update form data when customer data is loaded
-  useEffect(() => {
-    if (customerData) {
-      setFormData({
-        name: customerData.customer.name || "",
-        email: customerData.auth.email || "",
-        phone: customerData.customer.phone || "",
-        birthDate: customerData.customer.birth_date || "",
-        address: customerData.customer.address || "",
-        country: customerData.customer.country || "",
-        city: customerData.customer.city || "",
-        postalCode: customerData.customer.postal_code || "",
-      });
-    }
-  }, [customerData]);
-
-  const handleSave = async () => {
-    try {
-      await updateCustomer({
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        birth_date: formData.birthDate,
-        address: formData.address,
-        city: formData.city,
-        postal_code: formData.postalCode,
-        country: formData.country,
-      });
-      setIsEditing(false);
-      toast({
-        title: "Alterações salvas",
-        description: "Os dados do cliente foram atualizados com sucesso.",
-      });
-    } catch (error) {
-      toast({
-        title: "Erro ao salvar",
-        description: "Não foi possível atualizar os dados do cliente.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleDelete = () => {
-    // TODO: Implement API call to delete customer
-    toast({
-      title: "Cliente excluído",
-      description: "O cliente foi removido do sistema.",
-      variant: "destructive",
-    });
-    navigate("/customers");
-  };
-
-  const handleInputChange = (field: keyof ClienteForm, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
+  
+  const {
+    customerData,
+    loading,
+    error,
+    isEditing,
+    setIsEditing,
+    formData,
+    setFormData,
+    handleSave,
+    handleDelete,
+    handleInputChange,
+  } = useCustomerDetailsPage(id);
 
   // Loading state
   if (loading) {
@@ -140,8 +59,7 @@ export default function CustomerDetails() {
   }
 
   const status = customerData.auth.is_active ? "Ativo" : "Inativo";
-  const vehicles: Veiculo[] = customerData.vehicles.filter(v => !v.deleted_at);
-
+  const vehicles = customerData.vehicles.filter((v: Vehicle) => !v.deleted_at);
   return (
     <div className="container" style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
       {/* Header */}
@@ -259,23 +177,23 @@ export default function CustomerDetails() {
                     variant="outline"
                     className={cn(
                       "w-full justify-start text-left font-normal",
-                      !formData.birthDate && "text-muted-foreground"
+                      !formData.birth_date && "text-muted-foreground"
                     )}
                     style={{ backgroundColor: '#f8f9fa', height: '38px', borderColor: '#dee2e6', color: '#495057' }}
                     disabled={!isEditing}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {formData.birthDate ? format(parseISO(formData.birthDate), "dd/MM/yyyy") : "Selecione a data"}
+                    {formData.birth_date ? format(parseISO(formData.birth_date), "dd/MM/yyyy") : "Selecione a data"}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0 z-[1100]" align="start">
                   <Calendar
                     mode="single"
-                    selected={formData.birthDate ? parseISO(formData.birthDate) : undefined}
+                    selected={formData.birth_date ? parseISO(formData.birth_date) : undefined}
                     onSelect={(date) => {
                       setFormData({
                         ...formData,
-                        birthDate: date ? format(date, "yyyy-MM-dd") : ''
+                        birth_date: date ? format(date, "yyyy-MM-dd") : ''
                       })
                     }}
                     disabled={(date) =>
@@ -339,8 +257,8 @@ export default function CustomerDetails() {
               </Label>
               <Input
                 id="postalCode"
-                value={formData.postalCode}
-                onChange={(e) => handleInputChange("postalCode", e.target.value)}
+                value={formData.postal_code}
+                onChange={(e) => handleInputChange("postal_code", e.target.value)}
                 disabled={!isEditing}
                 className="form-control"
                 style={{ backgroundColor: '#f8f9fa' }}
