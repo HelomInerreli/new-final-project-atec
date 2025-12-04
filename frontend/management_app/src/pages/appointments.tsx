@@ -175,7 +175,7 @@ export default function Agendamentos() {
 
   const filteredAppointments = appointments.filter((appointment) => {
     const customerName = appointment.customer?.name || "";
-    const vehicleInfo = appointment.vehicle ? `${appointment.vehicle.brand} ${appointment.vehicle.model} - ${appointment.vehicle.license_plate}` : "";
+    const vehicleInfo = appointment.vehicle ? `${appointment.vehicle.brand} ${appointment.vehicle.model} - ${appointment.vehicle.plate}` : "";
     const serviceName = appointment.service?.name || "";
     const statusName = appointment.status?.name || "";
     const translatedStatus = translateStatus(statusName).toLowerCase();
@@ -343,7 +343,7 @@ export default function Agendamentos() {
           const dateStr = appointmentDate.toLocaleDateString('pt-BR');
           const timeStr = appointmentDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
           const vehicleInfo = appointment.vehicle
-            ? `${appointment.vehicle.brand} ${appointment.vehicle.model} - ${appointment.vehicle.license_plate}`
+            ? `${appointment.vehicle.brand} ${appointment.vehicle.model} - ${appointment.vehicle.plate}`
             : 'N/A';
 
           return (
@@ -469,7 +469,7 @@ export default function Agendamentos() {
                   <SelectContent>
                     {customerVehicles.map((vehicle) => (
                       <SelectItem key={vehicle.id} value={vehicle.id.toString()}>
-                        {vehicle.brand} {vehicle.model} - {vehicle.license_plate}
+                        {vehicle.brand} {vehicle.model} - {vehicle.plate}
                       </SelectItem>
                     ))}
                   </SelectContent>
