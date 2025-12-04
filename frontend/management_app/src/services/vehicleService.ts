@@ -53,7 +53,7 @@ export const vehicleService = {
   },
 
   getByCustomerId: async (customerId: number): Promise<Vehicle[]> => {
-    const response = await axios.get(`http://localhost:8000/api/v1/customers/${customerId}/vehicles`);
+    const response = await axios.get(`http://localhost:8000/api/v1/vehicles/by_customer/${customerId}`);
     return response.data;
   },
 

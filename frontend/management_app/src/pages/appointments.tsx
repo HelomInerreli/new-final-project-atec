@@ -153,13 +153,24 @@ export default function Agendamentos() {
   const loadVehiclesByCustomer = async (customerId: number) => {
     try {
       console.log("🔄 Carregando veículos para o cliente:", customerId);
-      const allVehicles = await vehicleService.getAll();
-      console.log("🚗 Todos os veículos:", allVehicles);
-      const filtered = allVehicles.filter(v => v.customer_id === customerId);
-      console.log("✅ Veículos filtrados:", filtered);
-      setCustomerVehicles(filtered);
+      const vehicles = await vehicleService.getByCustomerId(customerId);
+      console.log("✅ Veículos carregados:", vehicles);
+      setCustomerVehicles(vehicles);
+      if (vehicles.length === 0) {
+        toast({
+          title: "Aviso",
+          description: "Este cliente não tem veículos cadastrados.",
+          variant: "default"
+        });
+      }
     } catch (error) {
       console.error("❌ Erro ao carregar veículos:", error);
+      setCustomerVehicles([]);
+      toast({
+        title: "Erro",
+        description: "Erro ao carregar veículos do cliente.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -188,9 +199,15 @@ export default function Agendamentos() {
     console.log("🔄 handleSelectChange:", field, value);
     // When customer changes, load their vehicles and reset vehicle_id
     if (field === "customer_id" && value) {
-      console.log("👤 Cliente selecionado, carregando veículos...");
-      setFormData(prev => ({ ...prev, [field]: value, vehicle_id: "" }));
-      loadVehiclesByCustomer(parseInt(value));
+      console.log("👤 Cliente selecionado, ID:", value, "carregando veículos...");
+      setFormData(prev => {
+        const newData = { ...prev, [field]: value, vehicle_id: "" };
+        console.log("📝 Novo formData:", newData);
+        return newData;
+      });
+      const customerId = parseInt(value);
+      console.log("🔢 Chamando loadVehiclesByCustomer com:", customerId);
+      loadVehiclesByCustomer(customerId);
     } else {
       setFormData(prev => ({ ...prev, [field]: value }));
     }
