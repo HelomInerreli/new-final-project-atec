@@ -467,89 +467,220 @@ export default function Agendamentos() {
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
-                <Label htmlFor="customer_id">Cliente *</Label>
-                <Select
-                  value={formData.customer_id}
-                  onValueChange={(value) => handleSelectChange("customer_id", value)}
-                  disabled={!!editingId}
-                >
-                  <SelectTrigger id="customer_id">
-                    <SelectValue placeholder="Selecione um cliente" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {customers.map((customer) => (
-                      <SelectItem key={customer.id} value={customer.id.toString()}>
-                        {customer.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="mb-input-wrapper">
+                  {(() => {
+                    const [isOpen, setIsOpen] = useState(false);
+                    const [isFocused, setIsFocused] = useState(false);
+                    const menuRef = useRef<HTMLDivElement>(null);
+                    const hasValue = formData.customer_id !== '';
+                    const selectedCustomer = customers.find(c => c.id.toString() === formData.customer_id);
+
+                    useEffect(() => {
+                      const handleClickOutside = (event: MouseEvent) => {
+                        if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                          setIsOpen(false);
+                        }
+                      };
+                      if (isOpen) {
+                        document.addEventListener('mousedown', handleClickOutside);
+                      }
+                      return () => document.removeEventListener('mousedown', handleClickOutside);
+                    }, [isOpen]);
+
+                    return (
+                      <div ref={menuRef} style={{ position: 'relative' }}>
+                        <button
+                          type="button"
+                          className={`mb-input select ${!hasValue && !isFocused ? 'placeholder' : ''}`}
+                          onClick={() => !editingId && setIsOpen(!isOpen)}
+                          onFocus={() => setIsFocused(true)}
+                          onBlur={() => setIsFocused(false)}
+                          disabled={!!editingId}
+                          style={{ textAlign: 'left', cursor: editingId ? 'not-allowed' : 'pointer' }}
+                        >
+                          {selectedCustomer ? selectedCustomer.name : ''}
+                        </button>
+                        <label className={`mb-input-label ${hasValue || isFocused ? 'shrunken' : ''}`}>
+                          Cliente *
+                        </label>
+                        <span className="mb-select-caret">▼</span>
+                        
+                        {isOpen && !editingId && (
+                          <ul className="mb-select-menu" style={{ maxHeight: '250px', overflowY: 'auto' }}>
+                            {customers.map((customer) => (
+                              <li
+                                key={customer.id}
+                                className={`mb-select-item ${formData.customer_id === customer.id.toString() ? 'selected' : ''}`}
+                                onClick={() => {
+                                  handleSelectChange('customer_id', customer.id.toString());
+                                  setIsOpen(false);
+                                }}
+                              >
+                                {customer.name}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    );
+                  })()}
+                </div>
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="vehicle_id">Veículo *</Label>
-                <Select
-                  value={formData.vehicle_id}
-                  onValueChange={(value) => handleSelectChange("vehicle_id", value)}
-                  disabled={!formData.customer_id || !!editingId}
-                >
-                  <SelectTrigger id="vehicle_id">
-                    <SelectValue placeholder="Selecione um veículo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {customerVehicles.map((vehicle) => (
-                      <SelectItem key={vehicle.id} value={vehicle.id.toString()}>
-                        {vehicle.brand} {vehicle.model} - {vehicle.license_plate}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="mb-input-wrapper">
+                  {(() => {
+                    const [isOpen, setIsOpen] = useState(false);
+                    const [isFocused, setIsFocused] = useState(false);
+                    const menuRef = useRef<HTMLDivElement>(null);
+                    const hasValue = formData.vehicle_id !== '';
+                    const selectedVehicle = customerVehicles.find(v => v.id.toString() === formData.vehicle_id);
+                    const isDisabled = !formData.customer_id || !!editingId;
+
+                    useEffect(() => {
+                      const handleClickOutside = (event: MouseEvent) => {
+                        if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                          setIsOpen(false);
+                        }
+                      };
+                      if (isOpen) {
+                        document.addEventListener('mousedown', handleClickOutside);
+                      }
+                      return () => document.removeEventListener('mousedown', handleClickOutside);
+                    }, [isOpen]);
+
+                    return (
+                      <div ref={menuRef} style={{ position: 'relative' }}>
+                        <button
+                          type="button"
+                          className={`mb-input select ${!hasValue && !isFocused ? 'placeholder' : ''}`}
+                          onClick={() => !isDisabled && setIsOpen(!isOpen)}
+                          onFocus={() => setIsFocused(true)}
+                          onBlur={() => setIsFocused(false)}
+                          disabled={isDisabled}
+                          style={{ textAlign: 'left', cursor: isDisabled ? 'not-allowed' : 'pointer' }}
+                        >
+                          {selectedVehicle ? `${selectedVehicle.brand} ${selectedVehicle.model} - ${selectedVehicle.license_plate}` : ''}
+                        </button>
+                        <label className={`mb-input-label ${hasValue || isFocused ? 'shrunken' : ''}`}>
+                          Veículo *
+                        </label>
+                        <span className="mb-select-caret">▼</span>
+                        
+                        {isOpen && !isDisabled && (
+                          <ul className="mb-select-menu" style={{ maxHeight: '250px', overflowY: 'auto' }}>
+                            {customerVehicles.map((vehicle) => (
+                              <li
+                                key={vehicle.id}
+                                className={`mb-select-item ${formData.vehicle_id === vehicle.id.toString() ? 'selected' : ''}`}
+                                onClick={() => {
+                                  handleSelectChange('vehicle_id', vehicle.id.toString());
+                                  setIsOpen(false);
+                                }}
+                              >
+                                {vehicle.brand} {vehicle.model} - {vehicle.license_plate}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    );
+                  })()}
+                </div>
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="service_id">Serviço *</Label>
-                <Select
-                  value={formData.service_id}
-                  onValueChange={(value) => handleSelectChange("service_id", value)}
-                  disabled={!!editingId}
-                >
-                  <SelectTrigger id="service_id">
-                    <SelectValue placeholder="Selecione um serviço" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {services.map((service) => (
-                      <SelectItem key={service.id} value={service.id.toString()}>
-                        {service.name} - €{service.price.toFixed(2)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="mb-input-wrapper">
+                  {(() => {
+                    const [isOpen, setIsOpen] = useState(false);
+                    const [isFocused, setIsFocused] = useState(false);
+                    const menuRef = useRef<HTMLDivElement>(null);
+                    const hasValue = formData.service_id !== '';
+                    const selectedService = services.find(s => s.id.toString() === formData.service_id);
+
+                    useEffect(() => {
+                      const handleClickOutside = (event: MouseEvent) => {
+                        if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                          setIsOpen(false);
+                        }
+                      };
+                      if (isOpen) {
+                        document.addEventListener('mousedown', handleClickOutside);
+                      }
+                      return () => document.removeEventListener('mousedown', handleClickOutside);
+                    }, [isOpen]);
+
+                    return (
+                      <div ref={menuRef} style={{ position: 'relative' }}>
+                        <button
+                          type="button"
+                          className={`mb-input select ${!hasValue && !isFocused ? 'placeholder' : ''}`}
+                          onClick={() => !editingId && setIsOpen(!isOpen)}
+                          onFocus={() => setIsFocused(true)}
+                          onBlur={() => setIsFocused(false)}
+                          disabled={!!editingId}
+                          style={{ textAlign: 'left', cursor: editingId ? 'not-allowed' : 'pointer' }}
+                        >
+                          {selectedService ? `${selectedService.name} - €${selectedService.price.toFixed(2)}` : ''}
+                        </button>
+                        <label className={`mb-input-label ${hasValue || isFocused ? 'shrunken' : ''}`}>
+                          Serviço *
+                        </label>
+                        <span className="mb-select-caret">▼</span>
+                        
+                        {isOpen && !editingId && (
+                          <ul className="mb-select-menu" style={{ maxHeight: '250px', overflowY: 'auto' }}>
+                            {services.map((service) => (
+                              <li
+                                key={service.id}
+                                className={`mb-select-item ${formData.service_id === service.id.toString() ? 'selected' : ''}`}
+                                onClick={() => {
+                                  handleSelectChange('service_id', service.id.toString());
+                                  setIsOpen(false);
+                                }}
+                              >
+                                {service.name} - €{service.price.toFixed(2)}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    );
+                  })()}
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="appointment_date">Data *</Label>
-                  <Input
-                    id="appointment_date"
-                    type="date"
-                    value={formData.appointment_date}
-                    onChange={handleInputChange}
-                    min={new Date().toISOString().split('T')[0]}
-                    required
-                    className="[&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:sepia [&::-webkit-calendar-picker-indicator]:saturate-[500%] [&::-webkit-calendar-picker-indicator]:hue-rotate-[-15deg] [&::-webkit-calendar-picker-indicator]:brightness-90"
-                  />
+                  <div className="mb-input-wrapper">
+                    <input
+                      id="appointment_date"
+                      type="date"
+                      className="mb-input date-input"
+                      value={formData.appointment_date}
+                      onChange={handleInputChange}
+                      min={new Date().toISOString().split('T')[0]}
+                      required
+                      onFocus={(e) => e.target.nextElementSibling?.classList.add('shrunken')}
+                      onBlur={(e) => {
+                        if (!e.target.value) {
+                          e.target.nextElementSibling?.classList.remove('shrunken');
+                        }
+                      }}
+                    />
+                    <label className={`mb-input-label ${formData.appointment_date ? 'shrunken' : ''}`}>
+                      Data *
+                    </label>
+                  </div>
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="appointment_time">Hora *</Label>
-                  <Select
-                    value={formData.appointment_time}
-                    onValueChange={(value) => handleSelectChange("appointment_time", value)}
-                  >
-                    <SelectTrigger id="appointment_time">
-                      <SelectValue placeholder="Selecione a hora" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {[
+                  <div className="mb-input-wrapper">
+                    {(() => {
+                      const [isOpen, setIsOpen] = useState(false);
+                      const [isFocused, setIsFocused] = useState(false);
+                      const menuRef = useRef<HTMLDivElement>(null);
+                      const hasValue = formData.appointment_time !== '';
+                      const times = [
                         "09:00", "09:15", "09:30", "09:45",
                         "10:00", "10:15", "10:30", "10:45",
                         "11:00", "11:15", "11:30", "11:45",
@@ -559,13 +690,57 @@ export default function Agendamentos() {
                         "15:00", "15:15", "15:30", "15:45",
                         "16:00", "16:15", "16:30", "16:45",
                         "17:00"
-                      ].map((time) => (
-                        <SelectItem key={time} value={time}>
-                          {time}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                      ];
+
+                      useEffect(() => {
+                        const handleClickOutside = (event: MouseEvent) => {
+                          if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                            setIsOpen(false);
+                          }
+                        };
+                        if (isOpen) {
+                          document.addEventListener('mousedown', handleClickOutside);
+                        }
+                        return () => document.removeEventListener('mousedown', handleClickOutside);
+                      }, [isOpen]);
+
+                      return (
+                        <div ref={menuRef} style={{ position: 'relative' }}>
+                          <button
+                            type="button"
+                            className={`mb-input select ${!hasValue && !isFocused ? 'placeholder' : ''}`}
+                            onClick={() => setIsOpen(!isOpen)}
+                            onFocus={() => setIsFocused(true)}
+                            onBlur={() => setIsFocused(false)}
+                            style={{ textAlign: 'left', cursor: 'pointer' }}
+                          >
+                            {formData.appointment_time || ''}
+                          </button>
+                          <label className={`mb-input-label ${hasValue || isFocused ? 'shrunken' : ''}`}>
+                            Hora *
+                          </label>
+                          <span className="mb-select-caret">▼</span>
+                          
+                          {isOpen && (
+                            <ul className="mb-select-menu" style={{ maxHeight: '250px', overflowY: 'auto' }}>
+                              {times.map((time) => (
+                                <li
+                                  key={time}
+                                  className={`mb-select-item ${formData.appointment_time === time ? 'selected' : ''}`}
+                                  onClick={() => {
+                                    handleSelectChange('appointment_time', time);
+                                    setIsOpen(false);
+                                  }}
+                                >
+                                  {time}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      );
+                    })()}
+                  </div>
                 </div>
               </div>
 
