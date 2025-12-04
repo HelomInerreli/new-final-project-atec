@@ -679,8 +679,9 @@ export default function Agendamentos() {
                         top: '50%', 
                         transform: 'translateY(-50%)',
                         color: '#6b7280',
-                        pointerEvents: 'none'
-                      }} 
+                        cursor: 'pointer'
+                      }}
+                      onClick={() => document.getElementById('appointment_date')?.showPicker()}
                     />
                   </div>
                 </div>
