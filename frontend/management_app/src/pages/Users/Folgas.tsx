@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { Button } from "../../components/ui/button";
-import { Calendar } from "../../components/ui/calender";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../../components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
 import { Badge } from "../../components/ui/badge";
-import { Umbrella, Plus, ArrowLeft } from "lucide-react";
+import { Umbrella, Plus, ArrowLeft, CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import { ptBR } from "date-fns/locale";
+import { cn } from "../../components/lib/utils";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Textarea } from "../../components/ui/textarea";
@@ -58,7 +60,7 @@ export default function Folgas() {
     const [folgas, setFolgas] = useState<Folga[]>(initialFolgas);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [selectedUsuario, setSelectedUsuario] = useState<string>("");
-    const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+    const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [motivo, setMotivo] = useState("");
 
     const handleMarcarFolga = () => {
@@ -79,7 +81,7 @@ export default function Folgas() {
         setFolgas([...folgas, novaFolga]);
         setIsDialogOpen(false);
         setSelectedUsuario("");
-        setSelectedDate(undefined);
+        setSelectedDate(null);
         setMotivo("");
         toast.success("Folga marcada com sucesso!");
     };
@@ -127,14 +129,21 @@ export default function Folgas() {
                             </div>
                             <div>
                                 <label className="text-sm font-medium mb-2 block">Data</label>
-                                <div className="flex justify-center">
-                                    <Calendar
-                                        mode="single"
+                                <div className="relative w-full">
+                                    <DatePicker
                                         selected={selectedDate}
-                                        onSelect={setSelectedDate}
+                                        onChange={(date) => setSelectedDate(date)}
+                                        isClearable={true}
                                         locale={ptBR}
-                                        className="rounded-md border w-fit"
+                                        dateFormat="dd/MM/yyyy"
+                                        placeholderText="Selecione a data"
+                                        className={cn(
+                                            "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+                                            !selectedDate && "text-muted-foreground"
+                                        )}
+                                        wrapperClassName="w-full"
                                     />
+                                    <CalendarIcon className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
                                 </div>
                             </div>
                             <div>

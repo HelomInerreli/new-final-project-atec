@@ -1,17 +1,16 @@
 import { useState } from "react";
 import { Button } from "../../components/ui/button";
-import { Calendar } from "../../components/ui/calender";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../../components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
 import { Badge } from "../../components/ui/badge";
-import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/popover";
 import { CalendarDays, Plus, ArrowLeft, CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import { ptBR } from "date-fns/locale";
 import { cn } from "../../components/lib/utils";
-import type { DateRange } from "react-day-picker";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -63,22 +62,23 @@ export default function Ferias() {
     const [ferias, setFerias] = useState<Ferias[]>(initialFerias);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [selectedUsuario, setSelectedUsuario] = useState<string>("");
-    const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+    const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
+    const [startDate, endDate] = dateRange;
 
     const handleMarcarFerias = () => {
-        if (!selectedUsuario || !dateRange?.from || !dateRange?.to) {
+        if (!selectedUsuario || !startDate || !endDate) {
             toast.error("Preencha todos os campos");
             return;
         }
 
-        const diasUtilizados = Math.ceil((dateRange.to.getTime() - dateRange.from.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+        const diasUtilizados = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
 
         const novasFerias: Ferias = {
             id: String(ferias.length + 1),
             usuarioId: selectedUsuario,
             usuarioNome: selectedUsuario === "1" ? "João Silva" : selectedUsuario === "2" ? "Maria Santos" : "Ana Costa",
-            dataInicio: dateRange.from,
-            dataFim: dateRange.to,
+            dataInicio: startDate,
+            dataFim: endDate,
             status: "pendente",
             diasUtilizados,
         };
@@ -86,7 +86,7 @@ export default function Ferias() {
         setFerias([...ferias, novasFerias]);
         setIsDialogOpen(false);
         setSelectedUsuario("");
-        setDateRange(undefined);
+        setDateRange([null, null]);
         toast.success("Férias marcadas com sucesso!");
     };
 
@@ -133,42 +133,27 @@ export default function Ferias() {
                             </div>
                             <div>
                                 <label className="text-sm font-medium mb-2 block">Período</label>
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                        <Button
-                                            variant="outline"
-                                            className={cn(
-                                                "w-full justify-start text-left font-normal",
-                                                !dateRange && "text-muted-foreground"
-                                            )}
-                                        >
-                                            <CalendarIcon className="mr-2 h-4 w-4" />
-                                            {dateRange?.from ? (
-                                                dateRange.to ? (
-                                                    <>
-                                                        {format(dateRange.from, "dd/MM/yyyy", { locale: ptBR })} -{" "}
-                                                        {format(dateRange.to, "dd/MM/yyyy", { locale: ptBR })}
-                                                    </>
-                                                ) : (
-                                                    format(dateRange.from, "dd/MM/yyyy", { locale: ptBR })
-                                                )
-                                            ) : (
-                                                "Selecione o período"
-                                            )}
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-auto p-0" align="start">
-                                        <Calendar
-                                            initialFocus
-                                            mode="range"
-                                            defaultMonth={dateRange?.from}
-                                            selected={dateRange}
-                                            onSelect={setDateRange}
-                                            numberOfMonths={2}
-                                            locale={ptBR}
-                                        />
-                                    </PopoverContent>
-                                </Popover>
+                                <div className="relative">
+                                    <DatePicker
+                                        selectsRange={true}
+                                        startDate={startDate}
+                                        endDate={endDate}
+                                        onChange={(update) => {
+                                            setDateRange(update);
+                                        }}
+                                        isClearable={true}
+                                        monthsShown={2}
+                                        locale={ptBR}
+                                        dateFormat="dd/MM/yyyy"
+                                        placeholderText="Selecione o período"
+                                        className={cn(
+                                            "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+                                            !startDate && "text-muted-foreground"
+                                        )}
+                                        wrapperClassName="w-full"
+                                    />
+                                    <CalendarIcon className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+                                </div>
                             </div>
                         </div>
                         <DialogFooter>
