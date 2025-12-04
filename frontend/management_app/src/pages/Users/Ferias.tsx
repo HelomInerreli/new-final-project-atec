@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "../../components/ui/button";
-import { Calendar } from "../../components/ui/calendar";
+import { Calendar } from "../../components/ui/calender";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../../components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
@@ -133,13 +133,16 @@ export default function Ferias() {
                             </div>
                             <div>
                                 <label className="text-sm font-medium mb-2 block">Período</label>
-                                <Calendar
-                                    mode="range"
-                                    selected={dateRange}
-                                    onSelect={(range) => setDateRange({ from: range?.from, to: range?.to })}
-                                    locale={ptBR}
-                                    className="rounded-md border"
-                                />
+                                <div className="flex justify-center">
+                                    <Calendar
+                                        mode="range"
+                                        selected={dateRange}
+                                        onSelect={(range) => setDateRange({ from: range?.from, to: range?.to })}
+                                        locale={ptBR}
+                                        className="rounded-md border w-fit"
+                                        numberOfMonths={1}
+                                    />
+                                </div>
                             </div>
                         </div>
                         <DialogFooter>
