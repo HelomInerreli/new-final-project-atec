@@ -368,7 +368,7 @@ export default function Agendamentos() {
     <div className="flex-1 space-y-6 p-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Agendamentos</h1>
+          <h1 className="text-3xl font-bold leading-tight">Agendamentos</h1>
           <p className="text-muted-foreground">Gerencie os agendamentos de serviços da oficina</p>
         </div>
         <Button variant="destructive" className="gap-2" onClick={() => handleOpenDialog(null)}>
