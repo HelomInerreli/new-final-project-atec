@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Calendar, Clock, Search, Plus, Phone, Mail, Trash2, Edit } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { Input } from "../components/ui/input";
@@ -20,6 +20,7 @@ import { serviceService } from "../services/serviceService";
 import type { Service } from "../services/serviceService";
 import { statusService } from "../services/statusService";
 import type { Status } from "../services/statusService";
+import "../components/inputs.css";
 
 interface FormData {
   customer_id: string;
@@ -321,9 +322,38 @@ export default function Agendamentos() {
 
       {/* Filtros */}
       <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Buscar por cliente, veículo ou ID..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-9" />
+        <div className="mb-input-wrapper flex-1">
+          <div style={{ position: 'relative' }}>
+            <Search 
+              size={20} 
+              style={{ 
+                position: 'absolute', 
+                left: '14px', 
+                top: '50%', 
+                transform: 'translateY(-50%)',
+                color: '#6b7280',
+                pointerEvents: 'none',
+                zIndex: 1
+              }} 
+            />
+            <input
+              type="text"
+              placeholder=""
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="mb-input"
+              style={{ paddingLeft: '46px' }}
+              onFocus={(e) => e.target.nextElementSibling?.classList.add('shrunken')}
+              onBlur={(e) => {
+                if (!e.target.value) {
+                  e.target.nextElementSibling?.classList.remove('shrunken');
+                }
+              }}
+            />
+            <label className={`mb-input-label ${searchTerm ? 'shrunken' : ''}`} style={{ left: '46px' }}>
+              Buscar por cliente, veículo ou ID...
+            </label>
+          </div>
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-full sm:w-[200px]"><SelectValue placeholder="Filtrar por status" /></SelectTrigger>
@@ -540,15 +570,27 @@ export default function Agendamentos() {
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="estimated_budget">Orçamento Estimado (€)</Label>
-                <Input
-                  id="estimated_budget"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={formData.estimated_budget}
-                  onChange={handleInputChange}
-                />
+                <div className="mb-input-wrapper">
+                  <input
+                    id="estimated_budget"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder=""
+                    className="mb-input"
+                    value={formData.estimated_budget}
+                    onChange={handleInputChange}
+                    onFocus={(e) => e.target.nextElementSibling?.classList.add('shrunken')}
+                    onBlur={(e) => {
+                      if (!e.target.value) {
+                        e.target.nextElementSibling?.classList.remove('shrunken');
+                      }
+                    }}
+                  />
+                  <label className={`mb-input-label ${formData.estimated_budget ? 'shrunken' : ''}`}>
+                    Orçamento Estimado (€)
+                  </label>
+                </div>
               </div>
 
               {editingId && (
@@ -573,13 +615,25 @@ export default function Agendamentos() {
               )}
 
               <div className="grid gap-2">
-                <Label htmlFor="description">Descrição</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  placeholder="Observações ou detalhes adicionais"
-                />
+                <div className="mb-input-wrapper">
+                  <textarea
+                    id="description"
+                    className="mb-input textarea"
+                    rows={3}
+                    placeholder=""
+                    value={formData.description}
+                    onChange={handleInputChange}
+                    onFocus={(e) => e.target.nextElementSibling?.classList.add('shrunken')}
+                    onBlur={(e) => {
+                      if (!e.target.value) {
+                        e.target.nextElementSibling?.classList.remove('shrunken');
+                      }
+                    }}
+                  />
+                  <label className={`mb-input-label ${formData.description ? 'shrunken' : ''}`}>
+                    Descrição
+                  </label>
+                </div>
               </div>
             </div>
             <DialogFooter>
