@@ -1,7 +1,24 @@
 export interface Vehicle {
   id: number;
-  brand?: string;
-  model?: string;
-  plate?: string;
- 
+  plate: string;
+  brand: string;
+  model: string;
+  kilometers: number;
+  customer_id: number;
+}
+
+export interface VehicleCreate {
+  plate: string;
+  brand: string;
+  model: string;
+  kilometers: number;
+  customer_id: number;
+}
+
+export interface VehicleUpdate {
+  plate: string;
+  brand: string;
+  model: string;
+  kilometers: number;
+  customer_id: number;
 }
