@@ -57,12 +57,45 @@ export default function Agendamentos() {
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+  
+  // Dropdown states
+  const [customerDropdownOpen, setCustomerDropdownOpen] = useState(false);
+  const [vehicleDropdownOpen, setVehicleDropdownOpen] = useState(false);
+  const [serviceDropdownOpen, setServiceDropdownOpen] = useState(false);
+  const [timeDropdownOpen, setTimeDropdownOpen] = useState(false);
+  
+  // Refs for dropdowns
+  const customerDropdownRef = useRef<HTMLDivElement>(null);
+  const vehicleDropdownRef = useRef<HTMLDivElement>(null);
+  const serviceDropdownRef = useRef<HTMLDivElement>(null);
+  const timeDropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     loadAppointments();
     loadCustomers();
     loadServices();
     loadStatuses();
+  }, []);
+  
+  // Handle click outside for dropdowns
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (customerDropdownRef.current && !customerDropdownRef.current.contains(event.target as Node)) {
+        setCustomerDropdownOpen(false);
+      }
+      if (vehicleDropdownRef.current && !vehicleDropdownRef.current.contains(event.target as Node)) {
+        setVehicleDropdownOpen(false);
+      }
+      if (serviceDropdownRef.current && !serviceDropdownRef.current.contains(event.target as Node)) {
+        setServiceDropdownOpen(false);
+      }
+      if (timeDropdownRef.current && !timeDropdownRef.current.contains(event.target as Node)) {
+        setTimeDropdownOpen(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const loadAppointments = async () => {
@@ -119,11 +152,14 @@ export default function Agendamentos() {
 
   const loadVehiclesByCustomer = async (customerId: number) => {
     try {
+      console.log("🔄 Carregando veículos para o cliente:", customerId);
       const allVehicles = await vehicleService.getAll();
+      console.log("🚗 Todos os veículos:", allVehicles);
       const filtered = allVehicles.filter(v => v.customer_id === customerId);
+      console.log("✅ Veículos filtrados:", filtered);
       setCustomerVehicles(filtered);
     } catch (error) {
-      console.error("Erro ao carregar veículos:", error);
+      console.error("❌ Erro ao carregar veículos:", error);
     }
   };
 
@@ -149,12 +185,14 @@ export default function Agendamentos() {
   };
 
   const handleSelectChange = (field: keyof FormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-
-    // When customer changes, load their vehicles
+    console.log("🔄 handleSelectChange:", field, value);
+    // When customer changes, load their vehicles and reset vehicle_id
     if (field === "customer_id" && value) {
+      console.log("👤 Cliente selecionado, carregando veículos...");
+      setFormData(prev => ({ ...prev, [field]: value, vehicle_id: "" }));
       loadVehiclesByCustomer(parseInt(value));
-      setFormData(prev => ({ ...prev, vehicle_id: "" }));
+    } else {
+      setFormData(prev => ({ ...prev, [field]: value }));
     }
   };
 
@@ -529,63 +567,50 @@ export default function Agendamentos() {
 
               <div className="grid gap-2">
                 <div className="mb-input-wrapper">
-                  {(() => {
-                    const [isOpen, setIsOpen] = useState(false);
-                    const [isFocused, setIsFocused] = useState(false);
-                    const menuRef = useRef<HTMLDivElement>(null);
-                    const hasValue = formData.vehicle_id !== '';
-                    const selectedVehicle = customerVehicles.find(v => v.id.toString() === formData.vehicle_id);
-                    const isDisabled = !formData.customer_id || !!editingId;
-
-                    useEffect(() => {
-                      const handleClickOutside = (event: MouseEvent) => {
-                        if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-                          setIsOpen(false);
-                        }
-                      };
-                      if (isOpen) {
-                        document.addEventListener('mousedown', handleClickOutside);
-                      }
-                      return () => document.removeEventListener('mousedown', handleClickOutside);
-                    }, [isOpen]);
-
-                    return (
-                      <div ref={menuRef} style={{ position: 'relative' }}>
-                        <button
-                          type="button"
-                          className={`mb-input select ${!hasValue && !isFocused ? 'placeholder' : ''}`}
-                          onClick={() => !isDisabled && setIsOpen(!isOpen)}
-                          onFocus={() => setIsFocused(true)}
-                          onBlur={() => setIsFocused(false)}
-                          disabled={isDisabled}
-                          style={{ textAlign: 'left', cursor: isDisabled ? 'not-allowed' : 'pointer' }}
-                        >
-                          {selectedVehicle ? `${selectedVehicle.brand} ${selectedVehicle.model} - ${selectedVehicle.license_plate}` : ''}
-                        </button>
-                        <label className={`mb-input-label ${hasValue || isFocused ? 'shrunken' : ''}`}>
-                          Veículo *
-                        </label>
-                        <span className="mb-select-caret">▼</span>
-                        
-                        {isOpen && !isDisabled && (
-                          <ul className="mb-select-menu" style={{ maxHeight: '250px', overflowY: 'auto' }}>
-                            {customerVehicles.map((vehicle) => (
-                              <li
-                                key={vehicle.id}
-                                className={`mb-select-item ${formData.vehicle_id === vehicle.id.toString() ? 'selected' : ''}`}
-                                onClick={() => {
-                                  handleSelectChange('vehicle_id', vehicle.id.toString());
-                                  setIsOpen(false);
-                                }}
-                              >
-                                {vehicle.brand} {vehicle.model} - {vehicle.license_plate}
-                              </li>
-                            ))}
-                          </ul>
+                  <div ref={vehicleDropdownRef} style={{ position: 'relative' }}>
+                    <button
+                      type="button"
+                      className={`mb-input select ${!formData.vehicle_id ? 'placeholder' : ''}`}
+                      onClick={() => {
+                        if (!formData.customer_id || editingId) return;
+                        setVehicleDropdownOpen(!vehicleDropdownOpen);
+                      }}
+                      disabled={!formData.customer_id || !!editingId}
+                      style={{ textAlign: 'left', cursor: (!formData.customer_id || editingId) ? 'not-allowed' : 'pointer' }}
+                    >
+                      {(() => {
+                        const selectedVehicle = customerVehicles.find(v => v.id.toString() === formData.vehicle_id);
+                        return selectedVehicle ? `${selectedVehicle.brand} ${selectedVehicle.model} - ${selectedVehicle.license_plate}` : '';
+                      })()}
+                    </button>
+                    <label className={`mb-input-label ${formData.vehicle_id || vehicleDropdownOpen ? 'shrunken' : ''}`}>
+                      Veículo *
+                    </label>
+                    <span className="mb-select-caret">▼</span>
+                    
+                    {vehicleDropdownOpen && formData.customer_id && !editingId && (
+                      <ul className="mb-select-menu" style={{ maxHeight: '250px', overflowY: 'auto' }}>
+                        {customerVehicles.length === 0 ? (
+                          <li className="mb-select-item" style={{ cursor: 'default', opacity: 0.6 }}>
+                            Nenhum veículo encontrado
+                          </li>
+                        ) : (
+                          customerVehicles.map((vehicle) => (
+                            <li
+                              key={vehicle.id}
+                              className={`mb-select-item ${formData.vehicle_id === vehicle.id.toString() ? 'selected' : ''}`}
+                              onClick={() => {
+                                handleSelectChange('vehicle_id', vehicle.id.toString());
+                                setVehicleDropdownOpen(false);
+                              }}
+                            >
+                              {vehicle.brand} {vehicle.model} - {vehicle.license_plate}
+                            </li>
+                          ))
                         )}
-                      </div>
-                    );
-                  })()}
+                      </ul>
+                    )}
+                  </div>
                 </div>
               </div>
 
