@@ -495,11 +495,11 @@ export default function Agendamentos() {
                         Esta ação não pode ser desfeita. Isto irá eliminar permanentemente o agendamento.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
-                    <AlertDialogFooter className="flex gap-2 justify-end">
-                      <AlertDialogCancel className="hover:bg-gray-100 hover:text-gray-900 focus-visible:ring-0 focus-visible:ring-offset-0">Cancelar</AlertDialogCancel>
+                    <AlertDialogFooter className="flex gap-2 justify-end items-center">
+                      <AlertDialogCancel className="h-10 hover:bg-gray-100 hover:text-gray-900 focus-visible:ring-0 focus-visible:ring-offset-0">Cancelar</AlertDialogCancel>
                       <AlertDialogAction 
                         onClick={() => handleDelete(appointment.id)}
-                        className="bg-red-600 hover:bg-red-700 text-white focus-visible:ring-0 focus-visible:ring-offset-0"
+                        className="h-10 bg-red-600 hover:bg-red-700 text-white focus-visible:ring-0 focus-visible:ring-offset-0"
                       >
                         Continuar
                       </AlertDialogAction>
