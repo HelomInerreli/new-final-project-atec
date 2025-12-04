@@ -434,7 +434,7 @@ export default function Agendamentos() {
             : 'N/A';
 
           return (
-            <Card key={appointment.id} className="flex flex-col hover:shadow-lg transition-shadow">
+            <Card key={appointment.id} className="flex flex-col hover:shadow-lg transition-shadow border-2 border-red-600">
               <CardHeader>
                 <div className="space-y-2">
                   <Badge className={getStatusColor(appointment.status?.name)} variant="outline">
