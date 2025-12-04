@@ -24,6 +24,8 @@ class AppointmentCreate(AppointmentBase):
 class AppointmentUpdate(BaseModel):
     appointment_date: Optional[datetime] = None
     description: Optional[str] = None
+    vehicle_id: Optional[int] = None
+    service_id: Optional[int] = None
     status_id: Optional[int] = None
     estimated_budget: Optional[float] = None
     actual_budget: Optional[float] = None

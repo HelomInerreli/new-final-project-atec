@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Calendar, Clock, Search, Plus, Phone, Mail, Trash2, Edit } from "lucide-react";
+import { Calendar, Clock, Search, Plus, Phone, Mail, Trash2, Edit, AlertTriangle } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
@@ -299,6 +299,8 @@ export default function Agendamentos() {
       if (editingId) {
         // Update existing appointment
         const updateData: AppointmentUpdate = {
+          vehicle_id: parseInt(formData.vehicle_id),
+          service_id: parseInt(formData.service_id),
           appointment_date: appointmentDateTime.toISOString(),
           description: formData.description,
           estimated_budget: parseFloat(formData.estimated_budget) || 0,
@@ -488,20 +490,27 @@ export default function Agendamentos() {
                       <Trash2 className="h-4 w-4 text-red-600" />
                     </Button>
                   </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Tem a certeza absoluta?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Esta ação não pode ser desfeita. Isto irá eliminar permanentemente o agendamento.
+                  <AlertDialogContent className="sm:max-w-md">
+                    <AlertDialogHeader className="space-y-4">
+                      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+                        <AlertTriangle className="h-6 w-6 text-red-600" />
+                      </div>
+                      <AlertDialogTitle className="text-center text-xl">
+                        Eliminar Agendamento
+                      </AlertDialogTitle>
+                      <AlertDialogDescription className="text-center text-base">
+                        Esta ação não pode ser desfeita. Tem a certeza que deseja eliminar permanentemente este agendamento?
                       </AlertDialogDescription>
                     </AlertDialogHeader>
-                    <AlertDialogFooter className="flex gap-2 justify-end items-center">
-                      <AlertDialogCancel className="h-10 hover:bg-gray-100 hover:text-gray-900 focus-visible:ring-0 focus-visible:ring-offset-0">Cancelar</AlertDialogCancel>
+                    <AlertDialogFooter className="flex flex-row gap-3 justify-center sm:justify-center mt-2">
+                      <AlertDialogCancel className="mt-0 flex-1 sm:flex-none px-6 hover:bg-gray-100 focus-visible:ring-0 focus-visible:ring-offset-0">
+                        Cancelar
+                      </AlertDialogCancel>
                       <AlertDialogAction 
                         onClick={() => handleDelete(appointment.id)}
-                        className="h-10 bg-red-600 hover:bg-red-700 text-white focus-visible:ring-0 focus-visible:ring-offset-0"
+                        className="mt-0 flex-1 sm:flex-none px-6 bg-red-600 hover:bg-red-700 text-white focus-visible:ring-0 focus-visible:ring-offset-0"
                       >
-                        Continuar
+                        Eliminar
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
@@ -594,11 +603,11 @@ export default function Agendamentos() {
                       type="button"
                       className={`mb-input select ${!formData.vehicle_id ? 'placeholder' : ''}`}
                       onClick={() => {
-                        if (!formData.customer_id || editingId) return;
+                        if (!formData.customer_id) return;
                         setVehicleDropdownOpen(!vehicleDropdownOpen);
                       }}
-                      disabled={!formData.customer_id || !!editingId}
-                      style={{ textAlign: 'left', cursor: (!formData.customer_id || editingId) ? 'not-allowed' : 'pointer' }}
+                      disabled={!formData.customer_id}
+                      style={{ textAlign: 'left', cursor: !formData.customer_id ? 'not-allowed' : 'pointer' }}
                     >
                       {(() => {
                         const selectedVehicle = customerVehicles.find(v => v.id.toString() === formData.vehicle_id);
@@ -610,7 +619,7 @@ export default function Agendamentos() {
                     </label>
                     <span className="mb-select-caret">▼</span>
                     
-                    {vehicleDropdownOpen && formData.customer_id && !editingId && (
+                    {vehicleDropdownOpen && formData.customer_id && (
                       <ul className="mb-select-menu" style={{ maxHeight: '250px', overflowY: 'auto' }}>
                         {customerVehicles.length === 0 ? (
                           <li className="mb-select-item" style={{ cursor: 'default', opacity: 0.6 }}>
@@ -662,11 +671,10 @@ export default function Agendamentos() {
                         <button
                           type="button"
                           className={`mb-input select ${!hasValue && !isFocused ? 'placeholder' : ''}`}
-                          onClick={() => !editingId && setIsOpen(!isOpen)}
+                          onClick={() => setIsOpen(!isOpen)}
                           onFocus={() => setIsFocused(true)}
                           onBlur={() => setIsFocused(false)}
-                          disabled={!!editingId}
-                          style={{ textAlign: 'left', cursor: editingId ? 'not-allowed' : 'pointer' }}
+                          style={{ textAlign: 'left', cursor: 'pointer' }}
                         >
                           {selectedService ? `${selectedService.name} - €${selectedService.price.toFixed(2)}` : ''}
                         </button>
@@ -675,7 +683,7 @@ export default function Agendamentos() {
                         </label>
                         <span className="mb-select-caret">▼</span>
                         
-                        {isOpen && !editingId && (
+                        {isOpen && (
                           <ul className="mb-select-menu" style={{ maxHeight: '250px', overflowY: 'auto' }}>
                             {services.map((service) => (
                               <li

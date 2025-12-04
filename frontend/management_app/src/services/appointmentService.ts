@@ -70,6 +70,8 @@ export interface AppointmentCreate {
 export interface AppointmentUpdate {
   appointment_date?: string;
   description?: string;
+  vehicle_id?: number;
+  service_id?: number;
   status_id?: number;
   estimated_budget?: number;
   actual_budget?: number;
