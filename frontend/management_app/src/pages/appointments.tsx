@@ -231,7 +231,7 @@ export default function Agendamentos() {
 
   const filteredAppointments = appointments.filter((appointment) => {
     const customerName = appointment.customer?.name || "";
-    const vehicleInfo = appointment.vehicle ? `${appointment.vehicle.brand} ${appointment.vehicle.model} - ${appointment.vehicle.license_plate}` : "";
+    const vehicleInfo = appointment.vehicle ? `${appointment.vehicle.brand} ${appointment.vehicle.model} - ${appointment.vehicle.plate}` : "";
     const serviceName = appointment.service?.name || "";
     const statusName = appointment.status?.name || "";
     const translatedStatus = translateStatus(statusName).toLowerCase();
@@ -428,7 +428,7 @@ export default function Agendamentos() {
           const dateStr = appointmentDate.toLocaleDateString('pt-BR');
           const timeStr = appointmentDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
           const vehicleInfo = appointment.vehicle
-            ? `${appointment.vehicle.brand} ${appointment.vehicle.model} - ${appointment.vehicle.license_plate}`
+            ? `${appointment.vehicle.brand} ${appointment.vehicle.model} - ${appointment.vehicle.plate}`
             : 'N/A';
 
           return (
@@ -495,9 +495,14 @@ export default function Agendamentos() {
                         Esta ação não pode ser desfeita. Isto irá eliminar permanentemente o agendamento.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
-                    <AlertDialogFooter>
+                    <AlertDialogFooter className="flex gap-2 justify-end">
                       <AlertDialogCancel className="hover:bg-gray-100 hover:text-gray-900 focus-visible:ring-0 focus-visible:ring-offset-0">Cancelar</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => handleDelete(appointment.id)}>Continuar</AlertDialogAction>
+                      <AlertDialogAction 
+                        onClick={() => handleDelete(appointment.id)}
+                        className="bg-red-600 hover:bg-red-700 text-white focus-visible:ring-0 focus-visible:ring-offset-0"
+                      >
+                        Continuar
+                      </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
@@ -597,7 +602,7 @@ export default function Agendamentos() {
                     >
                       {(() => {
                         const selectedVehicle = customerVehicles.find(v => v.id.toString() === formData.vehicle_id);
-                        return selectedVehicle ? `${selectedVehicle.brand} ${selectedVehicle.model} - ${selectedVehicle.license_plate}` : '';
+                        return selectedVehicle ? `${selectedVehicle.brand} ${selectedVehicle.model} - ${selectedVehicle.plate}` : '';
                       })()}
                     </button>
                     <label className={`mb-input-label ${formData.vehicle_id || vehicleDropdownOpen ? 'shrunken' : ''}`}>
@@ -621,7 +626,7 @@ export default function Agendamentos() {
                                 setVehicleDropdownOpen(false);
                               }}
                             >
-                              {vehicle.brand} {vehicle.model} - {vehicle.license_plate}
+                              {vehicle.brand} {vehicle.model} - {vehicle.plate}
                             </li>
                           ))
                         )}
@@ -860,11 +865,22 @@ export default function Agendamentos() {
                       <SelectValue placeholder="Selecione um status" />
                     </SelectTrigger>
                     <SelectContent>
-                      {statuses.map((status) => (
-                        <SelectItem key={status.id} value={status.id.toString()}>
-                          {translateStatus(status.name)}
-                        </SelectItem>
-                      ))}
+                      {statuses
+                        .filter(status => {
+                          const name = status.name.toLowerCase();
+                          return name.includes('pendente') || 
+                                 name.includes('pending') ||
+                                 name.includes('finalizado') || 
+                                 name.includes('finalized') ||
+                                 name.includes('aguarda') || 
+                                 name.includes('waiting');
+                        })
+                        .map((status) => (
+                          <SelectItem key={status.id} value={status.id.toString()}>
+                            {translateStatus(status.name)}
+                          </SelectItem>
+                        ))
+                      }
                     </SelectContent>
                   </Select>
                 </div>
