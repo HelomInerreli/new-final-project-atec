@@ -15,7 +15,7 @@ import type { Appointment, AppointmentCreate, AppointmentUpdate } from "../servi
 import { customerService } from "../services/customerService";
 import type { Customer } from "../services/customerService";
 import { vehicleService } from "../services/vehicleService";
-import type { Vehicle } from "../services/vehicleService";
+import type { Vehicle } from "../interfaces/Vehicle";
 import { serviceService } from "../services/serviceService";
 import type { Service } from "../services/serviceService";
 import { statusService } from "../services/statusService";
