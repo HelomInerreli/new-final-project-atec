@@ -291,7 +291,7 @@ export default function CustomerDetails() {
               className="btn-custom-filled"
             >
               <Car className="me-2" style={{ width: '16px', height: '16px' }} />
-              Adicionar Veículo
+              Adicionar Veículo (IN PROGRESS)
             </Button>
           </div>
 
@@ -303,37 +303,32 @@ export default function CustomerDetails() {
             <div>
               {vehicles.map((veiculo, index) => (
                 <div key={veiculo.id}>
-                  {index > 0 && <hr className="my-4" style={{ borderColor: '#dee2e6' }} />}
+                  {index > 0 && <hr className="my-2" style={{ borderColor: '#dc3545' }} />}
                   
-                  <div className="row g-3">
+                  <div className="row g-3 text-start">
                     <div className="col-md-4">
-                      <p className="small text-muted mb-1 text-start">Marca/Modelo</p>
-                      <p className="mb-0 fw-semibold">
-                        {veiculo.brand} {veiculo.model}
-                      </p>
+                      <p className="small text-muted">Marca/Modelo</p>
+                      <p className="mb-0 fw-semibold">{veiculo.brand} {veiculo.model}</p>
                     </div>
-                    <div className="col-md-4">
-                      <p className="small text-muted mb-1 text-start">Matrícula</p>
+                    <div className="col-md-2">
+                      <p className="small text-muted">Matrícula</p>
                       <p className="mb-0 fw-semibold">{veiculo.plate}</p>
                     </div>
-                    <div className="col-md-4">
-                      <p className="small text-muted mb-1 text-start">Ano</p>
-                      <p className="mb-0 fw-semibold">
-                        {new Date().getFullYear() - Math.floor(veiculo.kilometers / 15000)}
-                      </p>
+                    <div className="col-md-2">
+                      <p className="small text-muted">Ano</p>
+                      <p className="mb-0 fw-semibold">{new Date().getFullYear() - Math.floor(veiculo.kilometers / 15000)}</p>
                     </div>
-                    <div className="col-md-4">
-                      <p className="small text-muted mb-1 text-start">Cor</p>
-                      <p className="mb-0">N/A</p>
+                    <div className="col-md-2">
+                      <p className="small text-muted flex items-center"><CalendarIcon className="mr-2 h-4 w-4" /> Última Revisão</p>
+                      <p className="mb-0 fw-semibold">{new Date(customerData.customer.updated_at).toLocaleDateString("pt-PT")}</p>
                     </div>
-                    <div className="col-md-8">
-                      <p className="small text-muted mb-1 text-start">
-                        <Calendar className="me-1" style={{ width: '14px', height: '14px' }} />
-                        Última Revisão
-                      </p>
-                      <p className="mb-0">
-                        {new Date(customerData.customer.updated_at).toLocaleDateString("pt-PT")}
-                      </p>
+                    <div className="col-md-2 align-self-center">
+                      <Button 
+                        variant="outline" 
+                        className="btn-custom-outline"
+                      >
+                        Ver Detalhes (IN PROGRESS)
+                      </Button>
                     </div>
                   </div>
                 </div>

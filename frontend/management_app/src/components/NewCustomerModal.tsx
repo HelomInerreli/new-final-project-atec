@@ -71,7 +71,6 @@ const NewCustomerModal: React.FC<NewCustomerModalProps> = ({
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Card with red border matching CustomerDetails */}
         <div className="card" style={{ border: '1px solid #dc3545', borderRadius: '8px'}}>
           <div className="card-body p-4">
             {/* Header */}
