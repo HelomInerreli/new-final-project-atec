@@ -8,6 +8,7 @@ from app.database import SessionLocal, engine, Base
 from app.crud.customer import CustomerRepository
 from app.crud.vehicle import VehicleRepository
 from app.crud.appoitment import AppointmentRepository
+from app.crud.employee import EmployeeRepository
 from app.crud.service import ServiceRepository
 from app.schemas.customer import CustomerCreate
 from app.schemas.vehicle import VehicleCreate
@@ -15,6 +16,7 @@ from app.schemas.appointment import AppointmentCreate
 from app.schemas.service import ServiceCreate
 from app.schemas.appointment_extra_service import AppointmentExtraServiceCreate
 
+from app.schemas.employee import EmployeeCreate
 # Import models to ensure they are registered with Base.metadata before table creation
 from app.models.customer import Customer
 from app.models.customerAuth import CustomerAuth
@@ -25,6 +27,8 @@ from app.models.service import Service
 from app.models.extra_service import ExtraService as ExtraServiceModel
 from app.models.invoice import Invoice
 from app.models.product import Product
+from app.models.role import Role
+from app.models.employee import Employee
 from app.scripts.seed_products import seed_products
 
 # Configuration
@@ -32,6 +36,7 @@ NUM_APPOINTMENTS = 12
 MIN_VEHICLES_PER_CUSTOMER = 1
 MAX_VEHICLES_PER_CUSTOMER = 3
 MAX_EXTRA_SERVICES_PER_APPOINTMENT = 2
+NUM_EMPLOYEES = 8
 
 fake = Faker("pt_PT")
 
@@ -69,6 +74,13 @@ STATUSES = [
     "In Repair",
     "Awaiting Approval",
     "Waitting Payment",
+]
+
+ROLES_TO_CREATE = [
+    "Gestor",
+    "Mecanico",
+    "Eletricista",
+    "Borracheiro"
 ]
 
 
@@ -198,7 +210,53 @@ def seed_data(db: Session):
             catalog_extra_services.append(existing)
     print(f"Created/verified {len(catalog_extra_services)} catalog extra services.")
 
-    # 4) Create 3 customers manually
+    # 4) Create Roles
+    role_objects = {}
+    for role_name in ROLES_TO_CREATE:
+        db_role = db.query(Role).filter(Role.name == role_name).first()
+        if not db_role:
+            new_role = Role(name=role_name, description=f"Função de {role_name}")
+            db.add(new_role)
+            db.commit()
+            db.refresh(new_role)
+            role_objects[role_name] = new_role
+        else:
+            role_objects[role_name] = db_role
+    print(f"Created/verified {len(role_objects)} roles.")
+
+    # 5) Create Employees
+    employee_repo = EmployeeRepository(db)
+    employees = []
+    # Create a list of 8 role objects, 2 of each role, to assign to the 8 employees
+    role_cycle = list(role_objects.values()) * (NUM_EMPLOYEES // len(ROLES_TO_CREATE))
+    
+    for i in range(NUM_EMPLOYEES):
+        first_name = fake.first_name()
+        last_name = fake.last_name()
+        role = role_cycle[i]
+        
+        employee_in = EmployeeCreate(
+            name=first_name,
+            last_name=last_name,
+            email=fake.unique.email(),
+            phone=fake.phone_number(),
+            address=fake.address(),
+            date_of_birth=fake.date_time_between(start_date='-65y', end_date='-18y'),
+            salary=random.randint(1200, 4500),
+            hired_at=fake.date_time_between(start_date="-5y", end_date="now"),
+            role_id=role.id,
+            is_manager=(role.name == "Gestor")
+        )
+        try:
+            employee = employee_repo.create(employee_in)
+            employees.append(employee)
+        except Exception as e:
+            db.rollback()
+            print(f"Failed to create employee: {e}")
+            continue
+    print(f"Created {len(employees)} employees.")
+
+    # 6) Create 3 customers manually
     customers = []
     manual_customers = [
         {
@@ -276,7 +334,7 @@ def seed_data(db: Session):
 
     print(f"Created {len(customers)} customers.")
 
-    # 5) Create vehicles
+    # 7) Create vehicles
     vehicles = []
     for customer in customers:
         num_vehicles = random.randint(MIN_VEHICLES_PER_CUSTOMER, MAX_VEHICLES_PER_CUSTOMER)
@@ -300,7 +358,7 @@ def seed_data(db: Session):
     
     print(f"Created {len(vehicles)} vehicles.")
 
-    # 6) Create appointments
+    # 8) Create appointments
     appointments = []
     status_plan = {
         "Pendente": 3,
@@ -365,7 +423,7 @@ def seed_data(db: Session):
 
     print(f"Created {len(appointments)} appointments.")
 
-    # **7) CREATE INVOICES FOR FINALIZED APPOINTMENTS**
+    # **9) CREATE INVOICES FOR FINALIZED APPOINTMENTS**
     print("\n" + "="*60)
     print("📄 CREATING INVOICES FOR FINALIZED APPOINTMENTS")
     print("="*60)
@@ -442,7 +500,7 @@ def seed_data(db: Session):
     
     print(f"\n✅ Created {len(created_invoices)} invoices!")
 
-    # 8) Print statistics
+    # 10) Print statistics
     all_appointments = db.query(Appointment).all()
     status_counts = {name: 0 for name in status_objects.keys()}
     for apt in all_appointments:
