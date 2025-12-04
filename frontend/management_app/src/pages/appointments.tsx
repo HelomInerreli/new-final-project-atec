@@ -656,9 +656,22 @@ export default function Agendamentos() {
                     <input
                       id="appointment_date"
                       type="date"
-                      className="mb-input date-input"
+                      className={`mb-input date-input ${formData.appointment_date ? 'has-value' : ''}`}
                       value={formData.appointment_date}
-                      onChange={handleInputChange}
+                      onChange={(e) => {
+                        const selectedDate = new Date(e.target.value + 'T00:00:00');
+                        const dayOfWeek = selectedDate.getDay();
+                        if (dayOfWeek === 0 || dayOfWeek === 6) {
+                          e.target.value = '';
+                          toast({
+                            title: "Data Inválida",
+                            description: "Por favor, selecione um dia útil (Segunda a Sexta-feira).",
+                            variant: "destructive"
+                          });
+                          return;
+                        }
+                        handleInputChange(e);
+                      }}
                       min={new Date().toISOString().split('T')[0]}
                       required
                       onFocus={(e) => e.target.nextElementSibling?.classList.add('shrunken')}
@@ -666,6 +679,20 @@ export default function Agendamentos() {
                         if (!e.target.value) {
                           e.target.nextElementSibling?.classList.remove('shrunken');
                         }
+                      }}
+                      onKeyDown={(e) => {
+                        // Prevent manual typing of weekend dates
+                        const input = e.currentTarget;
+                        setTimeout(() => {
+                          if (input.value) {
+                            const date = new Date(input.value + 'T00:00:00');
+                            const day = date.getDay();
+                            if (day === 0 || day === 6) {
+                              input.value = '';
+                              setFormData(prev => ({ ...prev, appointment_date: '' }));
+                            }
+                          }
+                        }, 0);
                       }}
                     />
                     <label className={`mb-input-label ${formData.appointment_date ? 'shrunken' : ''}`}>
