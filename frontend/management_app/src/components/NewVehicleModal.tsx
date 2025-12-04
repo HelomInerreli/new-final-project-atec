@@ -5,7 +5,7 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Spinner } from "react-bootstrap";
-import type { VehicleCreate } from "../services/vehicleService";
+import type { VehicleCreate } from "../interfaces/Vehicle";
 import { useFetchCustomers } from "../hooks/useCustomers";
 
 interface NewVehicleModalProps {

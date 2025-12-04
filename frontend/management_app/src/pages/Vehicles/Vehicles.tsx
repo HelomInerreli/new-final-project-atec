@@ -10,7 +10,7 @@ import { Link } from "react-router-dom";
 import { Spinner, Alert } from "react-bootstrap";
 import { useFetchVehicles } from "../../hooks/useVehicles";
 import NewVehicleModal from "../../components/NewVehicleModal";
-import type { VehicleCreate } from "../../services/vehicleService";
+import type { VehicleCreate } from "../../interfaces/Vehicle";
 import { vehicleService } from "../../services/vehicleService";
 
 export default function Vehicles() {
@@ -24,7 +24,7 @@ export default function Vehicles() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [vehicleToDelete, setVehicleToDelete] = useState<number | null>(null);
 
-  // Map backend data
+  // Map backend data 
   const vehicles = useMemo(() => {
     return rawVehicles.map(vehicle => ({
       id: vehicle.id.toString(),

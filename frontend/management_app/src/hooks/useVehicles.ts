@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import http from '../api/http';
-import type { Vehicle } from '../services/vehicleService';
+import type { Vehicle } from '../interfaces/Vehicle';
 
 interface VehicleCountMap {
   [customerId: string]: number;
