@@ -7,7 +7,7 @@ import Badge from "react-bootstrap/Badge";
 import { Link } from "react-router-dom";
 import { Spinner, Alert } from "react-bootstrap";
 import NewVehicleModal from "../../components/NewVehicleModal";
-import { useVehiclesPage } from "../../hooks/useVehiclesPage";
+import { useVehiclesPage } from "../../hooks/useVehicles";
 import "../../styles/Vehicles.css";
 
 export default function Vehicles() {
