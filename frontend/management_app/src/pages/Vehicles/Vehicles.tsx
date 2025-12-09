@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import { Spinner, Alert } from "react-bootstrap";
 import NewVehicleModal from "../../components/NewVehicleModal";
 import { useVehiclesPage } from "../../hooks/useVehiclesPage";
+import "../../styles/Vehicles.css";
 
 export default function Vehicles() {
   const {
@@ -43,19 +44,8 @@ export default function Vehicles() {
   }
 
   return (
-    <div
-      className="d-flex flex-column"
-      style={{
-        height: "100%",
-        backgroundColor: "transparent",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
-      <div
-        className="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom border-light"
-        style={{ flexShrink: 0 }}
-      >
+    <div className="vehicles-container d-flex flex-column">
+      <div className="vehicles-header d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom border-light">
         <div>
           <h1 className="h1 fw-bold text-dark">Gestão de Veículos</h1>
           <p className="text-muted mt-1">Gerencie os veículos da oficina</p>
@@ -77,25 +67,9 @@ export default function Vehicles() {
         </div>
       </div>
 
-      <div
-        className="table-responsive border rounded flex-grow-1"
-        style={{
-          overflowY: "auto",
-          backgroundColor: "#fff",
-          borderRadius: "0.375rem",
-          boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-          minHeight: 0,
-        }}
-      >
+      <div className="vehicles-table-wrapper table-responsive border rounded flex-grow-1">
         <Table>
-          <TableHeader
-            style={{
-              position: "sticky",
-              top: 0,
-              zIndex: 2,
-              background: "#fff",
-            }}
-          >
+          <TableHeader className="vehicles-table-header">
             <TableRow>
               <TableHead>Marca</TableHead>
               <TableHead>Modelo</TableHead>

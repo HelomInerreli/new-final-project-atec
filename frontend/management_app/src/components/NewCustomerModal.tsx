@@ -4,7 +4,7 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { X, Calendar as CalendarIcon } from 'lucide-react';
-import './../styles/CustomerDetails.css';
+import './../styles/NewCustomerModal.css';
 import { Calendar } from "../components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "../components/ui/popover"
 import { format, parseISO } from "date-fns"
@@ -43,35 +43,9 @@ const NewCustomerModal: React.FC<NewCustomerModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div 
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1050,
-        padding: '1rem'
-      }}
-      onClick={onClose}
-    >
-      <div 
-        style={{
-          backgroundColor: 'white',
-          borderRadius: '8px',
-          maxWidth: '900px',
-          width: '100%',
-          maxHeight: '90vh',
-          overflow: 'auto',
-          position: 'relative'
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="card" style={{ border: '1px solid #dc3545', borderRadius: '8px'}}>
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content-container" onClick={(e) => e.stopPropagation()}>
+        <div className="card modal-card">
           <div className="card-body p-4">
             {/* Header */}
             <div className="d-flex justify-content-between align-items-center mb-4">
@@ -81,20 +55,7 @@ const NewCustomerModal: React.FC<NewCustomerModalProps> = ({
                 size="icon"
                 onClick={onClose}
                 disabled={loading}
-                style={{ 
-                  background: 'transparent',
-                  border: 'none',
-                  color: '#333',
-                  transition: 'all 0.2s ease-in-out'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#dc3545';
-                  e.currentTarget.style.color = 'white';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.color = '#333';
-                }}
+                className="modal-close-button"
               >
                 <X className="h-5 w-5" />
               </Button>
@@ -122,8 +83,7 @@ const NewCustomerModal: React.FC<NewCustomerModalProps> = ({
                     onChange={handleChange}
                     disabled={loading}
                     placeholder="Digite o Nome"
-                    className="form-control"
-                    style={{ backgroundColor: '#f8f9fa' }}
+                    className="form-control modal-input"
                   />
                 </div>
                 <div className="col-md-6">
@@ -138,8 +98,7 @@ const NewCustomerModal: React.FC<NewCustomerModalProps> = ({
                     onChange={handleChange}
                     disabled={loading}
                     placeholder="Digite o Telefone"
-                    className="form-control"
-                    style={{ backgroundColor: '#f8f9fa' }}
+                    className="form-control modal-input"
                   />
                 </div>
 
@@ -153,17 +112,16 @@ const NewCustomerModal: React.FC<NewCustomerModalProps> = ({
                       <Button
                         variant="outline"
                         className={cn(
-                          "w-full justify-start text-left font-normal",
+                          "w-full justify-start text-left font-normal modal-calendar-button",
                           !formData.birth_date && "text-muted-foreground"
                         )}
-                        style={{ backgroundColor: '#f8f9fa', height: '38px', borderColor: '#dee2e6', color: '#495057' }}
                         disabled={loading}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {formData.birth_date ? format(parseISO(formData.birth_date), "dd/MM/yyyy") : "Selecione a data"}
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 z-[1100]" align="start">
+                    <PopoverContent className="w-auto p-0 modal-popover-content" align="start">
                       <Calendar
                         mode="single"
                         selected={formData.birth_date ? parseISO(formData.birth_date) : undefined}
@@ -191,8 +149,7 @@ const NewCustomerModal: React.FC<NewCustomerModalProps> = ({
                     onChange={handleChange}
                     disabled={loading}
                     placeholder="Digite o Endereço"
-                    className="form-control"
-                    style={{ backgroundColor: '#f8f9fa' }}
+                    className="form-control modal-input"
                   />
                 </div>
 
@@ -209,8 +166,7 @@ const NewCustomerModal: React.FC<NewCustomerModalProps> = ({
                     onChange={handleChange}
                     disabled={loading}
                     placeholder="Digite o País"
-                    className="form-control"
-                    style={{ backgroundColor: '#f8f9fa' }}
+                    className="form-control modal-input"
                   />
                 </div>
                 <div className="col-md-4">
@@ -225,8 +181,7 @@ const NewCustomerModal: React.FC<NewCustomerModalProps> = ({
                     onChange={handleChange}
                     disabled={loading}
                     placeholder="Digite a Cidade"
-                    className="form-control"
-                    style={{ backgroundColor: '#f8f9fa' }}
+                    className="form-control modal-input"
                   />
                 </div>
                 <div className="col-md-4">
@@ -241,8 +196,7 @@ const NewCustomerModal: React.FC<NewCustomerModalProps> = ({
                     onChange={handleChange}
                     disabled={loading}
                     placeholder="Digite o Código Postal"
-                    className="form-control"
-                    style={{ backgroundColor: '#f8f9fa' }}
+                    className="form-control modal-input"
                   />
                 </div>
 
@@ -263,8 +217,7 @@ const NewCustomerModal: React.FC<NewCustomerModalProps> = ({
                     disabled={loading}
                     placeholder="Digite o Email"
                     required
-                    className="form-control"
-                    style={{ backgroundColor: '#f8f9fa' }}
+                    className="form-control modal-input"
                   />
                 </div>
                 <div className="col-md-6">
@@ -280,8 +233,7 @@ const NewCustomerModal: React.FC<NewCustomerModalProps> = ({
                     disabled={loading}
                     placeholder="Digite a Password"
                     required
-                    className="form-control"
-                    style={{ backgroundColor: '#f8f9fa' }}
+                    className="form-control modal-input"
                   />
                 </div>
               </div>

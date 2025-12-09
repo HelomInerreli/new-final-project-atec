@@ -1,0 +1,70 @@
+/* New Customer Modal Styles */
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  padding: 1rem;
+}
+
+/* Modal Content Container */
+.modal-content-container {
+  background-color: white;
+  border-radius: 8px;
+  max-width: 900px;
+  width: 100%;
+  max-height: 90vh;
+  overflow: auto;
+  position: relative;
+}
+
+/* Modal Close Button (X) */
+.modal-close-button {
+  background: transparent !important;
+  border: none !important;
+  color: #333 !important;
+  transition: all 0.2s ease-in-out !important;
+  cursor: pointer !important;
+}
+
+.modal-close-button:hover:not(:disabled) {
+  background-color: #dc3545 !important;
+  color: white !important;
+}
+
+.modal-close-button:disabled {
+  cursor: not-allowed !important;
+  opacity: 0.5 !important;
+}
+
+/* Modal Card */
+.modal-card {
+  border: 1px solid #dc3545;
+  border-radius: 8px;
+}
+
+/* Modal Inputs */
+.modal-input {
+  background-color: #f8f9fa;
+}
+
+/* Calendar Button */
+.modal-calendar-button {
+  background-color: #f8f9fa;
+  height: 38px;
+  border-color: #dee2e6;
+  color: #495057;
+}
+
+/* Popover Content */
+.modal-popover-content {
+  z-index: 1100;
+}
