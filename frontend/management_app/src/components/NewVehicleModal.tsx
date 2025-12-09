@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -7,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Spinner } from "react-bootstrap";
 import type { VehicleCreate } from "../interfaces/Vehicle";
 import { useFetchCustomers } from "../hooks/useCustomers";
+import { useNewVehicleModal } from "../hooks/useNewVehicleModal";
 
 interface NewVehicleModalProps {
   isOpen: boolean;
@@ -17,29 +17,13 @@ interface NewVehicleModalProps {
 
 export default function NewVehicleModal({ isOpen, onClose, onSubmit, loading }: NewVehicleModalProps) {
   const { customers } = useFetchCustomers();
-  const [formData, setFormData] = useState<VehicleCreate>({
-    plate: "",
-    brand: "",
-    model: "",
-    kilometers: 0,
-    customer_id: 0,
-  });
-
-  const handleChange = (field: keyof VehicleCreate, value: string | number) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
+  const { formData, handleChange, validateForm } = useNewVehicleModal(isOpen);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await onSubmit(formData);
-    // Reset form
-    setFormData({
-      plate: "",
-      brand: "",
-      model: "",
-      customer_id: 0,
-      kilometers: 0,
-    });
+    if (validateForm()) {
+      await onSubmit(formData);
+    }
   };
 
   return (

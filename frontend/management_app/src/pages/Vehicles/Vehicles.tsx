@@ -1,103 +1,31 @@
-import { useState, useMemo } from "react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../../components/ui/alert-dialog";
 import { Plus, Search, Trash2, Eye } from "lucide-react";
-import { toast } from "../../hooks/use-toast";
 import Badge from "react-bootstrap/Badge";
 import { Link } from "react-router-dom";
 import { Spinner, Alert } from "react-bootstrap";
-import { useFetchVehicles } from "../../hooks/useVehicles";
 import NewVehicleModal from "../../components/NewVehicleModal";
-import type { VehicleCreate } from "../../interfaces/Vehicle";
-import { vehicleService } from "../../services/vehicleService";
+import { useVehiclesPage } from "../../hooks/useVehiclesPage";
 
 export default function Vehicles() {
-  // Fetch vehicles with refetch capability
-  const { vehicles: rawVehicles, loading, error, refetch } = useFetchVehicles();
-
-  // UI state
-  const [searchTerm, setSearchTerm] = useState("");
-  const [newVehicleModalOpen, setNewVehicleModalOpen] = useState(false);
-  const [creatingVehicle, setCreatingVehicle] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [vehicleToDelete, setVehicleToDelete] = useState<number | null>(null);
-
-  // Map backend data 
-  const vehicles = useMemo(() => {
-    return rawVehicles.map(vehicle => ({
-      id: vehicle.id.toString(),
-      brand: vehicle.brand,
-      model: vehicle.model,
-      plate: vehicle.plate,
-      kilometers: vehicle.kilometers || 0,
-      customerName: vehicle.customer_name || "Unknown",
-      customerId: vehicle.customer_id,
-    }));
-  }, [rawVehicles]);
-
-  // Filter vehicles based on search term
-  const filteredVehicles = useMemo(() => {
-    return vehicles.filter(vehicle => {
-      const matchesSearch =
-        vehicle.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        vehicle.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        vehicle.plate.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        vehicle.customerName.toLowerCase().includes(searchTerm.toLowerCase());
-      return matchesSearch;
-    });
-  }, [vehicles, searchTerm]);
-
-  const handleDelete = (id: string) => {
-    setVehicleToDelete(parseInt(id));
-    setDeleteDialogOpen(true);
-  };
-
-  const confirmDelete = async () => {
-    if (vehicleToDelete) {
-      try {
-        await vehicleService.delete(vehicleToDelete);
-        toast({
-          title: "Veículo eliminado",
-          description: "O veículo foi eliminado com sucesso.",
-        });
-        refetch();
-      } catch (error) {
-        toast({
-          title: "Erro",
-          description: "Não foi possível eliminar o veículo.",
-          variant: "destructive",
-        });
-      }
-    }
-    setDeleteDialogOpen(false);
-    setVehicleToDelete(null);
-  };
-
-  const handleCreateVehicle = async (vehicleData: VehicleCreate) => {
-    setCreatingVehicle(true);
-    try {
-      await vehicleService.create(vehicleData);
-      toast({ title: "Veículo Criado", description: "O novo veículo foi criado com sucesso." });
-      setNewVehicleModalOpen(false);
-      // Refresh the list
-      refetch();
-    } catch (error: any) {
-      console.error("Create vehicle error:", error);
-      toast({
-        title: "Erro",
-        description: error.response?.data?.detail || "Não foi possível criar o veículo.",
-        variant: "destructive",
-      });
-    } finally {
-      setCreatingVehicle(false);
-    }
-  };
-
-  const formatKilometers = (km: number) => {
-    return km > 0 ? `${km.toLocaleString("pt-PT")} km` : "0 km";
-  };
+  const {
+    filteredVehicles,
+    loading,
+    error,
+    searchTerm,
+    setSearchTerm,
+    newVehicleModalOpen,
+    setNewVehicleModalOpen,
+    creatingVehicle,
+    deleteDialogOpen,
+    setDeleteDialogOpen,
+    handleDelete,
+    confirmDelete,
+    handleCreateVehicle,
+    formatKilometers,
+  } = useVehiclesPage();
 
   // Loading state
   if (loading) {
