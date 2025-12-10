@@ -49,10 +49,10 @@ VEHICLE_MODELS = {
 }
 
 MAIN_SERVICES = [
-    {"name": "Revisão Anual", "description": "Revisão completa do veículo, incluindo verificação de níveis, travões e luzes.", "price": 150.0, "duration_minutes": 90},
-    {"name": "Mudança de Óleo e Filtros", "description": "Troca de óleo do motor e substituição dos filtros de óleo e ar.", "price": 85.0, "duration_minutes": 60},
-    {"name": "Diagnóstico Eletrónico", "description": "Ligação à máquina de diagnóstico para identificar avarias eletrónicas.", "price": 45.0, "duration_minutes": 30},
-    {"name": "Alinhamento de Direção", "description": "Alinhamento computorizado das rodas dianteiras e traseiras.", "price": 35.0, "duration_minutes": 45},
+    {"name": "Revisão Anual", "description": "Revisão completa do veículo, incluindo verificação de níveis, travões e luzes.", "price": 150.0, "duration_minutes": 90, "area": "mecanico"},
+    {"name": "Mudança de Óleo e Filtros", "description": "Troca de óleo do motor e substituição dos filtros de óleo e ar.", "price": 85.0, "duration_minutes": 60, "area": "mecanico"},
+    {"name": "Diagnóstico Eletrónico", "description": "Ligação à máquina de diagnóstico para identificar avarias eletrónicas.", "price": 45.0, "duration_minutes": 30, "area": "eletricista"},
+    {"name": "Alinhamento de Direção", "description": "Alinhamento computorizado das rodas dianteiras e traseiras.", "price": 35.0, "duration_minutes": 45, "area": "borracheiro"},
 ]
 
 EXTRA_SERVICE_CATALOG = [
@@ -136,7 +136,7 @@ def create_invoice_for_appointment(db: Session, appointment: Appointment, invoic
 
 MIN_VEHICLES_PER_CUSTOMER = 1  # Garantir que todos têm pelo menos 1 veículo
 def seed_data(db: Session):
-    """Seed database with initial data"""
+    """Seed database with initial data
     Seed database:
     - create statuses
     - create main services

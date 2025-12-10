@@ -10,6 +10,7 @@ from app.email_service.email_service import EmailService
 from app.schemas.order_comment import CommentCreate, CommentOut
 from app.models.order_comment import OrderComment
 from app.models.appoitment import Appointment as AppointmentModel
+from app.models.user import User
 from fastapi import APIRouter, Body, Depends, HTTPException, status
 
 router = APIRouter()
