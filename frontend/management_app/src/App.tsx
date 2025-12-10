@@ -11,6 +11,9 @@ import ServicesManagement from "./pages/ServicesManagement";
 import Customers from "./pages/Customers/Customers";
 import CustomerDetails from "./pages/Customers/CustomerDetails";
 import { Toaster } from "./components/ui/toaster";
+import Users from "./pages/Users/Users";
+import Folgas from "./pages/Users/Folgas";
+import Ferias from "./pages/Users/Ferias";
 
 function App() {
   return (
@@ -25,6 +28,9 @@ function App() {
             <Route path="/servicesOrders" element={<ServiceOrders />} />
             <Route path="/orders/:id" element={<ServiceOrderDetail />} />
             <Route path="/customers" element={<Customers />} />
+            <Route path="/users" element={<Users />} />
+            <Route path="/folgas" element={<Folgas />} />
+            <Route path="/ferias" element={<Ferias />} />
             <Route
               path="/servicesManagement"
               element={<ServicesManagement />}
