@@ -120,6 +120,7 @@ def get_appointment_repo(db: Session = Depends(get_db)) -> AppointmentRepository
 def list_appointments(
     skip: int = 0,
     limit: int = 100,
+    current_user: User = Depends(get_current_user),
     repo: AppointmentRepository = Depends(get_appointment_repo)
 ):
     """
