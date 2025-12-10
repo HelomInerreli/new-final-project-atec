@@ -11,3 +11,5 @@ from .customerAuth import CustomerAuth
 from .invoice import Invoice
 # from .agendamento import Agendamento, StatusAgendamento
 from .order_comment import OrderComment
+from .employee import Employee
+from .role import Role

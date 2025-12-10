@@ -161,3 +161,9 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* React Datepicker Customization */
+.react-datepicker__day--outside-month {
+  color: #ccc !important;
+  pointer-events: none;
+}
