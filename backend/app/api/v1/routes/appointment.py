@@ -10,7 +10,10 @@ from app.email_service.email_service import EmailService
 from app.schemas.order_comment import CommentCreate, CommentOut
 from app.models.order_comment import OrderComment
 from app.models.appoitment import Appointment as AppointmentModel
+from app.models.user import User
+from app.core.security import get_current_user
 from fastapi import APIRouter, Body, Depends, HTTPException, status
+
 
 router = APIRouter()
 
@@ -119,6 +122,7 @@ def get_appointment_repo(db: Session = Depends(get_db)) -> AppointmentRepository
 def list_appointments(
     skip: int = 0,
     limit: int = 100,
+    current_user: User = Depends(get_current_user),
     repo: AppointmentRepository = Depends(get_appointment_repo)
 ):
     """

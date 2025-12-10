@@ -188,6 +188,7 @@
   padding: 0.75rem 1rem;
   border: 2px solid #e5e7eb;
   border-radius: 8px;
+  line-height: 1rem;
   font-size: 1rem;
   transition: all 0.2s ease;
   background: white;
@@ -282,10 +283,13 @@
 }
 
 .summary-row {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  align-items: flex-start;
   padding: 0.75rem 0;
   border-bottom: 1px solid #e5e7eb;
+  gap: 1rem;
+  min-height: auto;
 }
 
 .summary-row:last-child {
@@ -301,9 +305,12 @@
 .summary-value {
   color: #1f2937;
   font-weight: 600;
-  text-align: right;
-  max-width: 60%;
+  text-align: left;
   word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+  min-width: 0;
 }
 
 .summary-divider {
@@ -469,7 +476,8 @@
   }
 
   .summary-value {
-    max-width: 50%;
+    max-width: none;
+
   }
 }
 

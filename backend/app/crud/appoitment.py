@@ -10,6 +10,8 @@ from app.models.extra_service import ExtraService
 from app.models.status import Status
 from app.models.customer import Customer
 from app.models.customerAuth import CustomerAuth
+from app.models.user import User
+from app.models.service import Service
 
 from app.schemas.appointment import AppointmentCreate, AppointmentUpdate
 from app.schemas.appointment_extra_service import AppointmentExtraServiceCreate
@@ -20,6 +22,7 @@ from app.models.product import Product
 from sqlalchemy.orm.attributes import flag_modified
 from datetime import datetime
 from app.models.order_part import OrderPart
+from app.schemas import user
 
 
 # Define status constants locally to avoid magic strings
@@ -70,18 +73,18 @@ class AppointmentRepository:
                 .filter(Appointment.id == appointment_id)
                 .first()
         )
-
-    def get_all(self, skip: int = 0, limit: int = 100) -> List[Appointment]:
+            
+    def get_all(self, skip: int = 0, limit: int = 100, user: Optional[User] = None) -> List[Appointment]:
         """Listar appointments, ordenadas do mais recente para o mais antigo."""
-        # carregar customer e vehicle para que os campos customer_id/vehicle_id e os objetos apareçam no response. #Henrique
-        return (
-            self.db.query(Appointment)
-            .options(joinedload(Appointment.customer), joinedload(Appointment.vehicle))  # <-- adicionadoHenrique
-            .order_by(Appointment.id.desc())
-            .offset(skip)
-            .limit(limit)
-            .all()
+        # carregar customer e vehicle para que os campos customer_id/vehicle_id e os objetos relacionados estejam disponíveis
+        query = (
+        self.db.query(Appointment)
+        .options(joinedload(Appointment.customer), joinedload(Appointment.vehicle), joinedload(Appointment.service))
+        .order_by(Appointment.id.desc())
         )
+        if user and user.role_id:
+            query = query.filter(Appointment.service.has(Service.area == user.role_id))
+        return query.offset(skip).limit(limit).all()
 
     # def get_all(self, skip: int = 0, limit: int = 100) -> List[Appointment]:
     #     """Listar appointments, ordenadas do mais recente para o mais antigo."""
