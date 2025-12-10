@@ -22,7 +22,7 @@ from app.models.product import Product
 from sqlalchemy.orm.attributes import flag_modified
 from datetime import datetime
 from app.models.order_part import OrderPart
-from backend.app.schemas import user
+from app.schemas import user
 
 
 # Define status constants locally to avoid magic strings
