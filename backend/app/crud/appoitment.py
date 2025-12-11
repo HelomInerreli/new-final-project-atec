@@ -67,8 +67,6 @@ class AppointmentRepository:
                     joinedload(Appointment.extra_service_associations),
                     joinedload(Appointment.status),
                     joinedload(Appointment.parts),
-
-
                 )
                 .filter(Appointment.id == appointment_id)
                 .first()
