@@ -179,7 +179,7 @@ export default function ServicesManagement() {
         </Button>
       </div>
 
-      <div className="mb-input-wrapper" style={{ maxWidth: '600px', margin: '0 auto' }}>
+      <div className="mb-input-wrapper" style={{ maxWidth: '400px' }}>
         <div style={{ position: 'relative' }}>
           <Search 
             size={20} 
@@ -218,7 +218,7 @@ export default function ServicesManagement() {
           <p className="text-muted-foreground">A carregar serviços...</p>
         </div>
       ) : (
-        <div className="rounded-md border">
+        <div className="rounded-md border-2 border-red-600">
           <Table>
             <TableHeader>
               <TableRow>
@@ -365,7 +365,8 @@ export default function ServicesManagement() {
                             placeholder=""
                             className="mb-input"
                             {...field}
-                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                            value={field.value || ''}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
                             onFocus={(e) => e.target.nextElementSibling?.classList.add('shrunken')}
                             onBlur={(e) => {
                               if (!e.target.value) {
