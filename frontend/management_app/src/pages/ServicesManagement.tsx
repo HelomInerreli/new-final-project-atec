@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
-import { Search, Plus, Edit, Trash2 } from "lucide-react";
+import { Search, Plus, Edit, Trash2, AlertTriangle } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -18,6 +18,7 @@ const servicoSchema = z.object({
   description: z.string().optional(),
   price: z.number().min(0.01, "Preço deve ser maior que 0"),
   duration_minutes: z.number().min(1, "Duração deve ser maior que 0"),
+  is_active: z.boolean().optional(),
 });
 
 export default function ServicesManagement() {
@@ -36,6 +37,7 @@ export default function ServicesManagement() {
       description: "",
       price: 0,
       duration_minutes: 30,
+      is_active: true,
     },
   });
 
@@ -79,6 +81,7 @@ export default function ServicesManagement() {
         description: servico.description || "",
         price: servico.price,
         duration_minutes: servico.duration_minutes || 30,
+        is_active: servico.is_active,
       });
     } else {
       setEditingServico(null);
@@ -87,6 +90,7 @@ export default function ServicesManagement() {
         description: "",
         price: 0,
         duration_minutes: 30,
+        is_active: true,
       });
     }
     setDialogOpen(true);
@@ -179,7 +183,7 @@ export default function ServicesManagement() {
         </Button>
       </div>
 
-      <div className="mb-input-wrapper" style={{ maxWidth: '400px' }}>
+      <div className="mb-input-wrapper">
         <div style={{ position: 'relative' }}>
           <Search 
             size={20} 
@@ -222,12 +226,12 @@ export default function ServicesManagement() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Serviço</TableHead>
-                <TableHead>Descrição</TableHead>
-                <TableHead className="text-right">Preço</TableHead>
-                <TableHead className="text-center">Duração</TableHead>
-                <TableHead className="text-center">Estado</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
+                <TableHead className="font-semibold text-base text-black">Serviço</TableHead>
+                <TableHead className="font-semibold text-base text-black">Descrição</TableHead>
+                <TableHead className="text-right font-semibold text-base text-black">Preço</TableHead>
+                <TableHead className="text-center font-semibold text-base text-black">Duração</TableHead>
+                <TableHead className="text-center font-semibold text-base text-black">Estado</TableHead>
+                <TableHead className="text-right font-semibold text-base text-black">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -240,14 +244,14 @@ export default function ServicesManagement() {
               ) : (
                 filteredServicos.map((servico) => (
                   <TableRow key={servico.id}>
-                    <TableCell className="font-medium">{servico.name}</TableCell>
+                    <TableCell className="font-medium text-left">{servico.name}</TableCell>
                     <TableCell className="max-w-xs truncate">{servico.description}</TableCell>
                     <TableCell className="text-right font-medium">
                       {formatPreco(servico.price)}
                     </TableCell>
                     <TableCell className="text-center">{formatDuracao(servico.duration_minutes ?? null)}</TableCell>
                     <TableCell className="text-center">
-                      <Badge variant={servico.is_active ? "default" : "secondary"}>
+                      <Badge className={servico.is_active ? "bg-green-600 hover:bg-green-700 text-white" : "bg-red-600 hover:bg-red-700 text-white"}>
                         {servico.is_active ? "Ativo" : "Inativo"}
                       </Badge>
                     </TableCell>
@@ -452,6 +456,48 @@ export default function ServicesManagement() {
                   }}
                 />
               </div>
+              
+              {editingServico && (
+                <FormField
+                  control={form.control}
+                  name="is_active"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <div className="flex items-center gap-4">
+                          <label className="text-sm font-medium">Estado:</label>
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={() => field.onChange(true)}
+                              className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                                field.value 
+                                  ? 'bg-green-600 text-white' 
+                                  : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                              }`}
+                            >
+                              Ativo
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => field.onChange(false)}
+                              className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                                !field.value 
+                                  ? 'bg-red-600 text-white' 
+                                  : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                              }`}
+                            >
+                              Inativo
+                            </button>
+                          </div>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
               <DialogFooter>
                 <Button
                   type="button"
@@ -471,16 +517,26 @@ export default function ServicesManagement() {
       </Dialog>
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Tem a certeza?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta ação não pode ser revertida. O serviço será permanentemente eliminado.
+        <AlertDialogContent className="sm:max-w-md">
+          <AlertDialogHeader className="space-y-4">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+              <AlertTriangle className="h-6 w-6 text-red-600" />
+            </div>
+            <AlertDialogTitle className="text-center text-xl">
+              Eliminar Serviço
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center text-base">
+              Esta ação não pode ser desfeita. Tem a certeza que deseja eliminar permanentemente este serviço?
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteConfirm}>
+          <AlertDialogFooter className="flex flex-row gap-3 justify-center sm:justify-center mt-2">
+            <AlertDialogCancel className="mt-0 flex-1 sm:flex-none px-6 hover:bg-gray-100 focus-visible:ring-0 focus-visible:ring-offset-0">
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDeleteConfirm}
+              className="mt-0 flex-1 sm:flex-none px-6 bg-red-600 hover:bg-red-700 text-white focus-visible:ring-0 focus-visible:ring-offset-0"
+            >
               Eliminar
             </AlertDialogAction>
           </AlertDialogFooter>
