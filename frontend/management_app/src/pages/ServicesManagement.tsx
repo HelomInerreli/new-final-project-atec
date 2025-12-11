@@ -174,8 +174,8 @@ export default function ServicesManagement() {
     <div className="flex-1 space-y-6 p-8">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Gestão de Serviços</h1>
-          <p className="text-muted-foreground">Gerir serviços e preços da oficina</p>
+          <h1 className="text-4xl font-bold text-gray-900 leading-tight">Gestão de Serviços</h1>
+          <p className="text-lg text-gray-600 mt-2 font-medium">Gerir serviços e preços da oficina</p>
         </div>
         <Button variant="destructive" onClick={() => handleOpenDialog()}>
           <Plus className="mr-2 h-4 w-4" />
