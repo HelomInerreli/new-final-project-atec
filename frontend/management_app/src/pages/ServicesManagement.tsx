@@ -35,7 +35,7 @@ export default function ServicesManagement() {
     defaultValues: {
       name: "",
       description: "",
-      price: 0,
+      price: undefined,
       duration_minutes: 30,
       is_active: true,
     },
@@ -88,7 +88,7 @@ export default function ServicesManagement() {
       form.reset({
         name: "",
         description: "",
-        price: 0,
+        price: undefined,
         duration_minutes: 30,
         is_active: true,
       });
@@ -364,13 +364,16 @@ export default function ServicesManagement() {
                         <div className="mb-input-wrapper">
                           <input
                             type="number"
-                            step="0.01"
+                            step="any"
                             min="0"
                             placeholder=""
                             className="mb-input"
                             {...field}
-                            value={field.value || ''}
-                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                            value={field.value === undefined || field.value === null ? '' : field.value}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              field.onChange(value === '' ? undefined : parseFloat(value));
+                            }}
                             onFocus={(e) => e.target.nextElementSibling?.classList.add('shrunken')}
                             onBlur={(e) => {
                               if (!e.target.value) {
