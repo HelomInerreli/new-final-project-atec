@@ -363,7 +363,7 @@ export default function ServicesManagement() {
                     return (
                       <FormItem>
                         <FormControl>
-                          <div className="mb-input-wrapper">
+                          <div className="mb-input-wrapper" style={{ position: 'relative' }}>
                             <input
                               type="number"
                               step="any"
@@ -392,6 +392,55 @@ export default function ServicesManagement() {
                                 }
                               }}
                             />
+                            <div style={{
+                              position: 'absolute',
+                              right: '10px',
+                              top: '50%',
+                              transform: 'translateY(-50%)',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: '2px'
+                            }}>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const currentValue = field.value || 0;
+                                  field.onChange(currentValue + 5);
+                                }}
+                                style={{
+                                  background: 'transparent',
+                                  border: 'none',
+                                  cursor: 'pointer',
+                                  fontSize: '14px',
+                                  color: '#6b7280',
+                                  padding: '0',
+                                  lineHeight: 1,
+                                  height: '12px'
+                                }}
+                              >
+                                ▲
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const currentValue = field.value || 0;
+                                  const newValue = currentValue - 5;
+                                  field.onChange(newValue >= 0 ? newValue : 0);
+                                }}
+                                style={{
+                                  background: 'transparent',
+                                  border: 'none',
+                                  cursor: 'pointer',
+                                  fontSize: '14px',
+                                  color: '#6b7280',
+                                  padding: '0',
+                                  lineHeight: 1,
+                                  height: '12px'
+                                }}
+                              >
+                                ▼
+                              </button>
+                            </div>
                             <label className={`mb-input-label ${(field.value && !isNaN(field.value)) || isFocused ? 'shrunken' : ''}`}>
                               Preço (€)
                             </label>

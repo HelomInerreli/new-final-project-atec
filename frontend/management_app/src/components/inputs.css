@@ -32,13 +32,16 @@
   color: #9ca3af;
 }
 
-/* Remove number input spinners background */
+/* Remove default number input spinners */
 .mb-input[type="number"]::-webkit-inner-spin-button,
 .mb-input[type="number"]::-webkit-outer-spin-button {
-  opacity: 1;
-  background: transparent;
-  border: none;
-  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+}
+
+.mb-input[type="number"] {
+  -moz-appearance: textfield;
 }
 
 /* Subtle focus ring */
