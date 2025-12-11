@@ -82,7 +82,7 @@ class AppointmentRepository:
         .options(joinedload(Appointment.customer), joinedload(Appointment.vehicle), joinedload(Appointment.service))
         .order_by(Appointment.id.desc())
         )
-        if user:
+        if user and user.role not in ["Gestor", "admin"]:
             query = query.filter(Appointment.service.has(Service.area.like(f'%{user.role}%')))
         return query.offset(skip).limit(limit).all()
 
