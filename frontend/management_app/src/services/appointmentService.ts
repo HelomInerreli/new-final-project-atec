@@ -1,4 +1,5 @@
 import axios from 'axios';
+import type { Vehicle } from '../interfaces/Vehicle';
 
 const API_URL = 'http://localhost:8000/api/v1/appointments/';
 
@@ -12,16 +13,6 @@ export interface Customer {
   postal_code?: string;
   country?: string;
   birth_date?: string;
-}
-
-export interface Vehicle {
-  id: number;
-  brand: string;
-  model: string;
-  year: number;
-  license_plate: string;
-  vin?: string;
-  customer_id: number;
 }
 
 export interface Service {

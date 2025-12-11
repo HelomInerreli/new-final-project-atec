@@ -1,8 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import http from '../api/http';
+import type { Vehicle, VehicleCreate } from '../interfaces/Vehicle';
+import { vehicleService } from '../services/vehicleService';
+import { toast } from './use-toast';
 
 interface VehicleCountMap {
   [customerId: string]: number;
+}
+
+export interface VehicleWithCustomer extends Vehicle {
+  customer_name?: string;
 }
 
 export function useFetchVehicleCounts(customerIds: number[]) {
@@ -26,7 +33,7 @@ export function useFetchVehicleCounts(customerIds: number[]) {
             try {
               const response = await http.get(`/vehicles/by_customer/${customerId}`);
               counts[customerId.toString()] = response.data?.length || 0;
-            } catch (err) {
+            } catch (err: any) {
               counts[customerId.toString()] = 0;
             }
           })
@@ -43,4 +50,159 @@ export function useFetchVehicleCounts(customerIds: number[]) {
     fetchVehicleCounts();
   }, [customerIds.join(',')]); // Re-run when customer IDs change
   return { vehicleCounts, loading, error };
+}
+
+export function useFetchVehicles() {
+  const [vehicles, setVehicles] = useState<VehicleWithCustomer[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Define fetch function that can be called manually
+  const fetchAllVehicles = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await http.get('/vehicles/');
+      // Fetch customer names for each vehicle
+      const vehiclesWithCustomers = await Promise.all(
+        response.data.map(async (vehicle: Vehicle) => {
+          try {
+            const customerResponse = await http.get(`/customers/${vehicle.customer_id}`);
+            return {
+              ...vehicle,
+              customer_name: customerResponse.data.name || 'Unknown',
+            };
+          } catch {
+            return {
+              ...vehicle,
+              customer_name: 'Unknown',
+            };
+          }
+        })
+      );
+      setVehicles(vehiclesWithCustomers);
+      setError(null);
+    } catch (err: any) {
+      setError(err.response?.data?.detail || 'Could not load vehicle data. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Initial load
+  useEffect(() => {
+    fetchAllVehicles();
+  }, [fetchAllVehicles]);
+
+  // Expose a refetch function for callers
+  return { vehicles, loading, error, refetch: fetchAllVehicles };
+}
+
+export function useVehiclesPage() {
+  // Fetch vehicles with refetch capability
+  const { vehicles: rawVehicles, loading, error, refetch } = useFetchVehicles();
+
+  // UI state
+  const [searchTerm, setSearchTerm] = useState('');
+  const [newVehicleModalOpen, setNewVehicleModalOpen] = useState(false);
+  const [creatingVehicle, setCreatingVehicle] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [vehicleToDelete, setVehicleToDelete] = useState<number | null>(null);
+
+  // Map backend data
+  const vehicles = useMemo(() => {
+    return rawVehicles.map(vehicle => ({
+      id: vehicle.id.toString(),
+      brand: vehicle.brand,
+      model: vehicle.model,
+      plate: vehicle.plate,
+      kilometers: vehicle.kilometers || 0,
+      customerName: vehicle.customer_name || 'Unknown',
+      customerId: vehicle.customer_id,
+    }));
+  }, [rawVehicles]);
+
+  // Filter vehicles based on search term
+  const filteredVehicles = useMemo(() => {
+    return vehicles.filter(vehicle => {
+      const matchesSearch =
+        vehicle.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        vehicle.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        vehicle.plate.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        vehicle.customerName.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesSearch;
+    });
+  }, [vehicles, searchTerm]);
+
+  // Handlers
+  const handleDelete = (id: string) => {
+    setVehicleToDelete(parseInt(id));
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (vehicleToDelete) {
+      try {
+        await vehicleService.delete(vehicleToDelete);
+        toast({
+          title: 'Veículo eliminado',
+          description: 'O veículo foi eliminado com sucesso.',
+        });
+        refetch();
+      } catch {
+        toast({
+          title: 'Erro',
+          description: 'Não foi possível eliminar o veículo.',
+          variant: 'destructive',
+        });
+      }
+    }
+    setDeleteDialogOpen(false);
+    setVehicleToDelete(null);
+  };
+
+  const handleCreateVehicle = async (vehicleData: VehicleCreate) => {
+    setCreatingVehicle(true);
+    try {
+      await vehicleService.create(vehicleData);
+      toast({ title: 'Veículo Criado', description: 'O novo veículo foi criado com sucesso.' });
+      setNewVehicleModalOpen(false);
+      refetch();
+    } catch (err) {
+      const error = err as { response?: { data?: { detail?: string } } };
+      console.error('Create vehicle error:', error);
+      toast({
+        title: 'Erro',
+        description: error.response?.data?.detail || 'Não foi possível criar o veículo.',
+        variant: 'destructive',
+      });
+    } finally {
+      setCreatingVehicle(false);
+    }
+  };
+
+  const formatKilometers = (km: number) => {
+    return km > 0 ? `${km.toLocaleString('pt-PT')} km` : '0 km';
+  };
+
+  return {
+    // Data
+    filteredVehicles,
+    loading,
+    error,
+
+    // UI State
+    searchTerm,
+    setSearchTerm,
+    newVehicleModalOpen,
+    setNewVehicleModalOpen,
+    creatingVehicle,
+    deleteDialogOpen,
+    setDeleteDialogOpen,
+
+    // Handlers
+    handleDelete,
+    confirmDelete,
+    handleCreateVehicle,
+    formatKilometers,
+  };
 }

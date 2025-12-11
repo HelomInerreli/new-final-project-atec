@@ -15,3 +15,5 @@ from .order_part import OrderPart
 from .order_comment import OrderComment
 from .employee import Employee
 from .role import Role
+from .product import Product
+from .order_part import OrderPart

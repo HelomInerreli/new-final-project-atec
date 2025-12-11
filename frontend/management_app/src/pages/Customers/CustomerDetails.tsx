@@ -1,111 +1,35 @@
-import { useState, useEffect } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { Button } from "./../../components/ui/button";
 import { Input } from "./../../components/ui/input";
 import { Label } from "./../../components/ui/label";
 import { Badge } from "./../../components/ui/badge";
-import { ArrowLeft, Edit, Trash2, Car, Calendar, Save, X } from "lucide-react";
-import { useToast } from "./../../hooks/use-toast";
-import { useFetchCustomerById } from "./../../hooks/useCustomerDetails";
-import { Spinner, Alert } from "react-bootstrap";
+import { ArrowLeft, Edit, Trash2, Car, Save} from "lucide-react";
+import { useCustomerDetailsPage } from "./../../hooks/useCustomerDetails";
+import { Spinner, Alert} from "react-bootstrap";
 import "./../../styles/CustomerDetails.css";
-
-
-type Veiculo = {
-  id: number;
-  plate: string;
-  brand: string;
-  model: string;
-  kilometers: number;
-  deleted_at: string | null;
-};
-
-type ClienteForm = {
-  name: string;
-  email: string;
-  phone: string;
-  birthDate: string;
-  address: string;
-  country: string;
-  city: string;
-  postalCode: string;
-};
+import { X, Calendar as CalendarIcon } from 'lucide-react';
+import { Calendar } from "../../components/ui/calendar"
+import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/popover"
+import { format, parseISO } from "date-fns"
+import { cn } from "../../components/lib/utils"
+import type { Vehicle } from "../../interfaces/Vehicle";
 
 
 export default function CustomerDetails() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState<ClienteForm>({
-    name: "",
-    email: "",
-    phone: "",
-    birthDate: "",
-    address: "",
-    country: "",
-    city: "",
-    postalCode: "",
-  });
-
-  // Fetch customer data from backend
-  const { customerData, loading, error, updateCustomer } = useFetchCustomerById(id);
-
-  // Update form data when customer data is loaded
-  useEffect(() => {
-    if (customerData) {
-      setFormData({
-        name: customerData.customer.name || "",
-        email: customerData.auth.email || "",
-        phone: customerData.customer.phone || "",
-        birthDate: customerData.customer.birth_date || "",
-        address: customerData.customer.address || "",
-        country: customerData.customer.country || "",
-        city: customerData.customer.city || "",
-        postalCode: customerData.customer.postal_code || "",
-      });
-    }
-  }, [customerData]);
-
-  const handleSave = async () => {
-    try {
-      await updateCustomer({
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        birth_date: formData.birthDate,
-        address: formData.address,
-        city: formData.city,
-        postal_code: formData.postalCode,
-        country: formData.country,
-      });
-      setIsEditing(false);
-      toast({
-        title: "Alterações salvas",
-        description: "Os dados do cliente foram atualizados com sucesso.",
-      });
-    } catch (error) {
-      toast({
-        title: "Erro ao salvar",
-        description: "Não foi possível atualizar os dados do cliente.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleDelete = () => {
-    // TODO: Implement API call to delete customer
-    toast({
-      title: "Cliente excluído",
-      description: "O cliente foi removido do sistema.",
-      variant: "destructive",
-    });
-    navigate("/customers");
-  };
-
-  const handleInputChange = (field: keyof ClienteForm, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
+  
+  const {
+    customerData,
+    loading,
+    error,
+    isEditing,
+    setIsEditing,
+    formData,
+    setFormData,
+    handleSave,
+    handleDelete,
+    handleInputChange,
+  } = useCustomerDetailsPage(id);
 
   // Loading state
   if (loading) {
@@ -135,8 +59,7 @@ export default function CustomerDetails() {
   }
 
   const status = customerData.auth.is_active ? "Ativo" : "Inativo";
-  const vehicles: Veiculo[] = customerData.vehicles.filter(v => !v.deleted_at);
-
+  const vehicles = customerData.vehicles.filter((v: Vehicle) => !v.deleted_at);
   return (
     <div className="container" style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
       {/* Header */}
@@ -245,20 +168,47 @@ export default function CustomerDetails() {
               />
             </div>
             <div className="col-md-6">
-              <Label htmlFor="birthDate" className="form-label small text-muted mb-1 d-block text-start">
+              <Label className="d-flex form-label small text-muted mb-1">
                 Data de Nascimento
               </Label>
-              <Input
-                id="birthDate"
-                type="date"
-                value={formData.birthDate}
-                onChange={(e) => handleInputChange("birthDate", e.target.value)}
-                disabled={!isEditing}
-                className="form-control"
-                style={{ backgroundColor: '#f8f9fa' }}
-              />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !formData.birth_date && "text-muted-foreground"
+                    )}
+                    style={{ backgroundColor: '#f8f9fa', height: '38px', borderColor: '#dee2e6', color: '#495057' }}
+                    disabled={!isEditing}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {formData.birth_date ? format(parseISO(formData.birth_date), "dd/MM/yyyy") : "Selecione a data"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0 z-[1100]" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={formData.birth_date ? parseISO(formData.birth_date) : undefined}
+                    onSelect={(date) => {
+                      setFormData({
+                        ...formData,
+                        birth_date: date ? format(date, "yyyy-MM-dd") : ''
+                      })
+                    }}
+                    disabled={(date) =>
+                      date > new Date() || date < new Date("1900-01-01")
+                    }
+                    captionLayout="dropdown-buttons"
+                    fromYear={1900}
+                    toYear={new Date().getFullYear()}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
 
+                
             {/* Row 3: Address */}
             <div className="col-12">
               <Label htmlFor="address" className="form-label small text-muted mb-1 d-block text-start">
@@ -307,8 +257,8 @@ export default function CustomerDetails() {
               </Label>
               <Input
                 id="postalCode"
-                value={formData.postalCode}
-                onChange={(e) => handleInputChange("postalCode", e.target.value)}
+                value={formData.postal_code}
+                onChange={(e) => handleInputChange("postal_code", e.target.value)}
                 disabled={!isEditing}
                 className="form-control"
                 style={{ backgroundColor: '#f8f9fa' }}
@@ -341,7 +291,7 @@ export default function CustomerDetails() {
               className="btn-custom-filled"
             >
               <Car className="me-2" style={{ width: '16px', height: '16px' }} />
-              Adicionar Veículo
+              Adicionar Veículo (IN PROGRESS)
             </Button>
           </div>
 
@@ -353,37 +303,32 @@ export default function CustomerDetails() {
             <div>
               {vehicles.map((veiculo, index) => (
                 <div key={veiculo.id}>
-                  {index > 0 && <hr className="my-4" style={{ borderColor: '#dee2e6' }} />}
+                  {index > 0 && <hr className="my-2" style={{ borderColor: '#dc3545' }} />}
                   
-                  <div className="row g-3">
+                  <div className="row g-3 text-start">
                     <div className="col-md-4">
-                      <p className="small text-muted mb-1 text-start">Marca/Modelo</p>
-                      <p className="mb-0 fw-semibold">
-                        {veiculo.brand} {veiculo.model}
-                      </p>
+                      <p className="small text-muted">Marca/Modelo</p>
+                      <p className="mb-0 fw-semibold">{veiculo.brand} {veiculo.model}</p>
                     </div>
-                    <div className="col-md-4">
-                      <p className="small text-muted mb-1 text-start">Matrícula</p>
+                    <div className="col-md-2">
+                      <p className="small text-muted">Matrícula</p>
                       <p className="mb-0 fw-semibold">{veiculo.plate}</p>
                     </div>
-                    <div className="col-md-4">
-                      <p className="small text-muted mb-1 text-start">Ano</p>
-                      <p className="mb-0 fw-semibold">
-                        {new Date().getFullYear() - Math.floor(veiculo.kilometers / 15000)}
-                      </p>
+                    <div className="col-md-2">
+                      <p className="small text-muted">Ano</p>
+                      <p className="mb-0 fw-semibold">{new Date().getFullYear() - Math.floor(veiculo.kilometers / 15000)}</p>
                     </div>
-                    <div className="col-md-4">
-                      <p className="small text-muted mb-1 text-start">Cor</p>
-                      <p className="mb-0">N/A</p>
+                    <div className="col-md-2">
+                      <p className="small text-muted flex items-center"><CalendarIcon className="mr-2 h-4 w-4" /> Última Revisão</p>
+                      <p className="mb-0 fw-semibold">{new Date(customerData.customer.updated_at).toLocaleDateString("pt-PT")}</p>
                     </div>
-                    <div className="col-md-8">
-                      <p className="small text-muted mb-1 text-start">
-                        <Calendar className="me-1" style={{ width: '14px', height: '14px' }} />
-                        Última Revisão
-                      </p>
-                      <p className="mb-0">
-                        {new Date(customerData.customer.updated_at).toLocaleDateString("pt-PT")}
-                      </p>
+                    <div className="col-md-2 align-self-center">
+                      <Button 
+                        variant="outline" 
+                        className="btn-custom-outline"
+                      >
+                        Ver Detalhes (IN PROGRESS)
+                      </Button>
                     </div>
                   </div>
                 </div>

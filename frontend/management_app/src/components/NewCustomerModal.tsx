@@ -1,32 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Alert, Spinner } from 'react-bootstrap';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { X, Calendar as CalendarIcon } from 'lucide-react';
-import './../styles/CustomerDetails.css';
+import './../styles/NewCustomerModal.css';
 import { Calendar } from "../components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "../components/ui/popover"
 import { format, parseISO } from "date-fns"
 import { cn } from "../components/lib/utils"
+import type { CustomerRegister } from '../interfaces/Customer';
+import { useNewCustomerModal } from '../hooks/useNewCustomerModal';
 
 interface NewCustomerModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: CustomerInfo) => void;
+  onSubmit: (data: CustomerRegister) => void;
   loading: boolean;
-}
-
-interface CustomerInfo {
-  name: string;
-  phone?: string;
-  address?: string;
-  city?: string;
-  postal_code?: string;
-  country?: string;
-  birth_date?: string;
-  email?: string;
-  password?: string;
 }
 
 const NewCustomerModal: React.FC<NewCustomerModalProps> = ({
@@ -35,82 +25,27 @@ const NewCustomerModal: React.FC<NewCustomerModalProps> = ({
   onSubmit,
   loading
 }) => {
-  const [error, setError] = useState('');
-  const [formData, setFormData] = useState<CustomerInfo>({
-    name: '',
-    phone: '',
-    address: '',
-    city: '',
-    postal_code: '',
-    country: '',
-    birth_date: '',
-    email: '',
-    password: ''
-  });
-
-  // Lock body scroll when modal is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen]);
+  const {
+    formData,
+    error,
+    handleChange,
+    handleDateChange,
+    validateForm,
+  } = useNewCustomerModal(isOpen);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!formData.name || !formData.email || !formData.password) {
-      setError('Por favor, preencha todos os campos obrigatórios.');
-      return;
+    if (validateForm()) {
+      onSubmit(formData);
     }
-    setError('');
-    onSubmit(formData);
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
   };
 
   if (!isOpen) return null;
 
   return (
-    <div 
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1050,
-        padding: '1rem'
-      }}
-      onClick={onClose}
-    >
-      <div 
-        style={{
-          backgroundColor: 'white',
-          borderRadius: '8px',
-          maxWidth: '900px',
-          width: '100%',
-          maxHeight: '90vh',
-          overflow: 'auto',
-          position: 'relative'
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Card with red border matching CustomerDetails */}
-        <div className="card" style={{ border: '1px solid #dc3545', borderRadius: '8px'}}>
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content-container" onClick={(e) => e.stopPropagation()}>
+        <div className="card modal-card">
           <div className="card-body p-4">
             {/* Header */}
             <div className="d-flex justify-content-between align-items-center mb-4">
@@ -120,20 +55,7 @@ const NewCustomerModal: React.FC<NewCustomerModalProps> = ({
                 size="icon"
                 onClick={onClose}
                 disabled={loading}
-                style={{ 
-                  background: 'transparent',
-                  border: 'none',
-                  color: '#333',
-                  transition: 'all 0.2s ease-in-out'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#dc3545';
-                  e.currentTarget.style.color = 'white';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.color = '#333';
-                }}
+                className="modal-close-button"
               >
                 <X className="h-5 w-5" />
               </Button>
@@ -161,8 +83,7 @@ const NewCustomerModal: React.FC<NewCustomerModalProps> = ({
                     onChange={handleChange}
                     disabled={loading}
                     placeholder="Digite o Nome"
-                    className="form-control"
-                    style={{ backgroundColor: '#f8f9fa' }}
+                    className="form-control modal-input"
                   />
                 </div>
                 <div className="col-md-6">
@@ -177,8 +98,7 @@ const NewCustomerModal: React.FC<NewCustomerModalProps> = ({
                     onChange={handleChange}
                     disabled={loading}
                     placeholder="Digite o Telefone"
-                    className="form-control"
-                    style={{ backgroundColor: '#f8f9fa' }}
+                    className="form-control modal-input"
                   />
                 </div>
 
@@ -192,26 +112,20 @@ const NewCustomerModal: React.FC<NewCustomerModalProps> = ({
                       <Button
                         variant="outline"
                         className={cn(
-                          "w-full justify-start text-left font-normal",
+                          "w-full justify-start text-left font-normal modal-calendar-button",
                           !formData.birth_date && "text-muted-foreground"
                         )}
-                        style={{ backgroundColor: '#f8f9fa', height: '38px', borderColor: '#dee2e6' }}
                         disabled={loading}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {formData.birth_date ? format(parseISO(formData.birth_date), "dd/MM/yyyy") : "Selecione a data"}
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 z-[1100]" align="start">
+                    <PopoverContent className="w-auto p-0 modal-popover-content" align="start">
                       <Calendar
                         mode="single"
                         selected={formData.birth_date ? parseISO(formData.birth_date) : undefined}
-                        onSelect={(date) => {
-                          setFormData({
-                            ...formData,
-                            birth_date: date ? format(date, "yyyy-MM-dd") : ''
-                          })
-                        }}
+                        onSelect={handleDateChange}
                         disabled={(date) =>
                           date > new Date() || date < new Date("1900-01-01")
                         }
@@ -235,8 +149,7 @@ const NewCustomerModal: React.FC<NewCustomerModalProps> = ({
                     onChange={handleChange}
                     disabled={loading}
                     placeholder="Digite o Endereço"
-                    className="form-control"
-                    style={{ backgroundColor: '#f8f9fa' }}
+                    className="form-control modal-input"
                   />
                 </div>
 
@@ -253,8 +166,7 @@ const NewCustomerModal: React.FC<NewCustomerModalProps> = ({
                     onChange={handleChange}
                     disabled={loading}
                     placeholder="Digite o País"
-                    className="form-control"
-                    style={{ backgroundColor: '#f8f9fa' }}
+                    className="form-control modal-input"
                   />
                 </div>
                 <div className="col-md-4">
@@ -269,8 +181,7 @@ const NewCustomerModal: React.FC<NewCustomerModalProps> = ({
                     onChange={handleChange}
                     disabled={loading}
                     placeholder="Digite a Cidade"
-                    className="form-control"
-                    style={{ backgroundColor: '#f8f9fa' }}
+                    className="form-control modal-input"
                   />
                 </div>
                 <div className="col-md-4">
@@ -285,8 +196,7 @@ const NewCustomerModal: React.FC<NewCustomerModalProps> = ({
                     onChange={handleChange}
                     disabled={loading}
                     placeholder="Digite o Código Postal"
-                    className="form-control"
-                    style={{ backgroundColor: '#f8f9fa' }}
+                    className="form-control modal-input"
                   />
                 </div>
 
@@ -307,8 +217,7 @@ const NewCustomerModal: React.FC<NewCustomerModalProps> = ({
                     disabled={loading}
                     placeholder="Digite o Email"
                     required
-                    className="form-control"
-                    style={{ backgroundColor: '#f8f9fa' }}
+                    className="form-control modal-input"
                   />
                 </div>
                 <div className="col-md-6">
@@ -324,8 +233,7 @@ const NewCustomerModal: React.FC<NewCustomerModalProps> = ({
                     disabled={loading}
                     placeholder="Digite a Password"
                     required
-                    className="form-control"
-                    style={{ backgroundColor: '#f8f9fa' }}
+                    className="form-control modal-input"
                   />
                 </div>
               </div>

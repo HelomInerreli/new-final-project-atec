@@ -1,6 +1,7 @@
-import axios from 'axios';
+import axios from "axios";
+// import type { Vehicle, VehicleCreate, VehicleUpdate } from '../interfaces/Vehicle';
 
-const API_URL = 'http://localhost:8000/api/v1/vehicles/';
+const API_URL = "http://localhost:8000/api/v1/vehicles/";
 
 export interface Vehicle {
   id: number;
@@ -56,7 +57,9 @@ export const vehicleService = {
   },
 
   getByCustomerId: async (customerId: number): Promise<Vehicle[]> => {
-    const response = await axios.get(`http://localhost:8000/api/v1/vehicles/by_customer/${customerId}`);
+    const response = await axios.get(
+      `http://localhost:8000/api/v1/vehicles/by_customer/${customerId}`
+    );
     return response.data;
   },
 
