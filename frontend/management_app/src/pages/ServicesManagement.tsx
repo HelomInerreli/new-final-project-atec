@@ -358,37 +358,49 @@ export default function ServicesManagement() {
                 <FormField
                   control={form.control}
                   name="price"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <div className="mb-input-wrapper">
-                          <input
-                            type="number"
-                            step="any"
-                            min="0"
-                            placeholder=""
-                            className="mb-input"
-                            {...field}
-                            value={field.value === undefined || field.value === null ? '' : field.value}
-                            onChange={(e) => {
-                              const value = e.target.value;
-                              field.onChange(value === '' ? undefined : parseFloat(value));
-                            }}
-                            onFocus={(e) => e.target.nextElementSibling?.classList.add('shrunken')}
-                            onBlur={(e) => {
-                              if (!e.target.value) {
-                                e.target.nextElementSibling?.classList.remove('shrunken');
-                              }
-                            }}
-                          />
-                          <label className={`mb-input-label ${field.value ? 'shrunken' : ''}`}>
-                            Preço (€)
-                          </label>
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  render={({ field }) => {
+                    const [isFocused, setIsFocused] = useState(false);
+                    return (
+                      <FormItem>
+                        <FormControl>
+                          <div className="mb-input-wrapper">
+                            <input
+                              type="number"
+                              step="any"
+                              min="0"
+                              placeholder=""
+                              className="mb-input"
+                              {...field}
+                              value={field.value === undefined || field.value === null || isNaN(field.value) ? '' : field.value}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                if (value === '') {
+                                  field.onChange(undefined);
+                                } else {
+                                  const numValue = parseFloat(value);
+                                  field.onChange(isNaN(numValue) ? undefined : numValue);
+                                }
+                              }}
+                              onFocus={(e) => {
+                                setIsFocused(true);
+                                e.target.nextElementSibling?.classList.add('shrunken');
+                              }}
+                              onBlur={(e) => {
+                                setIsFocused(false);
+                                if (!e.target.value) {
+                                  e.target.nextElementSibling?.classList.remove('shrunken');
+                                }
+                              }}
+                            />
+                            <label className={`mb-input-label ${(field.value && !isNaN(field.value)) || isFocused ? 'shrunken' : ''}`}>
+                              Preço (€)
+                            </label>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
                 />
                 <FormField
                   control={form.control}
