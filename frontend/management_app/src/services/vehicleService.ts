@@ -1,49 +1,9 @@
 import axios from "axios";
-// import type { Vehicle, VehicleCreate, VehicleUpdate } from '../interfaces/Vehicle';
+import type { Vehicle, VehicleCreate, VehicleUpdate } from '../interfaces/Vehicle';
 
 const API_URL = "http://localhost:8000/api/v1/vehicles/";
 
-export interface Vehicle {
-  id: number;
-  brand: string;
-  model: string;
-  year: number;
-  plate: string;
-  vin?: string;
-  customer_id: number;
-  color?: string;
-  fuel_type?: string;
-  transmission?: string;
-  mileage?: number;
-  kilometers?: number;
-}
 
-export interface VehicleCreate {
-  brand: string;
-  model: string;
-  year: number;
-  plate: string;
-  customer_id: number;
-  vin?: string;
-  color?: string;
-  fuel_type?: string;
-  transmission?: string;
-  mileage?: number;
-  kilometers?: number;
-}
-
-export interface VehicleUpdate {
-  brand?: string;
-  model?: string;
-  year?: number;
-  plate?: string;
-  vin?: string;
-  color?: string;
-  fuel_type?: string;
-  transmission?: string;
-  mileage?: number;
-  kilometers?: number;
-}
 
 export const vehicleService = {
   getAll: async (): Promise<Vehicle[]> => {

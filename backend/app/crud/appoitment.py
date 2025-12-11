@@ -78,12 +78,10 @@ class AppointmentRepository:
         """Listar appointments, ordenadas do mais recente para o mais antigo."""
         # carregar customer e vehicle para que os campos customer_id/vehicle_id e os objetos relacionados estejam disponíveis
         query = (
-        self.db.query(Appointment)
-        .options(joinedload(Appointment.customer), joinedload(Appointment.vehicle), joinedload(Appointment.service))
-        .order_by(Appointment.id.desc())
+            self.db.query(Appointment)
+            .options(joinedload(Appointment.customer), joinedload(Appointment.vehicle), joinedload(Appointment.service), joinedload(Appointment.status))
+            .order_by(Appointment.id.desc())
         )
-        if user and user.role_id:
-            query = query.filter(Appointment.service.has(Service.area == user.role_id))
         return query.offset(skip).limit(limit).all()
 
     # def get_all(self, skip: int = 0, limit: int = 100) -> List[Appointment]:
