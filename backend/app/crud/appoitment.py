@@ -82,8 +82,8 @@ class AppointmentRepository:
         .options(joinedload(Appointment.customer), joinedload(Appointment.vehicle), joinedload(Appointment.service))
         .order_by(Appointment.id.desc())
         )
-        if user and user.role_id:
-            query = query.filter(Appointment.service.has(Service.area == user.role_id))
+        if user:
+            query = query.filter(Appointment.service.has(Service.area.like(f'%{user.role}%')))
         return query.offset(skip).limit(limit).all()
 
     # def get_all(self, skip: int = 0, limit: int = 100) -> List[Appointment]:

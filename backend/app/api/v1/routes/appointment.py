@@ -27,6 +27,7 @@ def get_appointment_repo(db: Session = Depends(get_db)) -> AppointmentRepository
 def list_appointments(
     skip: int = 0,
     limit: int = 100,
+    current_user: User = Depends(get_current_user),
     repo: AppointmentRepository = Depends(get_appointment_repo)
 ):
     """
@@ -128,7 +129,7 @@ def list_appointments(
     """
     List all appointments.
     """
-    return repo.get_all(skip=skip, limit=limit)
+    return repo.get_all(user=current_user, skip=skip, limit=limit)
 
 
 @router.post("/", response_model=Appointment, status_code=status.HTTP_201_CREATED)
