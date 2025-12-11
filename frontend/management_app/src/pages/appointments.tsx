@@ -63,12 +63,14 @@ export default function Agendamentos() {
   const [vehicleDropdownOpen, setVehicleDropdownOpen] = useState(false);
   const [serviceDropdownOpen, setServiceDropdownOpen] = useState(false);
   const [timeDropdownOpen, setTimeDropdownOpen] = useState(false);
+  const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
   
   // Refs for dropdowns
   const customerDropdownRef = useRef<HTMLDivElement>(null);
   const vehicleDropdownRef = useRef<HTMLDivElement>(null);
   const serviceDropdownRef = useRef<HTMLDivElement>(null);
   const timeDropdownRef = useRef<HTMLDivElement>(null);
+  const statusDropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     loadAppointments();
@@ -91,6 +93,9 @@ export default function Agendamentos() {
       }
       if (timeDropdownRef.current && !timeDropdownRef.current.contains(event.target as Node)) {
         setTimeDropdownOpen(false);
+      }
+      if (statusDropdownRef.current && !statusDropdownRef.current.contains(event.target as Node)) {
+        setStatusDropdownOpen(false);
       }
     };
     
@@ -864,33 +869,52 @@ export default function Agendamentos() {
 
               {editingId && (
                 <div className="grid gap-2">
-                  <Label htmlFor="status_id">Status</Label>
-                  <Select
-                    value={formData.status_id}
-                    onValueChange={(value) => handleSelectChange("status_id", value)}
-                  >
-                    <SelectTrigger id="status_id">
-                      <SelectValue placeholder="Selecione um status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {statuses
-                        .filter(status => {
-                          const name = status.name.toLowerCase();
-                          return name.includes('pendente') || 
-                                 name.includes('pending') ||
-                                 name.includes('finalizado') || 
-                                 name.includes('finalized') ||
-                                 name.includes('aguarda') || 
-                                 name.includes('waiting');
-                        })
-                        .map((status) => (
-                          <SelectItem key={status.id} value={status.id.toString()}>
-                            {translateStatus(status.name)}
-                          </SelectItem>
-                        ))
-                      }
-                    </SelectContent>
-                  </Select>
+                  <div className="mb-input-wrapper">
+                    <div ref={statusDropdownRef} style={{ position: 'relative' }}>
+                      <button
+                        type="button"
+                        className={`mb-input select ${!formData.status_id ? 'placeholder' : ''}`}
+                        onClick={() => setStatusDropdownOpen(!statusDropdownOpen)}
+                        style={{ textAlign: 'left', cursor: 'pointer' }}
+                      >
+                        {(() => {
+                          const selectedStatus = statuses.find(s => s.id.toString() === formData.status_id);
+                          return selectedStatus ? translateStatus(selectedStatus.name) : '';
+                        })()}
+                      </button>
+                      <label className={`mb-input-label ${formData.status_id || statusDropdownOpen ? 'shrunken' : ''}`}>
+                        Status
+                      </label>
+                      <span className="mb-select-caret">▼</span>
+                      
+                      {statusDropdownOpen && (
+                        <ul className="mb-select-menu" style={{ maxHeight: '250px', overflowY: 'auto' }}>
+                          {statuses
+                            .filter(status => {
+                              const name = status.name.toLowerCase();
+                              return name.includes('pendente') || 
+                                     name.includes('pending') ||
+                                     name.includes('finalizado') || 
+                                     name.includes('finalized') ||
+                                     name.includes('aguarda') || 
+                                     name.includes('waiting');
+                            })
+                            .map((status) => (
+                              <li
+                                key={status.id}
+                                className={`mb-select-item ${formData.status_id === status.id.toString() ? 'selected' : ''}`}
+                                onClick={() => {
+                                  handleSelectChange('status_id', status.id.toString());
+                                  setStatusDropdownOpen(false);
+                                }}
+                              >
+                                {translateStatus(status.name)}
+                              </li>
+                            ))}
+                        </ul>
+                      )}
+                    </div>
+                  </div>
                 </div>
               )}
 
