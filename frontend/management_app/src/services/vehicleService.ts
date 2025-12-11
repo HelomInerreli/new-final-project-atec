@@ -7,38 +7,41 @@ export interface Vehicle {
   brand: string;
   model: string;
   year: number;
-  license_plate: string;
+  plate: string;
   vin?: string;
   customer_id: number;
   color?: string;
   fuel_type?: string;
   transmission?: string;
   mileage?: number;
+  kilometers?: number;
 }
 
 export interface VehicleCreate {
   brand: string;
   model: string;
   year: number;
-  license_plate: string;
+  plate: string;
   customer_id: number;
   vin?: string;
   color?: string;
   fuel_type?: string;
   transmission?: string;
   mileage?: number;
+  kilometers?: number;
 }
 
 export interface VehicleUpdate {
   brand?: string;
   model?: string;
   year?: number;
-  license_plate?: string;
+  plate?: string;
   vin?: string;
   color?: string;
   fuel_type?: string;
   transmission?: string;
   mileage?: number;
+  kilometers?: number;
 }
 
 export const vehicleService = {
@@ -53,7 +56,7 @@ export const vehicleService = {
   },
 
   getByCustomerId: async (customerId: number): Promise<Vehicle[]> => {
-    const response = await axios.get(`http://localhost:8000/api/v1/customers/${customerId}/vehicles`);
+    const response = await axios.get(`http://localhost:8000/api/v1/vehicles/by_customer/${customerId}`);
     return response.data;
   },
 
