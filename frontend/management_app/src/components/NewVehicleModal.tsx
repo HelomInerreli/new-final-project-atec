@@ -136,7 +136,7 @@ const NewVehicleModal: React.FC<NewVehicleModalProps> = ({
                   </Select>
                 </div>
 
-                {/* Row 3: Kilometers */}
+                {/* Row 3: Kilometers and Color */}
                 <div className="col-md-6">
                   <Label htmlFor='kilometers' className="d-flex form-label small text-muted mb-1">
                     Quilometragem
@@ -154,8 +154,100 @@ const NewVehicleModal: React.FC<NewVehicleModalProps> = ({
                     style={{ backgroundColor: '#f8f9fa' }}
                   />
                 </div>
-              </div>
+                <div className="col-md-6">
+                  <Label htmlFor='color' className="d-flex form-label small text-muted mb-1">
+                    Cor
+                  </Label>
+                  <Input
+                    type="text"
+                    id="color"
+                    name="color"
+                    value={formData.color || ''}
+                    onChange={e => handleChange('color', e.target.value)}
+                    disabled={loading}
+                    placeholder="Digite a Cor"
+                    className="form-control"
+                    style={{ backgroundColor: '#f8f9fa' }}
+                  />
+                </div>
 
+                {/* Row 4: Engine Size and Fuel Type */}
+                <div className="col-md-6">
+                  <Label htmlFor='engineSize' className="d-flex form-label small text-muted mb-1">
+                    Cilindrada
+                  </Label>
+                  <Input
+                    type="text"
+                    id="engineSize"
+                    name="engineSize"
+                    value={formData.engineSize || ''}
+                    onChange={e => handleChange('engineSize', e.target.value)}
+                    disabled={loading}
+                    placeholder="Ex: 1.6, 2.0"
+                    className="form-control"
+                    style={{ backgroundColor: '#f8f9fa' }}
+                  />
+                </div>
+                <div className="col-md-6">
+                  <Label htmlFor='fuelType' className="d-flex form-label small text-muted mb-1">
+                    Tipo de Combustível
+                  </Label>
+                  <Select
+                    value={formData.fuelType || ''}
+                    onValueChange={value => handleChange('fuelType', value)}
+                    disabled={loading}
+                  >
+                    <SelectTrigger 
+                      className="form-control"
+                      style={{ backgroundColor: '#f8f9fa' }}
+                    >
+                      <SelectValue placeholder="Selecione o combustível" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Gasolina">Gasolina</SelectItem>
+                      <SelectItem value="Diesel">Diesel</SelectItem>
+                      <SelectItem value="Híbrido">Híbrido</SelectItem>
+                      <SelectItem value="Elétrico">Elétrico</SelectItem>
+                      <SelectItem value="GPL">GPL</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Row 5: Imported */}
+                <div className="col-md-6 d-flex align-items-center">
+                  <Label htmlFor='imported' className="d-flex form-label small text-muted mb-1">
+                      Importado:
+                  </Label>
+                    <input
+                      type="checkbox"
+                      id="imported"
+                      name="imported"
+                      checked={formData.imported || false}
+                      onChange={e => handleChange('imported', Number(e.target.checked))}
+                      disabled={loading}
+                      className="form-check-input ms-2"
+                    />
+                </div>
+
+                {/* Row 6: Description */}
+                <div className="col-12">
+                  <Label htmlFor='description' className="d-flex form-label small text-muted mb-1">
+                    Descrição
+                  </Label>
+                  <Input
+                    type="text"
+                    id="description"
+                    name="description"
+                    value={formData.description || ''}
+                    onChange={e => handleChange('description', e.target.value)}
+                    disabled={loading}
+                    placeholder="Nome do veículo (ex: Toyota Corolla)"
+                    className="form-control"
+                    readOnly ={true}
+                    style={{ backgroundColor: '#f8f9fa' }}
+                  />
+                </div>
+              </div>
               {/* Action Buttons */}
               <div className="d-flex justify-content-end gap-2 mt-4">
                 <Button 

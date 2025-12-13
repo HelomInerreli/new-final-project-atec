@@ -5,6 +5,13 @@ export interface Vehicle {
   model: string;
   kilometers: number;
   customer_id: number;
+  description?: string;
+  color?: string;
+  imported?: boolean;
+  engineSize?: string;
+  fuelType?: string;
+  created_at: string;
+  updated_at: string;
   deleted_at?: string;
 }
 
@@ -14,6 +21,11 @@ export interface VehicleCreate {
   model: string;
   kilometers: number;
   customer_id: number;
+  description?: string;
+  color?: string;
+  imported?: boolean;
+  engineSize?: string;
+  fuelType?: string;
 }
 
 export interface VehicleUpdate {
@@ -22,4 +34,9 @@ export interface VehicleUpdate {
   model: string;
   kilometers: number;
   customer_id: number;
+  description?: string;
+  color?: string;
+  imported?: boolean;
+  engineSize?: string;
+  fuelType?: string;
 }
