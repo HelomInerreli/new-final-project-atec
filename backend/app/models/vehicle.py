@@ -9,11 +9,11 @@ class Vehicle(Base):
     __tablename__ = "vehicles"
 
     id = Column(Integer, primary_key=True, index=True)
+    customer_id = Column(Integer, ForeignKey("customers.id"), nullable=True)
     plate = Column(String, unique=True, index=True, nullable=False)
     brand = Column(String, nullable=True)
     model = Column(String, nullable=True)
     kilometers = Column(Integer, nullable=True)
-    customer_id = Column(Integer, ForeignKey("customers.id"), nullable=True)
     color = Column(String, nullable=True)
     imported = Column(Boolean, default=False, nullable=True)
     description = Column(String, nullable=True)

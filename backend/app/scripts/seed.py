@@ -53,11 +53,15 @@ VEHICLE_MODELS = {
     "Hyundai": ["i30", "Tucson", "Kona"],
 }
 
+VEHICLE_COLORS = ["Branco", "Preto", "Prata", "Cinzento", "Azul", "Vermelho", "Verde", "Amarelo", "Laranja", "Castanho"]
+FUEL_TYPES = ["Gasolina", "Diesel", "Híbrido", "Elétrico", "GPL"]
+ENGINE_SIZES = ["1.0", "1.2", "1.4", "1.6", "1.8", "2.0", "2.5", "3.0"]
+
 MAIN_SERVICES = [
-    {"name": "Revisão Anual", "description": "Revisão completa do veículo, incluindo verificação de níveis, travões e luzes.", "price": 150.0, "duration_minutes": 90, "area": "mecanico"},
-    {"name": "Mudança de Óleo e Filtros", "description": "Troca de óleo do motor e substituição dos filtros de óleo e ar.", "price": 85.0, "duration_minutes": 60, "area": "mecanico"},
-    {"name": "Diagnóstico Eletrónico", "description": "Ligação à máquina de diagnóstico para identificar avarias eletrónicas.", "price": 45.0, "duration_minutes": 30, "area": "eletricista"},
-    {"name": "Alinhamento de Direção", "description": "Alinhamento computorizado das rodas dianteiras e traseiras.", "price": 35.0, "duration_minutes": 45, "area": "borracheiro"},
+    {"name": "Revisão Anual", "description": "Revisão completa do veículo, incluindo verificação de níveis, travões e luzes.", "price": 150.0, "duration_minutes": 90},
+    {"name": "Mudança de Óleo e Filtros", "description": "Troca de óleo do motor e substituição dos filtros de óleo e ar.", "price": 85.0, "duration_minutes": 60},
+    {"name": "Diagnóstico Eletrónico", "description": "Ligação à máquina de diagnóstico para identificar avarias eletrónicas.", "price": 45.0, "duration_minutes": 30},
+    {"name": "Alinhamento de Direção", "description": "Alinhamento computorizado das rodas dianteiras e traseiras.", "price": 35.0, "duration_minutes": 45},
 ]
 
 EXTRA_SERVICE_CATALOG = [
@@ -346,7 +350,12 @@ def seed_data(db: Session):
                 brand=brand,
                 model=model,
                 kilometers=random.randint(10000, 200000),
-                customer_id=customer.id
+                customer_id=customer.id,
+                color=random.choice(VEHICLE_COLORS),
+                imported=random.choice([True, False]),
+                description=f"{brand} {model}",
+                engineSize=random.choice(ENGINE_SIZES),
+                fuelType=random.choice(FUEL_TYPES)
             )
             try:
                 vehicle = vehicle_repo.create(vehicle_in)
