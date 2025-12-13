@@ -4,9 +4,14 @@ from datetime import datetime
 
 class VehicleBase(BaseModel):
     plate: str
-    brand: str
-    model: str
-    kilometers: int
+    brand: Optional[str] = None
+    model: Optional[str] = None
+    kilometers: Optional[int] = None
+    color: Optional[str] = None
+    imported: Optional[bool] = None
+    description: Optional[str] = None
+    engineSize: Optional[str] = None
+    fuelType: Optional[str] = None
 
 class VehicleCreate(VehicleBase):
     customer_id: int
@@ -16,6 +21,11 @@ class VehicleUpdate(BaseModel):
     brand: Optional[str] = None
     model: Optional[str] = None
     kilometers: Optional[int] = None
+    color: Optional[str] = None
+    imported: Optional[bool] = None
+    description: Optional[str] = None
+    engineSize: Optional[str] = None
+    fuelType: Optional[str] = None
 
 class Vehicle(VehicleBase):
     id: int
