@@ -26,6 +26,7 @@ export default function Vehicles() {
     confirmDelete,
     handleCreateVehicle,
     formatKilometers,
+    getFromAPI,
   } = useVehiclesPage();
 
   // Loading state
@@ -45,10 +46,10 @@ export default function Vehicles() {
 
   return (
     <div className="vehicles-container d-flex flex-column">
-      <div className="vehicles-header d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom border-light">
+      <div className="vehicles-header d-flex align-items-center justify-content-between mb-4 border-bottom border-light">
         <div>
           <h1 className="h1 fw-bold text-dark">Gestão de Veículos</h1>
-          <p className="text-muted mt-1">Gerencie os veículos da oficina</p>
+          <p className="text-muted">Gerencie os veículos da oficina</p>
         </div>
         <Button variant="destructive" onClick={() => setNewVehicleModalOpen(true)}>
           <Plus className="mr-2 h-4 w-4" /> Novo Veículo
@@ -145,6 +146,7 @@ export default function Vehicles() {
         isOpen={newVehicleModalOpen}
         onClose={() => setNewVehicleModalOpen(false)}
         onSubmit={handleCreateVehicle}
+        getFromAPI={getFromAPI}
         loading={creatingVehicle}
       />
     </div>

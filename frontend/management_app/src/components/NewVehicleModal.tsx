@@ -14,12 +14,14 @@ interface NewVehicleModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: VehicleCreate) => Promise<void>;
+  getFromAPI?: (plate: string) => Promise<void>;
   loading: boolean;
 }
 
 const NewVehicleModal: React.FC<NewVehicleModalProps> = ({ 
   isOpen, 
   onClose, 
+  getFromAPI,
   onSubmit, 
   loading 
 }) => {
@@ -56,43 +58,7 @@ const NewVehicleModal: React.FC<NewVehicleModalProps> = ({
 
             <form onSubmit={handleSubmit}>
               <div className="row g-4">
-                {/* Row 1: Brand and Model */}
-                <div className="col-md-6">
-                  <Label htmlFor='brand' className="d-flex form-label small text-muted mb-1">
-                    Marca *
-                  </Label>
-                  <Input
-                    type="text"
-                    id="brand"
-                    name="brand"
-                    required
-                    value={formData.brand}
-                    onChange={e => handleChange('brand', e.target.value)}
-                    disabled={loading}
-                    placeholder="Digite a Marca"
-                    className="form-control"
-                    style={{ backgroundColor: '#f8f9fa' }}
-                  />
-                </div>
-                <div className="col-md-6">
-                  <Label htmlFor='model' className="d-flex form-label small text-muted mb-1">
-                    Modelo *
-                  </Label>
-                  <Input
-                    type="text"
-                    id="model"
-                    name="model"
-                    required
-                    value={formData.model}
-                    onChange={e => handleChange('model', e.target.value)}
-                    disabled={loading}
-                    placeholder="Digite o Modelo"
-                    className="form-control"
-                    style={{ backgroundColor: '#f8f9fa' }}
-                  />
-                </div>
-
-                {/* Row 2: Plate and Customer */}
+                {/* Row 1: Plate and Customer */}
                 <div className="col-md-6">
                   <Label htmlFor='plate' className="d-flex form-label small text-muted mb-1">
                     Matrícula *
@@ -134,6 +100,42 @@ const NewVehicleModal: React.FC<NewVehicleModalProps> = ({
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+
+                {/* Row 2: Brand and Model */}
+                <div className="col-md-6">
+                  <Label htmlFor='brand' className="d-flex form-label small text-muted mb-1">
+                    Marca *
+                  </Label>
+                  <Input
+                    type="text"
+                    id="brand"
+                    name="brand"
+                    required
+                    value={formData.brand}
+                    onChange={e => handleChange('brand', e.target.value)}
+                    disabled={loading}
+                    placeholder="Digite a Marca"
+                    className="form-control"
+                    style={{ backgroundColor: '#f8f9fa' }}
+                  />
+                </div>
+                <div className="col-md-6">
+                  <Label htmlFor='model' className="d-flex form-label small text-muted mb-1">
+                    Modelo *
+                  </Label>
+                  <Input
+                    type="text"
+                    id="model"
+                    name="model"
+                    required
+                    value={formData.model}
+                    onChange={e => handleChange('model', e.target.value)}
+                    disabled={loading}
+                    placeholder="Digite o Modelo"
+                    className="form-control"
+                    style={{ backgroundColor: '#f8f9fa' }}
+                  />
                 </div>
 
                 {/* Row 3: Kilometers and Color */}
@@ -250,6 +252,13 @@ const NewVehicleModal: React.FC<NewVehicleModalProps> = ({
               </div>
               {/* Action Buttons */}
               <div className="d-flex justify-content-end gap-2 mt-4">
+                <Button 
+                  type="button" 
+                  variant="destructive"
+                  onClick={() => getFromAPI?.(formData.plate)}
+                  disabled={loading || !formData.plate}
+                  className="btn-custom-filled"
+                >GET FROM API</Button>
                 <Button 
                   type="button"
                   variant="outline"

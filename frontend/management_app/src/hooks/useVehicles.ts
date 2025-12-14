@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import http from '../api/http';
 import type { Vehicle, VehicleCreate } from '../interfaces/Vehicle';
 import { vehicleService } from '../services/vehicleService';
+import { vehicleService as vehicleAPIService } from '../services/vehicleAPIService';
 import { toast } from './use-toast';
 
 interface VehicleCountMap {
@@ -184,6 +185,26 @@ export function useVehiclesPage() {
     return km > 0 ? `${km.toLocaleString('pt-PT')} km` : '0 km';
   };
 
+  const getFromAPI = async (plate: string) => {
+    try {
+      const vehicleData = await vehicleAPIService.getByPlate(plate);
+      toast({ 
+        title: 'Veículo encontrado', 
+        description: `Dados do veículo ${vehicleData.brand} ${vehicleData.model} obtidos da API.` 
+      });
+      return vehicleData;
+    } catch (err) {
+      const error = err as { response?: { data?: { detail?: string } } };
+      console.error('Get vehicle from API error:', error);
+      toast({
+        title: 'Erro',
+        description: error.response?.data?.detail || 'Não foi possível obter os dados do veículo da API.',
+        variant: 'destructive',
+      });
+      throw err;
+    }
+  };
+
   return {
     // Data
     filteredVehicles,
@@ -204,5 +225,6 @@ export function useVehiclesPage() {
     confirmDelete,
     handleCreateVehicle,
     formatKilometers,
+    getFromAPI,
   };
 }
