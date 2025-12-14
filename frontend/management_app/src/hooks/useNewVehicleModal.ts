@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { VehicleCreate } from '../interfaces/Vehicle';
+import type { VehicleAPI } from '../interfaces/VehicleAPI';
 
 export function useNewVehicleModal(isOpen: boolean) {
   const [formData, setFormData] = useState<VehicleCreate>({
@@ -36,13 +37,6 @@ export function useNewVehicleModal(isOpen: boolean) {
   const handleChange = (field: keyof VehicleCreate, value: string | number | boolean) => {
     setFormData(prev => {
       const updated = { ...prev, [field]: value };
-      // Updates description when brand or model changes
-      if (field === 'brand' || field === 'model') {
-        const brand = field === 'brand' ? value : prev.brand;
-        const model = field === 'model' ? value : prev.model;
-        updated.description = brand && model ? `${brand} ${model}` : '';
-      }
-      
       return updated;
     });
   };
@@ -51,9 +45,23 @@ export function useNewVehicleModal(isOpen: boolean) {
     return !!(formData.plate && formData.brand && formData.model && formData.customer_id);
   };
 
+  const populateFromAPI = (apiData: VehicleAPI) => {
+    setFormData(prev => ({
+      ...prev,
+      brand: apiData.brand || prev.brand,
+      model: apiData.model || prev.model,
+      color: apiData.colour || prev.color,
+      engineSize: apiData.engineSize || prev.engineSize,
+      fuelType: apiData.fuelType || prev.fuelType,
+      imported: apiData.imported !== undefined ? apiData.imported : prev.imported,
+      description: apiData.description || (apiData.brand && apiData.model ? `${apiData.brand} ${apiData.model}` : prev.description),
+    }));
+  };
+
   return {
     formData,
     handleChange,
     validateForm,
+    populateFromAPI,
   };
 }

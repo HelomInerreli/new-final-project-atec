@@ -9,12 +9,13 @@ import './../styles/NewVehicleModal.css';
 import type { VehicleCreate } from '../interfaces/Vehicle';
 import { useFetchCustomers } from '../hooks/useCustomers';
 import { useNewVehicleModal } from '../hooks/useNewVehicleModal';
+import type { VehicleAPI } from '../interfaces/VehicleAPI';
 
 interface NewVehicleModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: VehicleCreate) => Promise<void>;
-  getFromAPI?: (plate: string) => Promise<void>;
+  getFromAPI?: (plate: string) => Promise<VehicleAPI | null>;
   loading: boolean;
 }
 
@@ -26,12 +27,25 @@ const NewVehicleModal: React.FC<NewVehicleModalProps> = ({
   loading 
 }) => {
   const { customers } = useFetchCustomers();
-  const { formData, handleChange, validateForm } = useNewVehicleModal(isOpen);
+  const { formData, handleChange, validateForm, populateFromAPI } = useNewVehicleModal(isOpen);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (validateForm()) {
       await onSubmit(formData);
+    }
+  };
+
+  const handleGetFromAPI = async () => {
+    if (getFromAPI && formData.plate) {
+      try {
+        const apiData = await getFromAPI(formData.plate);
+        if (apiData) {
+          populateFromAPI(apiData);
+        }
+      } catch (error) {
+        // Handle error (e.g., show toast)
+      }
     }
   };
 
@@ -194,25 +208,17 @@ const NewVehicleModal: React.FC<NewVehicleModalProps> = ({
                   <Label htmlFor='fuelType' className="d-flex form-label small text-muted mb-1">
                     Tipo de Combustível
                   </Label>
-                  <Select
+                    <Input
+                    type="text"
+                    id="fuelType"
+                    name="fuelType"
                     value={formData.fuelType || ''}
-                    onValueChange={value => handleChange('fuelType', value)}
+                    onChange={e => handleChange('fuelType', e.target.value)}
                     disabled={loading}
-                  >
-                    <SelectTrigger 
-                      className="form-control"
-                      style={{ backgroundColor: '#f8f9fa' }}
-                    >
-                      <SelectValue placeholder="Selecione o combustível" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Gasolina">Gasolina</SelectItem>
-                      <SelectItem value="Diesel">Diesel</SelectItem>
-                      <SelectItem value="Híbrido">Híbrido</SelectItem>
-                      <SelectItem value="Elétrico">Elétrico</SelectItem>
-                      <SelectItem value="GPL">GPL</SelectItem>
-                    </SelectContent>
-                  </Select>
+                    placeholder="Digite o Tipo de Combustível (ex: Gasolina, Diesel)"
+                    className="form-control"
+                    style={{ backgroundColor: '#f8f9fa' }}
+                  />
                 </div>
 
                 {/* Row 5: Imported */}
@@ -245,7 +251,6 @@ const NewVehicleModal: React.FC<NewVehicleModalProps> = ({
                     disabled={loading}
                     placeholder="Nome do veículo (ex: Toyota Corolla)"
                     className="form-control"
-                    readOnly ={true}
                     style={{ backgroundColor: '#f8f9fa' }}
                   />
                 </div>
@@ -255,7 +260,7 @@ const NewVehicleModal: React.FC<NewVehicleModalProps> = ({
                 <Button 
                   type="button" 
                   variant="destructive"
-                  onClick={() => getFromAPI?.(formData.plate)}
+                  onClick={handleGetFromAPI}
                   disabled={loading || !formData.plate}
                   className="btn-custom-filled"
                 >GET FROM API</Button>
