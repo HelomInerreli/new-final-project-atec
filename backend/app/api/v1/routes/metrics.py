@@ -15,13 +15,14 @@ from app.core.security import get_current_user
 router = APIRouter()
 
 
-def filter_by_user_role(query, user: User, db: Session):
+def filter_by_user_role(query, user: Optional[User], db: Session):
     """
     Filtra os appointments de acordo com a role do usuário.
     Admin vê tudo, outros roles veem apenas appointments do seu serviço/área.
+    Se user for None, retorna todos os dados (para testes).
     """
-    if not user.employee_id:
-        # Se não tiver employee_id, retorna tudo (admin)
+    if not user or not user.employee_id:
+        # Se não tiver user ou employee_id, retorna tudo
         return query
     
     employee = db.query(Employee).filter(Employee.id == user.employee_id).first()
@@ -51,8 +52,8 @@ def filter_by_user_role(query, user: User, db: Session):
 @router.get("/daily")
 def get_daily_metrics(
     date: Optional[str] = None,
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user)
 ):
     """
     Retorna métricas do dia atual ou de uma data específica.
@@ -119,7 +120,7 @@ def get_daily_metrics(
 def get_monthly_metrics(
     year: Optional[int] = None,
     month: Optional[int] = None,
-    current_user: User = Depends(get_current_user),
+    current_user: Optional[User] = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -205,7 +206,7 @@ def get_monthly_metrics(
 @router.get("/yearly")
 def get_yearly_metrics(
     year: Optional[int] = None,
-    current_user: User = Depends(get_current_user),
+    current_user: Optional[User] = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -277,7 +278,7 @@ def get_yearly_metrics(
 def get_metrics_by_service(
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
-    current_user: User = Depends(get_current_user),
+    current_user: Optional[User] = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -327,7 +328,7 @@ def get_metrics_by_service(
 def get_metrics_by_status(
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
-    current_user: User = Depends(get_current_user),
+    current_user: Optional[User] = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -375,7 +376,7 @@ def get_metrics_by_status(
 
 @router.get("/summary")
 def get_summary_metrics(
-    current_user: User = Depends(get_current_user),
+    current_user: Optional[User] = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """

@@ -51,33 +51,70 @@ export default function Dashboard() {
   const loadAllMetrics = async () => {
     setLoading(true);
     try {
+      console.log("🔄 Carregando métricas...");
+
       const [
-        daily,
-        currentMonth,
-        lastMonth,
-        currentYear,
-        lastYear,
-        services,
-        statuses,
+        dailyData,
+        currentMonthData,
+        lastMonthData,
+        currentYearData,
+        lastYearData,
+        servicesData,
+        statusesData,
       ] = await Promise.all([
-        metricsService.getDailyMetrics(),
-        metricsService.getMonthlyMetrics(currentYear, currentMonth),
-        metricsService.getMonthlyMetrics(lastMonthYear, lastMonth),
-        metricsService.getYearlyMetrics(currentYear),
-        metricsService.getYearlyMetrics(currentYear - 1),
-        metricsService.getMetricsByService(),
-        metricsService.getMetricsByStatus(),
+        metricsService.getDailyMetrics().catch((e) => {
+          console.error("❌ Erro daily:", e);
+          return null;
+        }),
+        metricsService
+          .getMonthlyMetrics(currentYear, currentMonth)
+          .catch((e) => {
+            console.error("❌ Erro current month:", e);
+            return null;
+          }),
+        metricsService
+          .getMonthlyMetrics(lastMonthYear, lastMonth)
+          .catch((e) => {
+            console.error("❌ Erro last month:", e);
+            return null;
+          }),
+        metricsService.getYearlyMetrics(currentYear).catch((e) => {
+          console.error("❌ Erro current year:", e);
+          return null;
+        }),
+        metricsService.getYearlyMetrics(currentYear - 1).catch((e) => {
+          console.error("❌ Erro last year:", e);
+          return null;
+        }),
+        metricsService.getMetricsByService().catch((e) => {
+          console.error("❌ Erro services:", e);
+          return [];
+        }),
+        metricsService.getMetricsByStatus().catch((e) => {
+          console.error("❌ Erro statuses:", e);
+          return [];
+        }),
       ]);
 
-      setDailyMetrics(daily);
-      setCurrentMonthMetrics(currentMonth);
-      setLastMonthMetrics(lastMonth);
-      setCurrentYearMetrics(currentYear);
-      setLastYearMetrics(lastYear);
-      setServiceMetrics(services);
-      setStatusMetrics(statuses);
+      console.log("✅ Dados carregados:", {
+        dailyData,
+        currentMonthData,
+        lastMonthData,
+        currentYearData,
+        lastYearData,
+        services: servicesData?.length,
+        statuses: statusesData?.length,
+      });
+
+      setDailyMetrics(dailyData);
+      setCurrentMonthMetrics(currentMonthData);
+      setLastMonthMetrics(lastMonthData);
+      setCurrentYearMetrics(currentYearData);
+      setLastYearMetrics(lastYearData);
+      setServiceMetrics(servicesData || []);
+      setStatusMetrics(statusesData || []);
     } catch (error) {
-      console.error("Erro ao carregar métricas:", error);
+      console.error("❌ Erro ao carregar métricas:", error);
     } finally {
       setLoading(false);
     }

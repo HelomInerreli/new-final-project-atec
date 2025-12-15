@@ -12,15 +12,22 @@ const API_BASE_URL = "http://localhost:8000/api/v1";
 
 // Função para obter o token do localStorage
 const getAuthToken = () => {
-  return localStorage.getItem("token");
+  const token = localStorage.getItem("token");
+  if (!token) {
+    console.warn("⚠️  Token não encontrado no localStorage");
+  }
+  return token;
 };
 
 // Configuração padrão para todas as requisições
-const getConfig = () => ({
-  headers: {
-    Authorization: `Bearer ${getAuthToken()}`,
-  },
-});
+const getConfig = () => {
+  const token = getAuthToken();
+  return {
+    headers: {
+      Authorization: token ? `Bearer ${token}` : "",
+    },
+  };
+};
 
 export const metricsService = {
   // Métricas diárias
