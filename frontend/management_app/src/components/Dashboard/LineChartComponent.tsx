@@ -31,8 +31,8 @@ export const LineChartComponent: React.FC<LineChartComponentProps> = ({
   height = 300,
 }) => {
   return (
-    <Card className="p-6">
-      <h3 className="text-lg font-semibold mb-4">{title}</h3>
+    <Card className="p-4 bg-white shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+      <h3 className="text-lg font-semibold mb-4 text-gray-800">{title}</h3>
       <ResponsiveContainer width="100%" height={height}>
         <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />

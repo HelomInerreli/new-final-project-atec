@@ -16,7 +16,6 @@ import type {
   YearlyMetrics,
   ServiceMetric,
   StatusMetric,
-  SummaryMetrics,
 } from "../types/metrics";
 
 export default function Dashboard() {
@@ -122,9 +121,15 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-xl font-semibold text-gray-600">
-          Carregando métricas...
+      <div
+        className="d-flex align-items-center justify-content-center"
+        style={{ height: "100vh", backgroundColor: "transparent" }}
+      >
+        <div className="text-center">
+          <div className="spinner-border text-primary mb-3" role="status">
+            <span className="visually-hidden">Carregando...</span>
+          </div>
+          <p className="text-muted">Carregando métricas...</p>
         </div>
       </div>
     );
@@ -149,23 +154,44 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="p-6 space-y-6 !bg-gray-50 min-h-screen">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">
-          Dashboard de Atendimentos
-        </h1>
+    <div
+      className="d-flex flex-column p-4"
+      style={{
+        height: "100%",
+        backgroundColor: "transparent",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      <div className="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom border-light">
+        <div>
+          <h1 className="h1 fw-bold text-dark mb-1">
+            Dashboard de Atendimentos
+          </h1>
+          <p className="text-muted mt-1 mb-0">
+            Acompanhe as métricas e indicadores de performance
+          </p>
+        </div>
       </div>
 
-      <Tabs defaultValue="daily" className="w-full !bg-transparent">
-        <TabsList className="grid w-full grid-cols-3 !bg-white">
+      <Tabs
+        defaultValue="daily"
+        className="w-full"
+        style={{ backgroundColor: "transparent" }}
+      >
+        <TabsList className="grid w-full grid-cols-3 !bg-white border border-gray-200 shadow-sm mb-4">
           <TabsTrigger value="daily">Dia Atual</TabsTrigger>
           <TabsTrigger value="monthly">Visão Mensal</TabsTrigger>
           <TabsTrigger value="yearly">Visão Anual</TabsTrigger>
         </TabsList>
 
         {/* ABA 1: DIA ATUAL */}
-        <TabsContent value="daily" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <TabsContent
+          value="daily"
+          className="mt-4"
+          style={{ backgroundColor: "transparent" }}
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
             <MetricCard
               title="Total de Agendamentos"
               value={dailyMetrics?.total_appointments || 0}
@@ -192,7 +218,7 @@ export default function Dashboard() {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <MetricCard
               title="Tempo Médio de Atendimento"
               value={`${
@@ -213,8 +239,12 @@ export default function Dashboard() {
         </TabsContent>
 
         {/* ABA 2: VISÃO MENSAL */}
-        <TabsContent value="monthly" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <TabsContent
+          value="monthly"
+          className="mt-4"
+          style={{ backgroundColor: "transparent" }}
+        >
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <MetricCard
               title={`${getMonthName(currentMonth)} ${currentYear}`}
               value={
@@ -263,7 +293,7 @@ export default function Dashboard() {
             />
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
             <BarChartComponent
               data={serviceMetrics.slice(0, 8)}
               xKey="service_name"
@@ -272,7 +302,7 @@ export default function Dashboard() {
               height={350}
             />
 
-            <div className="bg-white rounded-lg shadow p-4">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow">
               <h3 className="text-lg font-semibold text-gray-800 mb-4">
                 Serviços Mais Solicitados
               </h3>
@@ -316,8 +346,12 @@ export default function Dashboard() {
         </TabsContent>
 
         {/* ABA 3: VISÃO ANUAL */}
-        <TabsContent value="yearly" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <TabsContent
+          value="yearly"
+          className="mt-4"
+          style={{ backgroundColor: "transparent" }}
+        >
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
             <MetricCard
               title={`Total ${currentYear}`}
               value={currentYearMetrics?.totals?.total_appointments || 0}
@@ -354,7 +388,7 @@ export default function Dashboard() {
             />
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
             <LineChartComponent
               data={currentYearMetrics?.monthly_data || []}
               xKey="month_name"
@@ -378,7 +412,7 @@ export default function Dashboard() {
             />
           </div>
 
-          <div className="grid grid-cols-1 gap-6">
+          <div className="grid grid-cols-1 gap-6 mt-4">
             <BarChartComponent
               data={serviceMetrics.slice(0, 10)}
               xKey="service_name"

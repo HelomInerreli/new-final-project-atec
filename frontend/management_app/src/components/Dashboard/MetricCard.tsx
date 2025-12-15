@@ -22,24 +22,24 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   color = "blue",
 }) => {
   const colorClasses = {
-    blue: "bg-blue-50 border-blue-200",
-    green: "bg-green-50 border-green-200",
-    orange: "bg-orange-50 border-orange-200",
-    red: "bg-red-50 border-red-200",
-    purple: "bg-purple-50 border-purple-200",
+    blue: "border-l-4 border-blue-500",
+    green: "border-l-4 border-green-500",
+    orange: "border-l-4 border-orange-500",
+    red: "border-l-4 border-red-500",
+    purple: "border-l-4 border-purple-500",
   };
 
   return (
     <Card
-      className={`p-6 ${
+      className={`p-4 bg-white shadow-sm border border-gray-200 hover:shadow-md transition-shadow ${
         colorClasses[color as keyof typeof colorClasses] || colorClasses.blue
       }`}
     >
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
-          <h3 className="text-3xl font-bold text-gray-900">{value}</h3>
-          {subtitle && <p className="text-sm text-gray-500 mt-1">{subtitle}</p>}
+          <p className="text-sm font-medium text-gray-600 mb-2">{title}</p>
+          <h3 className="text-2xl font-bold text-gray-900 mb-1">{value}</h3>
+          {subtitle && <p className="text-xs text-gray-500 mt-1">{subtitle}</p>}
           {trend && (
             <div className="flex items-center mt-2">
               <span
@@ -52,7 +52,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
             </div>
           )}
         </div>
-        {icon && <div className="ml-4 text-3xl opacity-60">{icon}</div>}
+        {icon && <div className="ml-4 text-2xl opacity-50">{icon}</div>}
       </div>
     </Card>
   );
