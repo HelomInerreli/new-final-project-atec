@@ -21,12 +21,14 @@ def filter_by_user_role(query, user: Optional[User], db: Session):
     Admin vê tudo, outros roles veem apenas appointments do seu serviço/área.
     Se user for None, retorna todos os dados (para testes).
     """
-    if not user or not user.employee_id:
-        # Se não tiver user ou employee_id, retorna tudo
+    if not user:
+        # Se não tiver user, retorna tudo
         return query
     
-    employee = db.query(Employee).filter(Employee.id == user.employee_id).first()
+    # Busca o employee através do email do usuário
+    employee = db.query(Employee).filter(Employee.email == user.email).first()
     if not employee or not employee.role:
+        # Se não encontrar employee ou role, retorna tudo (usuário admin sem employee)
         return query
     
     role_name = employee.role.name.lower()
@@ -232,8 +234,8 @@ def get_yearly_metrics(
     )
     
     # Filtrar por role
-    if current_user and current_user.employee_id:
-        employee = db.query(Employee).filter(Employee.id == current_user.employee_id).first()
+    if current_user:
+        employee = db.query(Employee).filter(Employee.email == current_user.email).first()
         if employee and employee.role:
             role_name = employee.role.name.lower()
             if "admin" not in role_name:
@@ -299,8 +301,8 @@ def get_metrics_by_service(
         query = query.filter(Appointment.appointment_date <= datetime.strptime(end_date, "%Y-%m-%d"))
     
     # Filtrar por role
-    if current_user and current_user.employee_id:
-        employee = db.query(Employee).filter(Employee.id == current_user.employee_id).first()
+    if current_user:
+        employee = db.query(Employee).filter(Employee.email == current_user.email).first()
         if employee and employee.role:
             role_name = employee.role.name.lower()
             if "admin" not in role_name:
@@ -347,8 +349,8 @@ def get_metrics_by_status(
         query = query.filter(Appointment.appointment_date <= datetime.strptime(end_date, "%Y-%m-%d"))
     
     # Filtrar por role do usuário
-    if current_user and current_user.employee_id:
-        employee = db.query(Employee).filter(Employee.id == current_user.employee_id).first()
+    if current_user:
+        employee = db.query(Employee).filter(Employee.email == current_user.email).first()
         if employee and employee.role:
             role_name = employee.role.name.lower()
             if "admin" not in role_name:

@@ -12,7 +12,7 @@ const API_BASE_URL = "http://localhost:8000/api/v1";
 
 // Função para obter o token do localStorage
 const getAuthToken = () => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("access_token");
   if (!token) {
     console.warn("⚠️  Token não encontrado no localStorage");
   }
