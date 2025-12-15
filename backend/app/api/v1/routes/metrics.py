@@ -10,7 +10,7 @@ from app.models.service import Service
 from app.models.user import User
 from app.models.employee import Employee
 from app.models.role import Role
-from app.core.security import get_current_user
+from app.core.security import get_current_user_optional
 
 router = APIRouter()
 
@@ -53,7 +53,7 @@ def filter_by_user_role(query, user: Optional[User], db: Session):
 def get_daily_metrics(
     date: Optional[str] = None,
     db: Session = Depends(get_db),
-    current_user: Optional[User] = Depends(get_current_user)
+    current_user: Optional[User] = Depends(get_current_user_optional)
 ):
     """
     Retorna métricas do dia atual ou de uma data específica.
@@ -120,7 +120,7 @@ def get_daily_metrics(
 def get_monthly_metrics(
     year: Optional[int] = None,
     month: Optional[int] = None,
-    current_user: Optional[User] = Depends(get_current_user),
+    current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db)
 ):
     """
@@ -206,7 +206,7 @@ def get_monthly_metrics(
 @router.get("/yearly")
 def get_yearly_metrics(
     year: Optional[int] = None,
-    current_user: Optional[User] = Depends(get_current_user),
+    current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db)
 ):
     """
@@ -232,7 +232,7 @@ def get_yearly_metrics(
     )
     
     # Filtrar por role
-    if current_user.employee_id:
+    if current_user and current_user.employee_id:
         employee = db.query(Employee).filter(Employee.id == current_user.employee_id).first()
         if employee and employee.role:
             role_name = employee.role.name.lower()
@@ -278,7 +278,7 @@ def get_yearly_metrics(
 def get_metrics_by_service(
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
-    current_user: Optional[User] = Depends(get_current_user),
+    current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db)
 ):
     """
@@ -299,7 +299,7 @@ def get_metrics_by_service(
         query = query.filter(Appointment.appointment_date <= datetime.strptime(end_date, "%Y-%m-%d"))
     
     # Filtrar por role
-    if current_user.employee_id:
+    if current_user and current_user.employee_id:
         employee = db.query(Employee).filter(Employee.id == current_user.employee_id).first()
         if employee and employee.role:
             role_name = employee.role.name.lower()
@@ -328,7 +328,7 @@ def get_metrics_by_service(
 def get_metrics_by_status(
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
-    current_user: Optional[User] = Depends(get_current_user),
+    current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db)
 ):
     """
@@ -347,7 +347,7 @@ def get_metrics_by_status(
         query = query.filter(Appointment.appointment_date <= datetime.strptime(end_date, "%Y-%m-%d"))
     
     # Filtrar por role do usuário
-    if current_user.employee_id:
+    if current_user and current_user.employee_id:
         employee = db.query(Employee).filter(Employee.id == current_user.employee_id).first()
         if employee and employee.role:
             role_name = employee.role.name.lower()
@@ -376,7 +376,7 @@ def get_metrics_by_status(
 
 @router.get("/summary")
 def get_summary_metrics(
-    current_user: Optional[User] = Depends(get_current_user),
+    current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db)
 ):
     """
