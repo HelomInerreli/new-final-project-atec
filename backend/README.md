@@ -5,19 +5,44 @@
 1. Criar a VENV - `python -m venv .venv`
 2. Ativando a VENV - `.venv\Scripts\activate` para Windows ou `source .venv/bin/activate` para MacOS
 3. Importar as Bibliotecas - `pip install -r requirements.txt`
-4. Rodar script de seeds - `python -m app.scripts.seed`
-5. Executar a API com Uvicorn - `uvicorn app.main:app --reload`
-   (Este é o comando recomendado, pois funciona corretamente com a estrutura de módulos do projeto.)
+4. Executar a API com Uvicorn - `uvicorn app.main:app --reload`
 
-Para testar a API entre do Swager da API e teste seus endpoints.
+**Os seeds são executados automaticamente no primeiro arranque!**
+
+- Email: `admin@mecatec.pt`
+- Password: `Mecatec@2025`
+
+Para testar a API entre do Swagger da API e teste seus endpoints.
 `http://127.0.0.1:8000/docs/`
+
+## Seeds Automáticos
+
+Os seeds agora são executados automaticamente quando o backend inicia pela primeira vez (quando o banco está vazio).
+
+O arquivo consolidado `app/seed_all.py` inclui:
+
+- ✓ Usuário Admin
+- ✓ Produtos
+- ✓ Notificações
+- ✓ Status e Roles
+- ✓ Serviços e Serviços Extra
+- ✓ Funcionários
+- ✓ Clientes e Veículos
+- ✓ Agendamentos
+- ✓ Faturas
+
+**Para resetar o banco e executar seeds novamente:**
+
+```bash
+# Apague o arquivo de banco de dados SQLite ou execute:
+python -m app.seed_all
+```
 
 ## Funcionamento STRIPE
 
 1. Instalar Stripe
-2. Dentro CMD na Pasta do Stripe excutar 
+2. Dentro CMD na Pasta do Stripe executar
 3. stripe listen --forward-to localhost:8000/api/v1/payments/webhook
-
 
 ## Gerar/Atualizar o Ficheiro de Dependências
 

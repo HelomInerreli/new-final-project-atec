@@ -12,6 +12,7 @@ from app.api.v1.routes import (
 	notification,
 	managementAuth,
 	userNotification,
+	metrics,
 )
 from app.api.v1.routes import customer, vehicle, appointment, extra_service, customerAuth, service, payment, vehicleApi, status, role, employee
 
@@ -34,3 +35,4 @@ api_router.include_router(status.router, prefix="/statuses", tags=["statuses"])
 api_router.include_router(managementAuth.router, prefix="/managementauth", tags=["managementauth"])
 api_router.include_router(role.router, prefix="/roles", tags=["roles"])
 api_router.include_router(employee.router, prefix="/employees", tags=["employees"])
+api_router.include_router(metrics.router, prefix="/metrics", tags=["metrics"])
