@@ -4,7 +4,12 @@ import { MetricCard } from "../components/Dashboard/MetricCard";
 import { BarChartComponent } from "../components/Dashboard/BarChartComponent";
 import { LineChartComponent } from "../components/Dashboard/LineChartComponent";
 import { PieChartComponent } from "../components/Dashboard/PieChartComponent";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "../components/ui/tabs";
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+} from "../components/ui/tabs";
 import type {
   DailyMetrics,
   MonthlyMetrics,
@@ -23,10 +28,15 @@ export default function Dashboard() {
 
   // Estados para os dados
   const [dailyMetrics, setDailyMetrics] = useState<DailyMetrics | null>(null);
-  const [currentMonthMetrics, setCurrentMonthMetrics] = useState<MonthlyMetrics | null>(null);
-  const [lastMonthMetrics, setLastMonthMetrics] = useState<MonthlyMetrics | null>(null);
-  const [currentYearMetrics, setCurrentYearMetrics] = useState<YearlyMetrics | null>(null);
-  const [lastYearMetrics, setLastYearMetrics] = useState<YearlyMetrics | null>(null);
+  const [currentMonthMetrics, setCurrentMonthMetrics] =
+    useState<MonthlyMetrics | null>(null);
+  const [lastMonthMetrics, setLastMonthMetrics] =
+    useState<MonthlyMetrics | null>(null);
+  const [currentYearMetrics, setCurrentYearMetrics] =
+    useState<YearlyMetrics | null>(null);
+  const [lastYearMetrics, setLastYearMetrics] = useState<YearlyMetrics | null>(
+    null
+  );
   const [serviceMetrics, setServiceMetrics] = useState<ServiceMetric[]>([]);
   const [statusMetrics, setStatusMetrics] = useState<StatusMetric[]>([]);
 
@@ -41,16 +51,23 @@ export default function Dashboard() {
   const loadAllMetrics = async () => {
     setLoading(true);
     try {
-      const [daily, currentMonth, lastMonth, currentYear, lastYear, services, statuses] =
-        await Promise.all([
-          metricsService.getDailyMetrics(),
-          metricsService.getMonthlyMetrics(currentYear, currentMonth),
-          metricsService.getMonthlyMetrics(lastMonthYear, lastMonth),
-          metricsService.getYearlyMetrics(currentYear),
-          metricsService.getYearlyMetrics(currentYear - 1),
-          metricsService.getMetricsByService(),
-          metricsService.getMetricsByStatus(),
-        ]);
+      const [
+        daily,
+        currentMonth,
+        lastMonth,
+        currentYear,
+        lastYear,
+        services,
+        statuses,
+      ] = await Promise.all([
+        metricsService.getDailyMetrics(),
+        metricsService.getMonthlyMetrics(currentYear, currentMonth),
+        metricsService.getMonthlyMetrics(lastMonthYear, lastMonth),
+        metricsService.getYearlyMetrics(currentYear),
+        metricsService.getYearlyMetrics(currentYear - 1),
+        metricsService.getMetricsByService(),
+        metricsService.getMetricsByStatus(),
+      ]);
 
       setDailyMetrics(daily);
       setCurrentMonthMetrics(currentMonth);
@@ -78,8 +95,18 @@ export default function Dashboard() {
 
   const getMonthName = (month: number) => {
     const months = [
-      "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-      "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+      "Janeiro",
+      "Fevereiro",
+      "Março",
+      "Abril",
+      "Maio",
+      "Junho",
+      "Julho",
+      "Agosto",
+      "Setembro",
+      "Outubro",
+      "Novembro",
+      "Dezembro",
     ];
     return months[month - 1];
   };
@@ -131,13 +158,15 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <MetricCard
               title="Tempo Médio de Atendimento"
-              value={`${dailyMetrics?.average_duration_minutes?.toFixed(0) || 0} min`}
+              value={`${
+                dailyMetrics?.average_duration_minutes?.toFixed(0) || 0
+              } min`}
               subtitle="Baseado em serviços concluídos"
               icon="⏱️"
               color="blue"
             />
             <PieChartComponent
-              data={statusMetrics.filter(s => s.total > 0)}
+              data={statusMetrics.filter((s) => s.total > 0)}
               dataKey="total"
               nameKey="status_name"
               title="Distribuição por Status (Hoje)"
@@ -151,29 +180,48 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <MetricCard
               title={`${getMonthName(currentMonth)} ${currentYear}`}
-              value={currentMonthMetrics?.current_month?.total_appointments || 0}
-              subtitle={`${currentMonthMetrics?.current_month?.completed || 0} concluídos`}
+              value={
+                currentMonthMetrics?.current_month?.total_appointments || 0
+              }
+              subtitle={`${
+                currentMonthMetrics?.current_month?.completed || 0
+              } concluídos`}
               trend={{
-                value: currentMonthMetrics?.variations?.total_variation_percent || 0,
-                isPositive: (currentMonthMetrics?.variations?.total_variation_percent || 0) >= 0,
+                value:
+                  currentMonthMetrics?.variations?.total_variation_percent || 0,
+                isPositive:
+                  (currentMonthMetrics?.variations?.total_variation_percent ||
+                    0) >= 0,
               }}
               color="blue"
             />
             <MetricCard
               title={`${getMonthName(lastMonth)} ${lastMonthYear}`}
               value={lastMonthMetrics?.current_month?.total_appointments || 0}
-              subtitle={`${lastMonthMetrics?.current_month?.completed || 0} concluídos`}
+              subtitle={`${
+                lastMonthMetrics?.current_month?.completed || 0
+              } concluídos`}
               color="purple"
             />
             <MetricCard
               title="Variação"
-              value={`${currentMonthMetrics?.variations?.total_variation_percent?.toFixed(1) || 0}%`}
+              value={`${
+                currentMonthMetrics?.variations?.total_variation_percent?.toFixed(
+                  1
+                ) || 0
+              }%`}
               subtitle="Em relação ao mês anterior"
               icon={
-                (currentMonthMetrics?.variations?.total_variation_percent || 0) >= 0 ? "📈" : "📉"
+                (currentMonthMetrics?.variations?.total_variation_percent ||
+                  0) >= 0
+                  ? "📈"
+                  : "📉"
               }
               color={
-                (currentMonthMetrics?.variations?.total_variation_percent || 0) >= 0 ? "green" : "red"
+                (currentMonthMetrics?.variations?.total_variation_percent ||
+                  0) >= 0
+                  ? "green"
+                  : "red"
               }
             />
           </div>
@@ -208,7 +256,10 @@ export default function Dashboard() {
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {serviceMetrics.slice(0, 5).map((service, index) => (
-                      <tr key={service.service_id} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                      <tr
+                        key={service.service_id}
+                        className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
+                      >
                         <td className="px-4 py-3 text-sm font-medium text-gray-900">
                           {service.service_name}
                         </td>
@@ -233,7 +284,9 @@ export default function Dashboard() {
             <MetricCard
               title={`Total ${currentYear}`}
               value={currentYearMetrics?.totals?.total_appointments || 0}
-              subtitle={`${currentYearMetrics?.totals?.completed || 0} concluídos`}
+              subtitle={`${
+                currentYearMetrics?.totals?.completed || 0
+              } concluídos`}
               color="blue"
             />
             <MetricCard
@@ -244,14 +297,20 @@ export default function Dashboard() {
             />
             <MetricCard
               title="Média Mensal"
-              value={currentYearMetrics?.totals?.average_per_month?.toFixed(0) || 0}
+              value={
+                currentYearMetrics?.totals?.average_per_month?.toFixed(0) || 0
+              }
               subtitle={`${currentYear}`}
               icon="📊"
               color="green"
             />
             <MetricCard
               title="Taxa de Conclusão"
-              value={`${((currentYearMetrics?.totals?.completed || 0) / (currentYearMetrics?.totals?.total_appointments || 1) * 100).toFixed(1)}%`}
+              value={`${(
+                ((currentYearMetrics?.totals?.completed || 0) /
+                  (currentYearMetrics?.totals?.total_appointments || 1)) *
+                100
+              ).toFixed(1)}%`}
               subtitle={`${currentYear}`}
               icon="✅"
               color="orange"

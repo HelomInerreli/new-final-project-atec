@@ -301,12 +301,12 @@ def seed_main_data(db: Session):
     print("   Creating employees...")
     employee_repo = EmployeeRepository(db)
     employees = []
-    role_cycle = list(role_objects.values()) * (NUM_EMPLOYEES // len(ROLES_TO_CREATE))
+    role_list = list(role_objects.values())
     
     for i in range(NUM_EMPLOYEES):
         first_name = fake.first_name()
         last_name = fake.last_name()
-        role = role_cycle[i]
+        role = role_list[i % len(role_list)]  # Cicla pelas roles
         
         employee_in = EmployeeCreate(
             name=first_name, last_name=last_name, email=fake.unique.email(),
