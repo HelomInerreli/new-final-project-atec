@@ -149,15 +149,15 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="p-6 space-y-6 bg-gray-50 min-h-screen">
+    <div className="p-6 space-y-6 !bg-gray-50 min-h-screen">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-900">
           Dashboard de Atendimentos
         </h1>
       </div>
 
-      <Tabs defaultValue="daily" className="w-full bg-transparent">
-        <TabsList className="grid w-full grid-cols-3">
+      <Tabs defaultValue="daily" className="w-full !bg-transparent">
+        <TabsList className="grid w-full grid-cols-3 !bg-white">
           <TabsTrigger value="daily">Dia Atual</TabsTrigger>
           <TabsTrigger value="monthly">Visão Mensal</TabsTrigger>
           <TabsTrigger value="yearly">Visão Anual</TabsTrigger>
