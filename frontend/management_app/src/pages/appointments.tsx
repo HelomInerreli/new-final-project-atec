@@ -167,6 +167,14 @@ export default function Agendamentos() {
       setLoading(true);
       const data = await appointmentService.getAll();
       console.log("✅ Agendamentos carregados:", data);
+      console.log("📊 Total de appointments:", data.length);
+      if (data.length > 0) {
+        console.log("📋 Exemplo do primeiro appointment:", data[0]);
+        console.log("  - Customer:", data[0].customer);
+        console.log("  - Vehicle:", data[0].vehicle);
+        console.log("  - Service:", data[0].service);
+        console.log("  - Status:", data[0].status);
+      }
       setAppointments(data);
     } catch (error) {
       console.error("❌ Erro ao carregar agendamentos:", error);
@@ -207,7 +215,16 @@ export default function Agendamentos() {
       console.log("🔄 Carregando status...");
       const data = await statusService.getAll();
       console.log("✅ Status carregados:", data);
-      setStatuses(data);
+      // Filtrar para mostrar apenas: Pendente, Concluído e Aguardando Pagamento
+      const allowedStatuses = data.filter(s => {
+        const lower = s.name.toLowerCase();
+        return lower.includes("pendente") || 
+               lower.includes("concluído") || 
+               lower.includes("concluido") ||
+               lower.includes("aguardando pagamento") ||
+               lower.includes("aguarda");
+      });
+      setStatuses(allowedStatuses);
     } catch (error) {
       console.error("❌ Erro ao carregar status:", error);
     }
@@ -325,6 +342,13 @@ export default function Agendamentos() {
 
     return matchesSearch && matchesStatus;
   });
+
+  // Debug log
+  console.log("🔍 Filtro de appointments:");
+  console.log("  - Total appointments:", appointments.length);
+  console.log("  - Filtered appointments:", filteredAppointments.length);
+  console.log("  - Search term:", searchTerm);
+  console.log("  - Status filter:", statusFilter);
 
   const handleOpenDialog = (appointment: Appointment | null) => {
     if (appointment) {

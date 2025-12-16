@@ -85,7 +85,8 @@ class AppointmentRepository:
             )
             .order_by(Appointment.id.desc())
         )
-        if user and user.role not in ["Gestor", "Admin"]:
+        # Admin e Gestor veem tudo; outros roles veem apenas serviços da sua área
+        if user and user.role.lower() not in ["gestor", "admin"]:
             query = query.filter(Appointment.service.has(Service.area.like(f'%{user.role}%')))
         return query.offset(skip).limit(limit).all()
 

@@ -493,8 +493,14 @@ def seed_main_data(db: Session):
         minute = random.choice([0, 30])
         appointment_date = current_date.replace(hour=hour, minute=minute)
         
-        # Status realistas para hoje
-        status_weights = [0.3, 0.05, 0.4, 0.25]
+        # Status realistas para hoje: se hora já passou, marcar como Concluído/Em Andamento
+        current_hour = datetime.now().hour
+        if hour < current_hour:
+            # Hora já passou hoje - deve estar Concluído ou Em Andamento
+            status_weights = [0.0, 0.05, 0.75, 0.20]
+        else:
+            # Hora ainda não chegou - Pendente ou Em Andamento
+            status_weights = [0.50, 0.0, 0.0, 0.50]
         status_name = random.choices(["Pendente", "Cancelado", "Concluído", "Em Andamento"], weights=status_weights)[0]
         
         estimated_budget = main_service.price
@@ -535,7 +541,8 @@ def seed_main_data(db: Session):
         appointment_date = current_date - timedelta(days=days_ago)
         appointment_date = appointment_date.replace(hour=hour, minute=random.choice([0, 30]))
         
-        status_weights = [0.05, 0.1, 0.8, 0.05]
+        # Appointments passados devem estar Concluídos ou Cancelados (raramente)
+        status_weights = [0.0, 0.10, 0.85, 0.05]
         status_name = random.choices(["Pendente", "Cancelado", "Concluído", "Aguardando Pagamento"], weights=status_weights)[0]
         
         estimated_budget = main_service.price
@@ -571,12 +578,14 @@ def seed_main_data(db: Session):
         vehicle = random.choice(customer_vehicles)
         main_service = random.choice(services)
         
-        # 40% dias 1-7, 60% dias 16-31 (futuros)
+        # 40% dias 1-7 (passados), 60% dias 16-31 (futuros)
         if random.random() < 0.4:
             day = random.randint(1, 7)
-            status_name = random.choices(["Concluído", "Cancelado"], weights=[0.85, 0.15])[0]
+            # Dias passados: Concluído ou Cancelado
+            status_name = random.choices(["Concluído", "Cancelado", "Aguardando Pagamento"], weights=[0.80, 0.10, 0.10])[0]
         else:
             day = random.randint(16, 30)
+            # Dias futuros: Pendente
             status_name = "Pendente"
         
         appointment_date = datetime(2025, 12, day, random.randint(9, 17), random.choice([0, 30]))
@@ -604,7 +613,7 @@ def seed_main_data(db: Session):
             db.rollback()
             continue
     
-    # NOVEMBRO - 18 appointments
+    # NOVEMBRO - 18 appointments (já passou, todos devem estar finalizados)
     print("   - Creating appointments for November...")
     for i in range(18):
         customer = random.choice(customers)
@@ -617,7 +626,8 @@ def seed_main_data(db: Session):
         day = random.randint(1, 30)
         appointment_date = datetime(2025, 11, day, random.randint(9, 17), random.choice([0, 30]))
         
-        status_weights = [0.02, 0.13, 0.8, 0.05]
+        # Novembro já passou - não pode ter Pendente
+        status_weights = [0.0, 0.12, 0.83, 0.05]
         status_name = random.choices(["Pendente", "Cancelado", "Concluído", "Aguardando Pagamento"], weights=status_weights)[0]
         
         estimated_budget = main_service.price
@@ -643,7 +653,7 @@ def seed_main_data(db: Session):
             db.rollback()
             continue
     
-    # RESTO DO ANO (Jan-Out) - 30 appointments
+    # RESTO DO ANO (Jan-Out) - 30 appointments (todos já passaram)
     print("   - Creating appointments for rest of the year...")
     for i in range(30):
         customer = random.choice(customers)
@@ -664,7 +674,8 @@ def seed_main_data(db: Session):
         
         appointment_date = datetime(2025, month, day, random.randint(9, 17), random.choice([0, 30]))
         
-        status_weights = [0.02, 0.15, 0.8, 0.03]
+        # Janeiro a Outubro já passaram - não pode ter Pendente
+        status_weights = [0.0, 0.13, 0.84, 0.03]
         status_name = random.choices(["Pendente", "Cancelado", "Concluído", "Aguardando Pagamento"], weights=status_weights)[0]
         
         estimated_budget = main_service.price
