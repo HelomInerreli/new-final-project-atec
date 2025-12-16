@@ -1,6 +1,6 @@
-import axios from 'axios';
+import http from "../api/http";
 
-const API_URL = 'http://localhost:8000/api/v1/vehicles/';
+const API_URL = "/vehicles/";
 
 export interface Vehicle {
   id: number;
@@ -46,31 +46,31 @@ export interface VehicleUpdate {
 
 export const vehicleService = {
   getAll: async (): Promise<Vehicle[]> => {
-    const response = await axios.get(API_URL);
+    const response = await http.get(API_URL);
     return response.data;
   },
 
   getById: async (id: number): Promise<Vehicle> => {
-    const response = await axios.get(`${API_URL}${id}`);
+    const response = await http.get(`${API_URL}${id}`);
     return response.data;
   },
 
   getByCustomerId: async (customerId: number): Promise<Vehicle[]> => {
-    const response = await axios.get(`http://localhost:8000/api/v1/vehicles/by_customer/${customerId}`);
+    const response = await http.get(`/vehicles/by_customer/${customerId}`);
     return response.data;
   },
 
   create: async (vehicle: VehicleCreate): Promise<Vehicle> => {
-    const response = await axios.post(API_URL, vehicle);
+    const response = await http.post(API_URL, vehicle);
     return response.data;
   },
 
   update: async (id: number, vehicle: VehicleUpdate): Promise<Vehicle> => {
-    const response = await axios.put(`${API_URL}${id}`, vehicle);
+    const response = await http.put(`${API_URL}${id}`, vehicle);
     return response.data;
   },
 
   delete: async (id: number): Promise<void> => {
-    await axios.delete(`${API_URL}${id}`);
+    await http.delete(`${API_URL}${id}`);
   },
 };
