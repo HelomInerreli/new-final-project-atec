@@ -35,12 +35,53 @@ export async function getCurrentWorkTime(id: string | number): Promise<number> {
   }
 }
 
+export async function startWork(id: string | number): Promise<void> {
+  try {
+    await http.post(`/appointments/${id}/start_work`, {}, { withCredentials: true });
+  } catch (err) {
+    console.error("startWork error:", err);
+    throw err;
+  }
+}
+
+export async function pauseWork(id: string | number): Promise<void> {
+  try {
+    await http.post(`/appointments/${id}/pause_work`, {}, { withCredentials: true });
+  } catch (err) {
+    console.error("pauseWork error:", err);
+    throw err;
+  }
+}
+
+export async function resumeWork(id: string | number): Promise<void> {
+  try {
+    await http.post(`/appointments/${id}/resume_work`, {}, { withCredentials: true });
+  } catch (err) {
+    console.error("resumeWork error:", err);
+    throw err;
+  }
+}
+
+export async function finalizeWork(id: string | number): Promise<void> {
+  try {
+    await http.post(`/appointments/${id}/finalize_work`, {}, { withCredentials: true });
+  } catch (err) {
+    console.error("finalizeWork error:", err);
+    throw err;
+  }
+}
+
 export default {
   getOrder,
   updateOrder,
   updateOrderStatus,
   getCurrentWorkTime,
+  startWork,
+  pauseWork,
+  resumeWork,
+  finalizeWork,
 }
+
 
 
 
