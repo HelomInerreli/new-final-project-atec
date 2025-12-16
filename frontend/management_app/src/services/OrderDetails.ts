@@ -25,10 +25,21 @@ export async function updateOrderStatus(id: string | number, status: string): Pr
   return updateOrder(id, { status });
 }
 
+export async function getCurrentWorkTime(id: string | number): Promise<number> {
+  try {
+    const res = await http.get<{ total_worked_time: number }>(`/appointments/${id}/work-time`, { withCredentials: true });
+    return res.data.total_worked_time;
+  } catch (err) {
+    console.error("getCurrentWorkTime error:", err);
+    throw err;
+  }
+}
+
 export default {
   getOrder,
   updateOrder,
   updateOrderStatus,
+  getCurrentWorkTime,
 }
 
 

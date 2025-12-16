@@ -441,3 +441,77 @@ def create(db: Session, appointment_in: AppointmentCreate, email_service: Option
 def get_by_id(db: Session, id: int) -> Optional[Appointment]:
     repo = AppointmentRepository(db)
     return repo.get_by_id(appointment_id=id)
+
+def start_work(self, appointment_id: int) -> Optional[Appointment]:
+    """Inicia o trabalho na appointment: define start_time e status para 'In Repair'."""
+    db_appointment = self.get_by_id(appointment_id=appointment_id)
+    if not db_appointment:
+        return None
+
+    if not db_appointment.start_time:  # Só define se não estiver definido
+        db_appointment.start_time = datetime.utcnow()
+        db_appointment.is_paused = False
+        db_appointment.pause_time = None
+
+        # Muda status para "In Repair"
+        in_repair_status = self.db.query(Status).filter(Status.name == "In Repair").first()
+        if in_repair_status:
+            db_appointment.status_id = in_repair_status.id
+
+    self.db.commit()
+    self.db.refresh(db_appointment)
+    return db_appointment
+
+def pause_work(self, appointment_id: int) -> Optional[Appointment]:
+    """Pausa o trabalho: calcula tempo trabalhado até agora e adiciona ao total."""
+    db_appointment = self.get_by_id(appointment_id=appointment_id)
+    if not db_appointment or not db_appointment.start_time or db_appointment.is_paused:
+        return None
+
+    now = datetime.utcnow()
+    worked_seconds = int((now - db_appointment.start_time).total_seconds())
+    db_appointment.total_worked_time += worked_seconds
+    db_appointment.is_paused = True
+    db_appointment.pause_time = now
+
+    self.db.commit()
+    self.db.refresh(db_appointment)
+    return db_appointment
+
+def resume_work(self, appointment_id: int) -> Optional[Appointment]:
+    """Retoma o trabalho: redefine start_time para continuar contando."""
+    db_appointment = self.get_by_id(appointment_id=appointment_id)
+    if not db_appointment or not db_appointment.is_paused:
+        return None
+
+    db_appointment.start_time = datetime.utcnow()  
+    db_appointment.is_paused = False
+    db_appointment.pause_time = None
+
+    self.db.commit()
+    self.db.refresh(db_appointment)
+    return db_appointment
+
+def finalize_work(self, appointment_id: int) -> Optional[Appointment]:
+    """Finaliza o trabalho: calcula tempo final e marca como finalizado."""
+    db_appointment = self.get_by_id(appointment_id=appointment_id)
+    if not db_appointment:
+        return None
+
+    if not db_appointment.is_paused and db_appointment.start_time:
+        # Se não pausado, calcula tempo restante
+        now = datetime.utcnow()
+        worked_seconds = int((now - db_appointment.start_time).total_seconds())
+        db_appointment.total_worked_time += worked_seconds
+
+    db_appointment.is_paused = False
+    db_appointment.start_time = None  
+
+    # Muda status para "Finalized"
+    finalized_status = self.db.query(Status).filter(Status.name == "Finalized").first()
+    if finalized_status:
+        db_appointment.status_id = finalized_status.id
+
+    self.db.commit()
+    self.db.refresh(db_appointment)
+    return db_appointment
