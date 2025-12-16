@@ -117,7 +117,7 @@ EXTRA_SERVICE_CATALOG = [
     {"name": "Aplicação de película nos vidros", "description": "Película de proteção solar", "price": 200.0, "duration_minutes": 180},
 ]
 
-STATUSES = ["Pendente", "Cancelado", "Concluído", "Em Andamento", "Aguardando Aprovação", "Aguardando Pagamento"]
+STATUSES = ["Pendente", "Concluído", "Aguardando Pagamento"]
 
 ROLES_TO_CREATE = ["Admin", "Gestor", "Mecânico", "Elétrico", "Chaparia", "Pintura"]
 
@@ -493,15 +493,15 @@ def seed_main_data(db: Session):
         minute = random.choice([0, 30])
         appointment_date = current_date.replace(hour=hour, minute=minute)
         
-        # Status realistas para hoje: se hora já passou, marcar como Concluído/Em Andamento
+        # Status realistas para hoje: se hora já passou, marcar como Concluído
         current_hour = datetime.now().hour
         if hour < current_hour:
-            # Hora já passou hoje - deve estar Concluído ou Em Andamento
-            status_weights = [0.0, 0.05, 0.75, 0.20]
+            # Hora já passou hoje - deve estar Concluído
+            status_weights = [0.0, 0.90, 0.10]
         else:
-            # Hora ainda não chegou - Pendente ou Em Andamento
-            status_weights = [0.50, 0.0, 0.0, 0.50]
-        status_name = random.choices(["Pendente", "Cancelado", "Concluído", "Em Andamento"], weights=status_weights)[0]
+            # Hora ainda não chegou - Pendente
+            status_weights = [1.0, 0.0, 0.0]
+        status_name = random.choices(["Pendente", "Concluído", "Aguardando Pagamento"], weights=status_weights)[0]
         
         estimated_budget = main_service.price
         actual_budget = estimated_budget * random.uniform(0.9, 1.15) if status_name in ["Concluído", "Aguardando Pagamento"] else 0.0
@@ -541,9 +541,9 @@ def seed_main_data(db: Session):
         appointment_date = current_date - timedelta(days=days_ago)
         appointment_date = appointment_date.replace(hour=hour, minute=random.choice([0, 30]))
         
-        # Appointments passados devem estar Concluídos ou Cancelados (raramente)
-        status_weights = [0.0, 0.10, 0.85, 0.05]
-        status_name = random.choices(["Pendente", "Cancelado", "Concluído", "Aguardando Pagamento"], weights=status_weights)[0]
+        # Appointments passados devem estar Concluídos ou Aguardando Pagamento
+        status_weights = [0.0, 0.90, 0.10]
+        status_name = random.choices(["Pendente", "Concluído", "Aguardando Pagamento"], weights=status_weights)[0]
         
         estimated_budget = main_service.price
         actual_budget = estimated_budget * random.uniform(0.9, 1.2) if status_name in ["Concluído", "Aguardando Pagamento"] else 0.0
@@ -581,8 +581,8 @@ def seed_main_data(db: Session):
         # 40% dias 1-7 (passados), 60% dias 16-31 (futuros)
         if random.random() < 0.4:
             day = random.randint(1, 7)
-            # Dias passados: Concluído ou Cancelado
-            status_name = random.choices(["Concluído", "Cancelado", "Aguardando Pagamento"], weights=[0.80, 0.10, 0.10])[0]
+            # Dias passados: Concluído ou Aguardando Pagamento
+            status_name = random.choices(["Concluído", "Aguardando Pagamento"], weights=[0.85, 0.15])[0]
         else:
             day = random.randint(16, 30)
             # Dias futuros: Pendente
@@ -627,8 +627,8 @@ def seed_main_data(db: Session):
         appointment_date = datetime(2025, 11, day, random.randint(9, 17), random.choice([0, 30]))
         
         # Novembro já passou - não pode ter Pendente
-        status_weights = [0.0, 0.12, 0.83, 0.05]
-        status_name = random.choices(["Pendente", "Cancelado", "Concluído", "Aguardando Pagamento"], weights=status_weights)[0]
+        status_weights = [0.0, 0.90, 0.10]
+        status_name = random.choices(["Pendente", "Concluído", "Aguardando Pagamento"], weights=status_weights)[0]
         
         estimated_budget = main_service.price
         actual_budget = estimated_budget * random.uniform(0.85, 1.3) if status_name in ["Concluído", "Aguardando Pagamento"] else 0.0
@@ -675,8 +675,8 @@ def seed_main_data(db: Session):
         appointment_date = datetime(2025, month, day, random.randint(9, 17), random.choice([0, 30]))
         
         # Janeiro a Outubro já passaram - não pode ter Pendente
-        status_weights = [0.0, 0.13, 0.84, 0.03]
-        status_name = random.choices(["Pendente", "Cancelado", "Concluído", "Aguardando Pagamento"], weights=status_weights)[0]
+        status_weights = [0.0, 0.90, 0.10]
+        status_name = random.choices(["Pendente", "Concluído", "Aguardando Pagamento"], weights=status_weights)[0]
         
         estimated_budget = main_service.price
         actual_budget = estimated_budget * random.uniform(0.8, 1.35) if status_name in ["Concluído", "Aguardando Pagamento"] else 0.0
@@ -717,8 +717,6 @@ def seed_main_data(db: Session):
                     # Status do extra service baseado no status do appointment
                     if appointment.status_id == status_objects.get("Concluído").id:
                         req.status = "approved"
-                    elif appointment.status_id == status_objects.get("Em Andamento").id:
-                        req.status = random.choice(["approved", "pending"])
                     else:
                         req.status = "pending"
                     db.commit()

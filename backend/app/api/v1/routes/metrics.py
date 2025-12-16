@@ -391,15 +391,15 @@ def get_summary_metrics(
     
     # Status
     status_completed = db.query(Status).filter(Status.name.ilike("%concluído%")).first()
-    status_cancelled = db.query(Status).filter(Status.name.ilike("%cancelado%")).first()
+    status_pending = db.query(Status).filter(Status.name.ilike("%pendente%")).first()
     
     completed = base_query.filter(
         Appointment.status_id == status_completed.id
     ).count() if status_completed else 0
     
-    cancelled = base_query.filter(
-        Appointment.status_id == status_cancelled.id
-    ).count() if status_cancelled else 0
+    pending = base_query.filter(
+        Appointment.status_id == status_pending.id
+    ).count() if status_pending else 0
     
     # Serviços mais solicitados
     top_services = db.query(
@@ -410,8 +410,8 @@ def get_summary_metrics(
     return {
         "total_appointments": total_appointments,
         "completed_appointments": completed,
-        "cancelled_appointments": cancelled,
+        "pending_appointments": pending,
         "completion_rate": round((completed / total_appointments * 100), 2) if total_appointments > 0 else 0,
-        "cancellation_rate": round((cancelled / total_appointments * 100), 2) if total_appointments > 0 else 0,
+        "pending_rate": round((pending / total_appointments * 100), 2) if total_appointments > 0 else 0,
         "top_services": [{"name": s.name, "count": s.count} for s in top_services]
     }

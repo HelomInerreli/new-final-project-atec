@@ -96,6 +96,7 @@ export default function Agendamentos() {
   const [customerVehicles, setCustomerVehicles] = useState<Vehicle[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("todos");
+  const [monthFilter, setMonthFilter] = useState<string>("todos");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -310,10 +311,10 @@ export default function Agendamentos() {
   const getStatusColor = (statusName?: string) => {
     if (!statusName) return "bg-yellow-100 text-yellow-800"; // Default to Pendente color
     const lower = statusName.toLowerCase();
-    if (lower.includes("finalizad") || lower.includes("finalized"))
-      return "bg-green-100 text-green-800";
-    if (lower.includes("aguarda") || lower.includes("waiting"))
-      return "bg-orange-100 text-orange-800";
+    if (lower.includes("concluído") || lower.includes("concluido") || lower.includes("finalizad") || lower.includes("finalized"))
+      return "bg-blue-100 text-blue-800";
+    if (lower.includes("aguarda") || lower.includes("waiting") || lower.includes("pagamento"))
+      return "bg-red-100 text-red-600";
     return "bg-yellow-100 text-yellow-800"; // Pendente
   };
 
@@ -325,6 +326,9 @@ export default function Agendamentos() {
     const serviceName = appointment.service?.name || "";
     const statusName = appointment.status?.name || "";
     const translatedStatus = translateStatus(statusName).toLowerCase();
+    const appointmentDate = new Date(appointment.appointment_date);
+    const appointmentMonth = appointmentDate.getMonth(); // 0-11
+    const appointmentYear = appointmentDate.getFullYear();
 
     const matchesSearch =
       customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -337,7 +341,18 @@ export default function Agendamentos() {
       translatedStatus.includes(statusFilter.toLowerCase()) ||
       statusName.toLowerCase().includes(statusFilter.toLowerCase());
 
-    return matchesSearch && matchesStatus;
+    const matchesMonth = 
+      monthFilter === "todos" ||
+      (monthFilter !== "todos" && 
+       appointmentMonth === parseInt(monthFilter) &&
+       appointmentYear === 2025);
+
+    return matchesSearch && matchesStatus && matchesMonth;
+  }).sort((a, b) => {
+    // Ordenar do mais antigo para o mais recente
+    const dateA = new Date(a.appointment_date).getTime();
+    const dateB = new Date(b.appointment_date).getTime();
+    return dateA - dateB;
   });
 
   // Debug log
@@ -538,6 +553,26 @@ export default function Agendamentos() {
             <SelectItem value="pendente">Pendente</SelectItem>
             <SelectItem value="aguarda pagamento">Aguarda Pagamento</SelectItem>
             <SelectItem value="finalizado">Finalizado</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={monthFilter} onValueChange={setMonthFilter}>
+          <SelectTrigger className="w-full sm:w-[200px]">
+            <SelectValue placeholder="Filtrar por mês" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todos">Todos os meses</SelectItem>
+            <SelectItem value="0">Janeiro</SelectItem>
+            <SelectItem value="1">Fevereiro</SelectItem>
+            <SelectItem value="2">Março</SelectItem>
+            <SelectItem value="3">Abril</SelectItem>
+            <SelectItem value="4">Maio</SelectItem>
+            <SelectItem value="5">Junho</SelectItem>
+            <SelectItem value="6">Julho</SelectItem>
+            <SelectItem value="7">Agosto</SelectItem>
+            <SelectItem value="8">Setembro</SelectItem>
+            <SelectItem value="9">Outubro</SelectItem>
+            <SelectItem value="10">Novembro</SelectItem>
+            <SelectItem value="11">Dezembro</SelectItem>
           </SelectContent>
         </Select>
       </div>
