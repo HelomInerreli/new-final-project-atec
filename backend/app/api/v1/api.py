@@ -12,8 +12,9 @@ from app.api.v1.routes import (
 	notification,
 	managementAuth,
 	userNotification,
+    
 )
-from app.api.v1.routes import customer, vehicle, appointment, extra_service, customerAuth, service, payment, vehicleApi, status, role, employee
+from app.api.v1.routes import customer, vehicle, appointment, extra_service, customerAuth, service, payment, vehicleApi, status, role, employee,absence, absenceType, absenceStatus
 
 
 api_router = APIRouter()
@@ -34,3 +35,7 @@ api_router.include_router(status.router, prefix="/statuses", tags=["statuses"])
 api_router.include_router(managementAuth.router, prefix="/managementauth", tags=["managementauth"])
 api_router.include_router(role.router, prefix="/roles", tags=["roles"])
 api_router.include_router(employee.router, prefix="/employees", tags=["employees"])
+api_router.include_router(absence.router, prefix="/absences", tags=["absences"])
+api_router.include_router(absenceType.router, prefix="/absence-types", tags=["absence-types"])
+api_router.include_router(absenceStatus.router, prefix="/absence-statuses", tags=["absence-statuses"])
+

@@ -30,6 +30,8 @@ from app.models.product import Product
 from app.models.role import Role
 from app.models.employee import Employee
 from app.scripts.seed_products import seed_products
+from app.models.absenceType import AbsenceType
+from app.models.absence_status import AbsenceStatus
 
 # Configuration
 NUM_APPOINTMENTS = 12
@@ -83,6 +85,27 @@ ROLES_TO_CREATE = [
     "Borracheiro"
 ]
 
+def seed_absence_types(db: Session):
+    """Seed absence types."""
+    types = ["Férias", "Folga"]
+    for type_name in types:
+        existing = db.query(AbsenceType).filter(AbsenceType.name == type_name).first()
+        if not existing:
+            absence_type = AbsenceType(name=type_name)
+            db.add(absence_type)
+    db.commit()
+    print("✓ Absence types seeded")
+
+def seed_absence_statuses(db: Session):
+    """Seed absence statuses."""
+    statuses = ["Aprovado", "Pendente", "Recusado"]
+    for status_name in statuses:
+        existing = db.query(AbsenceStatus).filter(AbsenceStatus.name == status_name).first()
+        if not existing:
+            absence_status = AbsenceStatus(name=status_name)
+            db.add(absence_status)
+    db.commit()
+    print("✓ Absence statuses seeded")
 
 def create_invoice_for_appointment(db: Session, appointment: Appointment, invoice_number: str):
     """Create an invoice for a finalized appointment"""
@@ -535,6 +558,8 @@ if __name__ == "__main__":
     Base.metadata.create_all(bind=engine)
 
     try:
+        seed_absence_types(db)
+        seed_absence_statuses(db)
         seed_data(db)
         print("Seeding products...")
         try:
