@@ -226,17 +226,30 @@ const ServiceOrderDetail: FC = () => {
                       <div className="timeline-content">
                         <span className="timeline-text">{c.comment}</span>
                         {isLatest && <span className="timeline-badge">NOVO</span>}
-                        <button
-                          className="delete-icon-btn"
-                          onClick={() => {
-                            if (window.confirm("Tem certeza que deseja apagar este comentário?")) {
-                              handleDeleteComment(c.id);
-                            }
-                          }}
-                          title="Apagar comentário"
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <button
+                              className="delete-icon-btn"
+                              title="Apagar comentário"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Apagar Comentário?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Esta ação não pode ser desfeita. O comentário será permanentemente removido.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDeleteComment(c.id)}>
+                                Sim, Apagar
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </div>
                   );
@@ -297,17 +310,30 @@ const ServiceOrderDetail: FC = () => {
                                 {dateStr}
                                 <span className="part-time">{timeStr}</span>
                               </div>
-                              <button
-                                className="delete-icon-btn delete-icon-btn-table"
-                                onClick={() => {
-                                  if (window.confirm("Tem certeza que deseja apagar esta peça?")) {
-                                    handleDeletePart(p.id);
-                                  }
-                                }}
-                                title="Apagar peça"
-                              >
-                                <Trash2 size={16} />
-                              </button>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <button
+                                    className="delete-icon-btn delete-icon-btn-table"
+                                    title="Apagar peça"
+                                  >
+                                    <Trash2 size={16} />
+                                  </button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Apagar Peça?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Esta ação não pode ser desfeita. A peça será removida e o stock será restaurado.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => handleDeletePart(p.id)}>
+                                      Sim, Apagar
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog> 
                             </div>
                           </td>
                         </tr>
