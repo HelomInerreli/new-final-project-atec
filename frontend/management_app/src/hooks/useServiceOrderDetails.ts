@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { getOrder, updateOrder, getCurrentWorkTime } from "../services/OrderDetails";
+import { getOrder, updateOrder, getCurrentWorkTime, startWork, pauseWork, resumeWork, finalizeWork } from "../services/OrderDetails";
 import { normalizeStatus } from "./useServiceOrder";
 import { STATUS_LABEL_TO_ID } from "../interfaces/ServiceOrderDetail";
 import { format } from "date-fns";
@@ -51,6 +51,53 @@ export const useServiceOrderDetails = (id: string | undefined) => {
     }, 10000);
     return () => clearInterval(interval);
   }, [id, order, fetchOrder, fetchCurrentWorkTime]);
+
+  // work actions
+  const handleStartWork = useCallback(async () => {
+    if (!id) return;
+    try {
+      await startWork(id);
+      await fetchOrder();
+      await fetchCurrentWorkTime();
+    } catch (e) {
+      alert("Erro ao iniciar trabalho: " + e);
+    }
+  }, [id, fetchOrder, fetchCurrentWorkTime]);
+
+  const handlePauseWork = useCallback(async () => {
+    if (!id) return;
+    try {
+      await pauseWork(id);
+      await fetchOrder();
+      await fetchCurrentWorkTime();
+    } catch (e) {
+      alert("Erro ao pausar trabalho: " + e);
+    }
+  }, [id, fetchOrder, fetchCurrentWorkTime]);
+
+  const handleResumeWork = useCallback(async () => {
+    if (!id) return;
+    try {
+      await resumeWork(id);
+      await fetchOrder();
+      await fetchCurrentWorkTime();
+    } catch (e) {
+      alert("Erro ao retomar trabalho: " + e);
+    }
+  }, [id, fetchOrder, fetchCurrentWorkTime]);
+
+  const handleFinalizeWork = useCallback(async () => {
+    if (!id) return;
+    try {
+      await finalizeWork(id);
+      await fetchOrder();
+      await fetchCurrentWorkTime();
+    } catch (e) {
+      alert("Erro ao finalizar trabalho: " + e);
+    }
+  }, [id, fetchOrder, fetchCurrentWorkTime]);
+
+
 
   // Format helpers
   const formatField = useCallback((v: any): string => {
@@ -175,6 +222,10 @@ export const useServiceOrderDetails = (id: string | undefined) => {
     setIsCommentModalOpen,
     changeStatus,
     fetchOrder,
+    handleStartWork,
+    handlePauseWork,
+    handleResumeWork,
+    handleFinalizeWork,
 
     // Helpers
     formatField,

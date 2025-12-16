@@ -38,6 +38,12 @@ const ServiceOrderDetail: FC = () => {
     formatField,
     formatDate,
     formatVehicle,
+    currentTime,
+    formatTime,
+    handleStartWork,
+    handlePauseWork,
+    handleResumeWork,
+    handleFinalizeWork,
   } = useServiceOrderDetails(id);
 
   if (loading) return <div className="so-loading">Carregando...</div>;
@@ -85,6 +91,11 @@ const ServiceOrderDetail: FC = () => {
                 className="readonly-input"
               />
               <Input
+                label="Tempo trabalhado"
+                value={formatTime(currentTime)}
+                className="readonly-input"
+              />
+              <Input
                 label="Estimado"
                 value={`€ ${Number(order.estimated_budget ?? 0).toFixed(2)}`}
                 className="readonly-input"
@@ -114,7 +125,7 @@ const ServiceOrderDetail: FC = () => {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => changeStatus("start")}>
+                  <AlertDialogAction onClick={() => { changeStatus("start"); handleStartWork(); }}>
                     Sim, Iniciar
                   </AlertDialogAction>
                 </AlertDialogFooter>
@@ -142,7 +153,7 @@ const ServiceOrderDetail: FC = () => {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => changeStatus("pause")}>
+                  <AlertDialogAction onClick={() => { changeStatus("pause"); handlePauseWork(); }}>
                     Sim, Pausar
                   </AlertDialogAction>
                 </AlertDialogFooter>
@@ -170,7 +181,8 @@ const ServiceOrderDetail: FC = () => {
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction onClick={() => changeStatus("finish")}>
+                <AlertDialogAction onClick={() => { changeStatus("finish"); handleFinalizeWork(); }}>
+
                   Sim, Finalizar
                 </AlertDialogAction>
               </AlertDialogFooter>
