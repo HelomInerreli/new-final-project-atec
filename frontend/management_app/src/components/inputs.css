@@ -11,15 +11,37 @@
   padding: 14px 44px 14px 14px; /* room for toggle/caret */
   border: 2px solid #dc3545; /* projeto vermelho */
   border-radius: 8px;
-  background: #ffffff;
+  background: #ffffff !important;
   font-size: 1rem;
   transition: box-shadow 0.15s ease, border-color 0.15s ease, padding 0.15s ease,
     color 0.12s ease;
   color: #111827;
 }
 
+/* Prevent autofill/number input background */
+.mb-input:-webkit-autofill,
+.mb-input:-webkit-autofill:hover,
+.mb-input:-webkit-autofill:focus,
+.mb-input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
+  box-shadow: 0 0 0 30px white inset !important;
+  background-color: #ffffff !important;
+}
+
 .mb-input.placeholder {
   color: #9ca3af;
+}
+
+/* Remove default number input spinners */
+.mb-input[type="number"]::-webkit-inner-spin-button,
+.mb-input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+}
+
+.mb-input[type="number"] {
+  -moz-appearance: textfield;
 }
 
 /* Subtle focus ring */
