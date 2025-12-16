@@ -416,28 +416,28 @@
 }
 
 .parts-table th:nth-child(1) { 
-  width: 20%; 
+  width: 8%; 
   text-align: center; 
 }
 
 .parts-table th:nth-child(2) { 
-  width: 10%; 
+  width: 3%; 
   text-align: center; 
 }
 
 .parts-table th:nth-child(3) { 
-  width: 5%; 
+  width: 3%; 
   text-align: center; 
 }
 
 .parts-table th:nth-child(4) { 
-  width: 5%; 
+  width: 3%; 
   text-align: center; 
 }
 
 .parts-table th:nth-child(5) { 
-  width: 10%; 
-  text-align: center; 
+  width: 8%; 
+  text-align: left; 
 }
 
 .parts-table tbody tr {
