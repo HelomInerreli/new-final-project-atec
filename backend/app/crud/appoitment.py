@@ -74,13 +74,18 @@ class AppointmentRepository:
             
     def get_all(self, skip: int = 0, limit: int = 100, user: Optional[User] = None) -> List[Appointment]:
         """Listar appointments, ordenadas do mais recente para o mais antigo."""
-        # carregar customer e vehicle para que os campos customer_id/vehicle_id e os objetos relacionados estejam disponíveis
+        # carregar customer, vehicle, service e status para que os dados estejam disponíveis
         query = (
-        self.db.query(Appointment)
-        .options(joinedload(Appointment.customer), joinedload(Appointment.vehicle), joinedload(Appointment.service))
-        .order_by(Appointment.id.desc())
+            self.db.query(Appointment)
+            .options(
+                joinedload(Appointment.customer),
+                joinedload(Appointment.vehicle),
+                joinedload(Appointment.service),
+                joinedload(Appointment.status)
+            )
+            .order_by(Appointment.id.desc())
         )
-        if user and user.role not in ["Gestor", "admin"]:
+        if user and user.role not in ["Gestor", "Admin"]:
             query = query.filter(Appointment.service.has(Service.area.like(f'%{user.role}%')))
         return query.offset(skip).limit(limit).all()
 
