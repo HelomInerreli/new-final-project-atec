@@ -53,8 +53,19 @@ export const useServiceOrderDetails = (id: string | undefined) => {
     return () => clearInterval(interval);
   }, [id, order, fetchOrder, fetchCurrentWorkTime]);
 
+  useEffect(() => {
+    if (!order?.start_time || order?.is_paused) return;
+    
+    const interval = setInterval(() => {
+      setCurrentTime(prev => prev + 1);
+    }, 1000);
+    
+    return () => clearInterval(interval);
+  }, [order?.start_time, order?.is_paused]);
+  
   // work actions
   const handleStartWork = useCallback(async () => {
+    console.log('handleStartWork called, id:', id, 'order?.is_paused:', order?.is_paused, 'order:', order);
     if (!id) return;
     try {
       if(order?.is_paused) {
@@ -70,7 +81,7 @@ export const useServiceOrderDetails = (id: string | undefined) => {
       console.error("Erro ao iniciar trabalho:", e);
       alert("Erro ao iniciar trabalho: " + e);
     }
-  }, [id, fetchOrder, fetchCurrentWorkTime]);
+  }, [id, order, fetchOrder, fetchCurrentWorkTime, resumeWork, startWork]);
 
   const handlePauseWork = useCallback(async () => {
     if (!id) return;

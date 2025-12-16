@@ -95,11 +95,7 @@ const ServiceOrderDetail: FC = () => {
                 value={formatTime(currentTime)}
                 className="readonly-input"
               />
-              <Input
-                label="Estimado"
-                value={`€ ${Number(order.estimated_budget ?? 0).toFixed(2)}`}
-                className="readonly-input"
-              />
+            
             </div>
           </div>
 
