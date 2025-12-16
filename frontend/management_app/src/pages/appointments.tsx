@@ -216,14 +216,9 @@ export default function Agendamentos() {
       const data = await statusService.getAll();
       console.log("✅ Status carregados:", data);
       // Filtrar para mostrar apenas: Pendente, Concluído e Aguardando Pagamento
-      const allowedStatuses = data.filter(s => {
-        const lower = s.name.toLowerCase();
-        return lower.includes("pendente") || 
-               lower.includes("concluído") || 
-               lower.includes("concluido") ||
-               lower.includes("aguardando pagamento") ||
-               lower.includes("aguarda");
-      });
+      const allowedNames = ["Pendente", "Concluído", "Aguardando Pagamento"];
+      const allowedStatuses = data.filter(s => allowedNames.includes(s.name));
+      console.log("📋 Status filtrados:", allowedStatuses);
       setStatuses(allowedStatuses);
     } catch (error) {
       console.error("❌ Erro ao carregar status:", error);
@@ -303,11 +298,13 @@ export default function Agendamentos() {
   const translateStatus = (statusName?: string): string => {
     if (!statusName) return "Pendente";
     const lower = statusName.toLowerCase();
-    if (lower.includes("finalizad") || lower.includes("finalized"))
+    if (lower.includes("concluído") || lower.includes("concluido"))
       return "Finalizado";
-    if (lower.includes("aguarda") || lower.includes("waiting"))
+    if (lower.includes("aguardando pagamento"))
       return "Aguarda Pagamento";
-    return "Pendente";
+    if (lower.includes("pendente"))
+      return "Pendente";
+    return statusName;
   };
 
   const getStatusColor = (statusName?: string) => {
@@ -1244,19 +1241,7 @@ export default function Agendamentos() {
                           className="mb-select-menu"
                           style={{ maxHeight: "250px", overflowY: "auto" }}
                         >
-                          {statuses
-                            .filter((status) => {
-                              const name = status.name.toLowerCase();
-                              return (
-                                name.includes("pendente") ||
-                                name.includes("pending") ||
-                                name.includes("finalizado") ||
-                                name.includes("finalized") ||
-                                name.includes("aguarda") ||
-                                name.includes("waiting")
-                              );
-                            })
-                            .map((status) => (
+                          {statuses.map((status) => (
                               <li
                                 key={status.id}
                                 className={`mb-select-item ${
