@@ -40,6 +40,10 @@ class Appointment(AppointmentBase):
     extra_service_associations: List[AppointmentExtraService] = []
     comments: List[CommentOut] = []
     parts: List[OrderPartOut] = []
+    start_time: Optional[datetime] = None
+    total_worked_time: Optional[int] = 0
+    is_paused: Optional[bool] = False
+    
 
     class Config:
         from_attributes = True

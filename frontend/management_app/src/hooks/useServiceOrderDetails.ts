@@ -40,6 +40,7 @@ export const useServiceOrderDetails = (id: string | undefined) => {
   // Initial load
   useEffect(() => {
     fetchOrder();
+    fetchCurrentWorkTime();
   }, [fetchOrder]);
 
   // Auto-refresh every 10 seconds
@@ -56,10 +57,17 @@ export const useServiceOrderDetails = (id: string | undefined) => {
   const handleStartWork = useCallback(async () => {
     if (!id) return;
     try {
-      await startWork(id);
+      if(order?.is_paused) {
+        console.log('calling resumeWork for id ', id);
+        await resumeWork(id);
+      } else {
+        console.log('calling startWork for id ', id);
+        await startWork(id);
+      }
       await fetchOrder();
       await fetchCurrentWorkTime();
     } catch (e) {
+      console.error("Erro ao iniciar trabalho:", e);
       alert("Erro ao iniciar trabalho: " + e);
     }
   }, [id, fetchOrder, fetchCurrentWorkTime]);

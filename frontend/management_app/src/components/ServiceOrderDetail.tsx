@@ -110,8 +110,7 @@ const ServiceOrderDetail: FC = () => {
                 <Button
                   variant="destructive"
                   className="so-action-btn"
-                  disabled={saving || ["Em Andamento", "Concluída"].includes(currentNormalized)}
-                >
+                  disabled={saving || currentNormalized === "Concluída"}                >
                   Iniciar
                 </Button>
               </AlertDialogTrigger>
@@ -125,7 +124,7 @@ const ServiceOrderDetail: FC = () => {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => { changeStatus("start"); handleStartWork(); }}>
+                  <AlertDialogAction onClick={handleStartWork}>
                     Sim, Iniciar
                   </AlertDialogAction>
                 </AlertDialogFooter>
@@ -153,7 +152,7 @@ const ServiceOrderDetail: FC = () => {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => { changeStatus("pause"); handlePauseWork(); }}>
+                  <AlertDialogAction onClick={handlePauseWork}>
                     Sim, Pausar
                   </AlertDialogAction>
                 </AlertDialogFooter>
@@ -181,8 +180,7 @@ const ServiceOrderDetail: FC = () => {
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction onClick={() => { changeStatus("finish"); handleFinalizeWork(); }}>
-
+                <AlertDialogAction onClick={handleFinalizeWork}>
                   Sim, Finalizar
                 </AlertDialogAction>
               </AlertDialogFooter>
