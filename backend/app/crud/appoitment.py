@@ -386,8 +386,8 @@ class AppointmentRepository:
         self.db.refresh(req)
         return req
     
-        def add_part(self, appointment_id: int, product_id: int, quantity: int):
-            """Adiciona uma peça à ordem de serviço"""
+    def add_part(self, appointment_id: int, product_id: int, quantity: int):
+        """Adiciona uma peça à ordem de serviço"""
         appointment = self.db.query(Appointment).filter(Appointment.id == appointment_id).first()
         if not appointment:
             return None
