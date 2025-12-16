@@ -44,3 +44,11 @@ class Employee(EmployeeBase):
     class Config:
         from_attributes = True
 
+# Schema simplificado para ser usado dentro de outros schemas (nesting)
+class EmployeeInAbsence(BaseModel):
+    id: int
+    name: str
+    last_name: str
+
+    class Config:
+        from_attributes = True
