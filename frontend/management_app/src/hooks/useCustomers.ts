@@ -47,8 +47,7 @@ export function useCustomersPage() {
   const [clienteToDelete, setClienteToDelete] = useState<string | null>(null);
   const [resetPasswordDialogOpen, setResetPasswordDialogOpen] = useState(false);
   const [clienteToResetPassword, setClienteToResetPassword] = useState<string | null>(null);
-  const [appointmentsDialogOpen, setAppointmentsDialogOpen] = useState(false);
-  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
+  const [selectedCustomerId, ] = useState<string | null>(null);
 
   // Extract customer IDs for vehicle count fetching
   const customerIds = useMemo(() => rawCustomers.map(profile => profile.customer.id), [rawCustomers]);
@@ -67,7 +66,7 @@ export function useCustomersPage() {
       city: profile.customer.city || "N/A",
       postalCode: profile.customer.postal_code || "N/A",
       status: profile.auth.is_active ? "Ativo" as const : "Inativo" as const,
-      //Change to last_visited when it exists
+      //TODO: Change to last_visited when it exists
       lastVisit: profile.customer.updated_at ? new Date(profile.customer.updated_at).toISOString().split("T")[0] : new Date().toISOString().split("T")[0],
       vehicles: vehicleCounts[profile.customer.id.toString()] || 0,
     }));
@@ -142,10 +141,6 @@ export function useCustomersPage() {
     }
   };
 
-  const handleViewAppointments = (customerId: string) => {
-    setSelectedCustomerId(customerId);
-    setAppointmentsDialogOpen(true);
-  };
 
   const formatDate = (dateString: string) => new Date(dateString).toLocaleDateString('pt-PT');
 
@@ -168,8 +163,6 @@ export function useCustomersPage() {
     setDeleteDialogOpen,
     resetPasswordDialogOpen,
     setResetPasswordDialogOpen,
-    appointmentsDialogOpen,
-    setAppointmentsDialogOpen,
 
     // Handlers
     handleDelete,
@@ -177,7 +170,6 @@ export function useCustomersPage() {
     handleCreateCustomer,
     handleResetPassword,
     confirmResetPassword,
-    handleViewAppointments,
     formatDate,
   };
 }

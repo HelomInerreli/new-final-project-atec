@@ -1,57 +1,9 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import http from '../api/http';
-import type { Vehicle, VehicleCreate } from '../interfaces/Vehicle';
+import type { Vehicle, VehicleCreate, VehicleCountMap, VehicleWithCustomer } from '../interfaces/Vehicle';
 import { vehicleService } from '../services/vehicleService';
 import { vehicleService as vehicleAPIService } from '../services/vehicleAPIService';
 import { toast } from './use-toast';
-
-interface VehicleCountMap {
-  [customerId: string]: number;
-}
-
-export interface VehicleWithCustomer extends Vehicle {
-  customer_name?: string;
-}
-
-export function useFetchVehicleCounts(customerIds: number[]) {
-  const [vehicleCounts, setVehicleCounts] = useState<VehicleCountMap>({});
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (customerIds.length === 0) {
-      setVehicleCounts({});
-      return;
-    }
-
-    const fetchVehicleCounts = async () => {
-      setLoading(true);
-      try {
-        const counts: VehicleCountMap = {};
-        // Fetch vehicle count for each customer
-        await Promise.all(
-          customerIds.map(async (customerId) => {
-            try {
-              const response = await http.get(`/vehicles/by_customer/${customerId}`);
-              counts[customerId.toString()] = response.data?.length || 0;
-            } catch (err: any) {
-              counts[customerId.toString()] = 0;
-            }
-          })
-        );
-        setVehicleCounts(counts);
-        setError(null);
-      } catch (err: any) {
-        setError(err.response?.data?.detail || 'Could not load vehicle counts.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchVehicleCounts();
-  }, [customerIds.join(',')]); // Re-run when customer IDs change
-  return { vehicleCounts, loading, error };
-}
 
 export function useFetchVehicles() {
   const [vehicles, setVehicles] = useState<VehicleWithCustomer[]>([]);
@@ -70,12 +22,12 @@ export function useFetchVehicles() {
             const customerResponse = await http.get(`/customers/${vehicle.customer_id}`);
             return {
               ...vehicle,
-              customer_name: customerResponse.data.name || 'Unknown',
+              customer_name: customerResponse.data.name || null,
             };
           } catch {
             return {
               ...vehicle,
-              customer_name: 'Unknown',
+              customer_name: null,
             };
           }
         })
@@ -104,6 +56,7 @@ export function useVehiclesPage() {
 
   // UI state
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFiltro, setStatusFiltro] = useState("todos");
   const [newVehicleModalOpen, setNewVehicleModalOpen] = useState(false);
   const [creatingVehicle, setCreatingVehicle] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -117,8 +70,13 @@ export function useVehiclesPage() {
       model: vehicle.model,
       plate: vehicle.plate,
       kilometers: vehicle.kilometers || 0,
-      customerName: vehicle.customer_name || 'Unknown',
+      customerName: vehicle.customer_name || 'Sem Cliente',
       customerId: vehicle.customer_id,
+      status: (() => {
+        if (vehicle.deleted_at != null) return 'Inativo';
+        if (vehicle.customer_id == 0) return 'Sem Cliente';
+        return 'Ativo';
+      })(),
     }));
   }, [rawVehicles]);
 
@@ -130,10 +88,11 @@ export function useVehiclesPage() {
         vehicle.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
         vehicle.plate.toLowerCase().includes(searchTerm.toLowerCase()) ||
         vehicle.customerName.toLowerCase().includes(searchTerm.toLowerCase());
-      return matchesSearch;
-    });
-  }, [vehicles, searchTerm]);
+        const matchesStatus = statusFiltro === "todos" || vehicle.status === statusFiltro;
 
+      return matchesSearch && matchesStatus;
+    });
+  }, [vehicles, searchTerm, statusFiltro]);
   // Handlers
   const handleDelete = (id: string) => {
     setVehicleToDelete(parseInt(id));
@@ -210,6 +169,7 @@ export function useVehiclesPage() {
     filteredVehicles,
     loading,
     error,
+    statusFiltro,
 
     // UI State
     searchTerm,
@@ -219,6 +179,7 @@ export function useVehiclesPage() {
     creatingVehicle,
     deleteDialogOpen,
     setDeleteDialogOpen,
+    setStatusFiltro,
 
     // Handlers
     handleDelete,
@@ -227,4 +188,44 @@ export function useVehiclesPage() {
     formatKilometers,
     getFromAPI,
   };
+}
+
+export function useFetchVehicleCounts(customerIds: number[]) {
+  const [vehicleCounts, setVehicleCounts] = useState<VehicleCountMap>({});
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (customerIds.length === 0) {
+      setVehicleCounts({});
+      return;
+    }
+
+    const fetchVehicleCounts = async () => {
+      setLoading(true);
+      try {
+        const counts: VehicleCountMap = {};
+        // Fetch vehicle count for each customer
+        await Promise.all(
+          customerIds.map(async (customerId) => {
+            try {
+              const response = await http.get(`/vehicles/by_customer/${customerId}`);
+              counts[customerId.toString()] = response.data?.length || 0;
+            } catch (err: any) {
+              counts[customerId.toString()] = 0;
+            }
+          })
+        );
+        setVehicleCounts(counts);
+        setError(null);
+      } catch (err: any) {
+        setError(err.response?.data?.detail || 'Could not load vehicle counts.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVehicleCounts();
+  }, [customerIds.join(',')]); // Re-run when customer IDs change
+  return { vehicleCounts, loading, error };
 }

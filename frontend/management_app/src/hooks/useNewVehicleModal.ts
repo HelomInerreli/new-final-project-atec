@@ -42,7 +42,7 @@ export function useNewVehicleModal(isOpen: boolean) {
   };
 
   const validateForm = (): boolean => {
-    return !!(formData.plate && formData.brand && formData.model && formData.customer_id);
+    return !!(formData.plate && formData.brand && formData.model);
   };
 
   const populateFromAPI = (apiData: VehicleAPI) => {
@@ -58,7 +58,7 @@ export function useNewVehicleModal(isOpen: boolean) {
     }));
   };
 
-  const handleGetFromAPI = async (getFromAPIFunc: (plate: string) => Promise<VehicleAPI | null>) => {
+  const handleGetFromAPI = async (getFromAPIFunc?: (plate: string) => Promise<VehicleAPI | null>) => {
     if (getFromAPIFunc && formData.plate) {
       const apiData = await getFromAPIFunc(formData.plate);
       if (apiData) {

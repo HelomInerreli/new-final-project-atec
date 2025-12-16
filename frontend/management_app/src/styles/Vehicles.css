@@ -25,3 +25,8 @@
   z-index: 2;
   background: #fff;
 }
+
+.vehicles-status-select {
+  width: 200px;
+  flex-shrink: 0;
+}

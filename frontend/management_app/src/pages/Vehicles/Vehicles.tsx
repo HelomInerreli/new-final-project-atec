@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../../components/ui/alert-dialog";
 import { Plus, Search, Trash2, Eye } from "lucide-react";
 import Badge from "react-bootstrap/Badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
 import { Link } from "react-router-dom";
 import { Spinner, Alert } from "react-bootstrap";
 import NewVehicleModal from "../../components/NewVehicleModal";
@@ -17,6 +18,8 @@ export default function Vehicles() {
     error,
     searchTerm,
     setSearchTerm,
+    statusFiltro,
+    setStatusFiltro,
     newVehicleModalOpen,
     setNewVehicleModalOpen,
     creatingVehicle,
@@ -65,6 +68,19 @@ export default function Vehicles() {
             onChange={e => setSearchTerm(e.target.value)}
             className="ps-5"
           />
+        </div>
+        <div className="vehicles-status-select">
+          <Select value={statusFiltro} onValueChange={setStatusFiltro}>
+            <SelectTrigger>
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todos">Todos Status</SelectItem>
+            <SelectItem value="Ativo">Ativo</SelectItem>
+            <SelectItem value="Sem Cliente">Sem Cliente</SelectItem>
+            <SelectItem value="Inativo">Inativo</SelectItem>
+          </SelectContent>
+          </Select>
         </div>
       </div>
 

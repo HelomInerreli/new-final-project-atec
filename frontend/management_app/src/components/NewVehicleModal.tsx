@@ -79,13 +79,12 @@ const NewVehicleModal: React.FC<NewVehicleModalProps> = ({
                 </div>
                 <div className="col-md-6">
                   <Label htmlFor='customer_id' className="d-flex form-label small text-muted mb-1">
-                    Cliente *
+                    Cliente
                   </Label>
                   <Select
                     value={formData.customer_id > 0 ? formData.customer_id.toString() : ''}
                     onValueChange={value => handleChange('customer_id', parseInt(value))}
                     disabled={loading}
-                    required
                   >
                     <SelectTrigger 
                       className="form-control"

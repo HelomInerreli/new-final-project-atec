@@ -40,3 +40,11 @@ export interface VehicleUpdate {
   engineSize?: string;
   fuelType?: string;
 }
+
+export interface VehicleCountMap {
+  [customerId: string]: number;
+}
+
+export interface VehicleWithCustomer extends Vehicle {
+  customer_name?: string;
+}

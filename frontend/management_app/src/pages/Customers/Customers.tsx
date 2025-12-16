@@ -1,15 +1,14 @@
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
+import "../../styles/Customers.css";
 import {AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,} from "../../components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
-import { Plus, Search, Trash2, Eye, Calendar, Key } from "lucide-react";
+import { Plus, Search, Trash2, Eye, Key } from "lucide-react";
 import Badge from "react-bootstrap/Badge";
 import { Link } from "react-router-dom";
 import { Spinner, Alert } from "react-bootstrap";
 import { useCustomersPage } from "../../hooks/useCustomers";
-import { useFetchCustomerAppointments } from "../../hooks/useAppointments";
-import { CustomerAppointmentsModal } from "../../components/CustomerAppointmentsModal";
 import NewCustomerModal from "../../components/NewCustomerModal";
 
 export default function Customers() {
@@ -17,7 +16,6 @@ export default function Customers() {
     filteredClientes,
     loading,
     error,
-    selectedCustomerId,
     searchTerm,
     setSearchTerm,
     statusFiltro,
@@ -29,19 +27,14 @@ export default function Customers() {
     setDeleteDialogOpen,
     resetPasswordDialogOpen,
     setResetPasswordDialogOpen,
-    appointmentsDialogOpen,
-    setAppointmentsDialogOpen,
     handleDelete,
     confirmDelete,
     handleCreateCustomer,
     handleResetPassword,
     confirmResetPassword,
-    handleViewAppointments,
     formatDate,
   } = useCustomersPage();
 
-  // Fetch appointments for selected customer
-  const { appointments: customerAppointments, loading: appointmentsLoading } = useFetchCustomerAppointments(selectedCustomerId);
   if (loading) {
     return (
       <div className="d-flex justify-content-center align-items-center vh-100">
@@ -57,19 +50,8 @@ export default function Customers() {
   }
 
   return (
-      <div
-        className="d-flex flex-column"
-        style={{
-          height: "100%",
-          backgroundColor: "transparent",
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-      <div
-        className="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom border-light"
-        style={{ flexShrink: 0 }}
-      >
+      <div className="d-flex flex-column customers-container">
+      <div className="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom border-light customers-header-wrapper">
         <div>
           <h1 className="h1 fw-bold text-dark">Gestão de Clientes</h1>
           <p className="text-muted mt-1">Gerencie os clientes da oficina</p>
@@ -89,37 +71,23 @@ export default function Customers() {
             className="ps-5"
           />
         </div>
-        <Select value={statusFiltro} onValueChange={setStatusFiltro}>
-          <SelectTrigger style={{ width: 200 }}>
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todos">Todos Status</SelectItem>
-            <SelectItem value="Ativo">Ativo</SelectItem>
-            <SelectItem value="Inativo">Inativo</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="customers-status-filter">
+          <Select value={statusFiltro} onValueChange={setStatusFiltro}>
+            <SelectTrigger>
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="todos">Todos Status</SelectItem>
+              <SelectItem value="Ativo">Ativo</SelectItem>
+              <SelectItem value="Inativo">Inativo</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
-      <div
-        className="table-responsive border rounded flex-grow-1"
-        style={{
-          overflowY: "auto",
-          backgroundColor: "#fff",
-          borderRadius: "0.375rem",
-          boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-          minHeight: 0,
-        }}
-      >
+      <div className="table-responsive border rounded flex-grow-1 customers-table-wrapper">
         <Table>
-          <TableHeader
-          style={{
-              position: "sticky",
-              top: 0,
-              zIndex: 2,
-              background: "#fff",
-            }}
-            >
+          <TableHeader className="customers-table-header">
             <TableRow>
               <TableHead>Nome</TableHead>
               <TableHead>Email</TableHead>
@@ -156,9 +124,6 @@ export default function Customers() {
                     <div className="flex justify-end gap-2">
                       <Button variant="outline" size="icon" title="Resetar Password" onClick={() => handleResetPassword(cliente.id)}>
                         <Key className="h-4 w-4" />
-                      </Button>
-                      <Button variant="outline" size="icon" title="Ver Agendamentos" onClick={() => handleViewAppointments(cliente.id)}>
-                        <Calendar className="h-4 w-4" />
                       </Button>
                       <Link to={`/customers/${cliente.id}`}>
                         <Button variant="outline" size="icon">
@@ -208,14 +173,6 @@ export default function Customers() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {/* Appointments Modal */}
-      <CustomerAppointmentsModal
-        open={appointmentsDialogOpen}
-        onOpenChange={setAppointmentsDialogOpen}
-        appointments={customerAppointments}
-        loading={appointmentsLoading}
-      />
 
       {/* New Customer Modal */}
       <NewCustomerModal
