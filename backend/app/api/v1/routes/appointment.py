@@ -338,3 +338,35 @@ def list_comments(
         .order_by(OrderComment.created_at.desc())
         .all()
     )
+    
+@router.patch("/{appointment_id}/start_work", status_code=200)
+def start_work(appointment_id: int, db: Session = Depends(get_db)):
+    repo = AppointmentRepository(db)
+    appt = repo.start_work(appointment_id=appointment_id)
+    if not appt:
+        raise HTTPException(status_code=404, detail="Appointment not found")
+    return appt
+
+@router.patch("/{appointment_id}/pause_work", status_code=200)
+def pause_work(appointment_id: int, db: Session = Depends(get_db)):
+    repo = AppointmentRepository(db)
+    appt = repo.pause_work(appointment_id=appointment_id)
+    if not appt:
+        raise HTTPException(status_code=404, detail="Appointment not found or not in progress")
+    return appt
+
+@router.patch("/{appointment_id}/resume_work", status_code=200)
+def resume_work(appointment_id: int, db: Session = Depends(get_db)):
+    repo = AppointmentRepository(db)
+    appt = repo.resume_work(appointment_id=appointment_id)
+    if not appt:
+        raise HTTPException(status_code=404, detail="Appointment not found or not paused")
+    return appt
+
+@router.patch("/{appointment_id}/finalize_work", status_code=200)
+def finalize_work(appointment_id: int, db: Session = Depends(get_db)):
+    repo = AppointmentRepository(db)
+    appt = repo.finalize_work(appointment_id=appointment_id)
+    if not appt:
+        raise HTTPException(status_code=404, detail="Appointment not found")
+    return appt    
