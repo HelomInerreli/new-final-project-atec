@@ -54,7 +54,7 @@ const ServiceOrderDetail: FC = () => {
       <div className="so-card">
         <div className="so-card-header">
           <button className="so-back-btn" onClick={() => navigate(-1)}>← Voltar</button>
-          <h2 className="so-card-title">Ordem de Serviço #{order.id}</h2>
+          <h2 className="so-card-title">Ordem de Serviço :{order.id}</h2>
         </div>
 
         <h5 className="so-section-title">Informações do Cliente e Serviço</h5>
@@ -114,7 +114,7 @@ const ServiceOrderDetail: FC = () => {
                 <AlertDialogHeader>
                   <AlertDialogTitle>Iniciar Ordem de Serviço?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    A ordem #{order.id} será marcada como "Em Andamento". 
+                    A ordem :{order.id} será marcada como "Em Andamento". 
                     O cronômetro de trabalho será iniciado.
                   </AlertDialogDescription>
                 </AlertDialogHeader>

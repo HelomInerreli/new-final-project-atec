@@ -325,7 +325,7 @@ class AppointmentRepository:
                 customer_email = self._get_customer_email(db_appointment.customer_id)
                 if customer_email:
                     customer_name = db_appointment.customer.name if db_appointment.customer else "Cliente"
-                    # ✅ CORRIGIDO: vehicle.plate em vez de license_plate
+                    
                     vehicle_plate = db_appointment.vehicle.plate if db_appointment.vehicle else "N/A"
                     
                     email_service.send_extra_service_proposal_email(
@@ -336,9 +336,9 @@ class AppointmentRepository:
                         price=db_request.price or 0.0,
                         description=db_request.description or ""
                     )
-                    print(f"✅ Proposta de serviço extra enviada para {customer_email}.")
+                    print(f" Proposta de serviço extra enviada para {customer_email}.")
             except Exception as e:
-                print(f"❌ ERRO ao enviar proposta de serviço extra: {e}")
+                print(f" ERRO ao enviar proposta de serviço extra: {e}")
 
         return db_request
 
