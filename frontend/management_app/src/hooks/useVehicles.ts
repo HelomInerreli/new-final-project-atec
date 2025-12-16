@@ -61,6 +61,8 @@ export function useVehiclesPage() {
   const [creatingVehicle, setCreatingVehicle] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [vehicleToDelete, setVehicleToDelete] = useState<number | null>(null);
+  const [page, setPage] = useState<number>(1);
+  const pageSize = 10;
 
   // Map backend data
   const vehicles = useMemo(() => {
@@ -80,6 +82,11 @@ export function useVehiclesPage() {
     }));
   }, [rawVehicles]);
 
+  // Reset page when filters/search change
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm, statusFiltro]);
+
   // Filter vehicles based on search term
   const filteredVehicles = useMemo(() => {
     return vehicles.filter(vehicle => {
@@ -93,6 +100,14 @@ export function useVehiclesPage() {
       return matchesSearch && matchesStatus;
     });
   }, [vehicles, searchTerm, statusFiltro]);
+
+  // Pagination
+  const totalPages = Math.max(1, Math.ceil(filteredVehicles.length / pageSize));
+  const paginatedVehicles = filteredVehicles.slice(
+    (page - 1) * pageSize,
+    page * pageSize
+  );
+
   // Handlers
   const handleDelete = (id: string) => {
     setVehicleToDelete(parseInt(id));
@@ -166,6 +181,7 @@ export function useVehiclesPage() {
 
   return {
     // Data
+    paginatedVehicles,
     filteredVehicles,
     loading,
     error,
@@ -180,6 +196,12 @@ export function useVehiclesPage() {
     deleteDialogOpen,
     setDeleteDialogOpen,
     setStatusFiltro,
+
+    // Pagination
+    page,
+    setPage,
+    totalPages,
+    pageSize,
 
     // Handlers
     handleDelete,

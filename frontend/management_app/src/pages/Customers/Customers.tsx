@@ -13,6 +13,7 @@ import NewCustomerModal from "../../components/NewCustomerModal";
 
 export default function Customers() {
   const {
+    paginatedClientes,
     filteredClientes,
     loading,
     error,
@@ -27,6 +28,10 @@ export default function Customers() {
     setDeleteDialogOpen,
     resetPasswordDialogOpen,
     setResetPasswordDialogOpen,
+    page,
+    setPage,
+    totalPages,
+    pageSize,
     handleDelete,
     confirmDelete,
     handleCreateCustomer,
@@ -71,7 +76,7 @@ export default function Customers() {
             className="ps-5"
           />
         </div>
-        <div className="customers-status-filter">
+        <div className="customers-status-select">
           <Select value={statusFiltro} onValueChange={setStatusFiltro}>
             <SelectTrigger>
               <SelectValue placeholder="Status" />
@@ -107,7 +112,7 @@ export default function Customers() {
                 </TableCell>
               </TableRow>
             ) : (
-              filteredClientes.map(cliente => (
+              paginatedClientes.map(cliente => (
                 <TableRow key={cliente.id}>
                   <TableCell className="font-medium">{cliente.name}</TableCell>
                   <TableCell>{cliente.email}</TableCell>
@@ -140,6 +145,38 @@ export default function Customers() {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Pagination controls */}
+      <div className="d-flex justify-content-between align-items-center mt-2 mb-4" style={{ flexShrink: 0 }}>
+        <div className="text-muted">
+          {filteredClientes.length === 0
+            ? ""
+            : (() => {
+              const start = (page - 1) * pageSize + 1;
+              const end = Math.min(page * pageSize, filteredClientes.length);
+              return `Mostrando ${start}–${end} de ${filteredClientes.length}`;
+            })()}
+        </div>
+        <div className="d-flex gap-2">
+          <Button
+            variant="outline"
+            disabled={page <= 1}
+            onClick={() => setPage((p: number) => Math.max(1, p - 1))}
+          >
+            Anterior
+          </Button>
+          <div className="align-self-center">
+            {page} / {totalPages}
+          </div>
+          <Button
+            variant="outline"
+            disabled={page >= totalPages}
+            onClick={() => setPage((p: number) => Math.min(totalPages, p + 1))}
+          >
+            Próxima
+          </Button>
+        </div>
       </div>
 
       {/* Delete Confirmation Dialog */}

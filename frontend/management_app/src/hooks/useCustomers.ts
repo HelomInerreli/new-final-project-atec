@@ -47,7 +47,14 @@ export function useCustomersPage() {
   const [clienteToDelete, setClienteToDelete] = useState<string | null>(null);
   const [resetPasswordDialogOpen, setResetPasswordDialogOpen] = useState(false);
   const [clienteToResetPassword, setClienteToResetPassword] = useState<string | null>(null);
-  const [selectedCustomerId, ] = useState<string | null>(null);
+  const [selectedCustomerId] = useState<number | null>(null);
+  const [page, setPage] = useState<number>(1);
+  const pageSize = 10;
+
+  // Reset page when filters/search change
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm, statusFiltro]);
 
   // Extract customer IDs for vehicle count fetching
   const customerIds = useMemo(() => rawCustomers.map(profile => profile.customer.id), [rawCustomers]);
@@ -144,8 +151,16 @@ export function useCustomersPage() {
 
   const formatDate = (dateString: string) => new Date(dateString).toLocaleDateString('pt-PT');
 
+  // Pagination
+  const totalPages = Math.max(1, Math.ceil(filteredClientes.length / pageSize));
+  const paginatedClientes = filteredClientes.slice(
+    (page - 1) * pageSize,
+    page * pageSize
+  );
+
   return {
     // Data
+    paginatedClientes,
     filteredClientes,
     loading,
     error,
@@ -163,6 +178,12 @@ export function useCustomersPage() {
     setDeleteDialogOpen,
     resetPasswordDialogOpen,
     setResetPasswordDialogOpen,
+
+    // Pagination
+    page,
+    setPage,
+    totalPages,
+    pageSize,
 
     // Handlers
     handleDelete,

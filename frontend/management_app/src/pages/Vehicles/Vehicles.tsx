@@ -13,6 +13,7 @@ import "../../styles/Vehicles.css";
 
 export default function Vehicles() {
   const {
+    paginatedVehicles,
     filteredVehicles,
     loading,
     error,
@@ -25,6 +26,10 @@ export default function Vehicles() {
     creatingVehicle,
     deleteDialogOpen,
     setDeleteDialogOpen,
+    page,
+    setPage,
+    totalPages,
+    pageSize,
     handleDelete,
     confirmDelete,
     handleCreateVehicle,
@@ -104,7 +109,7 @@ export default function Vehicles() {
                 </TableCell>
               </TableRow>
             ) : (
-              filteredVehicles.map(vehicle => (
+              paginatedVehicles.map(vehicle => (
                 <TableRow key={vehicle.id}>
                   <TableCell className="font-medium">{vehicle.brand}</TableCell>
                   <TableCell>{vehicle.model}</TableCell>
@@ -139,6 +144,38 @@ export default function Vehicles() {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Pagination controls */}
+      <div className="d-flex justify-content-between align-items-center mt-2 mb-4" style={{ flexShrink: 0 }}>
+        <div className="text-muted">
+          {filteredVehicles.length === 0
+            ? ""
+            : (() => {
+              const start = (page - 1) * pageSize + 1;
+              const end = Math.min(page * pageSize, filteredVehicles.length);
+              return `Mostrando ${start}–${end} de ${filteredVehicles.length}`;
+            })()}
+        </div>
+        <div className="d-flex gap-2">
+          <Button
+            variant="outline"
+            disabled={page <= 1}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+          >
+            Anterior
+          </Button>
+          <div className="align-self-center">
+            {page} / {totalPages}
+          </div>
+          <Button
+            variant="outline"
+            disabled={page >= totalPages}
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+          >
+            Próxima
+          </Button>
+        </div>
       </div>
 
       {/* Delete Confirmation Dialog */}
