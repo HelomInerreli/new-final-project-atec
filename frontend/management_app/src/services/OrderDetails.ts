@@ -71,6 +71,24 @@ export async function finalizeWork(id: string | number): Promise<void> {
   }
 }
 
+export async function deleteComment(orderId: string | number, commentId: number): Promise<void> {
+  try {
+    await http.delete(`/appointments/${orderId}/comments/${commentId}`, { withCredentials: true });
+  } catch (err) {
+    console.error("deleteComment error:", err);
+    throw err;
+  }
+}
+
+export async function deletePart(orderId: string | number, partId: number): Promise<void> {
+  try {
+    await http.delete(`/appointments/${orderId}/parts/${partId}`, { withCredentials: true });
+  } catch (err) {
+    console.error("deletePart error:", err);
+    throw err;
+  }
+}
+
 export default {
   getOrder,
   updateOrder,
@@ -80,6 +98,8 @@ export default {
   pauseWork,
   resumeWork,
   finalizeWork,
+  deleteComment,
+  deletePart,
 }
 
 

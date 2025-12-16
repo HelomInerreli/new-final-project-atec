@@ -287,9 +287,6 @@
   flex-shrink: 0;
 }
 
-/* Removidas todas as classes .btn, .btn-primary, .btn-secondary */
-/* Agora usa <Button> do UI */
-
 @keyframes fadeIn {
   from {
     opacity: 0;

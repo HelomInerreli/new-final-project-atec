@@ -208,7 +208,7 @@
 }
 
 .so-panel-title-parts { 
-  border-bottom: 2px solid #28a745; 
+  border-bottom: 2px solid #dc3545; 
 }
 
 .so-add-icon-btn {
@@ -253,7 +253,7 @@
 .timeline-item {
   position: relative;
   padding-left: var(--timeline-indent);
-  padding-right: 80px;
+  padding-right: 40px;
   min-height: 40px;
 }
 
@@ -316,7 +316,7 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 16px;
+  gap: 8px;
   position: relative;
 }
 
@@ -339,7 +339,7 @@
   line-height: 1;
   flex-shrink: 0;
   position: absolute;
-  right: -40px; 
+  right: 50px; 
   top: 0;
   background: #dc3545;
 }
@@ -411,7 +411,7 @@
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.3px;
-  border-bottom: 2px solid #28a745;
+  border-bottom: 2px solid #dc3545;
   white-space: nowrap;
 }
 
@@ -490,7 +490,7 @@
 
 .part-price-cell {
   font-weight: 400;
-  color: #28a745;
+  color: #dc3545;
   font-size: 0.9rem;
 }
 
@@ -507,13 +507,27 @@
 }
 
 .so-add-icon-btn-parts {
-  background-color: #28a745;
+  background-color: #dc3545;
 }
 
 .so-add-icon-btn-parts:hover {
-  background-color: #218838;
-  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+  background-color: #dc3545;
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
 }
+.delete-icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  opacity: 0.6;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  color: #dc3545;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 
 @media (max-width: 992px) {
   .so-page-wrapper { 
@@ -568,7 +582,7 @@
   }
 
   .timeline-badge {
-    right: -60px;
+    right: -70px;
   }
 }
 

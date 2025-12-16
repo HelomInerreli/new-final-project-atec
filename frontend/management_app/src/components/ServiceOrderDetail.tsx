@@ -5,6 +5,7 @@ import { Button } from "./ui/button";
 import Input from "./Input";
 import AddPartsModal from "./AddPartsModal";
 import AddCommentModal from "./AddCommentModal";
+import { Trash2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -44,6 +45,8 @@ const ServiceOrderDetail: FC = () => {
     handlePauseWork,
     handleResumeWork,
     handleFinalizeWork,
+    handleDeleteComment,
+    handleDeletePart,
   } = useServiceOrderDetails(id);
 
   if (loading) return <div className="so-loading">Carregando...</div>;
@@ -223,6 +226,17 @@ const ServiceOrderDetail: FC = () => {
                       <div className="timeline-content">
                         <span className="timeline-text">{c.comment}</span>
                         {isLatest && <span className="timeline-badge">NOVO</span>}
+                        <button
+                          className="delete-icon-btn"
+                          onClick={() => {
+                            if (window.confirm("Tem certeza que deseja apagar este comentário?")) {
+                              handleDeleteComment(c.id);
+                            }
+                          }}
+                          title="Apagar comentário"
+                        >
+                          <Trash2 size={16} />
+                        </button>
                       </div>
                     </div>
                   );
@@ -280,8 +294,23 @@ const ServiceOrderDetail: FC = () => {
                           <td className="part-qty-cell">{p.quantity ?? 1}</td>
                           <td className="part-price-cell">€{Number(p.price ?? 0).toFixed(2)}</td>
                           <td className="part-date-cell">
-                            {dateStr}
-                            <span className="part-time">{timeStr}</span>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                              <div>
+                                {dateStr}
+                                <span className="part-time">{timeStr}</span>
+                              </div>
+                              <button
+                                className="delete-icon-btn delete-icon-btn-table"
+                                onClick={() => {
+                                  if (window.confirm("Tem certeza que deseja apagar esta peça?")) {
+                                    handleDeletePart(p.id);
+                                  }
+                                }}
+                                title="Apagar peça"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       );
