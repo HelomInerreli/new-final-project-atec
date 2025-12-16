@@ -270,7 +270,6 @@ const ServiceOrderDetail: FC = () => {
                       <th>Nome</th>
                       <th>Código</th>
                       <th>Qtd</th>
-                      <th>Preço</th>
                       <th>Data</th>
                     </tr>
                   </thead>
@@ -292,10 +291,9 @@ const ServiceOrderDetail: FC = () => {
                           <td className="part-name-cell">{formatField(p.name)}</td>
                           <td className="part-sku-cell">{p.part_number ?? "-"}</td>
                           <td className="part-qty-cell">{p.quantity ?? 1}</td>
-                          <td className="part-price-cell">€{Number(p.price ?? 0).toFixed(2)}</td>
                           <td className="part-date-cell">
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                              <div>
+                            <div className="part-date-cell-content">
+                              <div className="part-date-info">
                                 {dateStr}
                                 <span className="part-time">{timeStr}</span>
                               </div>
