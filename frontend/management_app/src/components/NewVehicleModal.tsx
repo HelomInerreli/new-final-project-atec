@@ -21,31 +21,18 @@ interface NewVehicleModalProps {
 
 const NewVehicleModal: React.FC<NewVehicleModalProps> = ({ 
   isOpen, 
-  onClose, 
+  onClose,
   getFromAPI,
   onSubmit, 
   loading 
 }) => {
   const { customers } = useFetchCustomers();
-  const { formData, handleChange, validateForm, populateFromAPI } = useNewVehicleModal(isOpen);
+  const { formData, handleChange, validateForm, handleGetFromAPI } = useNewVehicleModal(isOpen);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (validateForm()) {
       await onSubmit(formData);
-    }
-  };
-
-  const handleGetFromAPI = async () => {
-    if (getFromAPI && formData.plate) {
-      try {
-        const apiData = await getFromAPI(formData.plate);
-        if (apiData) {
-          populateFromAPI(apiData);
-        }
-      } catch (error) {
-        // Handle error (e.g., show toast)
-      }
     }
   };
 
@@ -260,7 +247,7 @@ const NewVehicleModal: React.FC<NewVehicleModalProps> = ({
                 <Button 
                   type="button" 
                   variant="destructive"
-                  onClick={handleGetFromAPI}
+                  onClick={() => handleGetFromAPI(getFromAPI)}
                   disabled={loading || !formData.plate}
                   className="btn-custom-filled"
                 >GET FROM API</Button>

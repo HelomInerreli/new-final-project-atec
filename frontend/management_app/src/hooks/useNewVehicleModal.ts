@@ -58,10 +58,20 @@ export function useNewVehicleModal(isOpen: boolean) {
     }));
   };
 
+  const handleGetFromAPI = async (getFromAPIFunc: (plate: string) => Promise<VehicleAPI | null>) => {
+    if (getFromAPIFunc && formData.plate) {
+      const apiData = await getFromAPIFunc(formData.plate);
+      if (apiData) {
+        populateFromAPI(apiData);
+      }
+    }
+  };
+
   return {
     formData,
     handleChange,
     validateForm,
     populateFromAPI,
+    handleGetFromAPI,
   };
 }
