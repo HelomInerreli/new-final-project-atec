@@ -145,12 +145,12 @@
 .btn-success {
   background-color: #000000 !important;
   color: #ffffff !important;
-  border-color: #ff8c00 !important;
+  border-color: #000000 !important;
 }
 
 .btn-success:hover:not(:disabled) {
-  background-color: #e67e00 !important;
-  border-color: #cc7000 !important;
+  background-color: #1a1a1a !important;
+  border-color: #1a1a1a !important;
   box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3) !important;
 }
 
