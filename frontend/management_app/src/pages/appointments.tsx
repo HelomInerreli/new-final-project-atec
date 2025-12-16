@@ -453,12 +453,10 @@ export default function Agendamentos() {
 
   return (
     <div className="flex-1 space-y-6 p-8">
-      <div className="flex items-center justify-between">
+      <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Gestão de Agendamentos</h1>
-          <p className="text-muted-foreground">
-            Gerencie os agendamentos de serviços da oficina
-          </p>
+          <h1 className="text-4xl font-bold text-gray-900 leading-tight">Gestão de Agendamentos</h1>
+          <p className="text-lg text-gray-600 mt-2 font-medium">Gerencie os agendamentos de serviços da oficina</p>
         </div>
         <Button
           variant="destructive"
