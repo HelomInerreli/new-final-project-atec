@@ -76,9 +76,23 @@ class CustomerRepository:
         return self.db.query(Appointment).filter(Appointment.customer_id == customer_id).all()
     
     def get_by_email(self, email: str) -> Optional[Customer]:
-        """Gets a single customer by their email."""
-        return self.db.query(Customer).filter(Customer.email == email, Customer.deleted_at.is_(None)).first()
-    
+        """Gets a single customer by their email (searches in CustomerAuth)."""
+        from app.models.customerAuth import CustomerAuth
+        
+        customer_auth = (
+            self.db.query(CustomerAuth)
+            .filter(CustomerAuth.email == email, CustomerAuth.deleted_at.is_(None))
+            .first()
+        )
+        
+        if customer_auth:
+            return (
+                self.db.query(Customer)
+                .filter(Customer.id == customer_auth.id_customer, Customer.deleted_at.is_(None))
+                .first()
+            )
+        
+        return None
     
 def get_customers(db: Session, skip: int = 0, limit: int = 100):
     return db.query(Customer).filter(Customer.deleted_at.is_(None)).offset(skip).limit(limit).all()
