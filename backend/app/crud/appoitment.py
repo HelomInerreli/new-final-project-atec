@@ -67,8 +67,6 @@ class AppointmentRepository:
                     joinedload(Appointment.extra_service_associations),
                     joinedload(Appointment.status),
                     joinedload(Appointment.parts),
-
-
                 )
                 .filter(Appointment.id == appointment_id)
                 .first()
@@ -82,8 +80,8 @@ class AppointmentRepository:
         .options(joinedload(Appointment.customer), joinedload(Appointment.vehicle), joinedload(Appointment.service))
         .order_by(Appointment.id.desc())
         )
-        if user and user.role_id:
-            query = query.filter(Appointment.service.has(Service.area == user.role_id))
+        if user and user.role not in ["Gestor", "admin"]:
+            query = query.filter(Appointment.service.has(Service.area.like(f'%{user.role}%')))
         return query.offset(skip).limit(limit).all()
 
     # def get_all(self, skip: int = 0, limit: int = 100) -> List[Appointment]:
@@ -327,7 +325,7 @@ class AppointmentRepository:
                 customer_email = self._get_customer_email(db_appointment.customer_id)
                 if customer_email:
                     customer_name = db_appointment.customer.name if db_appointment.customer else "Cliente"
-                    # ✅ CORRIGIDO: vehicle.plate em vez de license_plate
+                    
                     vehicle_plate = db_appointment.vehicle.plate if db_appointment.vehicle else "N/A"
                     
                     email_service.send_extra_service_proposal_email(
@@ -338,9 +336,9 @@ class AppointmentRepository:
                         price=db_request.price or 0.0,
                         description=db_request.description or ""
                     )
-                    print(f"✅ Proposta de serviço extra enviada para {customer_email}.")
+                    print(f" Proposta de serviço extra enviada para {customer_email}.")
             except Exception as e:
-                print(f"❌ ERRO ao enviar proposta de serviço extra: {e}")
+                print(f" ERRO ao enviar proposta de serviço extra: {e}")
 
         return db_request
 
@@ -390,12 +388,9 @@ class AppointmentRepository:
     
     def add_part(self, appointment_id: int, product_id: int, quantity: int):
         """Adiciona uma peça à ordem de serviço"""
-        
-        
         appointment = self.db.query(Appointment).filter(Appointment.id == appointment_id).first()
         if not appointment:
             return None
-        
         
         product = self.db.query(Product).filter(Product.id == product_id).first()
         if not product:
@@ -427,10 +422,102 @@ class AppointmentRepository:
         
         return appointment
 
+    def start_work(self, appointment_id: int) -> Optional[Appointment]:
+        """Inicia o trabalho na appointment: define start_time e status para 'In Repair'."""
+        db_appointment = self.get_by_id(appointment_id=appointment_id)
+        if not db_appointment:
+            return None
 
-#
-# Conveniências de módulo — mantêm compatibilidade com o snippet antigo que chamava funções top-level.
-#
+        if not db_appointment.start_time:
+            db_appointment.start_time = datetime.utcnow()
+            db_appointment.is_paused = False
+            db_appointment.pause_time = None
+
+            # Muda status para "In Repair"
+            in_repair_status = self.db.query(Status).filter(Status.name == "In Repair").first()
+            if in_repair_status:
+                db_appointment.status_id = in_repair_status.id
+
+        self.db.commit()
+        self.db.refresh(db_appointment)
+        return db_appointment
+
+    def pause_work(self, appointment_id: int) -> Optional[Appointment]:
+        """Pausa o trabalho: calcula tempo trabalhado até agora e adiciona ao total."""
+        db_appointment = self.get_by_id(appointment_id=appointment_id)
+        if not db_appointment or not db_appointment.start_time or db_appointment.is_paused:
+            return None
+
+        now = datetime.utcnow()
+        worked_seconds = int((now - db_appointment.start_time).total_seconds())
+        db_appointment.total_worked_time += worked_seconds
+        db_appointment.is_paused = True
+        db_appointment.pause_time = now
+        
+        # Muda status para "Pending"
+        pending_status = self.db.query(Status).filter(Status.name == "Pendente").first()
+        if pending_status:
+            db_appointment.status_id = pending_status.id
+
+        self.db.commit()
+        self.db.refresh(db_appointment)
+        return db_appointment
+
+    def resume_work(self, appointment_id: int) -> Optional[Appointment]:
+        """Retoma o trabalho: redefine start_time para continuar contando."""
+        db_appointment = self.get_by_id(appointment_id=appointment_id)
+        if not db_appointment or not db_appointment.is_paused:
+            return None
+
+        db_appointment.start_time = datetime.utcnow()
+        db_appointment.is_paused = False
+        db_appointment.pause_time = None
+
+        # Retoma status "In Repair"
+        in_repair_status = self.db.query(Status).filter(Status.name == "In Repair").first()
+        if in_repair_status:
+            db_appointment.status_id = in_repair_status.id
+
+        self.db.commit()
+        self.db.refresh(db_appointment)
+        return db_appointment
+
+    def finalize_work(self, appointment_id: int) -> Optional[Appointment]:
+        """Finaliza o trabalho: calcula tempo final e marca como finalizado."""
+        db_appointment = self.get_by_id(appointment_id=appointment_id)
+        if not db_appointment:
+            return None
+
+        if not db_appointment.is_paused and db_appointment.start_time:
+            now = datetime.utcnow()
+            worked_seconds = int((now - db_appointment.start_time).total_seconds())
+            db_appointment.total_worked_time += worked_seconds
+
+        db_appointment.is_paused = False
+        db_appointment.start_time = None
+
+        # Muda status para "Finalized"
+        finalized_status = self.db.query(Status).filter(Status.name == "Finalized").first()
+        if finalized_status:
+            db_appointment.status_id = finalized_status.id
+
+        self.db.commit()
+        self.db.refresh(db_appointment)
+        return db_appointment
+
+    def get_current_work_time(self, appointment_id: int) -> int:
+        """Retorna o tempo total trabalhado incluindo sessão atual se em progresso."""
+        appt = self.get_by_id(appointment_id)
+        if not appt:
+            return 0
+        total = appt.total_worked_time or 0
+        if not appt.is_paused and appt.start_time:
+            now = datetime.utcnow()
+            additional = int((now - appt.start_time).total_seconds())
+            total += additional
+        return total
+
+    
 def create(db: Session, appointment_in: AppointmentCreate, email_service: Optional[EmailService] = None) -> Appointment:
     """
     Wrapper de conveniência: cria uma appointment usando AppointmentRepository e envia email
@@ -443,3 +530,4 @@ def create(db: Session, appointment_in: AppointmentCreate, email_service: Option
 def get_by_id(db: Session, id: int) -> Optional[Appointment]:
     repo = AppointmentRepository(db)
     return repo.get_by_id(appointment_id=id)
+
