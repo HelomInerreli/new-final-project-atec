@@ -23,6 +23,8 @@ import { Modal, Button, ListGroup, Spinner, Alert } from "react-bootstrap";
 import http, { setAuthToken } from "../api/http";
 import "./SideBarMenu.css";
 import "./SideBarMenu.css";
+import logoMecatec from "../assets/LOGO_MECATEC_fundo.png";
+import logoMaCollapsed from "../assets/LOGO_MA_Branco_fundo.png";
 
 // User state comes from /managementauth/me using saved JWT
 
@@ -344,11 +346,19 @@ export default function SideBarMenu() {
           {collapsed ? <FiMenu /> : <FiChevronLeft />}
         </button>
 
-        {!collapsed && (
-          <div style={{ fontWeight: 700, fontSize: 26, paddingLeft: 2 }}>
-            <Logo scale={0.5} showSubtitle={false} />
-          </div>
-        )}
+        <div style={{ 
+          display: "flex", 
+          justifyContent: "center", 
+          alignItems: "center",
+          flex: 1,
+          paddingRight: collapsed ? 0 : "2rem"
+        }}>
+          <img
+            src={collapsed ? logoMaCollapsed : logoMecatec}
+            alt="Mecatec Logo"
+            style={{ height: collapsed ? 50 : 60, objectFit: "contain" }}
+          />
+        </div>
       </div>
 
       {/* User section with bell icon */}
