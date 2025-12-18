@@ -34,8 +34,9 @@ export function useFetchVehicles() {
       );
       setVehicles(vehiclesWithCustomers);
       setError(null);
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Could not load vehicle data. Please try again.');
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { detail?: string } } };
+      setError(error.response?.data?.detail || 'Could not load vehicle data. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -142,7 +143,7 @@ export function useVehiclesPage() {
       toast({ title: 'Veículo Criado', description: 'O novo veículo foi criado com sucesso.' });
       setNewVehicleModalOpen(false);
       refetch();
-    } catch (err) {
+    } catch (err: unknown) {
       const error = err as { response?: { data?: { detail?: string } } };
       console.error('Create vehicle error:', error);
       toast({
@@ -167,7 +168,7 @@ export function useVehiclesPage() {
         description: `Dados do veículo ${vehicleData.brand} ${vehicleData.model} obtidos da API.` 
       });
       return vehicleData;
-    } catch (err) {
+    } catch (err: unknown) {
       const error = err as { response?: { data?: { detail?: string } } };
       console.error('Get vehicle from API error:', error);
       toast({
@@ -233,21 +234,22 @@ export function useFetchVehicleCounts(customerIds: number[]) {
             try {
               const response = await http.get(`/vehicles/by_customer/${customerId}`);
               counts[customerId.toString()] = response.data?.length || 0;
-            } catch (err: any) {
+            } catch {
               counts[customerId.toString()] = 0;
             }
           })
         );
         setVehicleCounts(counts);
         setError(null);
-      } catch (err: any) {
-        setError(err.response?.data?.detail || 'Could not load vehicle counts.');
+      } catch (err: unknown) {
+        const error = err as { response?: { data?: { detail?: string } } };
+        setError(error.response?.data?.detail || 'Could not load vehicle counts.');
       } finally {
         setLoading(false);
       }
     };
 
     fetchVehicleCounts();
-  }, [customerIds.join(',')]); // Re-run when customer IDs change
+  }, [customerIds]); // Re-run when customer IDs change
   return { vehicleCounts, loading, error };
 }

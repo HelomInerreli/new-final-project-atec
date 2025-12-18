@@ -35,6 +35,7 @@ export default function Vehicles() {
     handleCreateVehicle,
     formatKilometers,
     getFromAPI,
+    handleAssignCustomer,
   } = useVehiclesPage();
 
   // Loading state
@@ -116,11 +117,23 @@ export default function Vehicles() {
                   <TableCell>
                     <Badge bg="danger">{vehicle.plate}</Badge>
                   </TableCell>
+                  {vehicle.customerId === 0 ? (
+                    <TableCell>
+                      <Button
+                        variant="destructive"
+                        onClick={() => handleAssignCustomer(vehicle.id)}
+                        title="Associar Cliente"
+                      >
+                        TODO: Associar Cliente
+                      </Button>
+                    </TableCell>
+                  ) : ( 
                   <TableCell>
                     <Link to={`/customers/${vehicle.customerId}`} className="text-decoration-none">
                       {vehicle.customerName}
                     </Link>
                   </TableCell>
+                  )}
                   <TableCell>{formatKilometers(vehicle.kilometers)}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">

@@ -17,7 +17,7 @@ export function useFetchCustomers() {
       const response = await http.get('/customers/all-profiles');
       setCustomers(response.data);
       setError(null);
-    } catch (err) {
+    } catch (err: unknown) {
       const error = err as { response?: { data?: { detail?: string } } };
       setError(error.response?.data?.detail || 'Could not load customer data. Please try again.');
     } finally {
@@ -116,7 +116,7 @@ export function useCustomersPage() {
       toast({ title: "Cliente Criado", description: "O novo cliente foi criado com sucesso." });
       setNewCustomerModalOpen(false);
       refetch();
-    } catch (err) {
+    } catch (err: unknown) {
       const error = err as { response?: { data?: { detail?: string } } };
       console.error('Create customer error:', error);
       toast({
@@ -139,7 +139,7 @@ export function useCustomersPage() {
     try {
       await customerService.resetPassword(clienteToResetPassword);
       toast({ title: "Password Resetada", description: "A password foi alterada para '12345678'." });
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Reset error:', error);
       toast({ title: "Erro", description: "Não foi possível resetar a password.", variant: "destructive" });
     } finally {
