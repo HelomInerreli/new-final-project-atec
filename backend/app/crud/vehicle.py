@@ -1,5 +1,6 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from app.models.vehicle import Vehicle
+from app.models.customer import Customer
 from app.schemas.vehicle import VehicleCreate
 from typing import List, Optional, Dict, Any
 from datetime import datetime
@@ -24,6 +25,37 @@ class VehicleRepository:
     def get_all(self, skip: int = 0, limit: int = 100) -> List[Vehicle]:
         """Gets a list of all vehicles."""
         return self.db.query(Vehicle).order_by(Vehicle.id).offset(skip).limit(limit).all()
+
+    def get_all_with_customers(self, skip: int = 0, limit: int = 100) -> List[Dict[str, Any]]:
+        """Gets all vehicles with customer names using a join."""
+        results = self.db.query(
+            Vehicle,
+            Customer.name.label("customer_name")
+        ).outerjoin(
+            Customer, Vehicle.customer_id == Customer.id
+        ).order_by(Vehicle.id).offset(skip).limit(limit).all()
+        
+        # Convert to list of dicts with customer_name included
+        vehicles_with_customers = []
+        for vehicle, customer_name in results:
+            vehicle_dict = {
+                "id": vehicle.id,
+                "customer_id": vehicle.customer_id,
+                "plate": vehicle.plate,
+                "brand": vehicle.brand,
+                "model": vehicle.model,
+                "kilometers": vehicle.kilometers,
+                "color": vehicle.color,
+                "imported": vehicle.imported,
+                "description": vehicle.description,
+                "engineSize": vehicle.engineSize,
+                "fuelType": vehicle.fuelType,
+                "deleted_at": vehicle.deleted_at,
+                "customer_name": customer_name
+            }
+            vehicles_with_customers.append(vehicle_dict)
+        
+        return vehicles_with_customers
 
     def get_by_customer_id(self, customer_id: int) -> List[Vehicle]:
         """Gets a list of all vehicles for a specific customer."""

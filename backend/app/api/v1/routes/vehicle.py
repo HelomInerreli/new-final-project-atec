@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 from app.database import get_db
 from app.crud.vehicle import VehicleRepository
-from app.schemas.vehicle import Vehicle, VehicleCreate
+from app.schemas.vehicle import Vehicle, VehicleCreate, VehicleWithCustomer
 from app.schemas.appointment import Appointment
 
 router = APIRouter()
@@ -21,14 +21,14 @@ class VehicleKilometersUpdate(BaseModel):
     kilometers: int
 
 
-@router.get("/", response_model=List[Vehicle])
+@router.get("/", response_model=List[VehicleWithCustomer])
 def list_all_vehicles(
     repo: VehicleRepository = Depends(get_vehicle_repo)
 ):
     """
-    List all vehicles.
+    List all vehicles with customer names.
     """
-    return repo.get_all()
+    return repo.get_all_with_customers()
 
 
 @router.post("/", response_model=Vehicle, status_code=status.HTTP_201_CREATED)

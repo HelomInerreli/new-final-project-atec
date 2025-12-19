@@ -15,24 +15,7 @@ export function useFetchVehicles() {
     setLoading(true);
     try {
       const response = await http.get('/vehicles/');
-      // Fetch customer names for each vehicle
-      const vehiclesWithCustomers = await Promise.all(
-        response.data.map(async (vehicle: Vehicle) => {
-          try {
-            const customerResponse = await http.get(`/customers/${vehicle.customer_id}`);
-            return {
-              ...vehicle,
-              customer_name: customerResponse.data.name || null,
-            };
-          } catch {
-            return {
-              ...vehicle,
-              customer_name: null,
-            };
-          }
-        })
-      );
-      setVehicles(vehiclesWithCustomers);
+      setVehicles(response.data);
       setError(null);
     } catch (err: unknown) {
       const error = err as { response?: { data?: { detail?: string } } };
@@ -145,7 +128,6 @@ export function useVehiclesPage() {
       refetch();
     } catch (err: unknown) {
       const error = err as { response?: { data?: { detail?: string } } };
-      console.error('Create vehicle error:', error);
       toast({
         title: 'Erro',
         description: error.response?.data?.detail || 'Não foi possível criar o veículo.',
@@ -170,13 +152,11 @@ export function useVehiclesPage() {
       return vehicleData;
     } catch (err: unknown) {
       const error = err as { response?: { data?: { detail?: string } } };
-      console.error('Get vehicle from API error:', error);
       toast({
         title: 'Erro',
         description: error.response?.data?.detail || 'Não foi possível obter os dados do veículo da API.',
         variant: 'destructive',
-      });
-      throw err;
+      });    
     }
   };
 
