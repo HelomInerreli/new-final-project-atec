@@ -4,6 +4,7 @@ import http from '../api/http';
 import { customerService } from '../services/customerService';
 import { useFetchVehicleCounts } from './useVehicles';
 import { toast } from './use-toast';
+import { getErrorMessage } from '../utils/errorHandler';
 
 export function useFetchCustomers() {
   const [customers, setCustomers] = useState<CompleteCustomerProfile[]>([]);
@@ -17,9 +18,8 @@ export function useFetchCustomers() {
       const response = await http.get('/customers/all-profiles');
       setCustomers(response.data);
       setError(null);
-    } catch (err: unknown) {
-      const error = err as { response?: { data?: { detail?: string } } };
-      setError(error.response?.data?.detail || 'Could not load customer data. Please try again.');
+    } catch (err) {
+      setError(getErrorMessage(err, 'Could not load customer data. Please try again.'));
     } finally {
       setLoading(false);
     }
@@ -116,12 +116,11 @@ export function useCustomersPage() {
       toast({ title: "Cliente Criado", description: "O novo cliente foi criado com sucesso." });
       setNewCustomerModalOpen(false);
       refetch();
-    } catch (err: unknown) {
-      const error = err as { response?: { data?: { detail?: string } } };
-      console.error('Create customer error:', error);
+    } catch (err) {
+      console.error('Create customer error:', err);
       toast({
         title: "Erro",
-        description: error.response?.data?.detail || "Não foi possível criar o cliente.",
+        description: getErrorMessage(err, "Não foi possível criar o cliente."),
         variant: "destructive",
       });
     } finally {
@@ -139,8 +138,8 @@ export function useCustomersPage() {
     try {
       await customerService.resetPassword(clienteToResetPassword);
       toast({ title: "Password Resetada", description: "A password foi alterada para '12345678'." });
-    } catch (error: unknown) {
-      console.error('Reset error:', error);
+    } catch (err) {
+      console.error('Reset error:', err);
       toast({ title: "Erro", description: "Não foi possível resetar a password.", variant: "destructive" });
     } finally {
       setResetPasswordDialogOpen(false);

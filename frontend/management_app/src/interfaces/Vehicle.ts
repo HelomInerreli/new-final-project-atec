@@ -29,11 +29,11 @@ export interface VehicleCreate {
 }
 
 export interface VehicleUpdate {
-  plate: string;
-  brand: string;
-  model: string;
-  kilometers: number;
-  customer_id: number;
+  plate?: string;
+  brand?: string;
+  model?: string;
+  kilometers?: number;
+  customer_id?: number;
   description?: string;
   color?: string;
   imported?: boolean;

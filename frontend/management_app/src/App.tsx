@@ -11,6 +11,7 @@ import ServicesManagement from "./pages/ServicesManagement";
 import Customers from "./pages/Customers/Customers";
 import CustomerDetails from "./pages/Customers/CustomerDetails";
 import Vehicles from "./pages/Vehicles/Vehicles";
+import VehicleDetails from "./pages/Vehicles/VehicleDetails";
 import { Toaster } from "./components/ui/toaster";
 import Users from "./pages/Users/Users";
 import Folgas from "./pages/Users/Folgas";
@@ -38,6 +39,7 @@ function App() {
             />
             <Route path="/customers/:id" element={<CustomerDetails />} />
             <Route path="/vehicles" element={<Vehicles />} />
+            <Route path="/vehicles/:id" element={<VehicleDetails />} />
           </Routes>
         </Layout>
         <Toaster />

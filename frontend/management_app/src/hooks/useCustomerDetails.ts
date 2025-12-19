@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import http from '../api/http';
 import type { CompleteCustomerProfile, CustomerUpdate } from '../interfaces/Customer';
 import { useToast } from './use-toast';
+import { getErrorMessage } from '../utils/errorHandler';
 
 export function useFetchCustomerById(customerId: string | undefined) {
   const [customerData, setCustomerData] = useState<CompleteCustomerProfile | null>(null);
@@ -38,8 +39,7 @@ export function useFetchCustomerById(customerId: string | undefined) {
         setCustomerData(data);
         setError(null);
       } catch (err) {
-        const error = err as { response?: { data?: { detail?: string } } };
-        setError(error.response?.data?.detail || 'Could not load customer details.');
+        setError(getErrorMessage(err, 'Could not load customer details.'));
         setCustomerData(null);
       } finally {
         setLoading(false);

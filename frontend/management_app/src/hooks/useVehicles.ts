@@ -1,25 +1,39 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import http from '../api/http';
-import type { Vehicle, VehicleCreate, VehicleCountMap, VehicleWithCustomer } from '../interfaces/Vehicle';
+import type { VehicleCreate, VehicleCountMap, VehicleWithCustomer } from '../interfaces/Vehicle';
+import type { VehicleAPI } from '../interfaces/VehicleAPI';
 import { vehicleService } from '../services/vehicleService';
 import { vehicleService as vehicleAPIService } from '../services/vehicleAPIService';
 import { toast } from './use-toast';
+import { getErrorMessage } from '../utils/errorHandler';
 
-export function useFetchVehicles() {
-  const [vehicles, setVehicles] = useState<VehicleWithCustomer[]>([]);
+export function useVehiclesPage() {
+  // Data state
+  const [rawVehicles, setRawVehicles] = useState<VehicleWithCustomer[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Define fetch function that can be called manually
+  // UI state
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFiltro, setStatusFiltro] = useState("todos");
+  const [newVehicleModalOpen, setNewVehicleModalOpen] = useState(false);
+  const [creatingVehicle, setCreatingVehicle] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [vehicleToDelete, setVehicleToDelete] = useState<number | null>(null);
+  const [assignCustomerDialogOpen, setAssignCustomerDialogOpen] = useState(false);
+  const [vehicleToAssign, setVehicleToAssign] = useState<string | null>(null);
+  const [page, setPage] = useState<number>(1);
+  const pageSize = 10;
+
+  // Fetch vehicles function
   const fetchAllVehicles = useCallback(async () => {
     setLoading(true);
     try {
       const response = await http.get('/vehicles/');
-      setVehicles(response.data);
+      setRawVehicles(response.data);
       setError(null);
-    } catch (err: unknown) {
-      const error = err as { response?: { data?: { detail?: string } } };
-      setError(error.response?.data?.detail || 'Could not load vehicle data. Please try again.');
+    } catch (err) {
+      setError(getErrorMessage(err, 'Could not load vehicle data. Please try again.'));
     } finally {
       setLoading(false);
     }
@@ -29,24 +43,6 @@ export function useFetchVehicles() {
   useEffect(() => {
     fetchAllVehicles();
   }, [fetchAllVehicles]);
-
-  // Expose a refetch function for callers
-  return { vehicles, loading, error, refetch: fetchAllVehicles };
-}
-
-export function useVehiclesPage() {
-  // Fetch vehicles with refetch capability
-  const { vehicles: rawVehicles, loading, error, refetch } = useFetchVehicles();
-
-  // UI state
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFiltro, setStatusFiltro] = useState("todos");
-  const [newVehicleModalOpen, setNewVehicleModalOpen] = useState(false);
-  const [creatingVehicle, setCreatingVehicle] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [vehicleToDelete, setVehicleToDelete] = useState<number | null>(null);
-  const [page, setPage] = useState<number>(1);
-  const pageSize = 10;
 
   // Map backend data
   const vehicles = useMemo(() => {
@@ -106,7 +102,7 @@ export function useVehiclesPage() {
           title: 'Veículo eliminado',
           description: 'O veículo foi eliminado com sucesso.',
         });
-        refetch();
+        fetchAllVehicles();
       } catch {
         toast({
           title: 'Erro',
@@ -119,18 +115,43 @@ export function useVehiclesPage() {
     setVehicleToDelete(null);
   };
 
+  const handleAssignCustomer = (vehicleId: string) => {
+    setVehicleToAssign(vehicleId);
+    setAssignCustomerDialogOpen(true);
+  };
+
+  const confirmAssignCustomer = async (customerId: number) => {
+    if (vehicleToAssign) {
+      try {
+        await vehicleService.update(parseInt(vehicleToAssign), { customer_id: customerId });
+        toast({
+          title: 'Cliente associado',
+          description: 'O cliente foi associado ao veículo com sucesso.',
+        });
+        fetchAllVehicles();
+      } catch {
+        toast({
+          title: 'Erro',
+          description: 'Não foi possível associar o cliente ao veículo.',
+          variant: 'destructive',
+        });
+      }
+    }
+    setAssignCustomerDialogOpen(false);
+    setVehicleToAssign(null);
+  };
+
   const handleCreateVehicle = async (vehicleData: VehicleCreate) => {
     setCreatingVehicle(true);
     try {
       await vehicleService.create(vehicleData);
       toast({ title: 'Veículo Criado', description: 'O novo veículo foi criado com sucesso.' });
       setNewVehicleModalOpen(false);
-      refetch();
-    } catch (err: unknown) {
-      const error = err as { response?: { data?: { detail?: string } } };
+      fetchAllVehicles();
+    } catch (err) {
       toast({
         title: 'Erro',
-        description: error.response?.data?.detail || 'Não foi possível criar o veículo.',
+        description: getErrorMessage(err, 'Não foi possível criar o veículo.'),
         variant: 'destructive',
       });
     } finally {
@@ -142,7 +163,7 @@ export function useVehiclesPage() {
     return km > 0 ? `${km.toLocaleString('pt-PT')} km` : '0 km';
   };
 
-  const getFromAPI = async (plate: string) => {
+  const getFromAPI = async (plate: string): Promise<VehicleAPI | null> => {
     try {
       const vehicleData = await vehicleAPIService.getByPlate(plate);
       toast({ 
@@ -150,13 +171,13 @@ export function useVehiclesPage() {
         description: `Dados do veículo ${vehicleData.brand} ${vehicleData.model} obtidos da API.` 
       });
       return vehicleData;
-    } catch (err: unknown) {
-      const error = err as { response?: { data?: { detail?: string } } };
+    } catch {
       toast({
         title: 'Erro',
-        description: error.response?.data?.detail || 'Não foi possível obter os dados do veículo da API.',
+        description: 'Não foi possível obter os dados do veículo da API.',
         variant: 'destructive',
-      });    
+      });
+      return null;
     }
   };
 
@@ -176,6 +197,8 @@ export function useVehiclesPage() {
     creatingVehicle,
     deleteDialogOpen,
     setDeleteDialogOpen,
+    assignCustomerDialogOpen,
+    setAssignCustomerDialogOpen,
     setStatusFiltro,
 
     // Pagination
@@ -187,6 +210,8 @@ export function useVehiclesPage() {
     // Handlers
     handleDelete,
     confirmDelete,
+    handleAssignCustomer,
+    confirmAssignCustomer,
     handleCreateVehicle,
     formatKilometers,
     getFromAPI,
@@ -221,9 +246,8 @@ export function useFetchVehicleCounts(customerIds: number[]) {
         );
         setVehicleCounts(counts);
         setError(null);
-      } catch (err: unknown) {
-        const error = err as { response?: { data?: { detail?: string } } };
-        setError(error.response?.data?.detail || 'Could not load vehicle counts.');
+      } catch (err) {
+        setError(getErrorMessage(err, 'Could not load vehicle counts.'));
       } finally {
         setLoading(false);
       }

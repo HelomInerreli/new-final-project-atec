@@ -2,13 +2,16 @@ import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../../components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../../components/ui/dialog";
 import { Plus, Search, Trash2, Eye } from "lucide-react";
 import Badge from "react-bootstrap/Badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
 import { Link } from "react-router-dom";
 import { Spinner, Alert } from "react-bootstrap";
+import { useState } from "react";
 import NewVehicleModal from "../../components/NewVehicleModal";
 import { useVehiclesPage } from "../../hooks/useVehicles";
+import { useFetchCustomers } from "../../hooks/useCustomers";
 import "../../styles/Vehicles.css";
 
 export default function Vehicles() {
@@ -26,17 +29,23 @@ export default function Vehicles() {
     creatingVehicle,
     deleteDialogOpen,
     setDeleteDialogOpen,
+    assignCustomerDialogOpen,
+    setAssignCustomerDialogOpen,
     page,
     setPage,
     totalPages,
     pageSize,
     handleDelete,
     confirmDelete,
+    handleAssignCustomer,
+    confirmAssignCustomer,
     handleCreateVehicle,
     formatKilometers,
     getFromAPI,
-    handleAssignCustomer,
   } = useVehiclesPage();
+
+  const { customers } = useFetchCustomers();
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string>("");
 
   // Loading state
   if (loading) {
@@ -124,7 +133,7 @@ export default function Vehicles() {
                         onClick={() => handleAssignCustomer(vehicle.id)}
                         title="Associar Cliente"
                       >
-                        TODO: Associar Cliente
+                        Associar Cliente
                       </Button>
                     </TableCell>
                   ) : ( 
@@ -215,6 +224,49 @@ export default function Vehicles() {
         getFromAPI={getFromAPI}
         loading={creatingVehicle}
       />
+
+      {/* Assign Customer Dialog */}
+      <Dialog open={assignCustomerDialogOpen} onOpenChange={setAssignCustomerDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Associar Cliente ao Veículo</DialogTitle>
+            <DialogDescription>
+              Selecione um cliente para associar a este veículo.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Select value={selectedCustomerId} onValueChange={setSelectedCustomerId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione um cliente" />
+              </SelectTrigger>
+              <SelectContent>
+                {customers.map((customer) => (
+                  <SelectItem key={customer.customer.id} value={customer.customer.id.toString()}>
+                    {customer.customer.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAssignCustomerDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={() => {
+                if (selectedCustomerId) {
+                  confirmAssignCustomer(parseInt(selectedCustomerId));
+                  setSelectedCustomerId("");
+                }
+              }}
+              disabled={!selectedCustomerId}
+            >
+              Associar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
