@@ -53,7 +53,7 @@ export function useNewCustomerModal(isOpen: boolean) {
     }));
   };
 
-  const handleDateChange = (date: Date | undefined) => {
+  const handleDateChange = (date: Date | null) => {
     setFormData(prev => ({
       ...prev,
       birth_date: date ? date.toISOString().split('T')[0] : ''

@@ -59,7 +59,7 @@ export default function VehicleDetails() {
     : "Ativo";
 
   return (
-    <div className="container" style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
+    <div className="container vehicle-details-container">
       {/* Header */}
       <div className="d-flex align-items-center gap-3 mb-4">
         <Link to="/vehicles">
@@ -75,14 +75,14 @@ export default function VehicleDetails() {
       </div>
 
       {/* Vehicle Information Card */}
-      <div className="card mb-4" style={{ border: '1px solid #dc3545', borderRadius: '8px' }}>
+      <div className="card mb-4 vehicle-details-card">
         <div className="card-body p-4">
           <div className="d-flex justify-content-between align-items-center mb-4">
             <div className="d-flex align-items-center gap-3">
               <h5 className="mb-0 fw-semibold">Informações do Veículo</h5>
               <Badge 
                 variant={status === "Ativo" ? "destructive" : "secondary"}
-                style={{ fontSize: '0.75rem', padding: '0.25rem 0.75rem' }}
+                className="vehicle-status-badge"
               >
                 {status}
               </Badge>
@@ -94,7 +94,7 @@ export default function VehicleDetails() {
                   variant="outline"
                   className="btn-custom-outline"
                 >
-                  <X className="me-2" style={{ width: '16px', height: '16px' }} />
+                  <X className="me-2 icon-small" />
                   Cancelar
                 </Button>
               )}
@@ -104,9 +104,9 @@ export default function VehicleDetails() {
                 className={isEditing ? "btn-custom-filled" : "btn-custom-outline"}
               >
                 {isEditing ? (
-                  <Save className="me-2" style={{ width: '16px', height: '16px' }} />
+                  <Save className="me-2 icon-small" />
                 ) : (
-                  <Edit className="me-2" style={{ width: '16px', height: '16px' }} />
+                  <Edit className="me-2 icon-small" />
                 )}
                 {isEditing ? "Salvar" : "Editar"}
               </Button>
@@ -115,7 +115,7 @@ export default function VehicleDetails() {
                 onClick={handleDelete}
                 className="btn-custom-filled"
               >
-                <Trash2 className="me-2" style={{ width: '16px', height: '16px' }} />
+                <Trash2 className="me-2 icon-small" />
                 Excluir
               </Button>
             </div>
@@ -274,7 +274,7 @@ export default function VehicleDetails() {
       </div>
 
       {/* Customer Card */}
-      <div className="card" style={{ border: '1px solid #dc3545', borderRadius: '8px' }}>
+      <div className="card vehicle-details-card">
         <div className="card-body p-4">
           <div className="d-flex justify-content-between align-items-center mb-4">
             <h5 className="mb-0 fw-semibold">Proprietário do Veículo</h5>
@@ -304,7 +304,7 @@ export default function VehicleDetails() {
                     variant="outline" 
                     className="btn-custom-outline w-100"
                   >
-                    <User className="me-2" style={{ width: '16px', height: '16px' }} />
+                    <User className="me-2 icon-small" />
                     Ver Perfil do Cliente
                   </Button>
                 </Link>
