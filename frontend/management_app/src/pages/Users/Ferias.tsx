@@ -1,246 +1,179 @@
-import { useState } from "react";
+import { useMemo } from "react";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../../components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
-import { Badge } from "../../components/ui/badge";
-import { CalendarDays, Plus, ArrowLeft, CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import { ptBR } from "date-fns/locale";
-import { cn } from "../../components/lib/utils";
+import { ArrowLeft, CalendarDays } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import AbsenceStatsCards from "../../components/absences/AbsenceStatsCards";
+import VacationCreateDialog from "../../components/absences/VacationCreateDialog";
+import VacationTable, { type VacationRow } from "../../components/absences/VacationTable";
 import { toast } from "sonner";
-//
-type Ferias = {
-    id: string;
-    usuarioId: string;
-    usuarioNome: string;
-    dataInicio: Date;
-    dataFim: Date;
-    status: "pendente" | "aprovada" | "rejeitada";
-    diasUtilizados: number;
-};
-
-const initialFerias: Ferias[] = [
-    {
-        id: "1",
-        usuarioId: "1",
-        usuarioNome: "João Silva",
-        dataInicio: new Date(2025, 0, 15),
-        dataFim: new Date(2025, 0, 29),
-        status: "aprovada",
-        diasUtilizados: 15,
-    },
-    {
-        id: "2",
-        usuarioId: "2",
-        usuarioNome: "Maria Santos",
-        dataInicio: new Date(2025, 1, 1),
-        dataFim: new Date(2025, 1, 10),
-        status: "pendente",
-        diasUtilizados: 10,
-    },
-];
-
-const statusVariants = {
-    pendente: "secondary",
-    aprovada: "default",
-    rejeitada: "destructive",
-} as const;
-
-const statusLabels = {
-    pendente: "Pendente",
-    aprovada: "Aprovada",
-    rejeitada: "Rejeitada",
-};
+import { useEmployees } from "../../hooks/useEmployees";
+import { useAbsences, useAbsenceTypes } from "../../hooks/useAbsences";
+import { absenceService } from "../../services/absenceService";
 
 export default function Ferias() {
-    const navigate = useNavigate();
-    const [ferias, setFerias] = useState<Ferias[]>(initialFerias);
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [selectedUsuario, setSelectedUsuario] = useState<string>("");
-    const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
-    const [startDate, endDate] = dateRange;
+	const navigate = useNavigate();
+	const { employees } = useEmployees();
+	const { types } = useAbsenceTypes();
+	const feriasTypeId = useMemo(() => types.find((t) => t.name.toLowerCase() === "férias")?.id, [types]);
 
-    const handleMarcarFerias = () => {
-        if (!selectedUsuario || !startDate || !endDate) {
-            toast.error("Preencha todos os campos");
-            return;
-        }
+	const { absences, refetch } = useAbsences(); // carrega todas e filtramos aqui
 
-        const diasUtilizados = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+	type VacationRowWithIds = VacationRow & { ids: number[] };
 
-        const novasFerias: Ferias = {
-            id: String(ferias.length + 1),
-            usuarioId: selectedUsuario,
-            usuarioNome: selectedUsuario === "1" ? "João Silva" : selectedUsuario === "2" ? "Maria Santos" : "Ana Costa",
-            dataInicio: startDate,
-            dataFim: endDate,
-            status: "pendente",
-            diasUtilizados,
-        };
+	const rows: VacationRowWithIds[] = useMemo(() => {
+		if (!feriasTypeId) return [];
 
-        setFerias([...ferias, novasFerias]);
-        setIsDialogOpen(false);
-        setSelectedUsuario("");
-        setDateRange([null, null]);
-        toast.success("Férias marcadas com sucesso!");
-    };
+		const ferias = absences
+			.filter((a) => a.absence_type.id === feriasTypeId)
+			.sort((a, b) => {
+				if (a.employee.id !== b.employee.id) return a.employee.id - b.employee.id;
+				return new Date(a.day).getTime() - new Date(b.day).getTime();
+			});
 
-    const handleUpdateStatus = (id: string, newStatus: "aprovada" | "rejeitada") => {
-        setFerias(ferias.map(f => f.id === id ? { ...f, status: newStatus } : f));
-        toast.success(`Férias ${newStatus === "aprovada" ? "aprovadas" : "rejeitadas"}`);
-    };
+		const grouped: VacationRowWithIds[] = [];
+		let i = 0;
+		while (i < ferias.length) {
+			const start = ferias[i];
+			const usuarioNome = start.employee.name;
+			let startDate = new Date(start.day);
+			let endDate = new Date(start.day);
+			let status = start.status.name;
+			const ids: number[] = [start.id];
 
-    return (
-        <div className="container mx-auto p-6">
-            <div className="flex items-center gap-4 mb-6">
-                <Button variant="ghost" size="icon" onClick={() => navigate('/users')}>
-                    <ArrowLeft className="h-5 w-5" />
-                </Button>
-                <div className="flex-1">
-                    <h1 className="text-3xl font-bold">Gestão de Férias</h1>
-                    <p className="text-muted-foreground mt-1">Visualize e gerencie as férias dos colaboradores</p>
-                </div>
-                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                    <DialogTrigger asChild>
-                        <Button>
-                            <Plus className="mr-2 h-4 w-4" />
-                            Marcar Férias
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-2xl">
-                        <DialogHeader>
-                            <DialogTitle>Marcar Férias</DialogTitle>
-                            <DialogDescription>Selecione o colaborador e o período de férias</DialogDescription>
-                        </DialogHeader>
-                        <div className="space-y-4 py-4">
-                            <div>
-                                <label className="text-sm font-medium mb-2 block">Colaborador</label>
-                                <Select value={selectedUsuario} onValueChange={setSelectedUsuario}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Selecione um colaborador" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="1">João Silva</SelectItem>
-                                        <SelectItem value="2">Maria Santos</SelectItem>
-                                        <SelectItem value="3">Ana Costa</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium mb-2 block">Período</label>
-                                <div className="relative">
-                                    <DatePicker
-                                        selectsRange={true}
-                                        startDate={startDate}
-                                        endDate={endDate}
-                                        onChange={(update) => {
-                                            setDateRange(update);
-                                        }}
-                                        isClearable={true}
-                                        monthsShown={2}
-                                        locale={ptBR}
-                                        dateFormat="dd/MM/yyyy"
-                                        placeholderText="Selecione o período"
-                                        className={cn(
-                                            "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-                                            !startDate && "text-muted-foreground"
-                                        )}
-                                        wrapperClassName="w-full"
-                                    />
-                                    <CalendarIcon className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
-                                </div>
-                            </div>
-                        </div>
-                        <DialogFooter>
-                            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancelar</Button>
-                            <Button onClick={handleMarcarFerias}>Confirmar</Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
-            </div>
+			// Avança enquanto for mesmo funcionário e dias consecutivos
+			let j = i + 1;
+			while (
+				j < ferias.length &&
+				ferias[j].employee.id === start.employee.id &&
+				new Date(ferias[j].day).getTime() === endDate.getTime() + 24 * 60 * 60 * 1000
+			) {
+				endDate = new Date(ferias[j].day);
+				// Se status divergir, pode manter "Pendente" até aprovação total
+				status = ferias[j].status.name; // ou decidir uma regra
+				ids.push(ferias[j].id);
+				j++;
+			}
 
-            <div className="grid gap-6 mb-6 md:grid-cols-3">
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total de Férias</CardTitle>
-                        <CalendarDays className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{ferias.length}</div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Aprovadas</CardTitle>
-                        <CalendarDays className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{ferias.filter(f => f.status === "aprovada").length}</div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Pendentes</CardTitle>
-                        <CalendarDays className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{ferias.filter(f => f.status === "pendente").length}</div>
-                    </CardContent>
-                </Card>
-            </div>
+			// Mapeia status do backend para a UI
+			const STATUS_MAP: Record<string, "pendente" | "aprovada" | "rejeitada"> = {
+				Pendente: "pendente",
+				Aprovado: "aprovada",
+				Recusado: "rejeitada",
+			};
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Lista de Férias</CardTitle>
-                    <CardDescription>Todas as férias registradas no sistema</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Colaborador</TableHead>
-                                <TableHead>Data Início</TableHead>
-                                <TableHead>Data Fim</TableHead>
-                                <TableHead>Dias</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead className="text-right">Ações</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {ferias.map((f) => (
-                                <TableRow key={f.id}>
-                                    <TableCell className="font-medium">{f.usuarioNome}</TableCell>
-                                    <TableCell>{format(f.dataInicio, "dd/MM/yyyy", { locale: ptBR })}</TableCell>
-                                    <TableCell>{format(f.dataFim, "dd/MM/yyyy", { locale: ptBR })}</TableCell>
-                                    <TableCell>{f.diasUtilizados} dias</TableCell>
-                                    <TableCell>
-                                        <Badge variant={statusVariants[f.status]}>
-                                            {statusLabels[f.status]}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                        {f.status === "pendente" && (
-                                            <div className="flex justify-end gap-2">
-                                                <Button size="sm" variant="outline" onClick={() => handleUpdateStatus(f.id, "aprovada")}>
-                                                    Aprovar
-                                                </Button>
-                                                <Button size="sm" variant="destructive" onClick={() => handleUpdateStatus(f.id, "rejeitada")}>
-                                                    Rejeitar
-                                                </Button>
-                                            </div>
-                                        )}
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </CardContent>
-            </Card>
-        </div>
-    );
+			const diasUtilizados =
+				Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+
+			grouped.push({
+				id: `${ids[0]}`, // id de exibição
+				ids,              // ids reais do período
+				usuarioNome,
+				dataInicio: startDate,
+				dataFim: endDate,
+				diasUtilizados,
+				status: STATUS_MAP[status] ?? "pendente",
+			});
+
+			i = j;
+		}
+
+		return grouped;
+	}, [absences, feriasTypeId]);
+
+	const onConfirm = async ({
+		employeeId,
+		startDate,
+		endDate,
+	}: {
+		employeeId: string;
+		startDate: Date;
+		endDate: Date;
+	}) => {
+		const days: string[] = [];
+		const d = new Date(startDate);
+		const end = new Date(endDate);
+		while (d <= end) {
+			days.push(d.toISOString().split("T")[0]);
+			d.setDate(d.getDate() + 1);
+		}
+		if (!feriasTypeId) {
+			toast.error("Tipo Férias não encontrado");
+			return;
+		}
+		try {
+			await absenceService.createBulk({
+				employee_id: Number(employeeId),
+				absence_type_id: feriasTypeId,
+				status_id: 2, // Pendente
+				days,
+			});
+			toast.success("Férias criadas");
+			refetch();
+		} catch (e) {
+			toast.error("Erro ao criar férias");
+		}
+	};
+
+	const handleApprove = async (id: string) => {
+		const row = rows.find(r => r.id === id);
+		if (!row) return;
+		try {
+			await Promise.all(row.ids.map(realId => absenceService.updateStatus(realId, 1)));
+			toast.success("Férias aprovadas");
+			refetch();
+		} catch {
+			toast.error("Falha ao aprovar");
+		}
+	};
+
+	const handleReject = async (id: string) => {
+		const row = rows.find(r => r.id === id);
+		if (!row) return;
+		try {
+			await Promise.all(row.ids.map(realId => absenceService.updateStatus(realId, 3)));
+			toast.success("Férias rejeitadas");
+			refetch();
+		} catch {
+			toast.error("Falha ao rejeitar");
+		}
+	};
+
+	return (
+		<div className="container mx-auto p-6">
+			<div className="flex items-center gap-4 mb-6">
+				<Button variant="ghost" size="icon" onClick={() => navigate('/users')}>
+					<ArrowLeft className="h-5 w-5" />
+				</Button>
+				<div className="flex-1">
+					<h1 className="text-3xl font-bold">Gestão de Férias</h1>
+					<p className="text-muted-foreground mt-1">Visualize e gerencie as férias dos colaboradores</p>
+				</div>
+				<VacationCreateDialog
+					employees={employees.map((e) => ({ id: String(e.id), name: e.name }))}
+					onConfirm={onConfirm}
+				/>
+			</div>
+
+			<AbsenceStatsCards
+				total={rows.length}
+				approved={rows.filter((r) => r.status === "aprovada").length}
+				pending={rows.filter((r) => r.status === "pendente").length}
+				Icon={CalendarDays as any}
+				titleTotal="Total de Férias"
+				titleApproved="Aprovadas"
+				titlePending="Pendentes"
+			/>
+
+			<Card>
+				<CardHeader>
+					<CardTitle>Lista de Férias</CardTitle>
+					<CardDescription>Todas as férias registradas no sistema</CardDescription>
+				</CardHeader>
+				<CardContent>
+					<VacationTable rows={rows} onApprove={handleApprove} onReject={handleReject} />
+				</CardContent>
+			</Card>
+		</div>
+	);
 }

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
-from app.database import Base, engine
+from app.database import Base, engine, SessionLocal
 from app.api.v1.api import api_router as api_v1_router
 from app.scheduler.scheduler import NotificationScheduler
 from app.core.security import SECRET_KEY
@@ -16,6 +16,29 @@ scheduler.start()
 
 # Cria tabelas
 Base.metadata.create_all(bind=engine)
+
+# Executa seeds automaticamente no arranque
+def run_seeds_on_startup():
+    """Executa seeds apenas se o banco estiver vazio"""
+    from app.models.user import User
+    from app.seed_all import run_all_seeds
+    
+    db = SessionLocal()
+    try:
+        # Verifica se já existem dados (checa se existe o admin user)
+        existing_users = db.query(User).count()
+        if existing_users == 0:
+            print("\n🌱 Database is empty. Running seeds...")
+            run_all_seeds()
+        else:
+            print(f"\n✓ Database already has data ({existing_users} users). Skipping seeds.")
+    except Exception as e:
+        print(f"\n⚠️  Error checking/running seeds: {e}")
+    finally:
+        db.close()
+
+# Executa seeds no arranque
+run_seeds_on_startup()
 
 app = FastAPI(title="FastAPI ORM Example")
 

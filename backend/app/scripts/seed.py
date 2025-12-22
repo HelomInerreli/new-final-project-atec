@@ -10,6 +10,7 @@ from app.crud.vehicle import VehicleRepository
 from app.crud.appoitment import AppointmentRepository
 from app.crud.employee import EmployeeRepository
 from app.crud.service import ServiceRepository
+from app.crud.user import pwd_context
 from app.schemas.customer import CustomerCreate
 from app.schemas.vehicle import VehicleCreate
 from app.schemas.appointment import AppointmentCreate
@@ -28,8 +29,11 @@ from app.models.extra_service import ExtraService as ExtraServiceModel
 from app.models.invoice import Invoice
 from app.models.product import Product
 from app.models.role import Role
+from app.models.user import User
 from app.models.employee import Employee
 from app.scripts.seed_products import seed_products
+from app.models.absenceType import AbsenceType
+from app.models.absence_status import AbsenceStatus
 
 # Configuration
 NUM_APPOINTMENTS = 12
@@ -58,10 +62,10 @@ FUEL_TYPES = ["Gasolina", "Diesel", "Híbrido", "Elétrico", "GPL"]
 ENGINE_SIZES = ["1.0", "1.2", "1.4", "1.6", "1.8", "2.0", "2.5", "3.0"]
 
 MAIN_SERVICES = [
-    {"name": "Revisão Anual", "description": "Revisão completa do veículo, incluindo verificação de níveis, travões e luzes.", "price": 150.0, "duration_minutes": 90},
-    {"name": "Mudança de Óleo e Filtros", "description": "Troca de óleo do motor e substituição dos filtros de óleo e ar.", "price": 85.0, "duration_minutes": 60},
-    {"name": "Diagnóstico Eletrónico", "description": "Ligação à máquina de diagnóstico para identificar avarias eletrónicas.", "price": 45.0, "duration_minutes": 30},
-    {"name": "Alinhamento de Direção", "description": "Alinhamento computorizado das rodas dianteiras e traseiras.", "price": 35.0, "duration_minutes": 45},
+    {"name": "Revisão Anual", "description": "Revisão completa do veículo, incluindo verificação de níveis, travões e luzes.", "price": 150.0, "duration_minutes": 90, "area": "mecanico,eletricista"},
+    {"name": "Mudança de Óleo e Filtros", "description": "Troca de óleo do motor e substituição dos filtros de óleo e ar.", "price": 85.0, "duration_minutes": 60, "area": "mecanico"},
+    {"name": "Diagnóstico Eletrónico", "description": "Ligação à máquina de diagnóstico para identificar avarias eletrónicas.", "price": 45.0, "duration_minutes": 30, "area": "eletricista"},
+    {"name": "Alinhamento de Direção", "description": "Alinhamento computorizado das rodas dianteiras e traseiras.", "price": 35.0, "duration_minutes": 45, "area": "borracheiro"},
 ]
 
 EXTRA_SERVICE_CATALOG = [
@@ -87,6 +91,27 @@ ROLES_TO_CREATE = [
     "Borracheiro"
 ]
 
+def seed_absence_types(db: Session):
+    """Seed absence types."""
+    types = ["Férias", "Folga"]
+    for type_name in types:
+        existing = db.query(AbsenceType).filter(AbsenceType.name == type_name).first()
+        if not existing:
+            absence_type = AbsenceType(name=type_name)
+            db.add(absence_type)
+    db.commit()
+    print("✓ Absence types seeded")
+
+def seed_absence_statuses(db: Session):
+    """Seed absence statuses."""
+    statuses = ["Aprovado", "Pendente", "Recusado"]
+    for status_name in statuses:
+        existing = db.query(AbsenceStatus).filter(AbsenceStatus.name == status_name).first()
+        if not existing:
+            absence_status = AbsenceStatus(name=status_name)
+            db.add(absence_status)
+    db.commit()
+    print("✓ Absence statuses seeded")
 
 def create_invoice_for_appointment(db: Session, appointment: Appointment, invoice_number: str):
     """Create an invoice for a finalized appointment"""
@@ -189,7 +214,8 @@ def seed_data(db: Session):
             name=svc["name"],
             description=svc["description"],
             price=svc["price"],
-            duration_minutes=svc["duration_minutes"]
+            duration_minutes=svc["duration_minutes"],
+            area=svc["area"]
         )
         s = service_repo.create(svc_in)
         services.append(s)
@@ -227,6 +253,23 @@ def seed_data(db: Session):
         else:
             role_objects[role_name] = db_role
     print(f"Created/verified {len(role_objects)} roles.")
+    
+    users_to_create = [
+    {"name": "Mecanico User", "email": "mecanico@example.com", "role": "mecanico"},
+    {"name": "Eletricista User", "email": "eletricista@example.com", "role": "eletricista"},
+    {"name": "Borracheiro User", "email": "borracheiro@example.com", "role": "borracheiro"}
+    ]
+    for u in users_to_create:
+        hashed_password = pwd_context.hash("123")
+        user = User(
+            name=u["name"],
+            email=u["email"],
+            password_hash=hashed_password,
+            role=u["role"]
+        )
+        db.add(user)
+        db.commit()
+        print("Created users for login.")
 
     # 5) Create Employees
     employee_repo = EmployeeRepository(db)
@@ -544,6 +587,8 @@ if __name__ == "__main__":
     Base.metadata.create_all(bind=engine)
 
     try:
+        seed_absence_types(db)
+        seed_absence_statuses(db)
         seed_data(db)
         print("Seeding products...")
         try:

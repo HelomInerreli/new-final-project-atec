@@ -1,244 +1,117 @@
-import { useState } from "react";
+import { useMemo } from "react";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../../components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
-import { Badge } from "../../components/ui/badge";
-import { Umbrella, Plus, ArrowLeft, CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import { ptBR } from "date-fns/locale";
-import { cn } from "../../components/lib/utils";
+import { ArrowLeft, Umbrella } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import AbsenceStatsCards from "../../components/absences/AbsenceStatsCards";
+import DayOffCreateDialog from "../../components/absences/DayOffCreateDialog";
+import DayOffTable, { type DayOffRow } from "../../components/absences/DayOffTable";
 import { toast } from "sonner";
-import { Textarea } from "../../components/ui/textarea";
+import { useEmployees } from "../../hooks/useEmployees";
+import { useAbsences, useAbsenceTypes } from "../../hooks/useAbsences";
+import { absenceService } from "../../services/absenceService";
 
-type Folga = {
-    id: string;
-    usuarioId: string;
-    usuarioNome: string;
-    data: Date;
-    motivo: string;
-    status: "pendente" | "aprovada" | "rejeitada";
-};
-
-const initialFolgas: Folga[] = [
-    {
-        id: "1",
-        usuarioId: "1",
-        usuarioNome: "João Silva",
-        data: new Date(2025, 0, 20),
-        motivo: "Assuntos pessoais",
-        status: "aprovada",
-    },
-    {
-        id: "2",
-        usuarioId: "2",
-        usuarioNome: "Maria Santos",
-        data: new Date(2025, 1, 5),
-        motivo: "Consulta médica",
-        status: "pendente",
-    },
-];
-
-const statusVariants = {
-    pendente: "secondary",
-    aprovada: "default",
-    rejeitada: "destructive",
-} as const;
-
-const statusLabels = {
-    pendente: "Pendente",
-    aprovada: "Aprovada",
-    rejeitada: "Rejeitada",
+const STATUS_MAP: Record<string, "pendente" | "aprovada" | "rejeitada"> = {
+  Pendente: "pendente",
+  Aprovado: "aprovada",
+  Recusado: "rejeitada",
 };
 
 export default function Folgas() {
-    const navigate = useNavigate();
-    const [folgas, setFolgas] = useState<Folga[]>(initialFolgas);
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [selectedUsuario, setSelectedUsuario] = useState<string>("");
-    const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-    const [motivo, setMotivo] = useState("");
+  const navigate = useNavigate();
+  const { employees } = useEmployees();
+  const { types } = useAbsenceTypes();
+  const folgaTypeId = useMemo(() => types.find(t => t.name.toLowerCase() === "folga")?.id, [types]);
 
-    const handleMarcarFolga = () => {
-        if (!selectedUsuario || !selectedDate || !motivo) {
-            toast.error("Preencha todos os campos");
-            return;
-        }
+  const { absences, refetch } = useAbsences();
 
-        const novaFolga: Folga = {
-            id: String(folgas.length + 1),
-            usuarioId: selectedUsuario,
-            usuarioNome: selectedUsuario === "1" ? "João Silva" : selectedUsuario === "2" ? "Maria Santos" : "Ana Costa",
-            data: selectedDate,
-            motivo,
-            status: "pendente",
-        };
+  const rows: DayOffRow[] = useMemo(() => {
+    if (!folgaTypeId) return [];
+    return absences
+      .filter(a => a.absence_type.id === folgaTypeId)
+      .map(a => ({
+        id: String(a.id),
+        usuarioNome: a.employee.name,
+        data: new Date(a.day),
+        motivo: "", // se tiver campo de motivo no schema, mapeie aqui
+        status: STATUS_MAP[a.status.name] ?? "pendente",
+      }));
+  }, [absences, folgaTypeId]);
 
-        setFolgas([...folgas, novaFolga]);
-        setIsDialogOpen(false);
-        setSelectedUsuario("");
-        setSelectedDate(null);
-        setMotivo("");
-        toast.success("Folga marcada com sucesso!");
-    };
+  const onConfirm = async ({ employeeId, date, reason }: { employeeId: string; date: Date; reason: string }) => {
+    if (!folgaTypeId) {
+      toast.error("Tipo Folga não encontrado");
+      return;
+    }
+    try {
+      await absenceService.createBulk({
+        employee_id: Number(employeeId),
+        absence_type_id: folgaTypeId,
+        status_id: 2,
+        days: [date.toISOString().split("T")[0]],
+      });
+      toast.success("Folga criada");
+      refetch();
+    } catch {
+      toast.error("Erro ao criar folga");
+    }
+  };
 
-    const handleUpdateStatus = (id: string, newStatus: "aprovada" | "rejeitada") => {
-        setFolgas(folgas.map(f => f.id === id ? { ...f, status: newStatus } : f));
-        toast.success(`Folga ${newStatus === "aprovada" ? "aprovada" : "rejeitada"}`);
-    };
+  const handleApprove = async (id: string) => {
+    try {
+      await absenceService.updateStatus(Number(id), 1);
+      toast.success("Folga aprovada");
+      refetch();
+    } catch {
+      toast.error("Falha ao aprovar");
+    }
+  };
 
-    return (
-        <div className="container mx-auto p-6">
-            <div className="flex items-center gap-4 mb-6">
-                <Button variant="outline" size="icon" onClick={() => navigate('/users')}>
-                    <ArrowLeft className="h-5 w-5" />
-                </Button>
-                <div className="flex-1">
-                    <h1 className="text-3xl font-bold">Gestão de Folgas</h1>
-                    <p className="text-muted-foreground mt-1">Visualize e gerencie as folgas dos colaboradores</p>
-                </div>
-                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                    <DialogTrigger asChild>
-                        <Button variant="destructive">
-                            <Plus className="mr-2 h-4 w-4" />
-                            Marcar Folga
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-2xl">
-                        <DialogHeader>
-                            <DialogTitle>Marcar Folga</DialogTitle>
-                            <DialogDescription>Selecione o colaborador, a data e o motivo da folga</DialogDescription>
-                        </DialogHeader>
-                        <div className="space-y-4 py-4">
-                            <div>
-                                <label className="text-sm font-medium mb-2 block">Colaborador</label>
-                                <Select value={selectedUsuario} onValueChange={setSelectedUsuario}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Selecione um colaborador" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="1">João Silva</SelectItem>
-                                        <SelectItem value="2">Maria Santos</SelectItem>
-                                        <SelectItem value="3">Ana Costa</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium mb-2 block">Data</label>
-                                <div className="relative w-full">
-                                    <DatePicker
-                                        selected={selectedDate}
-                                        onChange={(date) => setSelectedDate(date)}
-                                        isClearable={true}
-                                        locale={ptBR}
-                                        dateFormat="dd/MM/yyyy"
-                                        placeholderText="Selecione a data"
-                                        className={cn(
-                                            "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-                                            !selectedDate && "text-muted-foreground"
-                                        )}
-                                        wrapperClassName="w-full"
-                                    />
-                                    <CalendarIcon className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
-                                </div>
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium mb-2 block">Motivo</label>
-                                <Textarea
-                                    value={motivo}
-                                    onChange={(e) => setMotivo(e.target.value)}
-                                    placeholder="Descreva o motivo da folga..."
-                                    rows={3}
-                                />
-                            </div>
-                        </div>
-                        <DialogFooter>
-                            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancelar</Button>
-                            <Button onClick={handleMarcarFolga}>Confirmar</Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
-            </div>
+  const handleReject = async (id: string) => {
+    try {
+      await absenceService.updateStatus(Number(id), 3);
+      toast.success("Folga rejeitada");
+      refetch();
+    } catch {
+      toast.error("Falha ao rejeitar");
+    }
+  };
 
-            <div className="grid gap-6 mb-6 md:grid-cols-3">
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total de Folgas</CardTitle>
-                        <Umbrella className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{folgas.length}</div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Aprovadas</CardTitle>
-                        <Umbrella className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{folgas.filter(f => f.status === "aprovada").length}</div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Pendentes</CardTitle>
-                        <Umbrella className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{folgas.filter(f => f.status === "pendente").length}</div>
-                    </CardContent>
-                </Card>
-            </div>
-
-            <Card>
-                <CardHeader>
-                    <CardTitle>Lista de Folgas</CardTitle>
-                    <CardDescription>Todas as folgas registradas no sistema</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Colaborador</TableHead>
-                                <TableHead>Data</TableHead>
-                                <TableHead>Motivo</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead className="text-right">Ações</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {folgas.map((f) => (
-                                <TableRow key={f.id}>
-                                    <TableCell className="font-medium">{f.usuarioNome}</TableCell>
-                                    <TableCell>{format(f.data, "dd/MM/yyyy", { locale: ptBR })}</TableCell>
-                                    <TableCell>{f.motivo}</TableCell>
-                                    <TableCell>
-                                        <Badge variant={statusVariants[f.status]}>
-                                            {statusLabels[f.status]}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                        {f.status === "pendente" && (
-                                            <div className="flex justify-end gap-2">
-                                                <Button size="sm" variant="outline" onClick={() => handleUpdateStatus(f.id, "aprovada")}>
-                                                    Aprovar
-                                                </Button>
-                                                <Button size="sm" variant="destructive" onClick={() => handleUpdateStatus(f.id, "rejeitada")}>
-                                                    Rejeitar
-                                                </Button>
-                                            </div>
-                                        )}
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </CardContent>
-            </Card>
+  return (
+    <div className="container mx-auto p-6">
+      <div className="flex items-center gap-4 mb-6">
+        <Button variant="outline" size="icon" onClick={() => navigate('/users')}>
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <div className="flex-1">
+          <h1 className="text-3xl font-bold">Gestão de Folgas</h1>
+          <p className="text-muted-foreground mt-1">Visualize e gerencie as folgas dos colaboradores</p>
         </div>
-    );
+        <DayOffCreateDialog
+          employees={employees.map(e => ({ id: String(e.id), name: e.name }))}
+          onConfirm={onConfirm}
+        />
+      </div>
+
+      <AbsenceStatsCards
+        total={rows.length}
+        approved={rows.filter(r => r.status === "aprovada").length}
+        pending={rows.filter(r => r.status === "pendente").length}
+        Icon={Umbrella as any}
+        titleTotal="Total de Folgas"
+        titleApproved="Aprovadas"
+        titlePending="Pendentes"
+      />
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Lista de Folgas</CardTitle>
+          <CardDescription>Todas as folgas registradas no sistema</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <DayOffTable rows={rows} onApprove={handleApprove} onReject={handleReject} />
+        </CardContent>
+      </Card>
+    </div>
+  );
 }

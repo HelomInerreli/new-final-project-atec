@@ -1,32 +1,33 @@
 import axios from 'axios';
 import type { Customer, CustomerCreate, CustomerUpdate, CustomerRegister } from '../interfaces/Customer';
+import http from "../api/http";
 
-const API_URL = 'http://localhost:8000/api/v1/customers/';
+const API_URL = "/customers/";
 
 
 export const customerService = {
   getAll: async (): Promise<Customer[]> => {
-    const response = await axios.get(API_URL);
+    const response = await http.get(API_URL);
     return response.data;
   },
 
   getById: async (id: number): Promise<Customer> => {
-    const response = await axios.get(`${API_URL}${id}`);
+    const response = await http.get(`${API_URL}${id}`);
     return response.data;
   },
 
   create: async (customer: CustomerCreate): Promise<Customer> => {
-    const response = await axios.post(API_URL, customer);
+    const response = await http.post(API_URL, customer);
     return response.data;
   },
 
   update: async (id: number, customer: CustomerUpdate): Promise<Customer> => {
-    const response = await axios.put(`${API_URL}${id}`, customer);
+    const response = await http.put(`${API_URL}${id}`, customer);
     return response.data;
   },
 
   delete: async (id: number): Promise<void> => {
-    await axios.delete(`${API_URL}${id}`);
+    await http.delete(`${API_URL}${id}`);
   },
 
   register: async (customerData: CustomerRegister): Promise<Customer> => {

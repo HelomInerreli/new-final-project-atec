@@ -34,6 +34,10 @@ class MeResponse(BaseModel):
 @router.post("/login", response_model=LoginResponse)
 def login(req: LoginRequest, db: Session = Depends(get_db)):
     user = crud_user.get_by_email(db, req.email)
+    print(f"Tentativa de login: email={req.email}, usuário encontrado: {user is not None}")  
+    if user:
+        senha_valida = crud_user.verify_password(req.password, user.password_hash)
+        print(f"Verificação de senha para {req.email}: {senha_valida}")
     if not user or not crud_user.verify_password(req.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid email or password")
     # Always issue access token (no 2FA)

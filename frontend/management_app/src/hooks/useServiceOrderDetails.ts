@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
-import { getOrder, updateOrder } from "../services/OrderDetails";
+import { getOrder, updateOrder, getCurrentWorkTime, startWork, pauseWork, resumeWork, finalizeWork } from "../services/OrderDetails";
 import { normalizeStatus } from "./useServiceOrder";
 import { STATUS_LABEL_TO_ID } from "../interfaces/ServiceOrderDetail";
+import { format } from "date-fns";
 
 export const useServiceOrderDetails = (id: string | undefined) => {
   const [order, setOrder] = useState<any | null>(null);
@@ -9,7 +10,7 @@ export const useServiceOrderDetails = (id: string | undefined) => {
   const [saving, setSaving] = useState<boolean>(false);
   const [isPartsModalOpen, setIsPartsModalOpen] = useState(false);
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
-
+  const [currentTime, setCurrentTime] = useState<number>(0);
   // Fetch order
   const fetchOrder = useCallback(async (silent = false) => {
     if (!id) return;
@@ -25,9 +26,21 @@ export const useServiceOrderDetails = (id: string | undefined) => {
     }
   }, [id]);
 
+  const fetchCurrentWorkTime = useCallback(async () => {
+    if (!id) return;
+    try {
+      const time = await getCurrentWorkTime(id);
+      setCurrentTime(time);
+    } catch (e) {
+      console.error("Erro ao buscar tempo de trabalho atual:", e);
+    }
+  }, [id]);
+
+
   // Initial load
   useEffect(() => {
     fetchOrder();
+    fetchCurrentWorkTime();
   }, [fetchOrder]);
 
   // Auto-refresh every 10 seconds
@@ -35,9 +48,75 @@ export const useServiceOrderDetails = (id: string | undefined) => {
     if (!id || !order) return;
     const interval = setInterval(() => {
       fetchOrder(true);
+      fetchCurrentWorkTime();
     }, 10000);
     return () => clearInterval(interval);
-  }, [id, order, fetchOrder]);
+  }, [id, order, fetchOrder, fetchCurrentWorkTime]);
+
+  useEffect(() => {
+    if (!order?.start_time || order?.is_paused) return;
+    
+    const interval = setInterval(() => {
+      setCurrentTime(prev => prev + 1);
+    }, 1000);
+    
+    return () => clearInterval(interval);
+  }, [order?.start_time, order?.is_paused]);
+  
+  // work actions
+  const handleStartWork = useCallback(async () => {
+    console.log('handleStartWork called, id:', id, 'order?.is_paused:', order?.is_paused, 'order:', order);
+    if (!id) return;
+    try {
+      if(order?.is_paused) {
+        console.log('calling resumeWork for id ', id);
+        await resumeWork(id);
+      } else {
+        console.log('calling startWork for id ', id);
+        await startWork(id);
+      }
+      await fetchOrder();
+      await fetchCurrentWorkTime();
+    } catch (e) {
+      console.error("Erro ao iniciar trabalho:", e);
+      alert("Erro ao iniciar trabalho: " + e);
+    }
+  }, [id, order, fetchOrder, fetchCurrentWorkTime, resumeWork, startWork]);
+
+  const handlePauseWork = useCallback(async () => {
+    if (!id) return;
+    try {
+      await pauseWork(id);
+      await fetchOrder();
+      await fetchCurrentWorkTime();
+    } catch (e) {
+      alert("Erro ao pausar trabalho: " + e);
+    }
+  }, [id, fetchOrder, fetchCurrentWorkTime]);
+
+  const handleResumeWork = useCallback(async () => {
+    if (!id) return;
+    try {
+      await resumeWork(id);
+      await fetchOrder();
+      await fetchCurrentWorkTime();
+    } catch (e) {
+      alert("Erro ao retomar trabalho: " + e);
+    }
+  }, [id, fetchOrder, fetchCurrentWorkTime]);
+
+  const handleFinalizeWork = useCallback(async () => {
+    if (!id) return;
+    try {
+      await finalizeWork(id);
+      await fetchOrder();
+      await fetchCurrentWorkTime();
+    } catch (e) {
+      alert("Erro ao finalizar trabalho: " + e);
+    }
+  }, [id, fetchOrder, fetchCurrentWorkTime]);
+
+
 
   // Format helpers
   const formatField = useCallback((v: any): string => {
@@ -62,6 +141,13 @@ export const useServiceOrderDetails = (id: string | undefined) => {
     } catch {
       return String(d);
     }
+  }, []);
+
+  const formatTime = useCallback((seconds: number): string => {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   }, []);
 
   const formatVehicle = useCallback((v: any): string => {
@@ -133,6 +219,8 @@ export const useServiceOrderDetails = (id: string | undefined) => {
     return tb - ta;
   });
 
+
+
   const currentRaw = getRawStatusName(order);
   const currentNormalized = normalizeStatus(currentRaw);
 
@@ -146,16 +234,22 @@ export const useServiceOrderDetails = (id: string | undefined) => {
     comments,
     parts,
     currentNormalized,
+    currentTime,
 
     // Actions
     setIsPartsModalOpen,
     setIsCommentModalOpen,
     changeStatus,
     fetchOrder,
+    handleStartWork,
+    handlePauseWork,
+    handleResumeWork,
+    handleFinalizeWork,
 
     // Helpers
     formatField,
     formatDate,
+    formatTime,
     formatVehicle,
   };
 };

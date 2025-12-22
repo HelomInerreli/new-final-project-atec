@@ -38,6 +38,12 @@ const ServiceOrderDetail: FC = () => {
     formatField,
     formatDate,
     formatVehicle,
+    currentTime,
+    formatTime,
+    handleStartWork,
+    handlePauseWork,
+    handleResumeWork,
+    handleFinalizeWork,
   } = useServiceOrderDetails(id);
 
   if (loading) return <div className="so-loading">Carregando...</div>;
@@ -48,7 +54,7 @@ const ServiceOrderDetail: FC = () => {
       <div className="so-card">
         <div className="so-card-header">
           <button className="so-back-btn" onClick={() => navigate(-1)}>← Voltar</button>
-          <h2 className="so-card-title">Ordem de Serviço #{order.id}</h2>
+          <h2 className="so-card-title">Ordem de Serviço :{order.id}</h2>
         </div>
 
         <h5 className="so-section-title">Informações do Cliente e Serviço</h5>
@@ -85,10 +91,11 @@ const ServiceOrderDetail: FC = () => {
                 className="readonly-input"
               />
               <Input
-                label="Estimado"
-                value={`€ ${Number(order.estimated_budget ?? 0).toFixed(2)}`}
+                label="Tempo trabalhado"
+                value={formatTime(currentTime)}
                 className="readonly-input"
               />
+            
             </div>
           </div>
 
@@ -99,8 +106,7 @@ const ServiceOrderDetail: FC = () => {
                 <Button
                   variant="destructive"
                   className="so-action-btn"
-                  disabled={saving || ["Em Andamento", "Concluída"].includes(currentNormalized)}
-                >
+                  disabled={saving || currentNormalized === "Concluída"}                >
                   Iniciar
                 </Button>
               </AlertDialogTrigger>
@@ -108,13 +114,13 @@ const ServiceOrderDetail: FC = () => {
                 <AlertDialogHeader>
                   <AlertDialogTitle>Iniciar Ordem de Serviço?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    A ordem #{order.id} será marcada como "Em Andamento". 
+                    A ordem :{order.id} será marcada como "Em Andamento". 
                     O cronômetro de trabalho será iniciado.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => changeStatus("start")}>
+                  <AlertDialogAction onClick={handleStartWork}>
                     Sim, Iniciar
                   </AlertDialogAction>
                 </AlertDialogFooter>
@@ -142,7 +148,7 @@ const ServiceOrderDetail: FC = () => {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => changeStatus("pause")}>
+                  <AlertDialogAction onClick={handlePauseWork}>
                     Sim, Pausar
                   </AlertDialogAction>
                 </AlertDialogFooter>
@@ -170,7 +176,7 @@ const ServiceOrderDetail: FC = () => {
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction onClick={() => changeStatus("finish")}>
+                <AlertDialogAction onClick={handleFinalizeWork}>
                   Sim, Finalizar
                 </AlertDialogAction>
               </AlertDialogFooter>
