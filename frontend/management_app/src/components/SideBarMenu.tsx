@@ -16,13 +16,15 @@ import {
   Bell,
   X,
 } from "lucide-react";
-import { FiMenu, FiChevronLeft } from "react-icons/fi";
+import { FiMenu, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { Logo } from "./Logo";
 import Badge from "react-bootstrap/esm/Badge";
 import { Modal, Button, ListGroup, Spinner, Alert } from "react-bootstrap";
 import http, { setAuthToken } from "../api/http";
 import "./SideBarMenu.css";
 import "./SideBarMenu.css";
+import logoMecatec from "../assets/LOGO_MECATEC_fundo.png";
+import logoMaCollapsed from "../assets/LOGO_MA_Vermelho_SFundo.png";
 
 // User state comes from /managementauth/me using saved JWT
 
@@ -269,6 +271,7 @@ export default function SideBarMenu() {
     alignItems: "center",
     justifyContent: collapsed ? "center" : "space-between",
     padding: "0.5rem 0.75rem",
+    minHeight: "120px",
   };
 
   // Header with bell icon and user name
@@ -329,25 +332,57 @@ export default function SideBarMenu() {
         }
       `}</style>
       <div style={headerStyle}>
-        <button
-          onClick={() => setCollapsed(!collapsed)}
-          aria-label={collapsed ? "Open sidebar" : "Collapse sidebar"}
-          style={{
-            background: "transparent",
-            border: "none",
-            color: "inherit",
-            fontSize: 26,
-            cursor: "pointer",
-            padding: 5,
-          }}
-        >
-          {collapsed ? <FiMenu /> : <FiChevronLeft />}
-        </button>
-
-        {!collapsed && (
-          <div style={{ fontWeight: 700, fontSize: 26, paddingLeft: 2 }}>
-            <Logo scale={0.5} showSubtitle={false} />
+        {collapsed ? (
+          <div 
+            onClick={() => setCollapsed(false)}
+            style={{ 
+              display: "flex", 
+              justifyContent: "center", 
+              alignItems: "center",
+              flex: 1,
+              cursor: "pointer"
+            }}
+          >
+            <img
+              src={logoMaCollapsed}
+              alt="Mecatec Logo"
+              style={{ height: 100, objectFit: "contain" }}
+            />
           </div>
+        ) : (
+          <>
+            <button
+              onClick={() => setCollapsed(!collapsed)}
+              aria-label="Fechar menu"
+              style={{
+                background: "transparent",
+                border: "none",
+                color: "inherit",
+                fontSize: 26,
+                cursor: "pointer",
+                padding: 5,
+              }}
+            >
+              <FiChevronLeft />
+            </button>
+            <div 
+              onClick={() => setCollapsed(true)}
+              style={{ 
+                display: "flex", 
+                justifyContent: "center", 
+                alignItems: "center",
+                flex: 1,
+                paddingRight: "2rem",
+                cursor: "pointer"
+              }}
+            >
+              <img
+                src={logoMecatec}
+                alt="Mecatec Logo"
+                style={{ height: 60, objectFit: "contain" }}
+              />
+            </div>
+          </>
         )}
       </div>
 
@@ -355,7 +390,7 @@ export default function SideBarMenu() {
       <div
         style={
           collapsed
-            ? { display: "flex", justifyContent: "center", padding: "0.5rem" }
+            ? { display: "flex", justifyContent: "center", alignItems: "center", padding: "0.5rem" }
             : userHeaderStyle
         }
       >

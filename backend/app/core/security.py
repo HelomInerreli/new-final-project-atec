@@ -19,6 +19,7 @@ from app.deps import get_db
 
 # OAuth2 scheme for FastAPI
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/customersauth/token")
+oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="api/v1/customersauth/token", auto_error=False)
 
 # Password hashing context
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -171,4 +172,24 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     user = db.query(User).filter(User.id == int(user_id)).first()
     if user is None:
         raise credentials_exception
+    return user
+
+
+def get_current_user_optional(token: Optional[str] = Depends(oauth2_scheme_optional), db: Session = Depends(get_db)) -> Optional[User]:
+    """
+    Retorna o usuário atual ou None se não autenticado.
+    Útil para endpoints que funcionam com ou sem autenticação.
+    """
+    if not token:
+        return None
+    
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            return None
+    except JWTError:
+        return None
+    
+    user = db.query(User).filter(User.id == int(user_id)).first()
     return user

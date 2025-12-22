@@ -17,3 +17,6 @@ from .employee import Employee
 from .role import Role
 from .product import Product
 from .order_part import OrderPart
+from .absenceType import AbsenceType
+from .absence_status import AbsenceStatus
+from .absence import Absence

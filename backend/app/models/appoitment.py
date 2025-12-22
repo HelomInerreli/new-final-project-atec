@@ -1,4 +1,4 @@
-from sqlalchemy import JSON, Column, Integer, String, DateTime, Float, ForeignKey, Text
+from sqlalchemy import JSON, Boolean, Column, Integer, String, DateTime, Float, ForeignKey, Text
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.models.order_part import OrderPart
@@ -25,6 +25,10 @@ class Appointment(Base):
     actual_budget = Column(Float, default=0.0)
     # Compatibilidade: alguns locais usam "estimated_price"
     estimated_price = Column(Float, nullable=True)
+    start_time = Column(DateTime, nullable=True)
+    total_worked_time = Column(Integer, default=0)
+    is_paused = Column(Boolean, default=False)
+    pause_time = Column(DateTime, nullable=True)
 
     # Flags e metadados
     created_at = Column(DateTime, default=datetime.utcnow)

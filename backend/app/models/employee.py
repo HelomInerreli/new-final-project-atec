@@ -20,3 +20,5 @@ class Employee(Base):
     deleted_at = Column(DateTime, nullable=True, default=None)
 
     role = relationship("Role", back_populates="employees")
+    absences = relationship("Absence", back_populates="employee")
+    
