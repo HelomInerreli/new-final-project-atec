@@ -12,6 +12,7 @@ from app.models.customer import Customer
 from app.models.customerAuth import CustomerAuth
 from app.models.user import User
 from app.models.service import Service
+from app.models.order_comment import OrderComment
 
 from app.schemas.appointment import AppointmentCreate, AppointmentUpdate
 from app.schemas.appointment_extra_service import AppointmentExtraServiceCreate
@@ -118,8 +119,15 @@ class AppointmentRepository:
         self.db.add(db_appointment)
         self.db.commit()
         self.db.refresh(db_appointment)
+        
+        comment = OrderComment(
+            service_order_id=db_appointment.id,
+            comment=f"Ordem de serviço :{db_appointment.id} criada",
+        )
+        self.db.add(comment)
+        self.db.commit()
 
-        # ✅ CORRIGIDO: Buscar email do CustomerAuth
+        #  CORRIGIDO: Buscar email do CustomerAuth
         if email_service:
             try:
                 customer_email = self._get_customer_email(db_appointment.customer_id)
@@ -136,11 +144,11 @@ class AppointmentRepository:
                     )
                     print(f"✅ Confirmação de agendamento enviada para {customer_email}.")
                 else:
-                    print(f"⚠️ Email não encontrado para customer_id={db_appointment.customer_id}")
+                    print(f" Email não encontrado para customer_id={db_appointment.customer_id}")
                     
             except Exception as e:
                 # Não abortar a criação por falha no envio de email; só log
-                print(f"❌ ERRO ao enviar confirmação de agendamento: {e}")
+                print(f" ERRO ao enviar confirmação de agendamento: {e}")
 
         return db_appointment
 
@@ -437,7 +445,13 @@ class AppointmentRepository:
             in_repair_status = self.db.query(Status).filter(Status.name == "In Repair").first()
             if in_repair_status:
                 db_appointment.status_id = in_repair_status.id
-
+                
+            comment = OrderComment(
+                service_order_id=appointment_id,
+                comment=f"Ordem de serviço :{appointment_id} iniciada.",
+            )
+            self.db.add(comment)
+            
         self.db.commit()
         self.db.refresh(db_appointment)
         return db_appointment
@@ -458,6 +472,12 @@ class AppointmentRepository:
         pending_status = self.db.query(Status).filter(Status.name == "Pendente").first()
         if pending_status:
             db_appointment.status_id = pending_status.id
+            
+        comment = OrderComment(
+            service_order_id=appointment_id,
+            comment=f"Ordem de serviço :{appointment_id} pausada",
+        )
+        self.db.add(comment)    
 
         self.db.commit()
         self.db.refresh(db_appointment)
@@ -477,6 +497,12 @@ class AppointmentRepository:
         in_repair_status = self.db.query(Status).filter(Status.name == "In Repair").first()
         if in_repair_status:
             db_appointment.status_id = in_repair_status.id
+            
+        comment = OrderComment(
+            service_order_id=appointment_id,
+            comment=f"Ordem de serviço :{appointment_id} retomada",
+        )
+        self.db.add(comment)    
 
         self.db.commit()
         self.db.refresh(db_appointment)
@@ -500,6 +526,12 @@ class AppointmentRepository:
         finalized_status = self.db.query(Status).filter(Status.name == "Finalized").first()
         if finalized_status:
             db_appointment.status_id = finalized_status.id
+            
+        comment = OrderComment(
+            service_order_id=appointment_id,
+            comment=f"Ordem de serviço :{appointment_id} finalizada",
+        )
+        self.db.add(comment)    
 
         self.db.commit()
         self.db.refresh(db_appointment)
