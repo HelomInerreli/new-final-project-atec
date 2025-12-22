@@ -137,6 +137,7 @@ async def register(
     customer_data: CustomerAuthRegister,
     db: Session = Depends(get_db)
 ):
+    print(f"[DEBUG] Received registration data: {customer_data.model_dump()}")
     print(f"Registration attempt for: {customer_data.email}, name: {customer_data.name}")
     
     existing_customer = db.query(CustomerAuth).filter(CustomerAuth.email == customer_data.email).first()
