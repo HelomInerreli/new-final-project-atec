@@ -545,7 +545,7 @@ export default function Agendamentos() {
           </div>
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full sm:w-[200px] border-2 border-red-600">
+          <SelectTrigger className="w-full sm:w-[200px] border-2 border-red-600 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0" style={{ height: "56px" }}>
             <SelectValue placeholder="Filtrar por status" />
           </SelectTrigger>
           <SelectContent>
@@ -557,7 +557,7 @@ export default function Agendamentos() {
           </SelectContent>
         </Select>
         <Select value={monthFilter} onValueChange={setMonthFilter}>
-          <SelectTrigger className="w-full sm:w-[200px] border-2 border-red-600">
+          <SelectTrigger className="w-full sm:w-[200px] border-2 border-red-600 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0" style={{ height: "56px" }}>
             <SelectValue placeholder="Filtrar por mês" />
           </SelectTrigger>
           <SelectContent className="w-[350px]">
