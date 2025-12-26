@@ -8,6 +8,7 @@ export interface AddCommentModalProps {
 export interface UseAddCommentModalReturn {
   comment: string;
   setComment: (comment: string) => void;
+  commentError: string | null;
   loading: boolean;
   handleSubmit: () => Promise<void>;
 }

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { type UseAddCommentModalReturn, validateComment } from "../interfaces/ModalComment";
 
+
 const API_BASE_URL = "http://localhost:8000/api/v1";
 
 const getAuthToken = () => {
@@ -17,7 +18,13 @@ export const useAddCommentModal = (
 ): UseAddCommentModalReturn => {
   const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(false);
+  const [commentError, setCommentError] = useState<string | null>(null);
 
+  const handleCommentChange = (value: string) => {
+    setComment(value);
+    const error = validateComment(value);
+    setCommentError(error);
+  };
 
   const handleSubmit = async () => {
     const validationError = validateComment(comment);
@@ -47,6 +54,7 @@ export const useAddCommentModal = (
     
       toast.success("Comentário adicionado com sucesso!");
       setComment("");
+      setCommentError(null);
       onSuccess();
       onClose();
     } catch (error: any) {
@@ -59,7 +67,8 @@ export const useAddCommentModal = (
 
   return {
     comment,
-    setComment,
+    setComment: handleCommentChange,
+    commentError,
     loading,
     handleSubmit,
   };

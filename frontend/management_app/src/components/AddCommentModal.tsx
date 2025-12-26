@@ -21,7 +21,7 @@ const AddCommentModal: React.FC<AddCommentModalProps> = ({
   orderId,
   onSuccess,
 }) => {
-  const { comment, setComment, loading, handleSubmit } = useAddCommentModal(
+  const { comment, setComment, commentError, loading, handleSubmit } = useAddCommentModal(
     isOpen,
     orderId,
     onSuccess,
@@ -43,12 +43,13 @@ const AddCommentModal: React.FC<AddCommentModalProps> = ({
         <div className="comment-modal-body">
           <label className="comment-modal-label">Comentário:</label>
           <textarea
-            className="comment-modal-textarea"
+            className={`comment-modal-textarea ${commentError ? 'error' : ''}`}
             rows={5}
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             placeholder="Escreva seu comentário aqui..."
           />
+          {commentError && <div className="comment-modal-error">{commentError}</div>}
         </div>
 
         <div className="comment-modal-footer">
@@ -64,7 +65,7 @@ const AddCommentModal: React.FC<AddCommentModalProps> = ({
             <AlertDialogTrigger asChild>
               <Button
                 variant="destructive"
-                disabled={loading || !comment.trim()}
+                disabled={loading || !!commentError || !comment.trim()}
                 type="button"
               >
                 {loading ? "Adicionando..." : "Adicionar Comentário"}
