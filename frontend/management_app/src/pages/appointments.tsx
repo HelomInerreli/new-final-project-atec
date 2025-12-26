@@ -545,7 +545,7 @@ export default function Agendamentos() {
           </div>
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full sm:w-[200px]">
+          <SelectTrigger className="w-full sm:w-[200px] border-2 border-red-600">
             <SelectValue placeholder="Filtrar por status" />
           </SelectTrigger>
           <SelectContent>
@@ -557,23 +557,25 @@ export default function Agendamentos() {
           </SelectContent>
         </Select>
         <Select value={monthFilter} onValueChange={setMonthFilter}>
-          <SelectTrigger className="w-full sm:w-[200px]">
+          <SelectTrigger className="w-full sm:w-[200px] border-2 border-red-600">
             <SelectValue placeholder="Filtrar por mês" />
           </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todos">Todos os meses</SelectItem>
-            <SelectItem value="0">Janeiro</SelectItem>
-            <SelectItem value="1">Fevereiro</SelectItem>
-            <SelectItem value="2">Março</SelectItem>
-            <SelectItem value="3">Abril</SelectItem>
-            <SelectItem value="4">Maio</SelectItem>
-            <SelectItem value="5">Junho</SelectItem>
-            <SelectItem value="6">Julho</SelectItem>
-            <SelectItem value="7">Agosto</SelectItem>
-            <SelectItem value="8">Setembro</SelectItem>
-            <SelectItem value="9">Outubro</SelectItem>
-            <SelectItem value="10">Novembro</SelectItem>
-            <SelectItem value="11">Dezembro</SelectItem>
+          <SelectContent className="w-[350px]">
+            <SelectItem value="todos" className="col-span-3">Todos os meses</SelectItem>
+            <div className="grid grid-cols-3 gap-1 p-2">
+              <SelectItem value="0" className="text-center">Jan</SelectItem>
+              <SelectItem value="1" className="text-center">Fev</SelectItem>
+              <SelectItem value="2" className="text-center">Mar</SelectItem>
+              <SelectItem value="3" className="text-center">Abr</SelectItem>
+              <SelectItem value="4" className="text-center">Mai</SelectItem>
+              <SelectItem value="5" className="text-center">Jun</SelectItem>
+              <SelectItem value="6" className="text-center">Jul</SelectItem>
+              <SelectItem value="7" className="text-center">Ago</SelectItem>
+              <SelectItem value="8" className="text-center">Set</SelectItem>
+              <SelectItem value="9" className="text-center">Out</SelectItem>
+              <SelectItem value="10" className="text-center">Nov</SelectItem>
+              <SelectItem value="11" className="text-center">Dez</SelectItem>
+            </div>
           </SelectContent>
         </Select>
       </div>
