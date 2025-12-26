@@ -33,6 +33,7 @@ const AddPartsModal: React.FC<AddPartsModalProps> = ({ isOpen, onClose, orderId,
     setQuantity,
     adding,
     handleAddPart,
+    quantityError,
   } = useAddPartsModal(isOpen, orderId, onSuccess, onClose);
 
   if (!isOpen) return null;
@@ -92,9 +93,10 @@ const AddPartsModal: React.FC<AddPartsModalProps> = ({ isOpen, onClose, orderId,
                     max={selectedProduct.quantity}
                     value={quantity}
                     onChange={(e) => setQuantity(Number(e.target.value))}
-                    className="quantity-input"
+                    className={`quantity-input ${quantityError ? 'error' : ''}`}
                   />
                   <span className="stock-info">/ {selectedProduct.quantity} disponíveis</span>
+                  {quantityError && <div className="quantity-error">{quantityError}</div>}
                 </div>
               )}
             </>
@@ -114,7 +116,7 @@ const AddPartsModal: React.FC<AddPartsModalProps> = ({ isOpen, onClose, orderId,
             <AlertDialogTrigger asChild>
               <Button
                 variant="destructive"
-                disabled={!selectedProduct || adding}
+                disabled={!selectedProduct || adding || !!quantityError !== null}
                 type="button"
               >
                 {adding ? "Adicionando..." : "Adicionar Peça"}

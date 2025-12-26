@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { getProducts, addPartToOrder, type Product } from "../services/productService";
+import { toast } from "sonner";
 
 export const useAddPartsModal = (isOpen: boolean, orderId: string, onSuccess: () => void, onClose: () => void) => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -9,6 +10,7 @@ export const useAddPartsModal = (isOpen: boolean, orderId: string, onSuccess: ()
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [adding, setAdding] = useState(false);
+  const [quantityError, setQuantityError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -28,6 +30,23 @@ export const useAddPartsModal = (isOpen: boolean, orderId: string, onSuccess: ()
     }
   }, [search, products]);
 
+  useEffect(() => {
+    if (!selectedProduct) {
+      setQuantityError(null);
+      return;
+    }
+
+    if (quantity < 1) {
+      setQuantityError("A quantidade deve ser pelo menos 1");
+    } else if (quantity > selectedProduct.quantity) {
+      setQuantityError(
+        `Quantidade excede o stock disponível (${selectedProduct.quantity} unidade${selectedProduct.quantity !== 1 ? 's' : ''})`
+      );
+    } else {
+      setQuantityError(null);
+    }
+  }, [quantity, selectedProduct]);
+
   const loadProducts = async () => {
     setLoading(true);
     try {
@@ -44,9 +63,26 @@ export const useAddPartsModal = (isOpen: boolean, orderId: string, onSuccess: ()
     }
   };
 
+  const handleQuantityChange = (value: number) => {
+    setQuantity(value);
+  };
+  
   const handleAddPart = async () => {
-    // Validações (botão já está disabled no componente, mas mantemos por segurança)
-    if (!selectedProduct || quantity < 1 || quantity > selectedProduct.quantity) {
+   
+    if (!selectedProduct) {
+      toast.error("Por favor, selecione uma peça");
+      return;
+    }
+
+    if (quantity < 1) {
+      toast.error("A quantidade deve ser pelo menos 1");
+      return;
+    }
+
+    if (quantity > selectedProduct.quantity) {
+      toast.error(
+        `Quantidade insuficiente em stock. Disponível: ${selectedProduct.quantity} unidade${selectedProduct.quantity !== 1 ? 's' : ''}`
+      );
       return;
     }
 
@@ -58,6 +94,8 @@ export const useAddPartsModal = (isOpen: boolean, orderId: string, onSuccess: ()
       onClose();
     } catch (error: any) {
       console.error("Erro ao adicionar peça:", error);
+      const errorMessage = error.message || "Erro ao adicionar peça";
+      toast.error(errorMessage);
     } finally {
       setAdding(false);
     }
@@ -78,7 +116,8 @@ export const useAddPartsModal = (isOpen: boolean, orderId: string, onSuccess: ()
     selectedProduct,
     setSelectedProduct,
     quantity,
-    setQuantity,
+    setQuantity: handleQuantityChange,
+    quantityError,
     adding,
     handleAddPart,
   };
