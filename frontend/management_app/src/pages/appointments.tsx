@@ -216,11 +216,8 @@ export default function Agendamentos() {
       console.log("🔄 Carregando status...");
       const data = await statusService.getAll();
       console.log("✅ Status carregados:", data);
-      // Filtrar para mostrar apenas: Pendente, Concluído e Aguardando Pagamento
-      const allowedNames = ["Pendente", "Concluído", "Aguardando Pagamento"];
-      const allowedStatuses = data.filter(s => allowedNames.includes(s.name));
-      console.log("📋 Status filtrados:", allowedStatuses);
-      setStatuses(allowedStatuses);
+      // Mostrar todos os status disponíveis
+      setStatuses(data);
     } catch (error) {
       console.error("❌ Erro ao carregar status:", error);
     }
@@ -299,10 +296,12 @@ export default function Agendamentos() {
   const translateStatus = (statusName?: string): string => {
     if (!statusName) return "Pendente";
     const lower = statusName.toLowerCase();
-    if (lower.includes("concluído") || lower.includes("concluido"))
-      return "Finalizado";
-    if (lower.includes("aguardando pagamento"))
-      return "Aguarda Pagamento";
+    if (lower.includes("concluída") || lower.includes("concluida") || lower.includes("concluído") || lower.includes("concluido"))
+      return "Concluída";
+    if (lower.includes("em andamento") || lower.includes("em progresso"))
+      return "Em Andamento";
+    if (lower.includes("cancelada") || lower.includes("cancelado"))
+      return "Cancelada";
     if (lower.includes("pendente"))
       return "Pendente";
     return statusName;
@@ -311,10 +310,12 @@ export default function Agendamentos() {
   const getStatusColor = (statusName?: string) => {
     if (!statusName) return "bg-yellow-100 text-yellow-800"; // Default to Pendente color
     const lower = statusName.toLowerCase();
-    if (lower.includes("concluído") || lower.includes("concluido") || lower.includes("finalizad") || lower.includes("finalized"))
+    if (lower.includes("concluída") || lower.includes("concluida") || lower.includes("concluído") || lower.includes("concluido"))
+      return "bg-green-100 text-green-800";
+    if (lower.includes("em andamento") || lower.includes("em progresso"))
       return "bg-blue-100 text-blue-800";
-    if (lower.includes("aguarda") || lower.includes("waiting") || lower.includes("pagamento"))
-      return "bg-red-100 text-red-600";
+    if (lower.includes("cancelada") || lower.includes("cancelado"))
+      return "bg-gray-100 text-gray-600";
     return "bg-yellow-100 text-yellow-800"; // Pendente
   };
 
@@ -551,8 +552,9 @@ export default function Agendamentos() {
           <SelectContent>
             <SelectItem value="todos">Todos os status</SelectItem>
             <SelectItem value="pendente">Pendente</SelectItem>
-            <SelectItem value="aguarda pagamento">Aguarda Pagamento</SelectItem>
-            <SelectItem value="finalizado">Finalizado</SelectItem>
+            <SelectItem value="em andamento">Em Andamento</SelectItem>
+            <SelectItem value="concluída">Concluída</SelectItem>
+            <SelectItem value="cancelada">Cancelada</SelectItem>
           </SelectContent>
         </Select>
         <Select value={monthFilter} onValueChange={setMonthFilter}>

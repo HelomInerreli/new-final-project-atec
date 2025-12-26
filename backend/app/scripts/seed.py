@@ -73,11 +73,9 @@ EXTRA_SERVICE_CATALOG = [
 
 STATUSES = [
     "Pendente",
-    "Canceled",
-    "Finalized",
-    "In Repair",
-    "Awaiting Approval",
-    "Waitting Payment",
+    "Em Andamento",
+    "Concluída",
+    "Cancelada",
 ]
 
 ROLES_TO_CREATE = [
