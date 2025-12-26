@@ -12,14 +12,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "./ui/alert-dialog";
+import { type AddCommentModalProps } from "../interfaces/ModalComment";
 import "../styles/AddCommentModal.css";
-
-interface AddCommentModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  orderId: string;
-  onSuccess: () => void;
-}
 
 const AddCommentModal: React.FC<AddCommentModalProps> = ({
   isOpen,
@@ -82,16 +76,7 @@ const AddCommentModal: React.FC<AddCommentModalProps> = ({
                 <AlertDialogTitle>Confirmar Adição de Comentário</AlertDialogTitle>
                 <AlertDialogDescription>
                   Tem certeza que deseja adicionar este comentário à ordem #{orderId}?
-                  <div style={{ 
-                    marginTop: "12px", 
-                    padding: "12px", 
-                    backgroundColor: "#f8f9fa", 
-                    borderRadius: "6px",
-                    fontSize: "0.9rem",
-                    color: "#495057",
-                    maxHeight: "100px",
-                    overflowY: "auto"
-                  }}>
+                  <div className="comment-preview">
                     <strong>Comentário:</strong><br />
                     {comment}
                   </div>
