@@ -29,6 +29,8 @@ export default function ServicesManagement() {
   const [editingServico, setEditingServico] = useState<Service | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [servicoToDelete, setServicoToDelete] = useState<number | null>(null);
+  const [page, setPage] = useState<number>(1);
+  const pageSize = 5;
 
   const form = useForm<z.infer<typeof servicoSchema>>({
     resolver: zodResolver(servicoSchema),
@@ -72,6 +74,17 @@ export default function ServicesManagement() {
       (servico.description?.toLowerCase().includes(searchTerm.toLowerCase()) || false);
     return matchesSearch;
   });
+
+  // Reset page when filters/search change
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm, servicos]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredServicos.length / pageSize));
+  const paginatedServicos = filteredServicos.slice(
+    (page - 1) * pageSize,
+    page * pageSize
+  );
 
   const handleOpenDialog = (servico?: Service) => {
     if (servico) {
@@ -175,7 +188,6 @@ export default function ServicesManagement() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-4xl font-bold text-gray-900 leading-tight">Gestão de Serviços</h1>
-          <p className="text-lg text-gray-600 mt-2 font-medium">Gerir serviços e preços da oficina</p>
         </div>
         <Button variant="destructive" onClick={() => handleOpenDialog()}>
           <Plus className="mr-2 h-4 w-4" />
@@ -222,9 +234,25 @@ export default function ServicesManagement() {
           <p className="text-muted-foreground">A carregar serviços...</p>
         </div>
       ) : (
-        <div className="rounded-md border-2 border-red-600">
+        <div 
+          className="rounded-md border-2 border-red-600"
+          style={{
+            overflowY: "auto",
+            backgroundColor: "#fff",
+            borderRadius: "0.375rem",
+            boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+            minHeight: 0,
+          }}
+        >
           <Table>
-            <TableHeader>
+            <TableHeader
+              style={{
+                position: "sticky",
+                top: 0,
+                zIndex: 2,
+                background: "#fff",
+              }}
+            >
               <TableRow>
                 <TableHead className="font-semibold text-base text-black">Serviço</TableHead>
                 <TableHead className="font-semibold text-base text-black">Descrição</TableHead>
@@ -235,53 +263,96 @@ export default function ServicesManagement() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredServicos.length === 0 ? (
+              {paginatedServicos.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                     Nenhum serviço encontrado
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredServicos.map((servico) => (
-                  <TableRow key={servico.id}>
-                    <TableCell className="font-medium text-left">{servico.name}</TableCell>
-                    <TableCell className="max-w-xs truncate">{servico.description}</TableCell>
-                    <TableCell className="text-right font-medium">
-                      {formatPreco(servico.price)}
-                    </TableCell>
-                    <TableCell className="text-center">{formatDuracao(servico.duration_minutes ?? null)}</TableCell>
-                    <TableCell className="text-center">
-                      <Badge className={servico.is_active ? "bg-green-600 hover:bg-green-700 text-white" : "bg-red-600 hover:bg-red-700 text-white"}>
-                        {servico.is_active ? "Ativo" : "Inativo"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleOpenDialog(servico)}
-                          className="bg-transparent hover:bg-white"
-                        >
-                          <Edit className="h-4 w-4 text-red-600" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeleteClick(servico.id)}
-                          className="bg-transparent hover:bg-white"
-                        >
-                          <Trash2 className="h-4 w-4 text-red-600" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
+                <>
+                  {paginatedServicos.map((servico) => (
+                    <TableRow key={servico.id}>
+                      <TableCell className="font-medium text-left">{servico.name}</TableCell>
+                      <TableCell className="max-w-xs truncate">{servico.description}</TableCell>
+                      <TableCell className="text-right font-medium">
+                        {formatPreco(servico.price)}
+                      </TableCell>
+                      <TableCell className="text-center">{formatDuracao(servico.duration_minutes ?? null)}</TableCell>
+                      <TableCell className="text-center">
+                        <Badge className={servico.is_active ? "bg-green-600 hover:bg-green-700 text-white" : "bg-red-600 hover:bg-red-700 text-white"}>
+                          {servico.is_active ? "Ativo" : "Inativo"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleOpenDialog(servico)}
+                            className="bg-transparent hover:bg-white"
+                          >
+                            <Edit className="h-4 w-4 text-red-600" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteClick(servico.id)}
+                            className="bg-transparent hover:bg-white"
+                          >
+                            <Trash2 className="h-4 w-4 text-red-600" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {/* Fill empty rows to maintain consistent height */}
+                  {Array.from({ length: pageSize - paginatedServicos.length }).map((_, idx) => (
+                    <TableRow key={`empty-${idx}`} style={{ height: "57px" }}>
+                      <TableCell colSpan={6}>&nbsp;</TableCell>
+                    </TableRow>
+                  ))}
+                </>
               )}
             </TableBody>
           </Table>
         </div>
       )}
+
+      {/* Pagination controls */}
+      <div
+        className="d-flex justify-content-between align-items-center mt-2 mb-4"
+        style={{ flexShrink: 0 }}
+      >
+        <div className="text-muted">
+          {filteredServicos.length === 0
+            ? ""
+            : (() => {
+                const start = (page - 1) * pageSize + 1;
+                const end = Math.min(page * pageSize, filteredServicos.length);
+                return `Mostrando ${start}–${end} de ${filteredServicos.length}`;
+              })()}
+        </div>
+        <div className="d-flex gap-2">
+          <Button
+            variant="outline"
+            disabled={page <= 1}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+          >
+            Anterior
+          </Button>
+          <div className="align-self-center">
+            {page} / {totalPages}
+          </div>
+          <Button
+            variant="outline"
+            disabled={page >= totalPages}
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+          >
+            Próxima
+          </Button>
+        </div>
+      </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
