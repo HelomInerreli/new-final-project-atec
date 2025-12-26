@@ -321,7 +321,7 @@ export default function Agendamentos() {
   const filteredAppointments = appointments.filter((appointment) => {
     const customerName = appointment.customer?.name || "";
     const vehicleInfo = appointment.vehicle
-      ? `${appointment.vehicle.brand} ${appointment.vehicle.model} - ${appointment.vehicle.plate}`
+      ? `${appointment.vehicle.brand} ${appointment.vehicle.model} - ${appointment.vehicle.license_plate}`
       : "";
     const serviceName = appointment.service?.name || "";
     const statusName = appointment.status?.name || "";
@@ -587,7 +587,7 @@ export default function Agendamentos() {
             minute: "2-digit",
           });
           const vehicleInfo = appointment.vehicle
-            ? `${appointment.vehicle.brand} ${appointment.vehicle.model} - ${appointment.vehicle.plate}`
+            ? `${appointment.vehicle.brand} ${appointment.vehicle.model} - ${appointment.vehicle.license_plate}`
             : "N/A";
 
           return (
@@ -1073,11 +1073,10 @@ export default function Agendamentos() {
                         color: "#6b7280",
                         cursor: "pointer",
                       }}
-                      onClick={() =>
-                        document
-                          .getElementById("appointment_date")
-                          ?.showPicker()
-                      }
+                      onClick={() => {
+                        const element = document.getElementById("appointment_date") as HTMLInputElement;
+                        element?.showPicker?.();
+                      }}
                     />
                   </div>
                 </div>
