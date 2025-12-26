@@ -62,6 +62,12 @@ MAIN_SERVICES = [
     {"name": "Mudança de Óleo e Filtros", "description": "Troca de óleo do motor e substituição dos filtros de óleo e ar.", "price": 85.0, "duration_minutes": 60, "area": "mecanico"},
     {"name": "Diagnóstico Eletrónico", "description": "Ligação à máquina de diagnóstico para identificar avarias eletrónicas.", "price": 45.0, "duration_minutes": 30, "area": "eletricista"},
     {"name": "Alinhamento de Direção", "description": "Alinhamento computorizado das rodas dianteiras e traseiras.", "price": 35.0, "duration_minutes": 45, "area": "borracheiro"},
+    {"name": "Substituição de Travões", "description": "Substituição completa de discos e pastilhas de travão.", "price": 220.0, "duration_minutes": 120, "area": "mecanico"},
+    {"name": "Balanceamento de Rodas", "description": "Balanceamento computorizado das 4 rodas.", "price": 30.0, "duration_minutes": 30, "area": "borracheiro"},
+    {"name": "Troca de Bateria", "description": "Substituição da bateria do veículo com teste do sistema elétrico.", "price": 95.0, "duration_minutes": 45, "area": "eletricista"},
+    {"name": "Manutenção de Ar Condicionado", "description": "Verificação, limpeza e carregamento do sistema de ar condicionado.", "price": 75.0, "duration_minutes": 60, "area": "mecanico"},
+    {"name": "Substituição de Correia de Distribuição", "description": "Troca da correia de distribuição e tensores.", "price": 280.0, "duration_minutes": 180, "area": "mecanico"},
+    {"name": "Inspeção Periódica Obrigatória", "description": "Inspeção completa para renovação da IPO.", "price": 55.0, "duration_minutes": 60, "area": "mecanico,eletricista"},
 ]
 
 EXTRA_SERVICE_CATALOG = [
