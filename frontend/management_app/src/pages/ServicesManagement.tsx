@@ -254,12 +254,12 @@ export default function ServicesManagement() {
               }}
             >
               <TableRow>
-                <TableHead className="font-semibold text-base text-black">Serviço</TableHead>
-                <TableHead className="font-semibold text-base text-black">Descrição</TableHead>
-                <TableHead className="text-right font-semibold text-base text-black">Preço</TableHead>
-                <TableHead className="text-center font-semibold text-base text-black">Duração</TableHead>
-                <TableHead className="text-center font-semibold text-base text-black">Estado</TableHead>
-                <TableHead className="text-right font-semibold text-base text-black">Ações</TableHead>
+                <TableHead className="font-semibold text-base text-black" style={{ width: "200px", minWidth: "200px" }}>Serviço</TableHead>
+                <TableHead className="font-semibold text-base text-black text-left" style={{ width: "300px", minWidth: "300px" }}>Descrição</TableHead>
+                <TableHead className="text-right font-semibold text-base text-black" style={{ width: "120px", minWidth: "120px" }}>Preço</TableHead>
+                <TableHead className="text-center font-semibold text-base text-black" style={{ width: "100px", minWidth: "100px" }}>Duração</TableHead>
+                <TableHead className="text-center font-semibold text-base text-black" style={{ width: "100px", minWidth: "100px" }}>Estado</TableHead>
+                <TableHead className="text-right font-semibold text-base text-black" style={{ width: "120px", minWidth: "120px" }}>Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -273,18 +273,18 @@ export default function ServicesManagement() {
                 <>
                   {paginatedServicos.map((servico) => (
                     <TableRow key={servico.id}>
-                      <TableCell className="font-medium text-left">{servico.name}</TableCell>
-                      <TableCell className="max-w-xs truncate">{servico.description}</TableCell>
-                      <TableCell className="text-right font-medium">
+                      <TableCell className="font-medium text-left" style={{ width: "200px", minWidth: "200px" }}>{servico.name}</TableCell>
+                      <TableCell className="truncate text-left" style={{ width: "300px", minWidth: "300px", maxWidth: "300px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{servico.description}</TableCell>
+                      <TableCell className="text-right font-medium" style={{ width: "120px", minWidth: "120px" }}>
                         {formatPreco(servico.price)}
                       </TableCell>
-                      <TableCell className="text-center">{formatDuracao(servico.duration_minutes ?? null)}</TableCell>
-                      <TableCell className="text-center">
+                      <TableCell className="text-center" style={{ width: "100px", minWidth: "100px" }}>{formatDuracao(servico.duration_minutes ?? null)}</TableCell>
+                      <TableCell className="text-center" style={{ width: "100px", minWidth: "100px" }}>
                         <Badge className={servico.is_active ? "bg-green-600 hover:bg-green-700 text-white" : "bg-red-600 hover:bg-red-700 text-white"}>
                           {servico.is_active ? "Ativo" : "Inativo"}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-right" style={{ width: "120px", minWidth: "120px" }}>
                         <div className="flex justify-end gap-2">
                           <Button
                             variant="ghost"
@@ -309,7 +309,12 @@ export default function ServicesManagement() {
                   {/* Fill empty rows to maintain consistent height */}
                   {Array.from({ length: pageSize - paginatedServicos.length }).map((_, idx) => (
                     <TableRow key={`empty-${idx}`} style={{ height: "57px" }}>
-                      <TableCell colSpan={6}>&nbsp;</TableCell>
+                      <TableCell style={{ width: "200px", minWidth: "200px" }}>&nbsp;</TableCell>
+                      <TableCell style={{ width: "300px", minWidth: "300px" }}>&nbsp;</TableCell>
+                      <TableCell style={{ width: "120px", minWidth: "120px" }}>&nbsp;</TableCell>
+                      <TableCell style={{ width: "100px", minWidth: "100px" }}>&nbsp;</TableCell>
+                      <TableCell style={{ width: "100px", minWidth: "100px" }}>&nbsp;</TableCell>
+                      <TableCell style={{ width: "120px", minWidth: "120px" }}>&nbsp;</TableCell>
                     </TableRow>
                   ))}
                 </>
