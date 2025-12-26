@@ -13,13 +13,7 @@ import {
   AlertDialogTrigger,
 } from "./ui/alert-dialog";
 import "../styles/AddPartsModal.css";
-
-interface AddPartsModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  orderId: string;
-  onSuccess: () => void;
-}
+import { type AddPartsModalProps } from "../interfaces/ModalParts";
 
 const AddPartsModal: React.FC<AddPartsModalProps> = ({ isOpen, onClose, orderId, onSuccess }) => {
   const {

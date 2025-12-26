@@ -1,8 +1,14 @@
 import { useState, useEffect } from "react";
 import { getProducts, addPartToOrder, type Product } from "../services/productService";
 import { toast } from "sonner";
+import { validateQuantity, type UseAddPartsModalReturn } from "../interfaces/ModalParts";
 
-export const useAddPartsModal = (isOpen: boolean, orderId: string, onSuccess: () => void, onClose: () => void) => {
+export const useAddPartsModal = (
+  isOpen: boolean,
+  orderId: string,
+  onSuccess: () => void,
+  onClose: () => void
+): UseAddPartsModalReturn => {
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [search, setSearch] = useState("");
@@ -11,7 +17,7 @@ export const useAddPartsModal = (isOpen: boolean, orderId: string, onSuccess: ()
   const [quantity, setQuantity] = useState(1);
   const [adding, setAdding] = useState(false);
   const [quantityError, setQuantityError] = useState<string | null>(null);
-
+  
   useEffect(() => {
     if (isOpen) {
       loadProducts();
@@ -31,21 +37,10 @@ export const useAddPartsModal = (isOpen: boolean, orderId: string, onSuccess: ()
   }, [search, products]);
 
   useEffect(() => {
-    if (!selectedProduct) {
-      setQuantityError(null);
-      return;
-    }
-
-    if (quantity < 1) {
-      setQuantityError("A quantidade deve ser pelo menos 1");
-    } else if (quantity > selectedProduct.quantity) {
-      setQuantityError(
-        `Quantidade excede o stock disponível (${selectedProduct.quantity} unidade${selectedProduct.quantity !== 1 ? 's' : ''})`
-      );
-    } else {
-      setQuantityError(null);
-    }
+    const error = validateQuantity(quantity, selectedProduct);
+    setQuantityError(error);
   }, [quantity, selectedProduct]);
+
 
   const loadProducts = async () => {
     setLoading(true);
@@ -56,6 +51,7 @@ export const useAddPartsModal = (isOpen: boolean, orderId: string, onSuccess: ()
       setFilteredProducts(inStock);
     } catch (error: any) {
       console.error("Erro ao carregar produtos:", error);
+      toast.error("Erro ao carregar produtos");
       setProducts([]);
       setFilteredProducts([]);
     } finally {
@@ -66,29 +62,23 @@ export const useAddPartsModal = (isOpen: boolean, orderId: string, onSuccess: ()
   const handleQuantityChange = (value: number) => {
     setQuantity(value);
   };
-  
+
   const handleAddPart = async () => {
-   
     if (!selectedProduct) {
       toast.error("Por favor, selecione uma peça");
       return;
     }
 
-    if (quantity < 1) {
-      toast.error("A quantidade deve ser pelo menos 1");
-      return;
-    }
-
-    if (quantity > selectedProduct.quantity) {
-      toast.error(
-        `Quantidade insuficiente em stock. Disponível: ${selectedProduct.quantity} unidade${selectedProduct.quantity !== 1 ? 's' : ''}`
-      );
+    const validationError = validateQuantity(quantity, selectedProduct);
+    if (validationError) {
+      toast.error(validationError);
       return;
     }
 
     setAdding(true);
     try {
       await addPartToOrder(orderId, selectedProduct.id, quantity);
+      toast.success(`Peça "${selectedProduct.name}" adicionada com sucesso!`);
       resetForm();
       onSuccess();
       onClose();
@@ -105,6 +95,7 @@ export const useAddPartsModal = (isOpen: boolean, orderId: string, onSuccess: ()
     setSelectedProduct(null);
     setQuantity(1);
     setSearch("");
+    setQuantityError(null);
   };
 
   return {
