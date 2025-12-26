@@ -260,6 +260,11 @@ def seed_data(db: Session):
     {"name": "Borracheiro User", "email": "borracheiro@example.com", "role": "borracheiro"}
     ]
     for u in users_to_create:
+        # Verificar se o user já existe
+        existing_user = db.query(User).filter(User.email == u["email"]).first()
+        if existing_user:
+            continue
+            
         hashed_password = pwd_context.hash("123")
         user = User(
             name=u["name"],
@@ -269,7 +274,7 @@ def seed_data(db: Session):
         )
         db.add(user)
         db.commit()
-        print("Created users for login.")
+    print(f"Created/verified users for login.")
 
     # 5) Create Employees
     employee_repo = EmployeeRepository(db)
