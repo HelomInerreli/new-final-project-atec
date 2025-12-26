@@ -15,6 +15,7 @@ import { Toaster } from "./components/ui/toaster";
 import Users from "./pages/Users/Users";
 import Folgas from "./pages/Users/Folgas";
 import Ferias from "./pages/Users/Ferias";
+import Finance from "./pages/Finance";
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
               element={<ServicesManagement />}
             />
             <Route path="/customers/:id" element={<CustomerDetails />} />
+            <Route path="/finance" element={<Finance />} />
           </Routes>
         </Layout>
         <Toaster />
