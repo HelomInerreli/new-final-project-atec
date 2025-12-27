@@ -719,16 +719,27 @@ export default function Agendamentos() {
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
         <DialogContent className="sm:max-w-[800px] p-0 gap-0">
           <form onSubmit={handleFormSubmit}>
-            <DialogHeader className="bg-gradient-to-br from-red-600 to-red-700 text-white p-6 rounded-t-lg m-0">
-              <DialogTitle className="text-white text-2xl font-bold flex items-center gap-3">
-                <Calendar className="h-6 w-6" />
+            <DialogHeader className="bg-gradient-to-br from-red-600 to-red-700 text-white p-6 rounded-t-lg m-0 !flex-row items-center justify-between !space-y-0">
+              <DialogTitle className="text-white text-2xl font-bold">
                 {editingId ? "Editar Agendamento" : "Novo Agendamento"}
               </DialogTitle>
-              <DialogDescription className="text-white/90 mt-2 text-base">
-                {editingId
-                  ? "Altere os dados do agendamento abaixo."
-                  : "Preencha os dados para criar um novo agendamento."}
-              </DialogDescription>
+              <button 
+                type="button"
+                onClick={() => {
+                  setIsFormOpen(false);
+                  setEditingId(null);
+                  setFormData(initialFormData);
+                  setCustomerVehicles([]);
+                }}
+                className="w-9 h-9 rounded-lg bg-white/20 hover:bg-white/30 flex items-center justify-center transition-all focus:outline-none flex-shrink-0"
+                style={{ outline: "none", boxShadow: "none" }}
+                aria-label="Fechar"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
             </DialogHeader>
             <div className="grid gap-4 py-4 px-6">
               <div className="grid gap-2">
@@ -1333,7 +1344,7 @@ export default function Agendamentos() {
                 </div>
               </div>
             </div>
-            <DialogFooter className="px-6 pb-6">
+            <DialogFooter className="px-6 pb-6 !flex-row !justify-between">
               <Button
                 type="button"
                 variant="outline"
