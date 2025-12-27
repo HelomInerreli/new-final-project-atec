@@ -150,7 +150,8 @@ export default function Customers() {
       if (response.ok) {
         toast({
           title: "Password Resetada",
-          description: "A password foi alterada para '12345678'.",
+          description: "A password do cliente foi resetada com sucesso.",
+          variant: "destructive",
         });
       } else {
         const errorText = await response.text();
@@ -357,17 +358,27 @@ export default function Customers() {
       </div>
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta ação não pode ser desfeita. O cliente será permanentemente
-              eliminado do sistema.
+        <AlertDialogContent className="sm:max-w-md">
+          <AlertDialogHeader className="space-y-4">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+              <Trash2 className="h-6 w-6 text-red-600" />
+            </div>
+            <AlertDialogTitle className="text-center text-xl">
+              Eliminar Cliente
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center text-base">
+              Esta ação não pode ser desfeita. Tem a certeza que
+              deseja eliminar permanentemente este cliente?
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete}>
+          <AlertDialogFooter className="flex flex-row gap-3 justify-center sm:justify-center mt-2">
+            <AlertDialogCancel className="mt-0 flex-1 sm:flex-none px-6 hover:bg-gray-100 focus-visible:ring-0 focus-visible:ring-offset-0">
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="mt-0 flex-1 sm:flex-none px-6 bg-red-600 hover:bg-red-700 text-white focus-visible:ring-0 focus-visible:ring-offset-0"
+            >
               Eliminar
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -376,17 +387,27 @@ export default function Customers() {
 
       {/* Reset Password Confirmation Dialog */}
       <AlertDialog open={resetPasswordDialogOpen} onOpenChange={setResetPasswordDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Resetar Password?</AlertDialogTitle>
-            <AlertDialogDescription>
+        <AlertDialogContent className="sm:max-w-md">
+          <AlertDialogHeader className="space-y-4">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+              <Key className="h-6 w-6 text-red-600" />
+            </div>
+            <AlertDialogTitle className="text-center text-xl">
+              Resetar Password
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center text-base">
               A password deste cliente será alterada para '12345678'. 
               O cliente deverá alterar a password no próximo login.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmResetPassword}>
+          <AlertDialogFooter className="flex flex-row gap-3 justify-center sm:justify-center mt-2">
+            <AlertDialogCancel className="mt-0 flex-1 sm:flex-none px-6 hover:bg-gray-100 focus-visible:ring-0 focus-visible:ring-offset-0">
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmResetPassword}
+              className="mt-0 flex-1 sm:flex-none px-6 bg-red-600 hover:bg-red-700 text-white focus-visible:ring-0 focus-visible:ring-offset-0"
+            >
               Resetar Password
             </AlertDialogAction>
           </AlertDialogFooter>
