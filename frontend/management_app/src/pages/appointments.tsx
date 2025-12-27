@@ -7,7 +7,7 @@ import {
   Phone,
   Mail,
   Trash2,
-  Edit,
+  Pencil,
   AlertTriangle,
 } from "lucide-react";
 import {
@@ -652,22 +652,20 @@ export default function Agendamentos() {
 
               <div className="flex gap-2 p-4 pt-0">
                 <Button
-                  variant="ghost"
-                  size="sm"
-                  className="bg-transparent hover:bg-white"
+                  variant="outline"
+                  className="flex-1"
                   onClick={() => handleOpenDialog(appointment)}
                 >
-                  <Edit className="h-4 w-4 text-red-600" />
+                  <Pencil className="h-4 w-4" />
                 </Button>
 
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button
-                      variant="ghost"
-                      size="sm"
-                      className="bg-transparent hover:bg-white"
+                      variant="destructive"
+                      className="flex-1"
                     >
-                      <Trash2 className="h-4 w-4 text-red-600" />
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent className="sm:max-w-md">
@@ -719,19 +717,20 @@ export default function Agendamentos() {
 
       {/* Dialog para Criar/Editar */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[800px] p-0 gap-0">
           <form onSubmit={handleFormSubmit}>
-            <DialogHeader>
-              <DialogTitle>
+            <DialogHeader className="bg-gradient-to-br from-red-600 to-red-700 text-white p-6 rounded-t-lg m-0">
+              <DialogTitle className="text-white text-2xl font-bold flex items-center gap-3">
+                <Calendar className="h-6 w-6" />
                 {editingId ? "Editar Agendamento" : "Novo Agendamento"}
               </DialogTitle>
-              <DialogDescription>
+              <DialogDescription className="text-white/90 mt-2 text-base">
                 {editingId
                   ? "Altere os dados do agendamento abaixo."
                   : "Preencha os dados para criar um novo agendamento."}
               </DialogDescription>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
+            <div className="grid gap-4 py-4 px-6">
               <div className="grid gap-2">
                 <div className="mb-input-wrapper">
                   {(() => {
@@ -1334,7 +1333,7 @@ export default function Agendamentos() {
                 </div>
               </div>
             </div>
-            <DialogFooter>
+            <DialogFooter className="px-6 pb-6">
               <Button
                 type="button"
                 variant="outline"

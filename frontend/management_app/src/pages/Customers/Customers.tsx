@@ -195,7 +195,6 @@ export default function Customers() {
       <div className="d-flex align-items-center justify-content-between mb-3">
         <div>
           <h1 className="h1 fw-bold text-dark">Gestão de Clientes</h1>
-          <p className="text-muted">Gerencie os clientes da oficina</p>
         </div>
         <Button 
           variant="destructive"

@@ -332,9 +332,6 @@ export default function Stock() {
       >
         <div>
           <h1 className="h1 fw-bold text-dark">Gestão de Stock</h1>
-          <p className="text-muted mt-1">
-            Gerencie o inventário de produtos e peças
-          </p>
         </div>
         <Dialog
           open={dialogOpen}

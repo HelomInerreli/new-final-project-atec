@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
-import { Search, Plus, Edit, Trash2, AlertTriangle } from "lucide-react";
+import { Search, Plus, Pencil, Trash2, AlertTriangle } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -287,20 +287,18 @@ export default function ServicesManagement() {
                       <TableCell className="text-right" style={{ width: "120px", minWidth: "120px" }}>
                         <div className="flex justify-end gap-2">
                           <Button
-                            variant="ghost"
-                            size="sm"
+                            variant="outline"
+                            size="icon"
                             onClick={() => handleOpenDialog(servico)}
-                            className="bg-transparent hover:bg-white"
                           >
-                            <Edit className="h-4 w-4 text-red-600" />
+                            <Pencil className="h-4 w-4" />
                           </Button>
                           <Button
-                            variant="ghost"
-                            size="sm"
+                            variant="destructive"
+                            size="icon"
                             onClick={() => handleDeleteClick(servico.id)}
-                            className="bg-transparent hover:bg-white"
                           >
-                            <Trash2 className="h-4 w-4 text-red-600" />
+                            <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                       </TableCell>

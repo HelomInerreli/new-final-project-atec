@@ -175,9 +175,6 @@ export default function Users() {
             >
                 <div>
                     <h1 className="h1 fw-bold text-dark">Funcionários</h1>
-                    <p className="text-muted mt-1">
-                        Gerencie os funcionários do sistema
-                    </p>
                 </div>
                 <div className="flex items-center gap-2">
                     <Button variant="outline" className="border-red-500" onClick={() => navigate('/ferias')}>
