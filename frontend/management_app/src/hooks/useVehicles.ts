@@ -23,7 +23,7 @@ export function useVehiclesPage() {
   const [assignCustomerDialogOpen, setAssignCustomerDialogOpen] = useState(false);
   const [vehicleToAssign, setVehicleToAssign] = useState<string | null>(null);
   const [page, setPage] = useState<number>(1);
-  const pageSize = 10;
+  const pageSize = 6;
 
   // Fetch vehicles function
   const fetchAllVehicles = useCallback(async () => {

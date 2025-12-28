@@ -63,71 +63,113 @@ export default function Vehicles() {
   }
 
   return (
-    <div className="vehicles-container d-flex flex-column">
-      <div className="vehicles-header d-flex align-items-center justify-content-between mb-4 border-bottom border-light">
+    <div className="flex-1 space-y-6 p-8">
+      <div className="flex justify-between items-center">
         <div>
-          <h1 className="h1 fw-bold text-dark">Gestão de Veículos</h1>
-          <p className="text-muted">Gerencie os veículos da oficina</p>
+          <h1 className="text-4xl font-bold text-gray-900 leading-tight">Gestão de Veículos</h1>
         </div>
         <Button variant="destructive" onClick={() => setNewVehicleModalOpen(true)}>
           <Plus className="mr-2 h-4 w-4" /> Novo Veículo
         </Button>
       </div>
 
-      <div className="d-flex gap-3 mb-3">
-        <div className="position-relative flex-grow-1">
-          <Search className="position-absolute start-0 top-50 translate-middle-y ms-3 text-muted" />
-          <Input
-            placeholder="Pesquisar veículos por marca, modelo, matrícula ou cliente..."
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-            className="ps-5"
-          />
+      <div className="flex flex-col sm:flex-row gap-4 mb-4">
+        <div className="mb-input-wrapper flex-1">
+          <div style={{ position: "relative" }}>
+            <Search
+              size={20}
+              style={{
+                position: "absolute",
+                left: "14px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                color: "#6b7280",
+                pointerEvents: "none",
+                zIndex: 1,
+              }}
+            />
+            <input
+              type="text"
+              placeholder=""
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="mb-input"
+              style={{ paddingLeft: "46px" }}
+              onFocus={(e) =>
+                e.target.nextElementSibling?.classList.add("shrunken")
+              }
+              onBlur={(e) => {
+                if (!e.target.value) {
+                  e.target.nextElementSibling?.classList.remove("shrunken");
+                }
+              }}
+            />
+            <label
+              className={`mb-input-label ${searchTerm ? "shrunken" : ""}`}
+              style={{ left: "46px" }}
+            >
+              Pesquisar por marca, modelo, matrícula ou cliente...
+            </label>
+          </div>
         </div>
-        <div className="vehicles-status-select">
-          <Select value={statusFiltro} onValueChange={setStatusFiltro}>
-            <SelectTrigger>
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
+        <Select value={statusFiltro} onValueChange={setStatusFiltro}>
+          <SelectTrigger className="w-full sm:w-[200px] border-2 border-red-600 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0" style={{ height: "56px" }}>
+            <SelectValue placeholder="Filtrar por status" />
+          </SelectTrigger>
           <SelectContent>
             <SelectItem value="todos">Todos Status</SelectItem>
             <SelectItem value="Ativo">Ativo</SelectItem>
             <SelectItem value="Sem Cliente">Sem Cliente</SelectItem>
             <SelectItem value="Inativo">Inativo</SelectItem>
           </SelectContent>
-          </Select>
-        </div>
+        </Select>
       </div>
 
-      <div className="vehicles-table-wrapper table-responsive border rounded flex-grow-1">
+      <div 
+        className="rounded-md border-2 border-red-600"
+        style={{
+          overflowY: "auto",
+          backgroundColor: "#fff",
+          borderRadius: "0.375rem",
+          boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+          minHeight: 0,
+        }}
+      >
         <Table>
-          <TableHeader className="vehicles-table-header">
+          <TableHeader
+            style={{
+              position: "sticky",
+              top: 0,
+              zIndex: 2,
+              background: "#fff",
+            }}
+          >
             <TableRow>
-              <TableHead>Marca</TableHead>
-              <TableHead>Modelo</TableHead>
-              <TableHead>Matrícula</TableHead>
-              <TableHead>Cliente</TableHead>
-              <TableHead>Quilometragem</TableHead>
-              <TableHead className="text-right">Ações</TableHead>
+              <TableHead className="text-left font-semibold text-base text-black">Marca</TableHead>
+              <TableHead className="text-left font-semibold text-base text-black">Modelo</TableHead>
+              <TableHead className="text-left font-semibold text-base text-black">Matrícula</TableHead>
+              <TableHead className="text-left font-semibold text-base text-black">Cliente</TableHead>
+              <TableHead className="text-left font-semibold text-base text-black">Quilometragem</TableHead>
+              <TableHead className="text-center font-semibold text-base text-black">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredVehicles.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center text-muted-foreground">
+                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                   Nenhum veículo encontrado
                 </TableCell>
               </TableRow>
             ) : (
               paginatedVehicles.map(vehicle => (
                 <TableRow key={vehicle.id}>
-                  <TableCell className="font-medium">{vehicle.brand}</TableCell>
-                  <TableCell>{vehicle.model}</TableCell>
-                  <TableCell>
+                  <TableCell className="text-left font-medium">{vehicle.brand}</TableCell>
+                  <TableCell className="text-left">{vehicle.model}</TableCell>
+                  <TableCell className="text-left">
                     <Badge bg="danger">{vehicle.plate}</Badge>
                   </TableCell>
                   {vehicle.customerId === 0 ? (
-                    <TableCell>
+                    <TableCell className="text-left">
                       <Button
                         variant="destructive"
                         onClick={() => handleAssignCustomer(vehicle.id)}
@@ -137,15 +179,15 @@ export default function Vehicles() {
                       </Button>
                     </TableCell>
                   ) : ( 
-                  <TableCell>
+                  <TableCell className="text-left">
                     <Link to={`/customers/${vehicle.customerId}`} className="text-decoration-none">
                       {vehicle.customerName}
                     </Link>
                   </TableCell>
                   )}
-                  <TableCell>{formatKilometers(vehicle.kilometers)}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
+                  <TableCell className="text-left">{formatKilometers(vehicle.kilometers)}</TableCell>
+                  <TableCell className="text-center">
+                    <div className="flex justify-center gap-2">
                       <Link to={`/vehicles/${vehicle.id}`}>
                         <Button variant="outline" size="icon" title="Ver Detalhes">
                           <Eye className="h-4 w-4" />
@@ -169,8 +211,8 @@ export default function Vehicles() {
       </div>
 
       {/* Pagination controls */}
-      <div className="d-flex justify-content-between align-items-center mt-2 mb-4" style={{ flexShrink: 0 }}>
-        <div className="text-muted">
+      <div className="flex justify-between items-center mt-4">
+        <div className="text-sm text-gray-600">
           {filteredVehicles.length === 0
             ? ""
             : (() => {
@@ -179,7 +221,7 @@ export default function Vehicles() {
               return `Mostrando ${start}–${end} de ${filteredVehicles.length}`;
             })()}
         </div>
-        <div className="d-flex gap-2">
+        <div className="flex gap-2">
           <Button
             variant="outline"
             disabled={page <= 1}
@@ -187,7 +229,7 @@ export default function Vehicles() {
           >
             Anterior
           </Button>
-          <div className="align-self-center">
+          <div className="flex items-center px-4 text-sm font-medium">
             {page} / {totalPages}
           </div>
           <Button
@@ -202,16 +244,29 @@ export default function Vehicles() {
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta ação não pode ser desfeita. O veículo será eliminado permanentemente.
+        <AlertDialogContent className="sm:max-w-md">
+          <AlertDialogHeader className="space-y-4">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+              <Trash2 className="h-6 w-6 text-red-600" />
+            </div>
+            <AlertDialogTitle className="text-center text-xl">
+              Eliminar Veículo
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center text-base">
+              Esta ação não pode ser desfeita. Tem a certeza que
+              deseja eliminar permanentemente este veículo?
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete}>Eliminar</AlertDialogAction>
+          <AlertDialogFooter className="flex flex-row gap-3 justify-center sm:justify-center mt-2">
+            <AlertDialogCancel className="mt-0 flex-1 sm:flex-none px-6 hover:bg-gray-100 focus-visible:ring-0 focus-visible:ring-offset-0">
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="mt-0 flex-1 sm:flex-none px-6 bg-red-600 hover:bg-red-700 text-white focus-visible:ring-0 focus-visible:ring-offset-0"
+            >
+              Eliminar
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
