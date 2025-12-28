@@ -10,7 +10,7 @@ import {
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { ptBR } from "date-fns/locale";
-import { CalendarIcon, Plus } from "lucide-react";
+import { CalendarIcon, Plus, X } from "lucide-react";
 import { cn } from "../lib/utils";
 import { toast } from "sonner";
 import { Textarea } from "../ui/textarea";
@@ -54,16 +54,23 @@ export default function DayOffCreateDialog({
           {triggerLabel}
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>Marcar Folga</DialogTitle>
-          <DialogDescription>Selecione o colaborador, a data e o motivo da folga</DialogDescription>
+      <DialogContent className="max-w-2xl p-0 gap-0">
+        <DialogHeader className="bg-gradient-to-br from-red-600 to-red-700 text-white p-6 rounded-t-lg m-0 !flex-row items-center justify-between !space-y-0">
+          <DialogTitle className="text-white text-2xl font-bold">Marcar Folga</DialogTitle>
+          <button 
+            type="button"
+            onClick={() => setOpen(false)}
+            className="w-9 h-9 rounded-lg bg-white/20 hover:bg-white/30 flex items-center justify-center transition-all focus:outline-none flex-shrink-0 relative z-50"
+            aria-label="Fechar"
+          >
+            <X className="h-5 w-5 text-white" strokeWidth={2.5} />
+          </button>
         </DialogHeader>
-        <div className="space-y-4 py-4">
-          <div>
-            <label className="text-sm font-medium mb-2 block">Colaborador</label>
+        <div className="space-y-4 py-4 px-6">
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-gray-700">Colaborador *</label>
             <Select value={selectedUsuario} onValueChange={setSelectedUsuario}>
-              <SelectTrigger>
+              <SelectTrigger className="h-11">
                 <SelectValue placeholder="Selecione um colaborador" />
               </SelectTrigger>
               <SelectContent>
@@ -73,8 +80,8 @@ export default function DayOffCreateDialog({
               </SelectContent>
             </Select>
           </div>
-          <div>
-            <label className="text-sm font-medium mb-2 block">Data</label>
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-gray-700">Data *</label>
             <div className="relative w-full">
               <DatePicker
                 selected={selectedDate}
@@ -83,30 +90,30 @@ export default function DayOffCreateDialog({
                 locale={ptBR}
                 dateFormat="dd/MM/yyyy"
                 placeholderText="Selecione a data"
-                minDate={new Date()} // bloqueia datas anteriores a hoje
-                // filterDate={(d) => d >= new Date()} // opcional redundante
+                minDate={new Date()}
                 className={cn(
-                  "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+                  "flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
                   !selectedDate && "text-muted-foreground"
                 )}
                 wrapperClassName="w-full"
               />
-              <CalendarIcon className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+              <CalendarIcon className="absolute right-3 top-3 h-4 w-4 text-muted-foreground pointer-events-none" />
             </div>
           </div>
-          <div>
-            <label className="text-sm font-medium mb-2 block">Motivo</label>
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-gray-700">Motivo *</label>
             <Textarea
               value={motivo}
               onChange={(e) => setMotivo(e.target.value)}
               placeholder="Descreva o motivo da folga..."
               rows={3}
+              className="resize-none"
             />
           </div>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
-          <Button onClick={handleConfirm}>Confirmar</Button>
+        <DialogFooter className="px-6 pb-6 gap-2">
+          <Button variant="outline" onClick={() => setOpen(false)} className="border-2 border-gray-300">Cancelar</Button>
+          <Button onClick={handleConfirm} className="bg-red-600 hover:bg-red-700">Confirmar</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
