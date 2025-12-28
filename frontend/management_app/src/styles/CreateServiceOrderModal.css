@@ -57,24 +57,20 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
-  color: white !important;
-  font-size: 1.5rem;
-  font-weight: 700;
-  line-height: 1;
+  transition: background 0.2s ease;
+  color: white;
   padding: 0;
+  position: relative;
+  z-index: 10;
+  flex-shrink: 0;
 }
 
 .modal-close-btn:hover {
   background: rgba(255, 255, 255, 0.3);
-  transform: rotate(90deg);
 }
 
-.modal-close-btn i {
+.modal-close-btn svg {
   display: block;
-  line-height: 1;
-  color: white !important;
-  font-size: 1.5rem;
 }
 
 .progress-section {

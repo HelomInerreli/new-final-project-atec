@@ -332,9 +332,6 @@ export default function Stock() {
       >
         <div>
           <h1 className="h1 fw-bold text-dark">Gestão de Stock</h1>
-          <p className="text-muted mt-1">
-            Gerencie o inventário de produtos e peças
-          </p>
         </div>
         <Dialog
           open={dialogOpen}
@@ -670,17 +667,27 @@ export default function Stock() {
       </div>
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta ação não pode ser desfeita. O produto será permanentemente
-              eliminado do sistema.
+        <AlertDialogContent className="sm:max-w-md">
+          <AlertDialogHeader className="space-y-4">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+              <Trash2 className="h-6 w-6 text-red-600" />
+            </div>
+            <AlertDialogTitle className="text-center text-xl">
+              Eliminar Produto
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center text-base">
+              Esta ação não pode ser desfeita. Tem a certeza que
+              deseja eliminar permanentemente este produto?
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete}>
+          <AlertDialogFooter className="flex flex-row gap-3 justify-center sm:justify-center mt-2">
+            <AlertDialogCancel className="mt-0 flex-1 sm:flex-none px-6 hover:bg-gray-100 focus-visible:ring-0 focus-visible:ring-offset-0">
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="mt-0 flex-1 sm:flex-none px-6 bg-red-600 hover:bg-red-700 text-white focus-visible:ring-0 focus-visible:ring-offset-0"
+            >
               Eliminar
             </AlertDialogAction>
           </AlertDialogFooter>

@@ -74,15 +74,20 @@ class AppointmentRepository:
             
     def get_all(self, skip: int = 0, limit: int = 100, user: Optional[User] = None) -> List[Appointment]:
         """Listar appointments, ordenadas do mais recente para o mais antigo."""
-        # carregar customer e vehicle para que os campos customer_id/vehicle_id e os objetos relacionados estejam disponíveis
+        # carregar customer, vehicle, service e status para que os dados estejam disponíveis
         query = (
             self.db.query(Appointment)
-            .options(joinedload(Appointment.customer), joinedload(Appointment.vehicle), joinedload(Appointment.service), joinedload(Appointment.status))
+            .options(
+                joinedload(Appointment.customer),
+                joinedload(Appointment.vehicle),
+                joinedload(Appointment.service),
+                joinedload(Appointment.status)
+            )
             .order_by(Appointment.id.desc())
         )
-        # Role-based filtering removed - Service model doesn't have area field
-        # if user and user.role not in ["Gestor", "admin"]:
-        #     query = query.filter(Appointment.service.has(Service.area.like(f'%{user.role}%')))
+        # Admin e Gestor veem tudo; outros roles veem apenas serviços da sua área
+        if user and user.role.lower() not in ["gestor", "admin"]:
+            query = query.filter(Appointment.service.has(Service.area.like(f'%{user.role}%')))
         return query.offset(skip).limit(limit).all()
 
     # def get_all(self, skip: int = 0, limit: int = 100) -> List[Appointment]:

@@ -104,24 +104,31 @@ const ServiceOrderDetail: FC = () => {
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button
-                  variant="destructive"
-                  className="so-action-btn"
+                  variant="outline"
+                  className="so-action-btn btn-start"
                   disabled={saving || currentNormalized === "Concluída"}                >
                   Iniciar
                 </Button>
               </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Iniciar Ordem de Serviço?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    A ordem :{order.id} será marcada como "Em Andamento". 
-                    O cronômetro de trabalho será iniciado.
+              <AlertDialogContent className="max-w-md">
+                <AlertDialogHeader className="space-y-4">
+                  <AlertDialogTitle className="text-xl">Iniciar Ordem de Serviço?</AlertDialogTitle>
+                  <AlertDialogDescription className="text-base">
+                    A ordem <span className="font-semibold text-red-600">#{order.id}</span> será marcada como <span className="font-semibold">"Em Andamento"</span>.
+                    <div className="mt-4 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg">
+                      <p className="text-sm text-gray-700">
+                        ✓ O cronômetro de trabalho será iniciado automaticamente.
+                      </p>
+                    </div>
                   </AlertDialogDescription>
                 </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleStartWork}>
-                    Sim, Iniciar
+                <AlertDialogFooter className="flex flex-row justify-center items-center gap-3 sm:flex-row sm:justify-center">
+                  <AlertDialogCancel className="hover:bg-gray-100 m-0">Cancelar</AlertDialogCancel>
+                  <AlertDialogAction 
+                    onClick={handleStartWork}
+                    className="bg-red-600 hover:bg-red-700 m-0"
+                  >
+                    Iniciar
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -138,18 +145,25 @@ const ServiceOrderDetail: FC = () => {
                   Pausar
                 </Button>
               </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Pausar Ordem de Serviço?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    O trabalho em andamento será interrompido temporariamente. 
-                    Pode retomar a qualquer momento clicando em "Iniciar".
+              <AlertDialogContent className="max-w-md">
+                <AlertDialogHeader className="space-y-4">
+                  <AlertDialogTitle className="text-xl">Pausar Ordem de Serviço?</AlertDialogTitle>
+                  <AlertDialogDescription className="text-base">
+                    O trabalho em andamento será interrompido temporariamente.
+                    <div className="mt-4 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg">
+                      <p className="text-sm text-gray-700">
+                        ⚠️ Pode retomar a qualquer momento clicando em <span className="font-semibold">"Iniciar"</span>.
+                      </p>
+                    </div>
                   </AlertDialogDescription>
                 </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction onClick={handlePauseWork}>
-                    Sim, Pausar
+                <AlertDialogFooter className="flex flex-row justify-center items-center gap-3 sm:flex-row sm:justify-center">
+                  <AlertDialogCancel className="hover:bg-gray-100 m-0">Cancelar</AlertDialogCancel>
+                  <AlertDialogAction 
+                    onClick={handlePauseWork}
+                    className="bg-red-600 hover:bg-red-700 m-0"
+                  >
+                    Pausar
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -166,18 +180,25 @@ const ServiceOrderDetail: FC = () => {
                 Finalizar
               </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Finalizar Ordem de Serviço?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Esta ação irá marcar a ordem #{order.id} como <strong>concluída</strong>. 
-                  Certifique-se de que todos os trabalhos foram finalizados e documentados.
+            <AlertDialogContent className="max-w-md">
+              <AlertDialogHeader className="space-y-4">
+                <AlertDialogTitle className="text-xl">Finalizar Ordem de Serviço?</AlertDialogTitle>
+                <AlertDialogDescription className="text-base">
+                  Esta ação irá marcar a ordem <span className="font-semibold text-red-600">#{order.id}</span> como <span className="font-semibold">concluída</span>.
+                  <div className="mt-4 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg">
+                    <p className="text-sm text-gray-700">
+                      ⚠️ Certifique-se de que todos os trabalhos foram finalizados e documentados.
+                    </p>
+                  </div>
                 </AlertDialogDescription>
               </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction onClick={handleFinalizeWork}>
-                  Sim, Finalizar
+              <AlertDialogFooter className="flex flex-row justify-center items-center gap-3 sm:flex-row sm:justify-center">
+                <AlertDialogCancel className="hover:bg-gray-100 m-0">Cancelar</AlertDialogCancel>
+                <AlertDialogAction 
+                  onClick={handleFinalizeWork}
+                  className="bg-red-600 hover:bg-red-700 m-0"
+                >
+                  Finalizar
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>

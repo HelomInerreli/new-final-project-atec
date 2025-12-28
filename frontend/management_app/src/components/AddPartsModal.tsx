@@ -1,6 +1,7 @@
 import React from "react";
 import { useAddPartsModal } from "../hooks/useAddPartsModal";
 import { Button } from "./ui/button";
+import { toast } from "../hooks/use-toast";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -121,54 +122,48 @@ const AddPartsModal: React.FC<AddPartsModalProps> = ({ isOpen, onClose, orderId,
               </Button>
             </AlertDialogTrigger>
             
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Confirmar Adição de Peça</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Tem certeza que deseja adicionar esta peça à ordem #{orderId}?
+            <AlertDialogContent className="max-w-md">
+              <AlertDialogHeader className="space-y-4">
+                <AlertDialogTitle className="text-xl">Confirmar Adição de Peça</AlertDialogTitle>
+                <AlertDialogDescription className="text-base">
+                  Tem certeza que deseja adicionar esta peça à ordem <span className="font-semibold text-red-600">#{orderId}</span>?
                   
                   {selectedProduct && (
-                    <div style={{ 
-                      marginTop: "16px", 
-                      padding: "16px", 
-                      backgroundColor: "#f8f9fa", 
-                      borderRadius: "8px",
-                      fontSize: "0.9rem",
-                      color: "#495057"
-                    }}>
-                      <div style={{ marginBottom: "8px" }}>
-                        <strong>Peça:</strong> {selectedProduct.name}
+                    <div className="mt-4 p-4 bg-gray-50 border-l-4 border-red-500 rounded-r-lg space-y-2">
+                      <div className="text-sm">
+                        <span className="font-semibold text-gray-700">Peça:</span>
+                        <span className="text-gray-800 ml-2">{selectedProduct.name}</span>
                       </div>
                       {selectedProduct.partNumber && (
-                        <div style={{ marginBottom: "8px" }}>
-                          <strong>Código:</strong> {selectedProduct.partNumber}
+                        <div className="text-sm">
+                          <span className="font-semibold text-gray-700">Código:</span>
+                          <span className="text-gray-800 ml-2">{selectedProduct.partNumber}</span>
                         </div>
                       )}
-                      <div style={{ marginBottom: "8px" }}>
-                        <strong>Quantidade:</strong> {quantity} un.
+                      <div className="text-sm">
+                        <span className="font-semibold text-gray-700">Quantidade:</span>
+                        <span className="text-gray-800 ml-2">{quantity} un.</span>
                       </div>
-                      <div style={{ marginBottom: "8px" }}>
-                        <strong>Preço unitário:</strong> €{selectedProduct.saleValue.toFixed(2)}
+                      <div className="text-sm">
+                        <span className="font-semibold text-gray-700">Preço unitário:</span>
+                        <span className="text-gray-800 ml-2">€{selectedProduct.saleValue.toFixed(2)}</span>
                       </div>
-                      <div style={{ 
-                        marginTop: "12px", 
-                        paddingTop: "12px", 
-                        borderTop: "2px solid #dee2e6",
-                        fontSize: "1rem",
-                        fontWeight: "700",
-                        color: "#28a745"
-                      }}>
-                        <strong>Total:</strong> €{(selectedProduct.saleValue * quantity).toFixed(2)}
+                      <div className="text-base font-bold text-red-600 pt-2 border-t-2 border-gray-300 mt-2">
+                        <span>Total:</span>
+                        <span className="ml-2">€{(selectedProduct.saleValue * quantity).toFixed(2)}</span>
                       </div>
                     </div>
                   )}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction onClick={handleAddPart}>
-                  Sim, Adicionar
+              <AlertDialogFooter className="flex flex-row justify-center items-center gap-3 sm:flex-row sm:justify-center">
+                <AlertDialogCancel className="hover:bg-gray-100 m-0">Cancelar</AlertDialogCancel>
+                <AlertDialogAction 
+                  onClick={handleAddPart}
+                  className="bg-red-600 hover:bg-red-700 m-0"
+                >
+                  Adicionar
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>

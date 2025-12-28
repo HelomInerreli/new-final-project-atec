@@ -7,7 +7,7 @@ import {
   Phone,
   Mail,
   Trash2,
-  Edit,
+  Pencil,
   AlertTriangle,
 } from "lucide-react";
 import {
@@ -96,6 +96,7 @@ export default function Agendamentos() {
   const [customerVehicles, setCustomerVehicles] = useState<Vehicle[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("todos");
+  const [monthFilter, setMonthFilter] = useState<string>("todos");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -167,6 +168,14 @@ export default function Agendamentos() {
       setLoading(true);
       const data = await appointmentService.getAll();
       console.log("✅ Agendamentos carregados:", data);
+      console.log("📊 Total de appointments:", data.length);
+      if (data.length > 0) {
+        console.log("📋 Exemplo do primeiro appointment:", data[0]);
+        console.log("  - Customer:", data[0].customer);
+        console.log("  - Vehicle:", data[0].vehicle);
+        console.log("  - Service:", data[0].service);
+        console.log("  - Status:", data[0].status);
+      }
       setAppointments(data);
     } catch (error) {
       console.error("❌ Erro ao carregar agendamentos:", error);
@@ -207,6 +216,7 @@ export default function Agendamentos() {
       console.log("🔄 Carregando status...");
       const data = await statusService.getAll();
       console.log("✅ Status carregados:", data);
+      // Mostrar todos os status disponíveis
       setStatuses(data);
     } catch (error) {
       console.error("❌ Erro ao carregar status:", error);
@@ -286,31 +296,40 @@ export default function Agendamentos() {
   const translateStatus = (statusName?: string): string => {
     if (!statusName) return "Pendente";
     const lower = statusName.toLowerCase();
-    if (lower.includes("finalizad") || lower.includes("finalized"))
-      return "Finalizado";
-    if (lower.includes("aguarda") || lower.includes("waiting"))
-      return "Aguarda Pagamento";
-    return "Pendente";
+    if (lower.includes("concluída") || lower.includes("concluida") || lower.includes("concluído") || lower.includes("concluido"))
+      return "Concluída";
+    if (lower.includes("em andamento") || lower.includes("em progresso"))
+      return "Em Andamento";
+    if (lower.includes("cancelada") || lower.includes("cancelado"))
+      return "Cancelada";
+    if (lower.includes("pendente"))
+      return "Pendente";
+    return statusName;
   };
 
   const getStatusColor = (statusName?: string) => {
     if (!statusName) return "bg-yellow-100 text-yellow-800"; // Default to Pendente color
     const lower = statusName.toLowerCase();
-    if (lower.includes("finalizad") || lower.includes("finalized"))
+    if (lower.includes("concluída") || lower.includes("concluida") || lower.includes("concluído") || lower.includes("concluido"))
       return "bg-green-100 text-green-800";
-    if (lower.includes("aguarda") || lower.includes("waiting"))
-      return "bg-orange-100 text-orange-800";
+    if (lower.includes("em andamento") || lower.includes("em progresso"))
+      return "bg-blue-100 text-blue-800";
+    if (lower.includes("cancelada") || lower.includes("cancelado"))
+      return "bg-gray-100 text-gray-600";
     return "bg-yellow-100 text-yellow-800"; // Pendente
   };
 
   const filteredAppointments = appointments.filter((appointment) => {
     const customerName = appointment.customer?.name || "";
     const vehicleInfo = appointment.vehicle
-      ? `${appointment.vehicle.brand} ${appointment.vehicle.model} - ${appointment.vehicle.plate}`
+      ? `${appointment.vehicle.brand} ${appointment.vehicle.model} - ${appointment.vehicle.license_plate}`
       : "";
     const serviceName = appointment.service?.name || "";
     const statusName = appointment.status?.name || "";
     const translatedStatus = translateStatus(statusName).toLowerCase();
+    const appointmentDate = new Date(appointment.appointment_date);
+    const appointmentMonth = appointmentDate.getMonth(); // 0-11
+    const appointmentYear = appointmentDate.getFullYear();
 
     const matchesSearch =
       customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -323,8 +342,26 @@ export default function Agendamentos() {
       translatedStatus.includes(statusFilter.toLowerCase()) ||
       statusName.toLowerCase().includes(statusFilter.toLowerCase());
 
-    return matchesSearch && matchesStatus;
+    const matchesMonth = 
+      monthFilter === "todos" ||
+      (monthFilter !== "todos" && 
+       appointmentMonth === parseInt(monthFilter) &&
+       appointmentYear === 2025);
+
+    return matchesSearch && matchesStatus && matchesMonth;
+  }).sort((a, b) => {
+    // Ordenar do mais antigo para o mais recente
+    const dateA = new Date(a.appointment_date).getTime();
+    const dateB = new Date(b.appointment_date).getTime();
+    return dateA - dateB;
   });
+
+  // Debug log
+  console.log("🔍 Filtro de appointments:");
+  console.log("  - Total appointments:", appointments.length);
+  console.log("  - Filtered appointments:", filteredAppointments.length);
+  console.log("  - Search term:", searchTerm);
+  console.log("  - Status filter:", statusFilter);
 
   const handleOpenDialog = (appointment: Appointment | null) => {
     if (appointment) {
@@ -456,7 +493,6 @@ export default function Agendamentos() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-4xl font-bold text-gray-900 leading-tight">Gestão de Agendamentos</h1>
-          <p className="text-lg text-gray-600 mt-2 font-medium">Gerencie os agendamentos de serviços da oficina</p>
         </div>
         <Button
           variant="destructive"
@@ -509,14 +545,37 @@ export default function Agendamentos() {
           </div>
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full sm:w-[200px]">
+          <SelectTrigger className="w-full sm:w-[200px] border-2 border-red-600 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0" style={{ height: "56px" }}>
             <SelectValue placeholder="Filtrar por status" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="todos">Todos os status</SelectItem>
             <SelectItem value="pendente">Pendente</SelectItem>
-            <SelectItem value="aguarda pagamento">Aguarda Pagamento</SelectItem>
-            <SelectItem value="finalizado">Finalizado</SelectItem>
+            <SelectItem value="em andamento">Em Andamento</SelectItem>
+            <SelectItem value="concluída">Concluída</SelectItem>
+            <SelectItem value="cancelada">Cancelada</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={monthFilter} onValueChange={setMonthFilter}>
+          <SelectTrigger className="w-full sm:w-[200px] border-2 border-red-600 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0" style={{ height: "56px" }}>
+            <SelectValue placeholder="Filtrar por mês" />
+          </SelectTrigger>
+          <SelectContent className="w-[350px]">
+            <SelectItem value="todos" className="col-span-3">Todos os meses</SelectItem>
+            <div className="grid grid-cols-3 gap-1 p-2">
+              <SelectItem value="0" className="text-center">Jan</SelectItem>
+              <SelectItem value="1" className="text-center">Fev</SelectItem>
+              <SelectItem value="2" className="text-center">Mar</SelectItem>
+              <SelectItem value="3" className="text-center">Abr</SelectItem>
+              <SelectItem value="4" className="text-center">Mai</SelectItem>
+              <SelectItem value="5" className="text-center">Jun</SelectItem>
+              <SelectItem value="6" className="text-center">Jul</SelectItem>
+              <SelectItem value="7" className="text-center">Ago</SelectItem>
+              <SelectItem value="8" className="text-center">Set</SelectItem>
+              <SelectItem value="9" className="text-center">Out</SelectItem>
+              <SelectItem value="10" className="text-center">Nov</SelectItem>
+              <SelectItem value="11" className="text-center">Dez</SelectItem>
+            </div>
           </SelectContent>
         </Select>
       </div>
@@ -531,7 +590,7 @@ export default function Agendamentos() {
             minute: "2-digit",
           });
           const vehicleInfo = appointment.vehicle
-            ? `${appointment.vehicle.brand} ${appointment.vehicle.model} - ${appointment.vehicle.plate}`
+            ? `${appointment.vehicle.brand} ${appointment.vehicle.model} - ${appointment.vehicle.license_plate}`
             : "N/A";
 
           return (
@@ -593,22 +652,20 @@ export default function Agendamentos() {
 
               <div className="flex gap-2 p-4 pt-0">
                 <Button
-                  variant="ghost"
-                  size="sm"
-                  className="bg-transparent hover:bg-white"
+                  variant="outline"
+                  className="flex-1"
                   onClick={() => handleOpenDialog(appointment)}
                 >
-                  <Edit className="h-4 w-4 text-red-600" />
+                  <Pencil className="h-4 w-4" />
                 </Button>
 
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button
-                      variant="ghost"
-                      size="sm"
-                      className="bg-transparent hover:bg-white"
+                      variant="destructive"
+                      className="flex-1"
                     >
-                      <Trash2 className="h-4 w-4 text-red-600" />
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent className="sm:max-w-md">
@@ -660,19 +717,31 @@ export default function Agendamentos() {
 
       {/* Dialog para Criar/Editar */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[800px] p-0 gap-0">
           <form onSubmit={handleFormSubmit}>
-            <DialogHeader>
-              <DialogTitle>
+            <DialogHeader className="bg-gradient-to-br from-red-600 to-red-700 text-white p-6 rounded-t-lg m-0 !flex-row items-center justify-between !space-y-0">
+              <DialogTitle className="text-white text-2xl font-bold">
                 {editingId ? "Editar Agendamento" : "Novo Agendamento"}
               </DialogTitle>
-              <DialogDescription>
-                {editingId
-                  ? "Altere os dados do agendamento abaixo."
-                  : "Preencha os dados para criar um novo agendamento."}
-              </DialogDescription>
+              <button 
+                type="button"
+                onClick={() => {
+                  setIsFormOpen(false);
+                  setEditingId(null);
+                  setFormData(initialFormData);
+                  setCustomerVehicles([]);
+                }}
+                className="w-9 h-9 rounded-lg bg-white/20 hover:bg-white/30 flex items-center justify-center transition-all focus:outline-none flex-shrink-0"
+                style={{ outline: "none", boxShadow: "none" }}
+                aria-label="Fechar"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
+            <div className="grid gap-4 py-4 px-6">
               <div className="grid gap-2">
                 <div className="mb-input-wrapper">
                   {(() => {
@@ -1017,11 +1086,10 @@ export default function Agendamentos() {
                         color: "#6b7280",
                         cursor: "pointer",
                       }}
-                      onClick={() =>
-                        document
-                          .getElementById("appointment_date")
-                          ?.showPicker()
-                      }
+                      onClick={() => {
+                        const element = document.getElementById("appointment_date") as HTMLInputElement;
+                        element?.showPicker?.();
+                      }}
                     />
                   </div>
                 </div>
@@ -1220,19 +1288,7 @@ export default function Agendamentos() {
                           className="mb-select-menu"
                           style={{ maxHeight: "250px", overflowY: "auto" }}
                         >
-                          {statuses
-                            .filter((status) => {
-                              const name = status.name.toLowerCase();
-                              return (
-                                name.includes("pendente") ||
-                                name.includes("pending") ||
-                                name.includes("finalizado") ||
-                                name.includes("finalized") ||
-                                name.includes("aguarda") ||
-                                name.includes("waiting")
-                              );
-                            })
-                            .map((status) => (
+                          {statuses.map((status) => (
                               <li
                                 key={status.id}
                                 className={`mb-select-item ${
@@ -1288,7 +1344,7 @@ export default function Agendamentos() {
                 </div>
               </div>
             </div>
-            <DialogFooter>
+            <DialogFooter className="px-6 pb-6 !flex-row !justify-between">
               <Button
                 type="button"
                 variant="outline"

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { getProducts, addPartToOrder, type Product } from "../services/productService";
+import { toast } from "../hooks/use-toast";
 
 export const useAddPartsModal = (isOpen: boolean, orderId: string, onSuccess: () => void, onClose: () => void) => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -53,11 +54,24 @@ export const useAddPartsModal = (isOpen: boolean, orderId: string, onSuccess: ()
     setAdding(true);
     try {
       await addPartToOrder(orderId, selectedProduct.id, quantity);
+      
+      toast({
+        title: "Peça adicionada!",
+        description: `${quantity} un. de ${selectedProduct.name} adicionada com sucesso.`,
+        duration: 3000,
+      });
+      
       resetForm();
       onSuccess();
       onClose();
     } catch (error: any) {
       console.error("Erro ao adicionar peça:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível adicionar a peça. Tente novamente.",
+        variant: "destructive",
+        duration: 3000,
+      });
     } finally {
       setAdding(false);
     }
