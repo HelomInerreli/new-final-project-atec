@@ -317,21 +317,10 @@ export default function Stock() {
   }, []);
 
   return (
-    <div
-      className="d-flex flex-column"
-      style={{
-        height: "100%",
-        backgroundColor: "transparent",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
-      <div
-        className="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom border-light"
-        style={{ flexShrink: 0 }}
-      >
+    <div className="flex-1 space-y-6 p-8">
+      <div className="flex justify-between items-center">
         <div>
-          <h1 className="h1 fw-bold text-dark">Gestão de Stock</h1>
+          <h1 className="text-4xl font-bold text-gray-900 leading-tight">Gestão de Stock</h1>
         </div>
         <Dialog
           open={dialogOpen}
@@ -517,19 +506,48 @@ export default function Stock() {
         </Dialog>
       </div>
 
-      <div className="d-flex gap-3 mb-3 pb-3" style={{ flexShrink: 0 }}>
-        <div className="position-relative flex-grow-1">
-          <Search className="position-absolute start-0 top-50 translate-middle-y ms-3 text-muted" />
-          <Input
-            placeholder="Pesquisar produtos ou fornecedores..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="ps-5"
-          />
+      <div className="flex flex-col sm:flex-row gap-4 mb-4">
+        <div className="mb-input-wrapper flex-1">
+          <div style={{ position: "relative" }}>
+            <Search
+              size={20}
+              style={{
+                position: "absolute",
+                left: "14px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                color: "#6b7280",
+                pointerEvents: "none",
+                zIndex: 1,
+              }}
+            />
+            <input
+              type="text"
+              placeholder=""
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="mb-input"
+              style={{ paddingLeft: "46px" }}
+              onFocus={(e) =>
+                e.target.nextElementSibling?.classList.add("shrunken")
+              }
+              onBlur={(e) => {
+                if (!e.target.value) {
+                  e.target.nextElementSibling?.classList.remove("shrunken");
+                }
+              }}
+            />
+            <label
+              className={`mb-input-label ${searchTerm ? "shrunken" : ""}`}
+              style={{ left: "46px" }}
+            >
+              Pesquisar produtos ou fornecedores...
+            </label>
+          </div>
         </div>
         <Select value={categoriaFiltro} onValueChange={setCategoriaFiltro}>
-          <SelectTrigger style={{ width: 200 }}>
-            <SelectValue placeholder="Categoria" />
+          <SelectTrigger className="w-full sm:w-[200px] border-2 border-red-600 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0" style={{ height: "56px" }}>
+            <SelectValue placeholder="Filtrar por categoria" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="todos">Todas Categorias</SelectItem>
@@ -543,7 +561,7 @@ export default function Stock() {
       </div>
 
       <div
-        className="table-responsive border rounded flex-grow-1"
+        className="rounded-md border-2 border-red-600"
         style={{
           overflowY: "auto",
           backgroundColor: "#fff",
@@ -562,13 +580,13 @@ export default function Stock() {
             }}
           >
             <TableRow>
-              <TableHead>Produto</TableHead>
-              <TableHead>Descrição</TableHead>
-              <TableHead>Categoria</TableHead>
-              <TableHead>Fornecedor</TableHead>
-              <TableHead className="text-right">Quantidade</TableHead>
-              <TableHead className="text-right">Preço</TableHead>
-              <TableHead className="text-right">Ações</TableHead>
+              <TableHead className="text-left font-semibold text-base text-black">Produto</TableHead>
+              <TableHead className="text-left font-semibold text-base text-black">Descrição</TableHead>
+              <TableHead className="text-left font-semibold text-base text-black">Categoria</TableHead>
+              <TableHead className="text-left font-semibold text-base text-black">Fornecedor</TableHead>
+              <TableHead className="text-right font-semibold text-base text-black">Quantidade</TableHead>
+              <TableHead className="text-right font-semibold text-base text-black">Preço</TableHead>
+              <TableHead className="text-center font-semibold text-base text-black">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -576,7 +594,7 @@ export default function Stock() {
               <TableRow>
                 <TableCell
                   colSpan={7}
-                  className="text-center text-muted-foreground"
+                  className="text-center py-8 text-muted-foreground"
                 >
                   Nenhum produto encontrado
                 </TableCell>
@@ -590,14 +608,14 @@ export default function Stock() {
                 );
                 return (
                   <TableRow key={produto.id}>
-                    <TableCell className="font-medium">
+                    <TableCell className="text-left font-medium">
                       {produto.nome}
                     </TableCell>
-                    <TableCell>{produto.descricao}</TableCell>
-                    <TableCell>{produto.categoria}</TableCell>
-                    <TableCell>{produto.fornecedor}</TableCell>
-                    <TableCell className="text-end">
-                      <div className="d-flex align-items-center justify-content-end gap-2">
+                    <TableCell className="text-left">{produto.descricao}</TableCell>
+                    <TableCell className="text-left">{produto.categoria}</TableCell>
+                    <TableCell className="text-left">{produto.fornecedor}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-2">
                         <span>{produto.quantidade}</span>
                         <Badge bg={status.bg}>{status.text}</Badge>
                       </div>
@@ -605,8 +623,8 @@ export default function Stock() {
                     <TableCell className="text-right">
                       €{produto.preco.toFixed(2)}
                     </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
+                    <TableCell className="text-center">
+                      <div className="flex justify-center gap-2">
                         <Button
                           variant="outline"
                           size="icon"
@@ -632,11 +650,8 @@ export default function Stock() {
       </div>
 
       {/* Pagination controls */}
-      <div
-        className="d-flex justify-content-between align-items-center mt-2 mb-4"
-        style={{ flexShrink: 0 }}
-      >
-        <div className="text-muted">
+      <div className="flex justify-between items-center mt-4">
+        <div className="text-sm text-gray-600">
           {filteredProdutos.length === 0
             ? ""
             : (() => {
@@ -645,7 +660,7 @@ export default function Stock() {
                 return `Mostrando ${start}–${end} de ${filteredProdutos.length}`;
               })()}
         </div>
-        <div className="d-flex gap-2">
+        <div className="flex gap-2">
           <Button
             variant="outline"
             disabled={page <= 1}
@@ -653,7 +668,7 @@ export default function Stock() {
           >
             Anterior
           </Button>
-          <div className="align-self-center">
+          <div className="flex items-center px-4 text-sm font-medium">
             {page} / {totalPages}
           </div>
           <Button
