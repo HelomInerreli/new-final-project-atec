@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Umbrella, Calendar } from "lucide-react";
@@ -39,7 +39,7 @@ import {
 import { Label } from "../../components/ui/label";
 import { Badge } from "../../components/ui/badge";
 import { Plus, Pencil, Trash2, Search } from "lucide-react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
@@ -90,6 +90,9 @@ export default function Users() {
             role_id: 0, // Ensure a default value to avoid uncontrolled component warnings
         }
     });
+
+    // Watch form values for label animation
+    const watchedValues = useWatch({ control });
 
     const filteredEmployees = employees.filter((employee) => {
         const matchesSearch =
@@ -155,7 +158,17 @@ export default function Users() {
 
     const handleDialogClose = () => {
         setIsDialogOpen(false);
-        reset();
+        reset({
+            name: "",
+            last_name: "",
+            email: "",
+            phone: "",
+            address: "",
+            date_of_birth: "",
+            salary: undefined,
+            hired_at: "",
+            role_id: 0,
+        });
         setEditingEmployee(null);
     };
 
@@ -174,7 +187,21 @@ export default function Users() {
                         <Umbrella className="h-4 w-4 mr-2" />
                         Folgas
                     </Button>
-                    <Button variant="destructive" className="border-red-500" onClick={() => { setEditingEmployee(null); reset(); setIsDialogOpen(true); }}>
+                    <Button variant="destructive" className="border-red-500" onClick={() => { 
+                        setEditingEmployee(null); 
+                        reset({
+                            name: "",
+                            last_name: "",
+                            email: "",
+                            phone: "",
+                            address: "",
+                            date_of_birth: "",
+                            salary: undefined,
+                            hired_at: "",
+                            role_id: 0,
+                        }); 
+                        setIsDialogOpen(true); 
+                    }}>
                         <Plus className="mr-2 h-4 w-4" />
                         Novo Funcionário
                     </Button>
@@ -379,84 +406,221 @@ export default function Users() {
                             </button>
                         </DialogHeader>
                         <div className="grid grid-cols-2 gap-4 py-4 px-6">
-                            <div className="space-y-2">
-                                <Label htmlFor="name">Nome</Label>
-                                <Input id="name" {...register("name")} />
-                                {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
+                            <div className="mb-input-wrapper">
+                                <input
+                                    id="name"
+                                    type="text"
+                                    className="mb-input"
+                                    placeholder=""
+                                    {...register("name")}
+                                    onFocus={(e) => e.target.nextElementSibling?.classList.add("shrunken")}
+                                    onBlur={(e) => {
+                                        if (!e.target.value) {
+                                            e.target.nextElementSibling?.classList.remove("shrunken");
+                                        }
+                                    }}
+                                />
+                                <label className={`mb-input-label ${watchedValues.name ? "shrunken" : ""}`}>Nome *</label>
+                                {errors.name && <p className="text-sm text-destructive mt-1">{errors.name.message}</p>}
                             </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="last_name">Apelido</Label>
-                                <Input id="last_name" {...register("last_name")} />
-                                {errors.last_name && <p className="text-sm text-destructive">{errors.last_name.message}</p>}
+                            <div className="mb-input-wrapper">
+                                <input
+                                    id="last_name"
+                                    type="text"
+                                    className="mb-input"
+                                    placeholder=""
+                                    {...register("last_name")}
+                                    onFocus={(e) => e.target.nextElementSibling?.classList.add("shrunken")}
+                                    onBlur={(e) => {
+                                        if (!e.target.value) {
+                                            e.target.nextElementSibling?.classList.remove("shrunken");
+                                        }
+                                    }}
+                                />
+                                <label className={`mb-input-label ${watchedValues.last_name ? "shrunken" : ""}`}>Apelido *</label>
+                                {errors.last_name && <p className="text-sm text-destructive mt-1">{errors.last_name.message}</p>}
                             </div>
-                            <div className="space-y-2 col-span-2">
-                                <Label htmlFor="email">Email</Label>
-                                <Input id="email" type="email" {...register("email")} />
-                                {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
+                            <div className="mb-input-wrapper col-span-2">
+                                <input
+                                    id="email"
+                                    type="email"
+                                    className="mb-input"
+                                    placeholder=""
+                                    {...register("email")}
+                                    onFocus={(e) => e.target.nextElementSibling?.classList.add("shrunken")}
+                                    onBlur={(e) => {
+                                        if (!e.target.value) {
+                                            e.target.nextElementSibling?.classList.remove("shrunken");
+                                        }
+                                    }}
+                                />
+                                <label className={`mb-input-label ${watchedValues.email ? "shrunken" : ""}`}>Email *</label>
+                                {errors.email && <p className="text-sm text-destructive mt-1">{errors.email.message}</p>}
                             </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="phone">Telefone</Label>
-                                <Input id="phone" {...register("phone")} />
-                                {errors.phone && <p className="text-sm text-destructive">{errors.phone.message}</p>}
+                            <div className="mb-input-wrapper">
+                                <input
+                                    id="phone"
+                                    type="text"
+                                    className="mb-input"
+                                    placeholder=""
+                                    {...register("phone")}
+                                    onFocus={(e) => e.target.nextElementSibling?.classList.add("shrunken")}
+                                    onBlur={(e) => {
+                                        if (!e.target.value) {
+                                            e.target.nextElementSibling?.classList.remove("shrunken");
+                                        }
+                                    }}
+                                />
+                                <label className={`mb-input-label ${watchedValues.phone ? "shrunken" : ""}`}>Telefone *</label>
+                                {errors.phone && <p className="text-sm text-destructive mt-1">{errors.phone.message}</p>}
                             </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="salary">Salário (€)</Label>
-                                <Input id="salary" type="number" {...register("salary")} />
-                                {errors.salary && <p className="text-sm text-destructive">{errors.salary.message}</p>}
+                            <div className="mb-input-wrapper">
+                                <input
+                                    id="salary"
+                                    type="number"
+                                    className="mb-input"
+                                    placeholder=""
+                                    {...register("salary")}
+                                    onFocus={(e) => e.target.nextElementSibling?.classList.add("shrunken")}
+                                    onBlur={(e) => {
+                                        if (!e.target.value) {
+                                            e.target.nextElementSibling?.classList.remove("shrunken");
+                                        }
+                                    }}
+                                />
+                                <label className={`mb-input-label ${watchedValues.salary ? "shrunken" : ""}`}>Salário (€) *</label>
+                                {errors.salary && <p className="text-sm text-destructive mt-1">{errors.salary.message}</p>}
                             </div>
-                            <div className="space-y-2 col-span-2">
-                                <Label htmlFor="address">Morada</Label>
-                                <Input id="address" {...register("address")} />
-                                {errors.address && <p className="text-sm text-destructive">{errors.address.message}</p>}
+                            <div className="mb-input-wrapper col-span-2">
+                                <input
+                                    id="address"
+                                    type="text"
+                                    className="mb-input"
+                                    placeholder=""
+                                    {...register("address")}
+                                    onFocus={(e) => e.target.nextElementSibling?.classList.add("shrunken")}
+                                    onBlur={(e) => {
+                                        if (!e.target.value) {
+                                            e.target.nextElementSibling?.classList.remove("shrunken");
+                                        }
+                                    }}
+                                />
+                                <label className={`mb-input-label ${watchedValues.address ? "shrunken" : ""}`}>Morada *</label>
+                                {errors.address && <p className="text-sm text-destructive mt-1">{errors.address.message}</p>}
                             </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="date_of_birth">Data de Nascimento</Label>
-                                <Input id="date_of_birth" type="date" {...register("date_of_birth")} />
-                                {errors.date_of_birth && <p className="text-sm text-destructive">{errors.date_of_birth.message}</p>}
+                            <div className="mb-input-wrapper">
+                                <input
+                                    id="date_of_birth"
+                                    type="date"
+                                    className="mb-input date-input"
+                                    placeholder=""
+                                    {...register("date_of_birth")}
+                                    onFocus={(e) => e.target.nextElementSibling?.classList.add("shrunken")}
+                                    onBlur={(e) => {
+                                        if (!e.target.value) {
+                                            e.target.nextElementSibling?.classList.remove("shrunken");
+                                        }
+                                    }}
+                                />
+                                <label className={`mb-input-label ${watchedValues.date_of_birth ? "shrunken" : ""}`}>Data de Nascimento *</label>
+                                {errors.date_of_birth && <p className="text-sm text-destructive mt-1">{errors.date_of_birth.message}</p>}
                             </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="hired_at">Data de Contratação</Label>
-                                <Input id="hired_at" type="date" {...register("hired_at")} />
-                                {errors.hired_at && <p className="text-sm text-destructive">{errors.hired_at.message}</p>}
+                            <div className="mb-input-wrapper">
+                                <input
+                                    id="hired_at"
+                                    type="date"
+                                    className="mb-input date-input"
+                                    placeholder=""
+                                    {...register("hired_at")}
+                                    onFocus={(e) => e.target.nextElementSibling?.classList.add("shrunken")}
+                                    onBlur={(e) => {
+                                        if (!e.target.value) {
+                                            e.target.nextElementSibling?.classList.remove("shrunken");
+                                        }
+                                    }}
+                                />
+                                <label className={`mb-input-label ${watchedValues.hired_at ? "shrunken" : ""}`}>Data de Contratação *</label>
+                                {errors.hired_at && <p className="text-sm text-destructive mt-1">{errors.hired_at.message}</p>}
                             </div>
-                            <div className="space-y-2 col-span-2">
-                                <Label htmlFor="role_id">Função</Label>
+                            <div className="mb-input-wrapper col-span-2">
                                 <Controller
                                     name="role_id"
                                     control={control}
-                                    render={({ field }) => (
-                                        <Select
-                                            onValueChange={(value) => field.onChange(parseInt(value))}
-                                            value={(field.value as number) > 0 ? String(field.value) : ""}
-                                        >
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Selecione uma função" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {rolesLoading ? (
-                                                    <SelectItem value="loading" disabled>A carregar...</SelectItem>
-                                                ) : (
-                                                    roles.map(role => (
-                                                        <SelectItem key={role.id} value={String(role.id)}>{role.name}</SelectItem>
-                                                    ))
+                                    render={({ field }) => {
+                                        const [isOpen, setIsOpen] = useState(false);
+                                        const [isFocused, setIsFocused] = useState(false);
+                                        const menuRef = useRef<HTMLDivElement>(null);
+                                        
+                                        const selectedRole = roles.find(r => r.id === field.value);
+                                        const hasValue = field.value && field.value > 0;
+
+                                        useEffect(() => {
+                                            const handleClickOutside = (event: MouseEvent) => {
+                                                if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                                                    setIsOpen(false);
+                                                }
+                                            };
+                                            document.addEventListener("mousedown", handleClickOutside);
+                                            return () => document.removeEventListener("mousedown", handleClickOutside);
+                                        }, []);
+
+                                        return (
+                                            <div ref={menuRef} style={{ position: "relative" }}>
+                                                <button
+                                                    type="button"
+                                                    className={`mb-input select ${!hasValue && !isFocused ? "placeholder" : ""}`}
+                                                    onClick={() => setIsOpen(!isOpen)}
+                                                    onFocus={() => setIsFocused(true)}
+                                                    onBlur={() => setIsFocused(false)}
+                                                    style={{ textAlign: "left", cursor: "pointer" }}
+                                                >
+                                                    {selectedRole ? selectedRole.name : ""}
+                                                </button>
+                                                <label className={`mb-input-label ${hasValue || isFocused ? "shrunken" : ""}`}>
+                                                    Função *
+                                                </label>
+                                                <span className="mb-select-caret">▼</span>
+
+                                                {isOpen && (
+                                                    <ul className="mb-select-menu" style={{ maxHeight: "250px", overflowY: "auto" }}>
+                                                        {rolesLoading ? (
+                                                            <li className="mb-select-item" style={{ cursor: "default", opacity: 0.6 }}>
+                                                                A carregar...
+                                                            </li>
+                                                        ) : (
+                                                            roles.map(role => (
+                                                                <li
+                                                                    key={role.id}
+                                                                    className={`mb-select-item ${field.value === role.id ? "selected" : ""}`}
+                                                                    onClick={() => {
+                                                                        field.onChange(role.id);
+                                                                        setIsOpen(false);
+                                                                    }}
+                                                                >
+                                                                    {role.name}
+                                                                </li>
+                                                            ))
+                                                        )}
+                                                    </ul>
                                                 )}
-                                            </SelectContent>
-                                        </Select>
-                                    )}
+                                            </div>
+                                        );
+                                    }}
                                 />
-                                {errors.role_id && <p className="text-sm text-destructive">{errors.role_id.message}</p>}
+                                {errors.role_id && <p className="text-sm text-destructive mt-1">{errors.role_id.message}</p>}
                             </div>
                         </div>
-                        <DialogFooter className="px-6 pb-6">
+                        <DialogFooter className="px-6 pb-6 !flex-row !justify-between">
                             <Button
                                 type="button"
                                 variant="outline"
+                                className="hover:bg-gray-100 hover:text-gray-900 focus-visible:ring-0 focus-visible:ring-offset-0"
                                 onClick={handleDialogClose}
                             >
                                 Cancelar
                             </Button>
-                            <Button type="submit">
-                                {editingEmployee ? "Atualizar" : "Criar"}
+                            <Button type="submit" variant="destructive">
+                                {editingEmployee ? "Salvar Alterações" : "Criar Funcionário"}
                             </Button>
                         </DialogFooter>
                     </form>
