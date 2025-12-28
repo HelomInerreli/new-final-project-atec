@@ -38,7 +38,7 @@ import {
 } from "../../components/ui/select";
 import { Label } from "../../components/ui/label";
 import { Badge } from "../../components/ui/badge";
-import { Plus, Pencil, Trash2, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, X } from "lucide-react";
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -130,10 +130,19 @@ export default function Users() {
     const handleEdit = (employee: Employee) => {
         setEditingEmployee(employee);
         // Formata as datas para o formato YYYY-MM-DD para os inputs type="date"
+        const formatDate = (dateString: string) => {
+            if (!dateString) return "";
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        };
+        
         const defaultValues = {
             ...employee,
-            date_of_birth: new Date(employee.date_of_birth).toISOString().split('T')[0],
-            hired_at: new Date(employee.hired_at).toISOString().split('T')[0],
+            date_of_birth: formatDate(employee.date_of_birth),
+            hired_at: formatDate(employee.hired_at),
         };
         reset(defaultValues);
         setIsDialogOpen(true);
@@ -396,13 +405,9 @@ export default function Users() {
                                 type="button"
                                 onClick={handleDialogClose}
                                 className="w-9 h-9 rounded-lg bg-white/20 hover:bg-white/30 flex items-center justify-center transition-all focus:outline-none flex-shrink-0"
-                                style={{ outline: "none", boxShadow: "none" }}
                                 aria-label="Fechar"
                             >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                                </svg>
+                                <X className="h-5 w-5 text-white" strokeWidth={2.5} />
                             </button>
                         </DialogHeader>
                         <div className="grid grid-cols-2 gap-4 py-4 px-6">
@@ -509,37 +514,53 @@ export default function Users() {
                                 {errors.address && <p className="text-sm text-destructive mt-1">{errors.address.message}</p>}
                             </div>
                             <div className="mb-input-wrapper">
-                                <input
-                                    id="date_of_birth"
-                                    type="date"
-                                    className="mb-input date-input"
-                                    placeholder=""
-                                    {...register("date_of_birth")}
-                                    onFocus={(e) => e.target.nextElementSibling?.classList.add("shrunken")}
-                                    onBlur={(e) => {
-                                        if (!e.target.value) {
-                                            e.target.nextElementSibling?.classList.remove("shrunken");
-                                        }
-                                    }}
+                                <Controller
+                                    name="date_of_birth"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <input
+                                            id="date_of_birth"
+                                            type="date"
+                                            className={`mb-input date-input ${field.value ? "has-value" : ""}`}
+                                            placeholder=""
+                                            value={field.value || ""}
+                                            onChange={field.onChange}
+                                            onFocus={(e) => e.target.nextElementSibling?.classList.add("shrunken")}
+                                            onBlur={(e) => {
+                                                field.onBlur();
+                                                if (!e.target.value) {
+                                                    e.target.nextElementSibling?.classList.remove("shrunken");
+                                                }
+                                            }}
+                                        />
+                                    )}
                                 />
-                                <label className={`mb-input-label ${watchedValues.date_of_birth ? "shrunken" : ""}`}>Data de Nascimento *</label>
+                                <label className="mb-input-label shrunken">Data de Nascimento *</label>
                                 {errors.date_of_birth && <p className="text-sm text-destructive mt-1">{errors.date_of_birth.message}</p>}
                             </div>
                             <div className="mb-input-wrapper">
-                                <input
-                                    id="hired_at"
-                                    type="date"
-                                    className="mb-input date-input"
-                                    placeholder=""
-                                    {...register("hired_at")}
-                                    onFocus={(e) => e.target.nextElementSibling?.classList.add("shrunken")}
-                                    onBlur={(e) => {
-                                        if (!e.target.value) {
-                                            e.target.nextElementSibling?.classList.remove("shrunken");
-                                        }
-                                    }}
+                                <Controller
+                                    name="hired_at"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <input
+                                            id="hired_at"
+                                            type="date"
+                                            className={`mb-input date-input ${field.value ? "has-value" : ""}`}
+                                            placeholder=""
+                                            value={field.value || ""}
+                                            onChange={field.onChange}
+                                            onFocus={(e) => e.target.nextElementSibling?.classList.add("shrunken")}
+                                            onBlur={(e) => {
+                                                field.onBlur();
+                                                if (!e.target.value) {
+                                                    e.target.nextElementSibling?.classList.remove("shrunken");
+                                                }
+                                            }}
+                                        />
+                                    )}
                                 />
-                                <label className={`mb-input-label ${watchedValues.hired_at ? "shrunken" : ""}`}>Data de Contratação *</label>
+                                <label className="mb-input-label shrunken">Data de Contratação *</label>
                                 {errors.hired_at && <p className="text-sm text-destructive mt-1">{errors.hired_at.message}</p>}
                             </div>
                             <div className="mb-input-wrapper col-span-2">
