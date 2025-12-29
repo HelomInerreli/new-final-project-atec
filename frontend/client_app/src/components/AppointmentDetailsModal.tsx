@@ -3,7 +3,11 @@ import type { AppointmentStatusModalProps, Appointment, ExtraService } from '../
 import { approveExtraService, rejectExtraService } from '../services/extraServices';
 import '../styles/modal.css';
 
-// Fases de status baseadas no banco de dados (ordem de progressão)
+/**
+ * Fases de status baseadas no banco de dados (ordem de progressão)
+ * Define a sequência de estados pelos quais um agendamento pode passar
+ * Tipo: Array de objetos com chave e rótulo do status
+ */
 const statusPhases = [
   { key: "pendente", label: "Pendente" },
   { key: "awaiting approval", label: "Aguardando Aprovação" },
@@ -12,7 +16,12 @@ const statusPhases = [
   { key: "finalized", label: "Finalizado" },
 ];
 
-// Função para calcular o progresso baseado no status
+/**
+ * Função para calcular o valor de progresso baseado no status atual
+ * Retorna 0% se cancelado, caso contrário calcula com base na posição no array de fases
+ * @param status - Nome do status atual do agendamento
+ * @returns Valor de progresso em percentagem (0-100)
+ */
 const getProgressValue = (status: string): number => {
   const statusLower = status?.toLowerCase();
 
@@ -27,7 +36,12 @@ const getProgressValue = (status: string): number => {
   return ((currentIndex + 1) / statusPhases.length) * 100;
 };
 
-// Função para o badge de status
+/**
+ * Função para renderizar o badge de status com cor apropriada
+ * Retorna um elemento span com classe Bootstrap baseada no status
+ * @param status - Objeto de status do agendamento
+ * @returns Elemento JSX com o badge de status
+ */
 const getStatusBadge = (status: Appointment["status"]) => {
   const statusName = status?.name?.toLowerCase();
   switch (statusName) {
@@ -48,7 +62,20 @@ const getStatusBadge = (status: Appointment["status"]) => {
   }
 };
 
+/**
+ * Componente modal para exibir detalhes completos de um agendamento
+ * Mostra informações do agendamento, veículo, serviço, progresso e serviços extras
+ * Permite aprovar ou rejeitar serviços extras propostos pelo mecânico
+ * @param appointment - Dados do agendamento a exibir
+ * @param open - Estado de abertura do modal
+ * @param onOpenChange - Função callback para alterar o estado de abertura
+ * @returns Componente JSX do modal ou null se não houver agendamento
+ */
 export function AppointmentStatusModal({ appointment, open, onOpenChange }: AppointmentStatusModalProps) {
+  /**
+   * Efeito para adicionar/remover classe modal-open no body
+   * Previne scroll da página quando o modal está aberto
+   */
   useEffect(() => {
     if (open) {
       document.body.classList.add('modal-open');
@@ -58,10 +85,24 @@ export function AppointmentStatusModal({ appointment, open, onOpenChange }: Appo
     return () => document.body.classList.remove('modal-open');
   }, [open]);
 
-  // State for extra services
+  /**
+   * Estado para armazenar a lista de serviços extras associados ao agendamento
+   * Tipo: Array de ExtraService
+   * Inicia como array vazio
+   */
   const [extraServices, setExtraServices] = useState<ExtraService[]>([]);
+
+  /**
+   * Estado para rastrear qual serviço está a processar uma ação (aprovar/rejeitar)
+   * Tipo: number | null (ID do serviço ou null)
+   * Usado para exibir loading no botão correto
+   */
   const [loadingAction, setLoadingAction] = useState<number | null>(null);
 
+  /**
+   * Efeito para carregar serviços extras quando o agendamento muda
+   * Atualiza o estado com os serviços extras associados ou limpa se não houver
+   */
   useEffect(() => {
     if (appointment) {
       if (appointment.extra_service_associations && appointment.extra_service_associations.length > 0) {
@@ -72,6 +113,12 @@ export function AppointmentStatusModal({ appointment, open, onOpenChange }: Appo
     }
   }, [appointment]);
 
+  /**
+   * Função para processar ações de aprovação ou rejeição de serviços extras
+   * Chama a API apropriada e atualiza o estado local com o resultado
+   * @param serviceId - ID do serviço extra a ser atualizado
+   * @param action - Ação a executar: 'approved' ou 'rejected'
+   */
   const handleServiceAction = async (serviceId: number, action: 'approved' | 'rejected') => {
     try {
       setLoadingAction(serviceId);
@@ -94,15 +141,33 @@ export function AppointmentStatusModal({ appointment, open, onOpenChange }: Appo
     }
   };
 
+  /**
+   * Retorna null se não houver agendamento para exibir
+   */
   if (!appointment) return null;
 
+  /**
+   * Status do agendamento em minúsculas para comparação
+   */
   const statusLower = appointment.status?.name?.toLowerCase();
+
+  /**
+   * Valor de progresso calculado baseado no status atual
+   */
   const progressValue = getProgressValue(appointment.status?.name || "");
+
+  /**
+   * Índice da fase atual no array de fases
+   * Usado para determinar quais fases já foram concluídas
+   */
   const currentPhaseIndex = statusPhases.findIndex(
     (phase) => phase.key === statusLower
   );
 
-  // Cor da barra: vermelha para canceled, verde para finalized, azul para outros
+  /**
+   * Cor da barra de progresso baseada no status
+   * Vermelha para cancelado, verde para finalizado, azul para outros
+   */
   const barColor = statusLower === "canceled"
     ? "bg-danger"
     : statusLower === "finalized"
