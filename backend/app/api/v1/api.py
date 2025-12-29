@@ -13,7 +13,7 @@ from app.api.v1.routes import (
 	managementAuth,
 	userNotification,
 	metrics,
-    status, role, employee,absence, absenceType, absenceStatus
+    status, role, employee,absence, absenceType, absenceStatus, finance
 )
 
 
@@ -39,4 +39,5 @@ api_router.include_router(metrics.router, prefix="/metrics", tags=["metrics"])
 api_router.include_router(absence.router, prefix="/absences", tags=["absences"])
 api_router.include_router(absenceType.router, prefix="/absence-types", tags=["absence-types"])
 api_router.include_router(absenceStatus.router, prefix="/absence-statuses", tags=["absence-statuses"])
+api_router.include_router(finance.router, prefix="/finance", tags=["finance"])
 
