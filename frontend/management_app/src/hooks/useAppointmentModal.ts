@@ -2,10 +2,12 @@ import { useState, useEffect } from "react";
 import { customerService } from "../services/customerService";
 import { vehicleService } from "../services/vehicleService";
 import { serviceService } from "../services/serviceService";
+import { statusService } from "../services/statusService";
 import { appointmentService } from "../services/appointmentService";
 import type { Customer } from "../interfaces/Customer";
 import type { Service } from "../services/serviceService";
 import type { Vehicle } from "../interfaces/Vehicle";
+import type { Status } from "../services/statusService";
 import type { AppointmentCreate } from "../services/appointmentService";
 
 interface AppointmentForm {
@@ -16,6 +18,7 @@ interface AppointmentForm {
   appointment_time: string;
   description: string;
   estimated_budget: number;
+  status_id?: number;
 }
 
 const INITIAL_FORM: AppointmentForm = {
@@ -26,6 +29,7 @@ const INITIAL_FORM: AppointmentForm = {
   appointment_time: "",
   description: "",
   estimated_budget: 0,
+  status_id: undefined,
 };
 
 const AVAILABLE_TIMES = [
@@ -53,6 +57,7 @@ export const useAppointmentModal = (show: boolean, onSuccess: () => void, onClos
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [statuses, setStatuses] = useState<Status[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState<AppointmentForm>(INITIAL_FORM);
 
@@ -67,10 +72,11 @@ export const useAppointmentModal = (show: boolean, onSuccess: () => void, onClos
 
     setError(null);
     setLoadingData(true);
-    Promise.all([customerService.getAll(), serviceService.getAll()])
-      .then(([custs, svcs]) => {
+    Promise.all([customerService.getAll(), serviceService.getAll(), statusService.getAll()])
+      .then(([custs, svcs, stats]) => {
         setCustomers(Array.isArray(custs) ? custs : []);
         setServices(Array.isArray(svcs) ? svcs : []);
+        setStatuses(Array.isArray(stats) ? stats : []);
       })
       .catch((err) => setError(String(err?.message ?? err)))
       .finally(() => setLoadingData(false));
@@ -171,6 +177,7 @@ export const useAppointmentModal = (show: boolean, onSuccess: () => void, onClos
   const selectedCustomer = customers.find((c) => c.id === form.customer_id);
   const selectedVehicle = vehicles.find((v) => v.id === form.vehicle_id);
   const selectedService = services.find((s) => s.id === form.service_id);
+  const selectedStatus = statuses.find((s) => s.id === form.status_id);
 
   return {
     // State
@@ -180,6 +187,7 @@ export const useAppointmentModal = (show: boolean, onSuccess: () => void, onClos
     customers,
     services,
     vehicles,
+    statuses,
     error,
     form,
     availableTimes: AVAILABLE_TIMES,
@@ -188,6 +196,7 @@ export const useAppointmentModal = (show: boolean, onSuccess: () => void, onClos
     selectedCustomer,
     selectedVehicle,
     selectedService,
+    selectedStatus,
     
     // Actions
     setForm,
