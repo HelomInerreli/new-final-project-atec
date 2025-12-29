@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { ClientMenu } from "../../components/ClientMenu";
 import { Vehicles } from "../vehicles/vehicles";
 import { Appointments } from "../future_appointments/FutureAppointments";
@@ -8,6 +9,7 @@ import Profile from "../profile/profile";
 import Dashboard from "../dashboard/Dashboard";
 import { useAuth } from "../../api/auth";
 import { useTranslation } from "react-i18next";
+import { getActiveSectionFromURL } from "../../utils/navigationHelpers";
 import "../../styles/ClientLayout.css";
 
 export type ClientSection = 
@@ -18,21 +20,23 @@ export type ClientSection =
   | "invoices" 
 
 export function ClientLayout() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [activeSection, setActiveSection] = useState<ClientSection>("dashboard");
   const { isLoggedIn } = useAuth();
   const { t } = useTranslation();
 
-  // Ler parâmetros da URL ao carregar
+  // Sincronizar estado com a URL
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const section = urlParams.get('section') as ClientSection;
-    
-    if (section) {
-      setActiveSection(section);
-      // Limpar parâmetros da URL após processar
-      window.history.replaceState({}, '', '/my-services');
-    }
-  }, []);
+    const sectionFromURL = getActiveSectionFromURL();
+    setActiveSection(sectionFromURL);
+  }, [searchParams]);
+
+  // Função para mudar de seção e atualizar a URL
+  const handleSectionChange = (section: ClientSection) => {
+    setActiveSection(section);
+    navigate(`/my-services?section=${section}`, { replace: true });
+  };
 
   if (!isLoggedIn) {
     return (
@@ -67,7 +71,7 @@ export function ClientLayout() {
     <div className="client-layout">
       <ClientMenu 
         activeSection={activeSection} 
-        onSectionChange={setActiveSection} 
+        onSectionChange={handleSectionChange} 
       />
       <div className="client-content">
         {renderContent()}
