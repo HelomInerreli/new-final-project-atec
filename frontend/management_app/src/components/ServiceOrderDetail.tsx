@@ -5,7 +5,7 @@ import { Button } from "./ui/button";
 import Input from "./Input";
 import AddPartsModal from "./AddPartsModal";
 import AddCommentModal from "./AddCommentModal";
-import { Trash2 } from "lucide-react";
+import { Trash2, ArrowLeft } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -56,7 +56,9 @@ const ServiceOrderDetail: FC = () => {
     <div className="so-page-wrapper">
       <div className="so-card">
         <div className="so-card-header">
-          <button className="so-back-btn" onClick={() => navigate(-1)}>← Voltar</button>
+          <button className="so-back-btn" onClick={() => navigate(-1)}>
+              <ArrowLeft size={24} />
+          </button>
           <h2 className="so-card-title">Ordem de Serviço :{order.id}</h2>
         </div>
 

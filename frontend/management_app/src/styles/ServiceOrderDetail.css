@@ -55,17 +55,22 @@
 }
 
 .so-back-btn {
-  background: none;
-  border: none;
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--so-primary);
+  background-color: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  color: #666;
   cursor: pointer;
-  padding: 4px 8px;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.3s ease;
 }
 
 .so-back-btn:hover { 
-  text-decoration: underline; 
+  background-color: var(--so-primary);
+  border-color: var(--so-primary);
+  color: white;
 }
 
 .so-card-title { 
