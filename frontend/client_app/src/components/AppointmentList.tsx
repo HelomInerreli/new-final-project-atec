@@ -164,6 +164,7 @@ export function AppointmentList() {
 
   return (
     <>
+      {/* Cabeçalho da página com título, info do utilizador e descrição */}
       <div className="text-center mb-5">
         <h1 className="display-4 fw-bold text-dark mb-3">{t('appointmentList')}</h1>
         <div className="alert alert-info">
@@ -174,6 +175,7 @@ export function AppointmentList() {
         </p>
       </div>
 
+      {/* Indicador de carregamento */}
       {loading && (
         <div className="text-center my-5">
           <div className="spinner-border text-primary" role="status">
@@ -183,6 +185,7 @@ export function AppointmentList() {
         </div>
       )}
 
+      {/* Alerta de erro, exibido apenas se houver erro */}
       {error && (
         <div className="alert alert-danger" role="alert">
           <i className="bi bi-exclamation-triangle me-2"></i>
@@ -190,17 +193,22 @@ export function AppointmentList() {
         </div>
       )}
 
+      {/* Tabela de agendamentos - exibida apenas quando carregamento termina sem erros */}
       {!loading && !error && (
         <>
           <div className="card shadow-sm">
+            {/* Cabeçalho do cartão com contador de agendamentos */}
             <div className="card-header bg-dark text-white">
               <h5 className="mb-0">
                 <i className="bi bi-calendar-check me-2"></i>
                 {t('registeredAppointments')} ({appointments.length})
               </h5>
             </div>
+
+            {/* Tabela responsiva com dados dos agendamentos */}
             <div className="table-responsive">
               <table className="table table-striped table-hover mb-0">
+                {/* Cabeçalho da tabela */}
                 <thead className="table-light">
                   <tr>
                     <th scope="col">ID</th>
@@ -212,6 +220,8 @@ export function AppointmentList() {
                     <th scope="col">Actual Budget</th>
                   </tr>
                 </thead>
+
+                {/* Corpo da tabela com lista de agendamentos ou mensagem de lista vazia */}
                 <tbody>
                   {appointments.length > 0 ? (
                     appointments.map((appointment) => (
@@ -242,6 +252,7 @@ export function AppointmentList() {
             </div>
           </div>
 
+          {/* Alerta de sucesso confirmando conexão com API */}
           <div className="alert alert-success mt-4" role="alert">
             <i className="bi bi-check-circle me-2"></i>
             <strong>{t('apiConnected')}</strong> - {t('appointmentDataFetchedSuccessfully')}

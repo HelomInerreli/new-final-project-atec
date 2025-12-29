@@ -176,9 +176,11 @@ export function AppointmentStatusModal({ appointment, open, onOpenChange }: Appo
 
   return (
     <>
+      {/* Modal container principal */}
       <div className={`modal fade ${open ? 'show' : ''}`} style={{ display: open ? 'block' : 'none' }} tabIndex={-1} onClick={() => onOpenChange(false)}>
         <div className="modal-dialog" onClick={(e) => e.stopPropagation()}>
           <div className="modal-content">
+            {/* Cabeçalho do modal com título e botão de fecho */}
             <div className="modal-header">
               <h5 className="modal-title fw-bold">
                 <i className="bi bi-calendar-event me-2"></i>
@@ -186,12 +188,15 @@ export function AppointmentStatusModal({ appointment, open, onOpenChange }: Appo
               </h5>
               <button type="button" className="btn-close" onClick={() => onOpenChange(false)}></button>
             </div>
+
+            {/* Corpo do modal com todas as informações do agendamento */}
             <div className="modal-body">
+              {/* Badge de status do agendamento */}
               <div className="mb-3 text-end">
                 {getStatusBadge(appointment.status)}
               </div>
 
-              {/* Detalhes do Agendamento */}
+              {/* Secção de detalhes do agendamento (data, descrição, orçamento) */}
               <div className="mb-4">
                 <div className="d-flex align-items-start mb-3">
                   <i className="bi bi-calendar me-3 mt-1 text-primary"></i>
@@ -215,7 +220,7 @@ export function AppointmentStatusModal({ appointment, open, onOpenChange }: Appo
                 </div>
               </div>
 
-              {/* Veículo e Serviço */}
+              {/* Secção de informações do veículo e serviço */}
               <div className="mb-4">
                 <div className="d-flex align-items-start mb-3">
                   <i className="bi bi-car-front me-3 mt-1 text-primary"></i>
@@ -235,15 +240,17 @@ export function AppointmentStatusModal({ appointment, open, onOpenChange }: Appo
                 </div>
               </div>
 
-              {/* Serviços Extras Propostos */}
+              {/* Secção de serviços extras propostos - exibida apenas se houver serviços */}
               {extraServices.length > 0 && (
                 <div className="mb-4">
+                  {/* Divisor com título da secção */}
                   <div className="d-flex align-items-center mb-3">
                     <div className="flex-grow-1 border-bottom"></div>
                     <span className="px-3 text-muted small fw-bold text-uppercase">Serviços Extras Propostos</span>
                     <div className="flex-grow-1 border-bottom"></div>
                   </div>
 
+                  {/* Alerta informativo sobre serviços adicionais */}
                   <div className="alert alert-danger d-flex align-items-start mb-3" role="alert">
                     <i className="bi bi-exclamation-circle-fill me-2 mt-1"></i>
                     <div>
@@ -252,6 +259,7 @@ export function AppointmentStatusModal({ appointment, open, onOpenChange }: Appo
                     </div>
                   </div>
 
+                  {/* Lista de serviços extras com opções de aceitar/recusar */}
                   <div className="d-flex flex-column gap-3">
                     {extraServices.map((service) => (
                       <div key={service.id} className="card border-primary-subtle shadow-sm">
@@ -271,6 +279,7 @@ export function AppointmentStatusModal({ appointment, open, onOpenChange }: Appo
                             </div>
                           </div>
 
+                          {/* Botões de ação ou status final do serviço */}
                           {service.status === 'pending' ? (
                             <div className="d-flex gap-2 mt-3">
                               <button
@@ -315,15 +324,16 @@ export function AppointmentStatusModal({ appointment, open, onOpenChange }: Appo
                 </div>
               )}
 
-              {/* Estado da Reparação */}
+              {/* Secção de estado da reparação com timeline visual */}
               <div className="border-top pt-4">
                 <div className="d-flex align-items-center mb-4">
                   <i className="bi bi-clock me-2 text-primary"></i>
                   <h5 className="fw-semibold mb-0">Estado da Reparação</h5>
                 </div>
 
-                {/* Timeline com pontos e linha */}
+                {/* Timeline com pontos indicadores e linha de progresso */}
                 <div className="position-relative" style={{ paddingBottom: '20px' }}>
+                  {/* Pontos das fases do processo */}
                   <div className="d-flex justify-content-between mb-4 position-relative">
                     {statusPhases.map((phase, index) => {
                       const isActive = index <= currentPhaseIndex;
@@ -331,7 +341,7 @@ export function AppointmentStatusModal({ appointment, open, onOpenChange }: Appo
 
                       return (
                         <div key={phase.key} className="d-flex flex-column align-items-center" style={{ flex: 1, zIndex: 10, position: 'relative' }}>
-                          {/* Ponto */}
+                          {/* Ponto indicador da fase */}
                           <div
                             className={`rounded-circle d-flex align-items-center justify-content-center transition-all ${isCurrent
                                 ? 'border border-3 border-primary bg-primary shadow'
@@ -345,7 +355,7 @@ export function AppointmentStatusModal({ appointment, open, onOpenChange }: Appo
                           >
                             <i className={`bi bi-check-circle-fill ${isActive || statusLower === "canceled" ? 'text-white' : 'text-muted'}`} style={{ fontSize: '20px' }}></i>
                           </div>
-                          {/* Rótulo */}
+                          {/* Rótulo da fase */}
                           <p className={`small mt-2 text-center ${isActive ? 'fw-semibold text-dark' : 'text-muted'}`} style={{ maxWidth: '80px', fontSize: '11px' }}>
                             {phase.label}
                           </p>
@@ -354,7 +364,7 @@ export function AppointmentStatusModal({ appointment, open, onOpenChange }: Appo
                     })}
                   </div>
 
-                  {/* Linha de conexão */}
+                  {/* Linha de conexão entre as fases com barra de progresso */}
                   <div
                     className="position-absolute bg-secondary"
                     style={{
@@ -377,12 +387,16 @@ export function AppointmentStatusModal({ appointment, open, onOpenChange }: Appo
                 </div>
               </div>
             </div>
+
+            {/* Rodapé do modal com botão de fecho */}
             <div className="modal-footer">
               <button type="button" className="btn btn-secondary" onClick={() => onOpenChange(false)}>Fechar</button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Backdrop escuro atrás do modal */}
       {open && <div className="modal-backdrop fade show" onClick={() => onOpenChange(false)}></div>}
     </>
   );
