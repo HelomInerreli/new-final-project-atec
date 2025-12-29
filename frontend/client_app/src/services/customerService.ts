@@ -1,11 +1,24 @@
 import http from "../api/http";
 import type { Customer } from "../interfaces/customer";
 
+/**
+ * Busca lista de todos os clientes
+ * Utiliza instância Axios configurada com autenticação
+ * @returns Promise com array de objetos Customer
+ * @throws Erro HTTP se falhar a requisição
+ */
 export const getCustomers = async (): Promise<Customer[]> => {
   const { data } = await http.get<Customer[]>("/customers");
   return data;
 };
 
+/**
+ * Busca agendamentos de um cliente específico
+ * Inclui logs de console para debug
+ * @param customerId - ID do cliente (padrão: 2)
+ * @returns Promise com array de agendamentos do cliente
+ * @throws Erro HTTP se cliente não for encontrado ou falhar a requisição
+ */
 export const getCustomerAppointments = async (customerId = 2) => {
   try {
     console.log("Chamando API de agendamentos para cliente:", customerId);
@@ -19,8 +32,12 @@ export const getCustomerAppointments = async (customerId = 2) => {
   }
 };
 
-
-// Buscar serviços disponíveis
+/**
+ * Busca lista de serviços disponíveis para agendamento
+ * Inclui logs de console para debug
+ * @returns Promise com array de serviços disponíveis
+ * @throws Erro HTTP se falhar a requisição
+ */
 export const getServices = async () => {
   try {
     console.log("Buscando serviços disponíveis...");
@@ -33,7 +50,13 @@ export const getServices = async () => {
   }
 };
 
-// Buscar veículos do cliente
+/**
+ * Busca veículos associados a um cliente específico
+ * Inclui logs de console para debug
+ * @param customerId - ID numérico do cliente
+ * @returns Promise com array de veículos do cliente
+ * @throws Erro HTTP se cliente não for encontrado ou falhar a requisição
+ */
 export const getCustomerVehicles = async (customerId: number) => {
   try {
     console.log("Buscando veículos do cliente:", customerId);
@@ -46,7 +69,13 @@ export const getCustomerVehicles = async (customerId: number) => {
   }
 };
 
-// Criar appointment
+/**
+ * Cria um novo agendamento na API
+ * Inclui logs de console para debug
+ * @param appointmentData - Dados do agendamento (data, veículo, serviço, descrição, cliente)
+ * @returns Promise com dados do agendamento criado
+ * @throws Erro HTTP se validação falhar ou houver erro na criação
+ */
 export const createAppointment = async (appointmentData: any) => {
   try {
     console.log("Criando appointment:", appointmentData);
