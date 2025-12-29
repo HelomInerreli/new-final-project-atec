@@ -367,6 +367,12 @@ const CreateAppointmentModal: FC<CreateAppointmentModalProps> = ({ show, onClose
                           placeholder=""
                           value={form.description}
                           onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+                          onFocus={(e) => e.target.nextElementSibling?.classList.add("shrunken")}
+                          onBlur={(e) => {
+                            if (!e.target.value) {
+                              e.target.nextElementSibling?.classList.remove("shrunken");
+                            }
+                          }}
                         />
                         <label className={`mb-input-label ${form.description ? "shrunken" : ""}`}>
                           Descrição

@@ -9,7 +9,7 @@
   width: 100%;
   box-sizing: border-box;
   padding: 14px 44px 14px 14px; /* room for toggle/caret */
-  border: 2px solid #dc3545; /* projeto vermelho */
+  border: 2px solid #fca5a5; /* vermelho mais claro quando vazio */
   border-radius: 8px;
   background: #ffffff !important;
   font-size: 1rem;
