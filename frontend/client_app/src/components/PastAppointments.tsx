@@ -3,11 +3,35 @@ import { usePastAppointments } from '../hooks/usePastAppointments';
 import { useTranslation } from 'react-i18next';
 import '../styles/PastAppointments.css';
 
+/**
+ * Componente para exibir histórico de agendamentos finalizados
+ * Mostra agendamentos concluídos agrupados por mês com informações detalhadas
+ * Permite expandir/colapsar meses para visualizar os serviços realizados
+ * @returns Componente JSX da página de agendamentos passados
+ */
 export function PastAppointments() {
+    /**
+     * Hook de tradução para internacionalização
+     */
     const { t } = useTranslation();
+    
+    /**
+     * Hook customizado que retorna agendamentos passados agrupados por mês
+     * Inclui estado de autenticação, loading e erros
+     */
     const { groupedAppointments, loading, error, isLoggedIn } = usePastAppointments();
+    
+    /**
+     * Estado para controlar quais meses estão expandidos
+     * Tipo: Record de string (chave: monthYear) para boolean (expandido ou não)
+     * Inicial: objeto vazio (todos os meses colapsados)
+     */
     const [expandedMonths, setExpandedMonths] = useState<Record<string, boolean>>({});
 
+    /**
+     * Alterna o estado de expansão de um determinado mês
+     * @param monthYear - Identificador do mês no formato "mês ano" (ex: "janeiro 2025")
+     */
     const toggleMonth = (monthYear: string) => {
         setExpandedMonths(prev => ({
             ...prev,
@@ -15,6 +39,9 @@ export function PastAppointments() {
         }));
     };
 
+    /**
+     * Retorna alerta se o utilizador não estiver autenticado
+     */
     if (!isLoggedIn) {
         return (
             <div className="alert alert-info">
@@ -23,6 +50,9 @@ export function PastAppointments() {
         );
     }
 
+    /**
+     * Exibe indicador de carregamento enquanto os dados são obtidos
+     */
     if (loading) {
         return (
             <div className="text-center past-loading-container">
@@ -34,6 +64,9 @@ export function PastAppointments() {
         );
     }
 
+    /**
+     * Exibe mensagem de erro se houver falha ao carregar os dados
+     */
     if (error) {
         return (
             <div className="alert alert-danger">
@@ -44,12 +77,14 @@ export function PastAppointments() {
 
     return (
         <div className="past-appointments-page">
+            {/* Cabeçalho da página */}
             <div className="past-appointments-header">
                 <h1 className="past-appointments-title">
                     {t('completedServicesHistory')}
                 </h1>
             </div>
 
+            {/* Estado vazio quando não há agendamentos finalizados */}
             {Object.keys(groupedAppointments).length === 0 ? (
                 <div className="past-empty-state">
                     <div className="past-empty-icon">📋</div>
@@ -60,7 +95,8 @@ export function PastAppointments() {
                 <div className="past-appointments-content">
                     {Object.entries(groupedAppointments).map(([monthYear, appointments]) => (
                         <div key={monthYear} className="past-month-section">
-                                                        <div 
+                            {/* Cabeçalho do mês com contador e botão de expandir */}
+                            <div 
                                 className="past-month-header"
                                 onClick={() => toggleMonth(monthYear)}
                             >
@@ -77,10 +113,12 @@ export function PastAppointments() {
                                 </span>
                             </div>
 
+                            {/* Lista de agendamentos do mês (exibida apenas se expandido) */}
                             {expandedMonths[monthYear] && (
                                 <div className="past-appointments-list">
                                     {appointments.map((appointment) => (
                                         <div key={appointment.id} className="past-appointment-card">
+                                            {/* Cabeçalho do card com nome do serviço e badge de status */}
                                             <div className="past-card-header">
                                                 <div className="past-card-title-section">
                                                     <div className="past-service-icon">🔧</div>
@@ -93,7 +131,9 @@ export function PastAppointments() {
                                                 </span>
                                             </div>
 
+                                            {/* Corpo do card com informações detalhadas */}
                                             <div className="past-card-body">
+                                                {/* Data do agendamento */}
                                                 <div className="past-info-row">
                                                     <span className="past-info-icon">📅</span>
                                                     <div className="past-info-content">
@@ -108,6 +148,7 @@ export function PastAppointments() {
                                                     </div>
                                                 </div>
 
+                                                {/* Descrição do serviço (condicional) */}
                                                 {appointment.description && (
                                                     <div className="past-info-row">
                                                         <span className="past-info-icon">📝</span>
@@ -118,6 +159,7 @@ export function PastAppointments() {
                                                     </div>
                                                 )}
 
+                                                {/* Orçamento estimado do serviço */}
                                                 <div className="past-info-row">
                                                     <span className="past-info-icon">💰</span>
                                                     <div className="past-info-content">
