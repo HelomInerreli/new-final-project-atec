@@ -1,6 +1,15 @@
 import React from "react";
 import "../../styles/completed-services.css";
 
+/**
+ * Interface para representar um serviço concluído
+ * @property id - Identificador único do serviço
+ * @property nome - Nome descritivo do serviço realizado
+ * @property data - Data de realização do serviço (formato ISO)
+ * @property cliente - Nome do cliente que solicitou o serviço
+ * @property descricao - Descrição detalhada do serviço executado
+ * @property valor - Valor cobrado pelo serviço (em euros)
+ */
 interface Service {
   id: number;
   nome: string;
@@ -10,6 +19,10 @@ interface Service {
   valor: number;
 }
 
+/**
+ * Array de serviços realizados (dados mockados para demonstração)
+ * Em produção, estes dados viriam de uma API
+ */
 const servicosRealizados: Service[] = [
   {
     id: 1,
@@ -29,15 +42,28 @@ const servicosRealizados: Service[] = [
   },
 ];
 
+/**
+ * Formatador de valores monetários para formato português (€)
+ */
 const currency = new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" });
 
+/**
+ * Componente de página para exibir serviços concluídos
+ * Apresenta tabela responsiva com lista de serviços realizados
+ * Inclui informações: nome, data, cliente, descrição e valor formatado
+ * Nota: Atualmente usa dados mockados - em produção conectar a API
+ * @returns Componente JSX da página de serviços concluídos
+ */
 const CompletedServices: React.FC = () => {
   return (
     <div className="completed-services">
+      {/* Cabeçalho da página */}
       <h1>Serviços realizados</h1>
       <p className="subtitle">Veja os serviços que já foram realizados</p>
 
+      {/* Tabela responsiva de serviços concluídos */}
       <table className="completed-services-table">
+        {/* Cabeçalho da tabela */}
         <thead>
           <tr>
             <th>Nome do Serviço</th>
@@ -47,6 +73,7 @@ const CompletedServices: React.FC = () => {
             <th className="right">Valor (€)</th>
           </tr>
         </thead>
+        {/* Corpo da tabela com linhas de serviços */}
         <tbody>
           {servicosRealizados.map((servico) => (
             <tr key={servico.id}>
