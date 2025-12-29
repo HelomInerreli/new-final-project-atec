@@ -336,6 +336,21 @@ export default function Agendamentos() {
     const appointmentMonth = appointmentDate.getMonth(); // 0-11
     const appointmentYear = appointmentDate.getFullYear();
 
+    // Excluir cancelados e concluídos por padrão, exceto se o filtro for explícito
+    const isCancelled = statusName.toLowerCase().includes("cancelado") || 
+                       statusName.toLowerCase().includes("cancelada");
+    const isCompleted = statusName.toLowerCase().includes("concluído") || 
+                       statusName.toLowerCase().includes("concluída") ||
+                       statusName.toLowerCase().includes("completo");
+    
+    if (isCancelled && statusFilter !== "cancelado" && statusFilter !== "cancelada") {
+      return false;
+    }
+    
+    if (isCompleted && statusFilter !== "concluído" && statusFilter !== "concluída" && statusFilter !== "completo") {
+      return false;
+    }
+
     const matchesSearch =
       customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       vehicleInfo.toLowerCase().includes(searchTerm.toLowerCase()) ||
