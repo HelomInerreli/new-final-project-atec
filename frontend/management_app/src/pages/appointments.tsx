@@ -64,6 +64,7 @@ import type { Service } from "../services/serviceService";
 import { statusService } from "../services/statusService";
 import type { Status } from "../services/statusService";
 import CreateAppointmentModal from "../components/CreateAppointmentModal";
+import EditAppointmentModal from "../components/EditAppointmentModal";
 import "../components/inputs.css";
 
 interface FormData {
@@ -100,6 +101,8 @@ export default function Agendamentos() {
   const [monthFilter, setMonthFilter] = useState<string>("todos");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
@@ -642,7 +645,10 @@ export default function Agendamentos() {
                 <Button
                   variant="outline"
                   className="flex-1"
-                  onClick={() => handleOpenDialog(appointment)}
+                  onClick={() => {
+                    setSelectedAppointment(appointment);
+                    setIsEditModalOpen(true);
+                  }}
                 >
                   <Pencil className="h-4 w-4" />
                 </Button>
@@ -1361,6 +1367,20 @@ export default function Agendamentos() {
         onSuccess={() => {
           loadAppointments();
           toast({ title: "Sucesso!", description: "Agendamento criado com sucesso." });
+        }}
+      />
+
+      {/* Modal de Edição de Agendamento */}
+      <EditAppointmentModal
+        show={isEditModalOpen}
+        appointment={selectedAppointment}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedAppointment(null);
+        }}
+        onSuccess={() => {
+          loadAppointments();
+          toast({ title: "Sucesso!", description: "Agendamento atualizado com sucesso." });
         }}
       />
     </div>
