@@ -8,17 +8,32 @@ import EditCustomerInfoModal from '../../components/EditCustomerInfoModal';
 import "../../styles/profile.css";
 import "../../styles/RedButton.css";
 
+/**
+ * Interface para dados do perfil do utilizador
+ * Contém informações pessoais, endereço e métodos de autenticação
+ */
 type UserProfile = {
+  /** Nome completo do utilizador */
   name: string;
+  /** Email do utilizador */
   email: string;
+  /** Número de telefone */
   phone: string;
+  /** Morada completa */
   address: string;
+  /** Cidade */
   city: string;
+  /** Código postal */
   postal_code: string;
+  /** Data de nascimento */
   birthDate: string;
+  /** País de residência */
   country: string;
+  /** Indica se utilizador tem password definida */
   hasPassword: boolean;
+  /** Indica se conta Google está ligada */
   hasGoogleAuth: boolean;
+  /** Indica se conta Facebook está ligada */
   hasFacebookAuth: boolean;
 };
 
@@ -32,9 +47,30 @@ const useAccountButtonVariant = (isConnected: boolean) => {
   };
 };
 
+/**
+ * Componente de página de perfil do utilizador
+ * Exibe e permite edição de dados pessoais, endereço e métodos de autenticação
+ * Permite criar/alterar password, vincular/desvincular contas Google e Facebook
+ * Suporta callbacks OAuth para confirmação de vinculação de contas sociais
+ * Requer autenticação - exibe alerta se utilizador não autenticado
+ * @returns Componente JSX da página de perfil
+ */
 const Profile: React.FC = () => {
+  /**
+   * Hook de tradução para internacionalização
+   */
   const { t } = useTranslation();
+  
+  /**
+   * Hook de autenticação para obter ID do cliente e estado de login
+   */
   const { loggedInCustomerId, isLoggedIn } = useAuth();
+  
+  /**
+   * Estado para armazenar dados do perfil do utilizador
+   * Tipo: UserProfile (inclui dados pessoais, endereço e métodos auth)
+   * Inicial: objeto vazio com valores default
+   */
   const [form, setForm] = useState<UserProfile>({
     name: "",
     email: "",
@@ -48,18 +84,76 @@ const Profile: React.FC = () => {
     hasGoogleAuth: false,
     hasFacebookAuth: false,
   });
+  
+  /**
+   * Estado para controlar loading geral da página
+   * Tipo: boolean
+   * Inicial: true (exibe spinner durante carregamento inicial)
+   */
   const [loading, setLoading] = useState(true);
+  
+  /**
+   * Estado para controlar qual serviço OAuth está em processo de linking
+   * Tipo: string | null ('google', 'facebook' ou null)
+   * Inicial: null (nenhum serviço em processo)
+   */
   const [linkLoading, setLinkLoading] = useState<string | null>(null);
+  
+  /**
+   * Estado para armazenar mensagens de erro
+   * Tipo: string | null
+   * Inicial: null (sem erros)
+   */
   const [error, setError] = useState<string | null>(null);
+  
+  /**
+   * Estado para controlar visibilidade do modal de password
+   * Tipo: boolean
+   * Inicial: false (modal fechado)
+   */
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  
+  /**
+   * Estado para controlar loading no modal de password
+   * Tipo: boolean
+   * Inicial: false (sem loading)
+   */
   const [passwordLoading, setPasswordLoading] = useState(false);
+  
+  /**
+   * Estado para controlar visibilidade do modal de edição de perfil
+   * Tipo: boolean
+   * Inicial: false (modal fechado)
+   */
   const [showEditModal, setShowEditModal] = useState(false);
+  
+  /**
+   * Estado para controlar loading no modal de edição de perfil
+   * Tipo: boolean
+   * Inicial: false (sem loading)
+   */
   const [editLoading, setEditLoading] = useState(false);
 
+  /**
+   * Configurações de estilo para botão de password (baseado em ter ou não password)
+   */
   const passwordButton = useAccountButtonVariant(form.hasPassword);
+  
+  /**
+   * Configurações de estilo para botão Google (baseado em estar ou não vinculado)
+   */
   const googleButton = useAccountButtonVariant(form.hasGoogleAuth);
+  
+  /**
+   * Configurações de estilo para botão Facebook (baseado em estar ou não vinculado)
+   */
   const facebookButton = useAccountButtonVariant(form.hasFacebookAuth);
 
+  /**
+   * Calcula iniciais do nome do utilizador para avatar
+   * Extrai primeira letra do primeiro nome e última letra do último nome
+   * Recalcula apenas quando form.name muda (memoizado)
+   */
   const initials = useMemo(() => {
     if (!form.name) return "?";
     const names = form.name.split(" ");
@@ -68,14 +162,24 @@ const Profile: React.FC = () => {
     return (firstInitial + lastInitial).toUpperCase();
   }, [form.name]);
 
-  // Load customer data
+  /**
+   * Efeito para carregar dados do cliente ao montar componente ou mudar autenticação
+   * Executa loadCustomerData quando utilizador está autenticado
+   * Executado quando isLoggedIn ou loggedInCustomerId mudam
+   */
   useEffect(() => {
     if (isLoggedIn && loggedInCustomerId) {
       loadCustomerData();
     }
   }, [isLoggedIn, loggedInCustomerId]);
 
-  // Handle OAuth linking callbacks
+  /**
+   * Efeito para processar callbacks OAuth de vinculação de contas
+   * Detecta parâmetros URL (facebook_linked, google_linked) após redirect OAuth
+   * Exibe mensagens de sucesso/erro e recarrega dados do cliente
+   * Remove parâmetros da URL após processar
+   * Executado apenas na montagem do componente
+   */
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const facebookLinked = urlParams.get('facebook_linked');
@@ -111,6 +215,13 @@ const Profile: React.FC = () => {
     }
   }, [t]);
 
+  /**
+   * Carrega dados completos do cliente autenticado do backend
+   * Obtém informações pessoais, endereço e métodos de autenticação configurados
+   * Atualiza estado form com dados recebidos
+   * Gere estados de loading e error durante operação
+   * @throws Exibe erro no estado se falhar comunicação com backend
+   */
   const loadCustomerData = async () => {
     try {
       setLoading(true);
@@ -150,6 +261,11 @@ const Profile: React.FC = () => {
     }
   };
 
+  /**
+   * Formata string de data para formato português (dd/mm/yyyy)
+   * @param dateString - String de data no formato ISO ou similar
+   * @returns String formatada no padrão pt-PT ou string vazia se input inválido
+   */
   const formatDate = (dateString: string) => {
     if (!dateString) return "";
     const date = new Date(dateString);
@@ -176,10 +292,21 @@ const Profile: React.FC = () => {
     );
   }
 
+  /**
+   * Handler para abrir modal de criação/alteração de password
+   * Exibe modal apropriado baseado em ter ou não password existente
+   */
   const handlePasswordAction = () => {
     setShowPasswordModal(true);
   };
 
+  /**
+   * Handler para submissão de nova password ou alteração de password existente
+   * Cria password se não existir, ou altera password existente após validar password atual
+   * Exibe mensagens de sucesso/erro e recarrega dados em caso de sucesso
+   * @param passwordData - Objeto contendo currentPassword (opcional) e newPassword
+   * @throws Lança erro com mensagem traduzida se operação falhar
+   */
   const handlePasswordSubmit = async (passwordData: { currentPassword?: string; newPassword: string }) => {
     try {
       setPasswordLoading(true);
@@ -208,6 +335,13 @@ const Profile: React.FC = () => {
     }
   };
 
+  /**
+   * Handler para vincular ou desvincular conta Google
+   * Se vinculada: pede confirmação, valida existência de password, e desvincula
+   * Se desvinculada: redireciona para fluxo OAuth do Google com token de autenticação
+   * Valida presença de password antes de permitir desvinculação (segurança)
+   * @throws Exibe alert com erro se operação falhar
+   */
   const handleGoogleAction = async () => {
     if (form.hasGoogleAuth) {
       // Unlink Google account
@@ -253,6 +387,13 @@ const Profile: React.FC = () => {
     }
   };
 
+  /**
+   * Handler para vincular ou desvincular conta Facebook
+   * Se vinculada: pede confirmação, valida existência de password, e desvincula
+   * Se desvinculada: redireciona para fluxo OAuth do Facebook com token de autenticação
+   * Valida presença de password antes de permitir desvinculação (segurança)
+   * @throws Exibe alert com erro se operação falhar
+   */
   const handleFacebookAction = async () => {
     if (form.hasFacebookAuth) {
       // Unlink Facebook account
@@ -299,6 +440,14 @@ const Profile: React.FC = () => {
 
   };
 
+  /**
+   * Handler para submissão de dados editados do perfil
+   * Atualiza dados do cliente no backend através de API
+   * Recarrega dados atualizados e fecha modal em caso de sucesso
+   * Exibe mensagens de sucesso/erro apropriadas
+   * @param data - Objeto com dados do perfil a serem atualizados
+   * @throws Exibe alert com erro se operação falhar
+   */
   const handleEditSubmit = async (data: any) => {
     setEditLoading(true);
     try {

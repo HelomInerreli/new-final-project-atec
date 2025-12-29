@@ -2,20 +2,49 @@ import React, { useEffect } from "react";
 import "../../styles/SobrePage.css";
 import { useTranslation } from "react-i18next";
 
+/**
+ * Interface para item individual da faixa de serviços
+ * Representa um serviço com ícone e label descritiva
+ */
 type ServiceStripItem = {
+  /** Texto descritivo do serviço (pode conter \n para quebras de linha) */
   label: string;
+  /** URL do ícone do serviço */
   icon: string;
 };
 
+/**
+ * Interface para estrutura completa da faixa de serviços
+ * Contém título da secção e array de itens de serviço
+ */
 type ServiceStrip = {
+  /** Título da secção de serviços */
   title: string;
+  /** Array de itens de serviço a serem exibidos */
   items: ServiceStripItem[];
 };
 
+/**
+ * Componente de página "Sobre Nós" da aplicação cliente
+ * Exibe informações institucionais da oficina: história, missão, diferenciais
+ * Apresenta destaques visuais, faixa de serviços disponíveis e horários de funcionamento
+ * Implementa animações de scroll com IntersectionObserver para efeito fade-in
+ * Utiliza sistema de tradução i18n para conteúdo multilíngue
+ * @returns Componente JSX da página Sobre
+ */
 export function SobrePage() {
+  /**
+   * Hook de tradução para internacionalização
+   * Fornece função t() para traduzir chaves de texto
+   */
   const { t } = useTranslation();
 
- 
+  /**
+   * Efeito para configurar animações de scroll com IntersectionObserver
+   * Adiciona classe "in-view" aos elementos com classe "fade-in" quando entram no viewport
+   * Ativa animação quando 10% do elemento está visível (threshold: 0.1)
+   * Executado apenas na montagem do componente
+   */
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -30,12 +59,15 @@ export function SobrePage() {
     document.querySelectorAll(".fade-in").forEach((el) => observer.observe(el));
   }, []);
 
- 
+  /**
+   * Obtém dados da faixa de serviços do sistema de tradução
+   * Retorna objeto com título e array de serviços (cada um com label e ícone)
+   */
   const servicesStrip = t("servicesStrip", { returnObjects: true }) as ServiceStrip;
 
   return (
     <div className="sobre-container">
-      {/* HERO */}
+      {/* Secção Hero com título e subtítulo principais */}
       <header className="sobre-hero">
         <div className="overlay"></div>
         <div className="hero-content">

@@ -5,7 +5,32 @@ import { useVehicles } from '../../hooks/useVehicles';
 import '../../styles/Vehicles.css';
 import { useTranslation } from 'react-i18next';
 
+/**
+ * Componente de página para gestão de veículos do cliente
+ * Exibe lista de veículos cadastrados com opções de adicionar, editar e eliminar
+ * Apresenta estados de loading, erro e lista vazia com mensagens apropriadas
+ * Permite adicionar novos veículos e editar existentes através de modal
+ * Requer autenticação - exibe alerta se utilizador não autenticado
+ * @returns Componente JSX da página de veículos
+ */
 export function Vehicles() {
+  /**
+   * Hook customizado para gestão completa de veículos
+   * Fornece: lista de veículos, estados de UI, informações de autenticação e handlers
+   * - vehicles: array de veículos do cliente
+   * - loading: estado de carregamento
+   * - error: mensagem de erro se houver
+   * - showModal: controle de visibilidade do modal
+   * - selectedVehicle: veículo selecionado para edição (null para novo)
+   * - loggedInCustomerId: ID do cliente autenticado
+   * - isLoggedIn: estado de autenticação
+   * - loadVehicles: função para recarregar lista
+   * - handleEdit: handler para editar veículo
+   * - handleDelete: handler para eliminar veículo
+   * - handleAddVehicle: handler para abrir modal de adição
+   * - handleCloseModal: handler para fechar modal
+   * - handleSaveVehicle: handler para salvar veículo (criar ou atualizar)
+   */
   const {
     vehicles,
     loading,
@@ -22,7 +47,10 @@ export function Vehicles() {
     handleSaveVehicle,
   } = useVehicles();
 
-  const { t } = useTranslation(); // Assuming useTranslation is imported
+  /**
+   * Hook de tradução para internacionalização
+   */
+  const { t } = useTranslation();
 
   if (!isLoggedIn) {
     return (
@@ -47,6 +75,10 @@ export function Vehicles() {
     );
   }
 
+  /**
+   * Flag para determinar se cliente possui veículos cadastrados
+   * Utilizada para renderizar lista de veículos ou mensagem de lista vazia
+   */
   const hasVehicles = vehicles.length > 0;
 
   return (
