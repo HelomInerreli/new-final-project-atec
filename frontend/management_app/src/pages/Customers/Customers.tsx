@@ -16,6 +16,7 @@ import { useFetchVehicleCounts } from '../../hooks/useVehicles';
 import { useFetchCustomerAppointments } from '../../hooks/useAppointments';
 import { CustomerAppointmentsModal } from '../../components/CustomerAppointmentsModal';
 import NewCustomerModal from '../../components/NewCustomerModal';
+import CreateCustomerModal from '../../components/CreateCustomerModal';
 import "../../components/inputs.css";
 
 
@@ -422,11 +423,18 @@ export default function Customers() {
       />
 
       {/* New Customer Modal */}
-      <NewCustomerModal
-        isOpen={newCustomerModalOpen}
+      <CreateCustomerModal
+        show={newCustomerModalOpen}
         onClose={() => setNewCustomerModalOpen(false)}
-        onSubmit={handleCreateCustomer}
-        loading={creatingCustomer}
+        onSuccess={() => {
+          setNewCustomerModalOpen(false);
+          toast({
+            title: "Sucesso!",
+            description: "Cliente criado com sucesso.",
+          });
+          // Refresh the page or refetch customers
+          window.location.reload();
+        }}
       />
     </div>
   );

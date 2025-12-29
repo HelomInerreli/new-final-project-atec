@@ -16,7 +16,8 @@
   font-weight: normal;
   transition: box-shadow 0.15s ease, border-color 0.15s ease, padding 0.15s ease,
     color 0.12s ease;
-  color: #111827;
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
 }
 
 /* Prevent autofill/number input background */
@@ -27,6 +28,8 @@
   -webkit-box-shadow: 0 0 0 30px white inset !important;
   box-shadow: 0 0 0 30px white inset !important;
   background-color: #ffffff !important;
+  -webkit-text-fill-color: #111827 !important;
+  color: #111827 !important;
 }
 
 .mb-input.placeholder {
@@ -164,32 +167,37 @@
 
 /* WebKit-specific: hide composed datetime edit display when empty (target the pseudo elements directly)
    and ensure they show on focus. Removing the space before pseudo-elements so selector targets them. */
+.mb-input.date-input::-webkit-datetime-edit {
+  color: #111827 !important;
+}
+
+.mb-input.date-input:not(.has-value)::-webkit-datetime-edit-fields-wrapper {
+  color: transparent !important;
+}
+
 .mb-input.date-input:not(.has-value)::-webkit-datetime-edit,
 .mb-input.date-input:not(.has-value)::-webkit-datetime-edit-text,
 .mb-input.date-input:not(.has-value)::-webkit-datetime-edit-month-field,
 .mb-input.date-input:not(.has-value)::-webkit-datetime-edit-day-field,
 .mb-input.date-input:not(.has-value)::-webkit-datetime-edit-year-field {
-  color: transparent;
+  display: none !important;
 }
 
-.mb-input.date-input:focus::-webkit-datetime-edit,
-.mb-input.date-input:focus::-webkit-datetime-edit-text,
-.mb-input.date-input:focus::-webkit-datetime-edit-month-field,
-.mb-input.date-input:focus::-webkit-datetime-edit-day-field,
-.mb-input.date-input:focus::-webkit-datetime-edit-year-field {
-  color: #111827;
+.mb-input.date-input.has-value::-webkit-datetime-edit,
+.mb-input.date-input.has-value::-webkit-datetime-edit-text,
+.mb-input.date-input.has-value::-webkit-datetime-edit-month-field,
+.mb-input.date-input.has-value::-webkit-datetime-edit-day-field,
+.mb-input.date-input.has-value::-webkit-datetime-edit-year-field {
+  display: block !important;
 }
 
-/* Firefox: hide the built-in text when empty by making the color transparent for the whole control
-   and restore on focus. Firefox doesn't support the webkit pseudo-elements; this is a best-effort fallback. */
+/* Firefox: hide the built-in text when empty */
 .mb-input.date-input:not(.has-value) {
-  color: transparent;
+  color: transparent !important;
 }
-.mb-input.date-input:not(.has-value)::placeholder {
-  color: transparent;
-}
-.mb-input.date-input:focus {
-  color: #111827;
+
+.mb-input.date-input.has-value {
+  color: #111827 !important;
 }
 
 /* Radio/Checkbox minimal styling helper */
