@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { getProducts, addPartToOrder, type Product } from "../services/productService";
-// import { toast } from "sonner";
 import { validateQuantity, type UseAddPartsModalReturn } from "../interfaces/ModalParts";
 import { toast } from "../hooks/use-toast";
 
@@ -52,7 +51,12 @@ export const useAddPartsModal = (
       setFilteredProducts(inStock);
     } catch (error: any) {
       console.error("Erro ao carregar produtos:", error);
-      toast.error("Erro ao carregar produtos");
+      toast({
+      title: "Erro",
+      description: "Erro ao carregar produtos",
+      variant: "destructive",
+      duration: 3000,
+      });
       setProducts([]);
       setFilteredProducts([]);
     } finally {
@@ -66,13 +70,23 @@ export const useAddPartsModal = (
 
   const handleAddPart = async () => {
     if (!selectedProduct) {
-      toast.error("Por favor, selecione uma peça");
+      toast({
+      title: "Erro",
+      description: "Por favor, selecione uma peça",
+      variant: "destructive",
+      duration: 3000,
+      });
       return;
     }
 
     const validationError = validateQuantity(quantity, selectedProduct);
     if (validationError) {
-      toast.error(validationError);
+      toast({
+      title: "Erro de validação",
+      description: validationError,
+      variant: "destructive",
+      duration: 3000,
+      });
       return;
     }
 

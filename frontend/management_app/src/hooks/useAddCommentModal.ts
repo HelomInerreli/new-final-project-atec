@@ -1,5 +1,4 @@
 import { useState } from "react";
-// import { toast } from "sonner";
 import { type UseAddCommentModalReturn, validateComment } from "../interfaces/ModalComment";
 
 import { toast } from "../hooks/use-toast";
@@ -30,7 +29,12 @@ export const useAddCommentModal = (
   const handleSubmit = async () => {
     const validationError = validateComment(comment);
     if (validationError) {
-      toast.error(validationError);
+      toast({
+        title: "Erro de validação",
+        description: validationError,
+        variant: "destructive",
+        duration: 3000,
+      });
       return;
     }
 
