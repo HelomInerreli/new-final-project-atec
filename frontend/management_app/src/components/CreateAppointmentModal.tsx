@@ -24,7 +24,6 @@ const CreateAppointmentModal: FC<CreateAppointmentModalProps> = ({ show, onClose
   const statusDropdownRef = useRef<HTMLDivElement>(null);
   
   const {
-    currentStep,
     loadingData,
     submitting,
     customers,
@@ -41,8 +40,6 @@ const CreateAppointmentModal: FC<CreateAppointmentModalProps> = ({ show, onClose
     setForm,
     handleDateChange,
     handleServiceChange,
-    goToNextStep,
-    goToPreviousStep,
     handleSubmit,
     handleClose,
   } = useAppointmentModal(show, onSuccess, onClose);
@@ -106,9 +103,7 @@ const CreateAppointmentModal: FC<CreateAppointmentModalProps> = ({ show, onClose
               )}
 
               <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
-                {/* STEP 1 */}
-                {currentStep === 1 && (
-                  <div className="grid gap-4 py-4 px-6">
+                <div className="grid gap-4 py-4 px-6">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="grid gap-2">
                         <div className="mb-input-wrapper">
@@ -232,7 +227,7 @@ const CreateAppointmentModal: FC<CreateAppointmentModalProps> = ({ show, onClose
                           <input
                             id="appointment_date"
                             type="date"
-                            className={`mb-input date-input ${form.appointment_date ? "has-value" : ""}`}
+                            className={`mb-input date-input ${form.appointment_date ? "has-value filled" : ""}`}
                             value={form.appointment_date}
                             onChange={(e) => handleDateChange(e.target.value)}
                             min={new Date().toISOString().split("T")[0]}
@@ -305,7 +300,7 @@ const CreateAppointmentModal: FC<CreateAppointmentModalProps> = ({ show, onClose
                             step="0.01"
                             min="0"
                             placeholder=""
-                            className="mb-input"
+                            className={`mb-input ${form.estimated_budget ? "filled" : ""}`}
                             value={form.estimated_budget || ""}
                             onChange={(e) => setForm((f) => ({ ...f, estimated_budget: e.target.value ? Number(e.target.value) : 0 }))}
                             onFocus={(e) => e.target.nextElementSibling?.classList.add("shrunken")}
@@ -339,18 +334,20 @@ const CreateAppointmentModal: FC<CreateAppointmentModalProps> = ({ show, onClose
 
                             {statusDropdownOpen && (
                               <ul className="mb-select-menu" style={{ maxHeight: "250px", overflowY: "auto" }}>
-                                {statuses.map((status) => (
-                                  <li
-                                    key={status.id}
-                                    className={`mb-select-item ${form.status_id === status.id ? "selected" : ""}`}
-                                    onClick={() => {
-                                      setForm((f) => ({ ...f, status_id: status.id }));
-                                      setStatusDropdownOpen(false);
-                                    }}
-                                  >
-                                    {status.name}
-                                  </li>
-                                ))}
+                                {statuses
+                                  .filter((status) => status.name === "Pendente" || status.name === "Em Andamento")
+                                  .map((status) => (
+                                    <li
+                                      key={status.id}
+                                      className={`mb-select-item ${form.status_id === status.id ? "selected" : ""}`}
+                                      onClick={() => {
+                                        setForm((f) => ({ ...f, status_id: status.id }));
+                                        setStatusDropdownOpen(false);
+                                      }}
+                                    >
+                                      {status.name}
+                                    </li>
+                                  ))}
                               </ul>
                             )}
                           </div>
@@ -362,7 +359,7 @@ const CreateAppointmentModal: FC<CreateAppointmentModalProps> = ({ show, onClose
                       <div className="mb-input-wrapper">
                         <textarea
                           id="description"
-                          className="mb-input textarea"
+                          className={`mb-input textarea ${form.description ? "filled" : ""}`}
                           rows={4}
                           placeholder=""
                           value={form.description}
@@ -379,104 +376,7 @@ const CreateAppointmentModal: FC<CreateAppointmentModalProps> = ({ show, onClose
                         </label>
                       </div>
                     </div>
-                  </div>
-                )}
-
-                {/* STEP 2 */}
-                {currentStep === 2 && (
-                  <div className="summary-card" style={{ margin: "20px" }}>
-                    <h5 className="summary-title">
-                      <i className="bi bi-check-circle"></i>
-                      Resumo do Agendamento
-                    </h5>
-                    <div className="summary-row">
-                      <span className="summary-label">Cliente:</span>
-                      <span className="summary-value">{selectedCustomer?.name || "-"}</span>
-                    </div>
-                    <div className="summary-row">
-                      <span className="summary-label">Veículo:</span>
-                      <span className="summary-value">
-                        {selectedVehicle
-                          ? `${selectedVehicle.brand} ${selectedVehicle.model} - ${selectedVehicle.plate}`
-                          : "-"}
-                      </span>
-                    </div>
-                    <div className="summary-row">
-                      <span className="summary-label">Serviço:</span>
-                      <span className="summary-value">{selectedService?.name || "-"}</span>
-                    </div>
-                    <div className="summary-row">
-                      <span className="summary-label">Data:</span>
-                      <span className="summary-value">
-                        {form.appointment_date
-                          ? new Date(form.appointment_date + "T00:00:00").toLocaleDateString("pt-PT")
-                          : "-"}
-                      </span>
-                    </div>
-                    <div className="summary-row">
-                      <span className="summary-label">Hora:</span>
-                      <span className="summary-value">{form.appointment_time || "-"}</span>
-                    </div>
-                    <div className="summary-row">
-                      <span className="summary-label">Orçamento Estimado:</span>
-                      <span className="summary-value">€{form.estimated_budget.toFixed(2)}</span>
-                    </div>
-                    {form.description && (
-                      <div className="summary-row">
-                        <span className="summary-label">Descrição:</span>
-                        <span className="summary-value">{form.description}</span>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* STEP 3 */}
-                {currentStep === 3 && (
-                  <div className="summary-card" style={{ margin: "20px" }}>
-                    <h5 className="summary-title">
-                      <i className="bi bi-check-circle"></i>
-                      Resumo do Agendamento
-                    </h5>
-                    <div className="summary-row">
-                      <span className="summary-label">Cliente:</span>
-                      <span className="summary-value">{selectedCustomer?.name || "-"}</span>
-                    </div>
-                    <div className="summary-row">
-                      <span className="summary-label">Veículo:</span>
-                      <span className="summary-value">
-                        {selectedVehicle
-                          ? `${selectedVehicle.brand} ${selectedVehicle.model} - ${selectedVehicle.plate}`
-                          : "-"}
-                      </span>
-                    </div>
-                    <div className="summary-row">
-                      <span className="summary-label">Serviço:</span>
-                      <span className="summary-value">{selectedService?.name || "-"}</span>
-                    </div>
-                    <div className="summary-row">
-                      <span className="summary-label">Data:</span>
-                      <span className="summary-value">
-                        {form.appointment_date
-                          ? new Date(form.appointment_date + "T00:00:00").toLocaleDateString("pt-PT")
-                          : "-"}
-                      </span>
-                    </div>
-                    <div className="summary-row">
-                      <span className="summary-label">Hora:</span>
-                      <span className="summary-value">{form.appointment_time || "-"}</span>
-                    </div>
-                    <div className="summary-row">
-                      <span className="summary-label">Orçamento Estimado:</span>
-                      <span className="summary-value">€{form.estimated_budget.toFixed(2)}</span>
-                    </div>
-                    {form.description && (
-                      <div className="summary-row">
-                        <span className="summary-label">Descrição:</span>
-                        <span className="summary-value">{form.description}</span>
-                      </div>
-                    )}
-                  </div>
-                )}
+                </div>
               </form>
             </>
           )}
@@ -484,67 +384,28 @@ const CreateAppointmentModal: FC<CreateAppointmentModalProps> = ({ show, onClose
 
         {/* Footer */}
         <div className="service-order-modal-footer">
-          {currentStep === 1 && (
-            <>
-              <button type="button" className="btn btn-outline-secondary" onClick={handleClose}>
-                <i className="bi bi-x-circle"></i>
-                Cancelar
-              </button>
-              <button
-                type="button"
-                className="btn btn-danger"
-                onClick={goToNextStep}
-                disabled={!form.customer_id || !form.vehicle_id || !form.service_id || !form.appointment_date || !form.appointment_time}
-              >
-                Próximo
-                <i className="bi bi-arrow-right"></i>
-              </button>
-            </>
-          )}
-
-          {currentStep === 2 && (
-            <>
-              <button type="button" className="btn btn-outline-secondary" onClick={goToPreviousStep}>
-                <i className="bi bi-arrow-left"></i>
-                Voltar
-              </button>
-              <button type="button" className="btn btn-danger" onClick={handleSubmit} disabled={submitting}>
-                {submitting ? (
-                  <>
-                    <div className="spinner-border spinner-border-sm"></div>
-                    A criar...
-                  </>
-                ) : (
-                  <>
-                    <i className="bi bi-check-circle"></i>
-                    Confirmar Agendamento
-                  </>
-                )}
-              </button>
-            </>
-          )}
-
-          {currentStep === 3 && (
-            <>
-              <button type="button" className="btn btn-outline-secondary" onClick={goToPreviousStep}>
-                <i className="bi bi-arrow-left"></i>
-                Voltar
-              </button>
-              <button type="button" className="btn btn-danger" onClick={handleSubmit} disabled={submitting}>
-                {submitting ? (
-                  <>
-                    <div className="spinner-border spinner-border-sm"></div>
-                    A criar...
-                  </>
-                ) : (
-                  <>
-                    <i className="bi bi-check-circle"></i>
-                    Confirmar Agendamento
-                  </>
-                )}
-              </button>
-            </>
-          )}
+          <button type="button" className="btn btn-outline-secondary" onClick={handleClose}>
+            <i className="bi bi-x-circle"></i>
+            Cancelar
+          </button>
+          <button
+            type="button"
+            className="btn btn-danger"
+            onClick={handleSubmit}
+            disabled={!form.customer_id || !form.vehicle_id || !form.service_id || !form.appointment_date || !form.appointment_time || submitting}
+          >
+            {submitting ? (
+              <>
+                <div className="spinner-border spinner-border-sm"></div>
+                A criar...
+              </>
+            ) : (
+              <>
+                <i className="bi bi-check-circle"></i>
+                Criar Agendamento
+              </>
+            )}
+          </button>
         </div>
       </div>
     </div>

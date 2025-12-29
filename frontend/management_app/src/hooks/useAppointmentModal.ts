@@ -51,7 +51,6 @@ const isWeekend = (dateString: string): boolean => {
 };
 
 export const useAppointmentModal = (show: boolean, onSuccess: () => void, onClose: () => void) => {
-  const [currentStep, setCurrentStep] = useState(1);
   const [loadingData, setLoadingData] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -64,7 +63,6 @@ export const useAppointmentModal = (show: boolean, onSuccess: () => void, onClos
   // Carregar dados iniciais
   useEffect(() => {
     if (!show) {
-      setCurrentStep(1);
       setForm(INITIAL_FORM);
       setError(null);
       return;
@@ -116,26 +114,6 @@ export const useAppointmentModal = (show: boolean, onSuccess: () => void, onClos
     }));
   };
 
-  // Navegar entre steps
-  const goToNextStep = () => {
-    setError(null);
-
-    if (currentStep === 1) {
-      if (!form.customer_id) return setError("Selecione um cliente.");
-      if (!form.vehicle_id) return setError("Selecione um veículo.");
-      if (!form.service_id) return setError("Selecione um serviço.");
-      if (!form.appointment_date) return setError("Escolha a data.");
-      if (!form.appointment_time) return setError("Escolha o horário.");
-    }
-
-    setCurrentStep((prev) => Math.min(prev + 1, 3));
-  };
-
-  const goToPreviousStep = () => {
-    setError(null);
-    setCurrentStep((prev) => Math.max(prev - 1, 1));
-  };
-
   // Submeter formulário
   const handleSubmit = async () => {
     setError(null);
@@ -168,7 +146,6 @@ export const useAppointmentModal = (show: boolean, onSuccess: () => void, onClos
 
   // Fechar modal
   const handleClose = () => {
-    setCurrentStep(1);
     setError(null);
     onClose();
   };
@@ -181,7 +158,6 @@ export const useAppointmentModal = (show: boolean, onSuccess: () => void, onClos
 
   return {
     // State
-    currentStep,
     loadingData,
     submitting,
     customers,
@@ -202,8 +178,6 @@ export const useAppointmentModal = (show: boolean, onSuccess: () => void, onClos
     setForm,
     handleDateChange,
     handleServiceChange,
-    goToNextStep,
-    goToPreviousStep,
     handleSubmit,
     handleClose,
   };

@@ -53,6 +53,11 @@
   color: #111827;
 }
 
+/* Borda vermelha forte quando preenchido */
+.mb-input.filled {
+  border-color: #dc3545;
+}
+
 /* Floating label */
 .mb-input-label {
   position: absolute;
