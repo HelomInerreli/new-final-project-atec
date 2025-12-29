@@ -243,3 +243,51 @@ def delete_appointment(
     
     repo.db.delete(db_appointment)
     repo.db.commit()
+    
+    
+@router.delete("/{appointment_id}/comments/{comment_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_comment(
+    appointment_id: int,
+    comment_id: int,
+    db: Session = Depends(get_db)
+):
+    """Apaga um comentário de uma ordem de serviço"""
+    comment = db.query(OrderComment).filter(
+        OrderComment.id == comment_id,
+        OrderComment.service_order_id == appointment_id
+    ).first()
+    
+    if not comment:
+        raise HTTPException(status_code=404, detail="Comment not found")
+    
+    db.delete(comment)
+    db.commit()
+    return None
+
+@router.delete("/{appointment_id}/parts/{part_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_part(
+    appointment_id: int,
+    part_id: int,
+    db: Session = Depends(get_db)
+):
+    """Apaga uma peça de uma ordem de serviço e devolve ao stock"""
+    from app.models.order_part import OrderPart
+    from app.models.product import Product
+    
+    part = db.query(OrderPart).filter(
+        OrderPart.id == part_id,
+        OrderPart.appointment_id == appointment_id
+    ).first()
+    
+    if not part:
+        raise HTTPException(status_code=404, detail="Part not found")
+    
+    
+    if part.product_id:
+        product = db.query(Product).filter(Product.id == part.product_id).first()
+        if product:
+            product.quantity += part.quantity
+    
+    db.delete(part)
+    db.commit()
+    return None

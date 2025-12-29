@@ -13,13 +13,7 @@ import {
   AlertDialogTrigger,
 } from "./ui/alert-dialog";
 import "../styles/AddPartsModal.css";
-
-interface AddPartsModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  orderId: string;
-  onSuccess: () => void;
-}
+import { type AddPartsModalProps } from "../interfaces/ModalParts";
 
 const AddPartsModal: React.FC<AddPartsModalProps> = ({ isOpen, onClose, orderId, onSuccess }) => {
   const {
@@ -33,6 +27,7 @@ const AddPartsModal: React.FC<AddPartsModalProps> = ({ isOpen, onClose, orderId,
     setQuantity,
     adding,
     handleAddPart,
+    quantityError,
   } = useAddPartsModal(isOpen, orderId, onSuccess, onClose);
 
   if (!isOpen) return null;
@@ -92,9 +87,10 @@ const AddPartsModal: React.FC<AddPartsModalProps> = ({ isOpen, onClose, orderId,
                     max={selectedProduct.quantity}
                     value={quantity}
                     onChange={(e) => setQuantity(Number(e.target.value))}
-                    className="quantity-input"
+                    className={`quantity-input ${quantityError ? 'error' : ''}`}
                   />
                   <span className="stock-info">/ {selectedProduct.quantity} disponíveis</span>
+                  {quantityError && <div className="quantity-error">{quantityError}</div>}
                 </div>
               )}
             </>
@@ -114,7 +110,7 @@ const AddPartsModal: React.FC<AddPartsModalProps> = ({ isOpen, onClose, orderId,
             <AlertDialogTrigger asChild>
               <Button
                 variant="destructive"
-                disabled={!selectedProduct || adding}
+                disabled={!selectedProduct || adding || !!quantityError}
                 type="button"
               >
                 {adding ? "Adicionando..." : "Adicionar Peça"}
@@ -128,36 +124,22 @@ const AddPartsModal: React.FC<AddPartsModalProps> = ({ isOpen, onClose, orderId,
                   Tem certeza que deseja adicionar esta peça à ordem #{orderId}?
                   
                   {selectedProduct && (
-                    <div style={{ 
-                      marginTop: "16px", 
-                      padding: "16px", 
-                      backgroundColor: "#f8f9fa", 
-                      borderRadius: "8px",
-                      fontSize: "0.9rem",
-                      color: "#495057"
-                    }}>
-                      <div style={{ marginBottom: "8px" }}>
+                    <div className="confirmation-details">
+                      <div className="detail-row">
                         <strong>Peça:</strong> {selectedProduct.name}
                       </div>
                       {selectedProduct.partNumber && (
-                        <div style={{ marginBottom: "8px" }}>
+                        <div className="detail-row">
                           <strong>Código:</strong> {selectedProduct.partNumber}
                         </div>
                       )}
-                      <div style={{ marginBottom: "8px" }}>
+                      <div className="detail-row">
                         <strong>Quantidade:</strong> {quantity} un.
                       </div>
-                      <div style={{ marginBottom: "8px" }}>
+                      <div className="detail-row">
                         <strong>Preço unitário:</strong> €{selectedProduct.saleValue.toFixed(2)}
                       </div>
-                      <div style={{ 
-                        marginTop: "12px", 
-                        paddingTop: "12px", 
-                        borderTop: "2px solid #dee2e6",
-                        fontSize: "1rem",
-                        fontWeight: "700",
-                        color: "#28a745"
-                      }}>
+                      <div className="detail-total">
                         <strong>Total:</strong> €{(selectedProduct.saleValue * quantity).toFixed(2)}
                       </div>
                     </div>

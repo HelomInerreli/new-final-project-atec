@@ -1,7 +1,14 @@
 import { useState, useEffect } from "react";
 import { getProducts, addPartToOrder, type Product } from "../services/productService";
+import { toast } from "sonner";
+import { validateQuantity, type UseAddPartsModalReturn } from "../interfaces/ModalParts";
 
-export const useAddPartsModal = (isOpen: boolean, orderId: string, onSuccess: () => void, onClose: () => void) => {
+export const useAddPartsModal = (
+  isOpen: boolean,
+  orderId: string,
+  onSuccess: () => void,
+  onClose: () => void
+): UseAddPartsModalReturn => {
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [search, setSearch] = useState("");
@@ -9,7 +16,8 @@ export const useAddPartsModal = (isOpen: boolean, orderId: string, onSuccess: ()
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [adding, setAdding] = useState(false);
-
+  const [quantityError, setQuantityError] = useState<string | null>(null);
+  
   useEffect(() => {
     if (isOpen) {
       loadProducts();
@@ -28,6 +36,12 @@ export const useAddPartsModal = (isOpen: boolean, orderId: string, onSuccess: ()
     }
   }, [search, products]);
 
+  useEffect(() => {
+    const error = validateQuantity(quantity, selectedProduct);
+    setQuantityError(error);
+  }, [quantity, selectedProduct]);
+
+
   const loadProducts = async () => {
     setLoading(true);
     try {
@@ -37,6 +51,7 @@ export const useAddPartsModal = (isOpen: boolean, orderId: string, onSuccess: ()
       setFilteredProducts(inStock);
     } catch (error: any) {
       console.error("Erro ao carregar produtos:", error);
+      toast.error("Erro ao carregar produtos");
       setProducts([]);
       setFilteredProducts([]);
     } finally {
@@ -44,20 +59,33 @@ export const useAddPartsModal = (isOpen: boolean, orderId: string, onSuccess: ()
     }
   };
 
+  const handleQuantityChange = (value: number) => {
+    setQuantity(value);
+  };
+
   const handleAddPart = async () => {
-    // Validações (botão já está disabled no componente, mas mantemos por segurança)
-    if (!selectedProduct || quantity < 1 || quantity > selectedProduct.quantity) {
+    if (!selectedProduct) {
+      toast.error("Por favor, selecione uma peça");
+      return;
+    }
+
+    const validationError = validateQuantity(quantity, selectedProduct);
+    if (validationError) {
+      toast.error(validationError);
       return;
     }
 
     setAdding(true);
     try {
       await addPartToOrder(orderId, selectedProduct.id, quantity);
+      toast.success(`Peça "${selectedProduct.name}" adicionada com sucesso!`);
       resetForm();
       onSuccess();
       onClose();
     } catch (error: any) {
       console.error("Erro ao adicionar peça:", error);
+      const errorMessage = error.message || "Erro ao adicionar peça";
+      toast.error(errorMessage);
     } finally {
       setAdding(false);
     }
@@ -67,6 +95,7 @@ export const useAddPartsModal = (isOpen: boolean, orderId: string, onSuccess: ()
     setSelectedProduct(null);
     setQuantity(1);
     setSearch("");
+    setQuantityError(null);
   };
 
   return {
@@ -78,7 +107,8 @@ export const useAddPartsModal = (isOpen: boolean, orderId: string, onSuccess: ()
     selectedProduct,
     setSelectedProduct,
     quantity,
-    setQuantity,
+    setQuantity: handleQuantityChange,
+    quantityError,
     adding,
     handleAddPart,
   };

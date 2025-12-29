@@ -1,6 +1,6 @@
 :root {
   --page-padding: 32px;
-  --bg: rgb(245, 245, 245);
+  --bg: rgb(241, 241, 241);
   --accent: #dc3545;
   --border-radius: 12px;
 }
@@ -11,7 +11,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: var(--bg);
+  background-color: transparent;
   padding: 32px var(--page-padding);
 }
 

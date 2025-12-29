@@ -1,14 +1,35 @@
 import { useState } from "react";
+import { toast } from "sonner";
+import { type UseAddCommentModalReturn, validateComment } from "../interfaces/ModalComment";
+
 
 const API_BASE_URL = "http://localhost:8000/api/v1";
 
-export const useAddCommentModal = (isOpen: boolean, orderId: string, onSuccess: () => void, onClose: () => void) => {
+const getAuthToken = () => {
+  return localStorage.getItem("access_token");
+};
+
+
+export const useAddCommentModal = (
+  isOpen: boolean,
+  orderId: string,
+  onSuccess: () => void,
+  onClose: () => void
+): UseAddCommentModalReturn => {
   const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(false);
+  const [commentError, setCommentError] = useState<string | null>(null);
+
+  const handleCommentChange = (value: string) => {
+    setComment(value);
+    const error = validateComment(value);
+    setCommentError(error);
+  };
 
   const handleSubmit = async () => {
-    // Validação (botão já está disabled no componente, mas mantemos por segurança)
-    if (!comment.trim()) {
+    const validationError = validateComment(comment);
+    if (validationError) {
+      toast.error(validationError);
       return;
     }
 
@@ -18,18 +39,27 @@ export const useAddCommentModal = (isOpen: boolean, orderId: string, onSuccess: 
         `${API_BASE_URL}/appointments/${orderId}/comments`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${getAuthToken()}`
+          },
           body: JSON.stringify({ comment: comment.trim() }),
         }
       );
 
-      if (!response.ok) throw new Error("Erro ao adicionar comentário");
-
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Erro ao adicionar comentário");
+      }
+    
+      toast.success("Comentário adicionado com sucesso!");
       setComment("");
+      setCommentError(null);
       onSuccess();
       onClose();
     } catch (error: any) {
       console.error("Erro ao adicionar comentário:", error);
+      toast.error(error.message || "Erro ao adicionar comentário");
     } finally {
       setLoading(false);
     }
@@ -37,7 +67,8 @@ export const useAddCommentModal = (isOpen: boolean, orderId: string, onSuccess: 
 
   return {
     comment,
-    setComment,
+    setComment: handleCommentChange,
+    commentError,
     loading,
     handleSubmit,
   };

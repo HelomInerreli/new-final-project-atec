@@ -12,14 +12,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "./ui/alert-dialog";
+import { type AddCommentModalProps } from "../interfaces/ModalComment";
 import "../styles/AddCommentModal.css";
-
-interface AddCommentModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  orderId: string;
-  onSuccess: () => void;
-}
 
 const AddCommentModal: React.FC<AddCommentModalProps> = ({
   isOpen,
@@ -27,7 +21,7 @@ const AddCommentModal: React.FC<AddCommentModalProps> = ({
   orderId,
   onSuccess,
 }) => {
-  const { comment, setComment, loading, handleSubmit } = useAddCommentModal(
+  const { comment, setComment, commentError, loading, handleSubmit } = useAddCommentModal(
     isOpen,
     orderId,
     onSuccess,
@@ -49,12 +43,13 @@ const AddCommentModal: React.FC<AddCommentModalProps> = ({
         <div className="comment-modal-body">
           <label className="comment-modal-label">Comentário:</label>
           <textarea
-            className="comment-modal-textarea"
+            className={`comment-modal-textarea ${commentError ? 'error' : ''}`}
             rows={5}
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             placeholder="Escreva seu comentário aqui..."
           />
+          {commentError && <div className="comment-modal-error">{commentError}</div>}
         </div>
 
         <div className="comment-modal-footer">
@@ -70,7 +65,7 @@ const AddCommentModal: React.FC<AddCommentModalProps> = ({
             <AlertDialogTrigger asChild>
               <Button
                 variant="destructive"
-                disabled={loading || !comment.trim()}
+                disabled={loading || !!commentError || !comment.trim()}
                 type="button"
               >
                 {loading ? "Adicionando..." : "Adicionar Comentário"}
@@ -82,16 +77,7 @@ const AddCommentModal: React.FC<AddCommentModalProps> = ({
                 <AlertDialogTitle>Confirmar Adição de Comentário</AlertDialogTitle>
                 <AlertDialogDescription>
                   Tem certeza que deseja adicionar este comentário à ordem #{orderId}?
-                  <div style={{ 
-                    marginTop: "12px", 
-                    padding: "12px", 
-                    backgroundColor: "#f8f9fa", 
-                    borderRadius: "6px",
-                    fontSize: "0.9rem",
-                    color: "#495057",
-                    maxHeight: "100px",
-                    overflowY: "auto"
-                  }}>
+                  <div className="comment-preview">
                     <strong>Comentário:</strong><br />
                     {comment}
                   </div>

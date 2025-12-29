@@ -55,17 +55,22 @@
 }
 
 .so-back-btn {
-  background: none;
-  border: none;
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--so-primary);
+  background-color: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  color: #666;
   cursor: pointer;
-  padding: 4px 8px;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.3s ease;
 }
 
 .so-back-btn:hover { 
-  text-decoration: underline; 
+  background-color: var(--so-primary);
+  border-color: var(--so-primary);
+  color: white;
 }
 
 .so-card-title { 
@@ -208,7 +213,7 @@
 }
 
 .so-panel-title-parts { 
-  border-bottom: 2px solid #28a745; 
+  border-bottom: 2px solid #dc3545; 
 }
 
 .so-add-icon-btn {
@@ -253,7 +258,7 @@
 .timeline-item {
   position: relative;
   padding-left: var(--timeline-indent);
-  padding-right: 80px;
+  padding-right: 40px;
   min-height: 40px;
 }
 
@@ -316,7 +321,7 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 16px;
+  gap: 8px;
   position: relative;
 }
 
@@ -339,7 +344,7 @@
   line-height: 1;
   flex-shrink: 0;
   position: absolute;
-  right: -40px; 
+  right: 50px; 
   top: 0;
   background: #dc3545;
 }
@@ -411,34 +416,30 @@
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.3px;
-  border-bottom: 2px solid #28a745;
+  border-bottom: 2px solid #dc3545;
   white-space: nowrap;
 }
 
 .parts-table th:nth-child(1) { 
-  width: 20%; 
+  width: 35%; 
   text-align: center; 
 }
 
 .parts-table th:nth-child(2) { 
-  width: 10%; 
+  width: 20%; 
   text-align: center; 
 }
 
 .parts-table th:nth-child(3) { 
-  width: 5%; 
+  width: 15%; 
   text-align: center; 
 }
 
 .parts-table th:nth-child(4) { 
-  width: 5%; 
-  text-align: center; 
+  width: 30%; 
+  text-align: left; 
 }
 
-.parts-table th:nth-child(5) { 
-  width: 10%; 
-  text-align: center; 
-}
 
 .parts-table tbody tr {
   border-bottom: 1px solid #f0f0f0;
@@ -464,7 +465,7 @@
 }
 
 .parts-table td:nth-child(4) { 
-  text-align: right;
+  text-align: left;
 }
 
 .part-name-cell {
@@ -488,12 +489,6 @@
   font-size: 0.85rem;
 }
 
-.part-price-cell {
-  font-weight: 400;
-  color: #28a745;
-  font-size: 0.9rem;
-}
-
 .part-date-cell {
   font-size: 0.8rem;
   color: #6b7280;
@@ -507,12 +502,52 @@
 }
 
 .so-add-icon-btn-parts {
-  background-color: #28a745;
+  background-color: #dc3545;
 }
 
 .so-add-icon-btn-parts:hover {
-  background-color: #218838;
-  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+  background-color: #dc3545;
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+}
+
+.delete-icon-btn {
+  background-color: #dc3545;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.delete-icon-btn:hover {
+  background-color: #c82333;
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+
+.delete-icon-btn-table {
+  width: 28px;
+  height: 28px;
+  padding: 4px;
+  margin-left: 8px;
+}
+
+.part-date-cell-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.part-date-info {
+  flex: 1;
 }
 
 @media (max-width: 992px) {
@@ -568,7 +603,7 @@
   }
 
   .timeline-badge {
-    right: -60px;
+    right: -70px;
   }
 }
 

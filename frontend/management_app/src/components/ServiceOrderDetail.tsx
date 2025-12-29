@@ -5,6 +5,7 @@ import { Button } from "./ui/button";
 import Input from "./Input";
 import AddPartsModal from "./AddPartsModal";
 import AddCommentModal from "./AddCommentModal";
+import { Trash2, ArrowLeft } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,7 +34,6 @@ const ServiceOrderDetail: FC = () => {
     currentNormalized,
     setIsPartsModalOpen,
     setIsCommentModalOpen,
-    changeStatus,
     fetchOrder,
     formatField,
     formatDate,
@@ -42,8 +42,9 @@ const ServiceOrderDetail: FC = () => {
     formatTime,
     handleStartWork,
     handlePauseWork,
-    handleResumeWork,
     handleFinalizeWork,
+    handleDeleteComment,
+    handleDeletePart,
   } = useServiceOrderDetails(id);
 
   if (loading) return <div className="so-loading">Carregando...</div>;
@@ -53,7 +54,9 @@ const ServiceOrderDetail: FC = () => {
     <div className="so-page-wrapper">
       <div className="so-card">
         <div className="so-card-header">
-          <button className="so-back-btn" onClick={() => navigate(-1)}>← Voltar</button>
+          <button className="so-back-btn" onClick={() => navigate(-1)}>
+              <ArrowLeft size={24} />
+          </button>
           <h2 className="so-card-title">Ordem de Serviço :{order.id}</h2>
         </div>
 
@@ -223,6 +226,30 @@ const ServiceOrderDetail: FC = () => {
                       <div className="timeline-content">
                         <span className="timeline-text">{c.comment}</span>
                         {isLatest && <span className="timeline-badge">NOVO</span>}
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <button
+                              className="delete-icon-btn"
+                              title="Apagar comentário"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Apagar Comentário?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Esta ação não pode ser desfeita. O comentário será permanentemente removido.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDeleteComment(c.id)}>
+                                Sim, Apagar
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </div>
                   );
@@ -256,7 +283,6 @@ const ServiceOrderDetail: FC = () => {
                       <th>Nome</th>
                       <th>Código</th>
                       <th>Qtd</th>
-                      <th>Preço</th>
                       <th>Data</th>
                     </tr>
                   </thead>
@@ -278,10 +304,37 @@ const ServiceOrderDetail: FC = () => {
                           <td className="part-name-cell">{formatField(p.name)}</td>
                           <td className="part-sku-cell">{p.part_number ?? "-"}</td>
                           <td className="part-qty-cell">{p.quantity ?? 1}</td>
-                          <td className="part-price-cell">€{Number(p.price ?? 0).toFixed(2)}</td>
                           <td className="part-date-cell">
-                            {dateStr}
-                            <span className="part-time">{timeStr}</span>
+                            <div className="part-date-cell-content">
+                              <div className="part-date-info">
+                                {dateStr}
+                                <span className="part-time">{timeStr}</span>
+                              </div>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <button
+                                    className="delete-icon-btn delete-icon-btn-table"
+                                    title="Apagar peça"
+                                  >
+                                    <Trash2 size={16} />
+                                  </button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Apagar Peça?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Esta ação não pode ser desfeita. A peça será removida e o stock será restaurado.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => handleDeletePart(p.id)}>
+                                      Sim, Apagar
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog> 
+                            </div>
                           </td>
                         </tr>
                       );

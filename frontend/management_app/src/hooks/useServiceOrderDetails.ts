@@ -219,6 +219,27 @@ export const useServiceOrderDetails = (id: string | undefined) => {
     return tb - ta;
   });
 
+  const handleDeleteComment = useCallback(async (commentId: number) => {
+    if (!id) return;
+    try {
+      const { deleteComment } = await import("../services/OrderDetails");
+      await deleteComment(id, commentId);
+      await fetchOrder();
+    } catch (e) {
+      alert("Erro ao apagar comentário: " + e);
+    }
+  }, [id, fetchOrder]);
+
+  const handleDeletePart = useCallback(async (partId: number) => {
+    if (!id) return;
+    try {
+      const { deletePart } = await import("../services/OrderDetails");
+      await deletePart(id, partId);
+      await fetchOrder();
+    } catch (e) {
+      alert("Erro ao apagar peça: " + e);
+    }
+  }, [id, fetchOrder]);
 
 
   const currentRaw = getRawStatusName(order);
@@ -245,6 +266,8 @@ export const useServiceOrderDetails = (id: string | undefined) => {
     handlePauseWork,
     handleResumeWork,
     handleFinalizeWork,
+    handleDeleteComment,
+    handleDeletePart,
 
     // Helpers
     formatField,

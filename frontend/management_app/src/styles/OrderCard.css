@@ -1,7 +1,7 @@
 .order-card {
   border: 2px solid #dc3545;
   border-radius: 12px;
-  background-color: #fff;
+  background-color: rgb(245, 245, 245);
   padding: 24px 28px;
   transition: box-shadow 0.2s, transform 0.2s;
   display: flex;
