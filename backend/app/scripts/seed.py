@@ -36,7 +36,7 @@ from app.models.absenceType import AbsenceType
 from app.models.absence_status import AbsenceStatus
 
 # Configuration
-NUM_APPOINTMENTS = 12
+NUM_APPOINTMENTS = 36
 MIN_VEHICLES_PER_CUSTOMER = 1
 MAX_VEHICLES_PER_CUSTOMER = 3
 MAX_EXTRA_SERVICES_PER_APPOINTMENT = 2
@@ -57,11 +57,21 @@ VEHICLE_MODELS = {
     "Hyundai": ["i30", "Tucson", "Kona"],
 }
 
+VEHICLE_COLORS = ["Branco", "Preto", "Prata", "Cinzento", "Azul", "Vermelho", "Verde", "Amarelo", "Laranja", "Castanho"]
+FUEL_TYPES = ["Gasolina", "Diesel", "Híbrido", "Elétrico", "GPL"]
+ENGINE_SIZES = ["1.0", "1.2", "1.4", "1.6", "1.8", "2.0", "2.5", "3.0"]
+
 MAIN_SERVICES = [
     {"name": "Revisão Anual", "description": "Revisão completa do veículo, incluindo verificação de níveis, travões e luzes.", "price": 150.0, "duration_minutes": 90, "area": "mecanico,eletricista"},
     {"name": "Mudança de Óleo e Filtros", "description": "Troca de óleo do motor e substituição dos filtros de óleo e ar.", "price": 85.0, "duration_minutes": 60, "area": "mecanico"},
     {"name": "Diagnóstico Eletrónico", "description": "Ligação à máquina de diagnóstico para identificar avarias eletrónicas.", "price": 45.0, "duration_minutes": 30, "area": "eletricista"},
     {"name": "Alinhamento de Direção", "description": "Alinhamento computorizado das rodas dianteiras e traseiras.", "price": 35.0, "duration_minutes": 45, "area": "borracheiro"},
+    {"name": "Substituição de Travões", "description": "Substituição completa de discos e pastilhas de travão.", "price": 220.0, "duration_minutes": 120, "area": "mecanico"},
+    {"name": "Balanceamento de Rodas", "description": "Balanceamento computorizado das 4 rodas.", "price": 30.0, "duration_minutes": 30, "area": "borracheiro"},
+    {"name": "Troca de Bateria", "description": "Substituição da bateria do veículo com teste do sistema elétrico.", "price": 95.0, "duration_minutes": 45, "area": "eletricista"},
+    {"name": "Manutenção de Ar Condicionado", "description": "Verificação, limpeza e carregamento do sistema de ar condicionado.", "price": 75.0, "duration_minutes": 60, "area": "mecanico"},
+    {"name": "Substituição de Correia de Distribuição", "description": "Troca da correia de distribuição e tensores.", "price": 280.0, "duration_minutes": 180, "area": "mecanico"},
+    {"name": "Inspeção Periódica Obrigatória", "description": "Inspeção completa para renovação da IPO.", "price": 55.0, "duration_minutes": 60, "area": "mecanico,eletricista"},
 ]
 
 EXTRA_SERVICE_CATALOG = [
@@ -73,11 +83,9 @@ EXTRA_SERVICE_CATALOG = [
 
 STATUSES = [
     "Pendente",
-    "Canceled",
-    "Finalized",
-    "In Repair",
-    "Awaiting Approval",
-    "Waitting Payment",
+    "Em Andamento",
+    "Concluída",
+    "Cancelada",
 ]
 
 ROLES_TO_CREATE = [
@@ -206,6 +214,12 @@ def seed_data(db: Session):
     # 2) Create main services
     services = []
     for svc in MAIN_SERVICES:
+        # Verificar se já existe
+        existing_service = db.query(Service).filter(Service.name == svc["name"]).first()
+        if existing_service:
+            services.append(existing_service)
+            continue
+            
         svc_in = ServiceCreate(
             name=svc["name"],
             description=svc["description"],
@@ -256,6 +270,11 @@ def seed_data(db: Session):
     {"name": "Borracheiro User", "email": "borracheiro@example.com", "role": "borracheiro"}
     ]
     for u in users_to_create:
+        # Verificar se o user já existe
+        existing_user = db.query(User).filter(User.email == u["email"]).first()
+        if existing_user:
+            continue
+            
         hashed_password = pwd_context.hash("123")
         user = User(
             name=u["name"],
@@ -265,7 +284,7 @@ def seed_data(db: Session):
         )
         db.add(user)
         db.commit()
-        print("Created users for login.")
+    print(f"Created/verified users for login.")
 
     # 5) Create Employees
     employee_repo = EmployeeRepository(db)
@@ -389,7 +408,12 @@ def seed_data(db: Session):
                 brand=brand,
                 model=model,
                 kilometers=random.randint(10000, 200000),
-                customer_id=customer.id
+                customer_id=customer.id,
+                color=random.choice(VEHICLE_COLORS),
+                imported=random.choice([True, False]),
+                description=f"{brand} {model}",
+                engineSize=random.choice(ENGINE_SIZES),
+                fuelType=random.choice(FUEL_TYPES)
             )
             try:
                 vehicle = vehicle_repo.create(vehicle_in)
@@ -401,74 +425,84 @@ def seed_data(db: Session):
     
     print(f"Created {len(vehicles)} vehicles.")
 
-    # 8) Create appointments
+    # 8) Create appointments - 9 por cada status (total 36)
     appointments = []
-    status_plan = {
-        "Pendente": 3,
-        "Finalized": 3,
-        "Waitting Payment": 2,
-    }
+    status_names = ["Pendente", "Em Andamento", "Concluída", "Cancelada"]
+    
+    # Criar 9 appointments para cada status
+    for status_name in status_names:
+        for i in range(9):
+            # Distribuir entre os clientes disponíveis
+            customer = customers[i % len(customers)]
+            customer_vehicles = [v for v in vehicles if v.customer_id == customer.id]
+            
+            if not customer_vehicles:
+                print(f"Customer {customer.id} has no vehicles, skipping appointment.")
+                continue
+                
+            vehicle = random.choice(customer_vehicles)
+            main_service = random.choice(services)
 
-    for customer in customers:
-        for status_type, quantity in status_plan.items():
-            for _ in range(quantity):
-                customer_vehicles = [v for v in vehicles if v.customer_id == customer.id]
-                vehicle = random.choice(customer_vehicles)
-                main_service = random.choice(services)
+            # Definir datas baseadas no status
+            if status_name == "Pendente":
+                days_offset = random.randint(1, 60)  # Futuro
+            elif status_name == "Em Andamento":
+                days_offset = random.randint(-7, 0)  # Última semana até hoje
+            elif status_name == "Concluída":
+                days_offset = random.randint(-90, -8)  # Passado recente
+            else:  # Cancelada
+                days_offset = random.randint(-180, -1)  # Passado
+                
+            appointment_date = datetime.now() + timedelta(days=days_offset)
 
-                if status_type == "Pendente":
-                    days_offset = random.randint(1, 60)
-                elif status_type == "Waitting Payment":
-                    days_offset = random.randint(-10, -1)
-                else:
-                    days_offset = random.randint(-180, -1)
-                appointment_date = datetime.now() + timedelta(days=days_offset)
+            estimated_budget = main_service.price
+            actual_budget = 0.0 if status_name == "Pendente" else estimated_budget
 
-                estimated_budget = main_service.price
-                actual_budget = 0.0 if status_type == "Pendente" else estimated_budget
+            appointment_in = AppointmentCreate(
+                appointment_date=appointment_date,
+                description=f"Agendamento para {main_service.name} - Cliente: {customer.name} ({status_name})",
+                vehicle_id=vehicle.id,
+                customer_id=customer.id,
+                service_id=main_service.id,
+                estimated_budget=estimated_budget,
+                actual_budget=actual_budget,
+            )
 
-                appointment_in = AppointmentCreate(
-                    appointment_date=appointment_date,
-                    description=f"Agendamento para {main_service.name} - Cliente: {customer.name} ({status_type})",
-                    vehicle_id=vehicle.id,
-                    customer_id=customer.id,
-                    service_id=main_service.id,
-                    estimated_budget=estimated_budget,
-                    actual_budget=actual_budget,
-                )
-
-                try:
-                    appointment = appointment_repo.create(appointment_in)
-                    appointment.status_id = status_objects[status_type].id
+            try:
+                appointment = appointment_repo.create(appointment_in)
+                # Definir o status_id corretamente
+                status_obj = status_objects.get(status_name)
+                if status_obj:
+                    appointment.status_id = status_obj.id
                     db.commit()
                     db.refresh(appointment)
-                    appointments.append(appointment)
-                except Exception as e:
-                    db.rollback()
-                    print(f"Failed to create appointment for customer {customer.id}: {e}")
-                    continue
+                appointments.append(appointment)
+            except Exception as e:
+                db.rollback()
+                print(f"Failed to create appointment for customer {customer.id}: {e}")
+                continue
 
-                # Add extra services
-                if catalog_extra_services and random.choice([True, False]):
-                    for _ in range(random.randint(1, MAX_EXTRA_SERVICES_PER_APPOINTMENT)):
-                        chosen_catalog = random.choice(catalog_extra_services)
-                        req_in = AppointmentExtraServiceCreate(
-                            extra_service_id=chosen_catalog.id
-                        )
-                        try:
-                            req = appointment_repo.add_extra_service_request(appointment.id, req_in)
-                            if status_type in {"Finalized", "Waitting Payment"}:
-                                req.approved = True
-                                db.commit()
-                        except Exception as e:
-                            db.rollback()
-                            print(f"Failed to add extra request for appointment {appointment.id}: {e}")
+            # Add extra services
+            if catalog_extra_services and random.choice([True, False]):
+                for _ in range(random.randint(1, MAX_EXTRA_SERVICES_PER_APPOINTMENT)):
+                    chosen_catalog = random.choice(catalog_extra_services)
+                    req_in = AppointmentExtraServiceCreate(
+                        extra_service_id=chosen_catalog.id
+                    )
+                    try:
+                        req = appointment_repo.add_extra_service_request(appointment.id, req_in)
+                        if status_name in {"Concluída"}:
+                            req.approved = True
+                            db.commit()
+                    except Exception as e:
+                        db.rollback()
+                        print(f"Failed to add extra request for appointment {appointment.id}: {e}")
 
     print(f"Created {len(appointments)} appointments.")
 
-    # **9) CREATE INVOICES FOR FINALIZED APPOINTMENTS**
+    # **9) CREATE INVOICES FOR COMPLETED APPOINTMENTS**
     print("\n" + "="*60)
-    print("📄 CREATING INVOICES FOR FINALIZED APPOINTMENTS")
+    print("📄 CREATING INVOICES FOR COMPLETED APPOINTMENTS")
     print("="*60)
     
     # Reload appointments to ensure we have the latest data
@@ -477,24 +511,24 @@ def seed_data(db: Session):
     
     print(f"\nTotal appointments in DB: {len(all_appointments)}")
     
-    # Get Finalized status
-    finalized_status = db.query(Status).filter(Status.name == "Finalized").first()
+    # Get Concluída status
+    completed_status = db.query(Status).filter(Status.name == "Concluída").first()
     
-    if not finalized_status:
-        print("❌ ERROR: 'Finalized' status not found!")
+    if not completed_status:
+        print("❌ ERROR: 'Concluída' status not found!")
         return
     
-    print(f"Finalized status ID: {finalized_status.id}")
+    print(f"Concluída status ID: {completed_status.id}")
     
-    finalized_appointments = [
+    completed_appointments = [
         apt for apt in all_appointments 
-        if apt.status_id == finalized_status.id
+        if apt.status_id == completed_status.id
     ]
     
-    print(f"Finalized appointments found: {len(finalized_appointments)}")
+    print(f"Completed appointments found: {len(completed_appointments)}")
     
-    if len(finalized_appointments) == 0:
-        print("⚠️  No finalized appointments to create invoices for!")
+    if len(completed_appointments) == 0:
+        print("⚠️  No completed appointments to create invoices for!")
         # List all appointments and their statuses
         print("\nAll appointments:")
         for apt in all_appointments:
@@ -505,7 +539,7 @@ def seed_data(db: Session):
     invoice_counter = 1
     created_invoices = []
     
-    for appointment in finalized_appointments:
+    for appointment in completed_appointments:
         invoice_number = f"INV-2025-{str(invoice_counter).zfill(6)}"
         try:
             invoice = create_invoice_for_appointment(db, appointment, invoice_number)

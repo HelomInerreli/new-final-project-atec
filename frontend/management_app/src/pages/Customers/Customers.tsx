@@ -16,6 +16,7 @@ import { useFetchVehicleCounts } from '../../hooks/useVehicles';
 import { useFetchCustomerAppointments } from '../../hooks/useAppointments';
 import { CustomerAppointmentsModal } from '../../components/CustomerAppointmentsModal';
 import NewCustomerModal from '../../components/NewCustomerModal';
+import "../../components/inputs.css";
 
 
 export default function Customers() {
@@ -149,7 +150,8 @@ export default function Customers() {
       if (response.ok) {
         toast({
           title: "Password Resetada",
-          description: "A password foi alterada para '12345678'.",
+          description: "A password do cliente foi resetada com sucesso.",
+          variant: "destructive",
         });
       } else {
         const errorText = await response.text();
@@ -193,7 +195,6 @@ export default function Customers() {
       <div className="d-flex align-items-center justify-content-between mb-3">
         <div>
           <h1 className="h1 fw-bold text-dark">Gestão de Clientes</h1>
-          <p className="text-muted">Gerencie os clientes da oficina</p>
         </div>
         <Button 
           variant="destructive"
@@ -204,18 +205,48 @@ export default function Customers() {
         </Button>
       </div>
 
-      <div className="d-flex gap-3 mb-3">
-        <div className="position-relative flex-grow-1">
-          <Search className="position-absolute start-0 top-50 translate-middle-y ms-3 text-muted" />
-          <Input
-            placeholder="Pesquisar clientes por nome, email ou telefone..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="ps-5"
-          />
+      {/* Filtros */}
+      <div className="d-flex flex-column flex-sm-row gap-3 mb-3">
+        <div className="mb-input-wrapper flex-grow-1">
+          <div style={{ position: "relative" }}>
+            <Search
+              size={20}
+              style={{
+                position: "absolute",
+                left: "14px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                color: "#6b7280",
+                pointerEvents: "none",
+                zIndex: 1,
+              }}
+            />
+            <input
+              type="text"
+              placeholder=""
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="mb-input"
+              style={{ paddingLeft: "46px" }}
+              onFocus={(e) =>
+                e.target.nextElementSibling?.classList.add("shrunken")
+              }
+              onBlur={(e) => {
+                if (!e.target.value) {
+                  e.target.nextElementSibling?.classList.remove("shrunken");
+                }
+              }}
+            />
+            <label
+              className={`mb-input-label ${searchTerm ? "shrunken" : ""}`}
+              style={{ left: "46px" }}
+            >
+              Pesquisar clientes por nome, email ou telefone...
+            </label>
+          </div>
         </div>
         <Select value={statusFiltro} onValueChange={setStatusFiltro}>
-          <SelectTrigger style={{ width: 200 }}>
+          <SelectTrigger className="border-2 border-red-600 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0" style={{ width: 200, height: "56px" }}>
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
@@ -226,18 +257,34 @@ export default function Customers() {
         </Select>
       </div>
 
-      <div className="table-responsive border rounded">
+      <div 
+        className="rounded-md border-2 border-red-600"
+        style={{
+          overflowY: "auto",
+          backgroundColor: "#fff",
+          borderRadius: "0.375rem",
+          boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+          minHeight: 0,
+        }}
+      >
         <Table>
-          <TableHeader>
+          <TableHeader
+            style={{
+              position: "sticky",
+              top: 0,
+              zIndex: 2,
+              background: "#fff",
+            }}
+          >
             <TableRow>
-              <TableHead>Nome</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Telefone</TableHead>
-              <TableHead>Cidade</TableHead>
-              <TableHead className="text-center">Veículos</TableHead>
-              <TableHead>Última Visita</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Ações</TableHead>
+              <TableHead className="font-semibold text-base text-black">Nome</TableHead>
+              <TableHead className="font-semibold text-base text-black">Email</TableHead>
+              <TableHead className="font-semibold text-base text-black">Telefone</TableHead>
+              <TableHead className="font-semibold text-base text-black">Cidade</TableHead>
+              <TableHead className="text-center font-semibold text-base text-black">Veículos</TableHead>
+              <TableHead className="font-semibold text-base text-black">Última Visita</TableHead>
+              <TableHead className="font-semibold text-base text-black">Status</TableHead>
+              <TableHead className="text-right font-semibold text-base text-black">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -310,17 +357,27 @@ export default function Customers() {
       </div>
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta ação não pode ser desfeita. O cliente será permanentemente
-              eliminado do sistema.
+        <AlertDialogContent className="sm:max-w-md">
+          <AlertDialogHeader className="space-y-4">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+              <Trash2 className="h-6 w-6 text-red-600" />
+            </div>
+            <AlertDialogTitle className="text-center text-xl">
+              Eliminar Cliente
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center text-base">
+              Esta ação não pode ser desfeita. Tem a certeza que
+              deseja eliminar permanentemente este cliente?
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete}>
+          <AlertDialogFooter className="flex flex-row gap-3 justify-center sm:justify-center mt-2">
+            <AlertDialogCancel className="mt-0 flex-1 sm:flex-none px-6 hover:bg-gray-100 focus-visible:ring-0 focus-visible:ring-offset-0">
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="mt-0 flex-1 sm:flex-none px-6 bg-red-600 hover:bg-red-700 text-white focus-visible:ring-0 focus-visible:ring-offset-0"
+            >
               Eliminar
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -329,17 +386,27 @@ export default function Customers() {
 
       {/* Reset Password Confirmation Dialog */}
       <AlertDialog open={resetPasswordDialogOpen} onOpenChange={setResetPasswordDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Resetar Password?</AlertDialogTitle>
-            <AlertDialogDescription>
+        <AlertDialogContent className="sm:max-w-md">
+          <AlertDialogHeader className="space-y-4">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+              <Key className="h-6 w-6 text-red-600" />
+            </div>
+            <AlertDialogTitle className="text-center text-xl">
+              Resetar Password
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center text-base">
               A password deste cliente será alterada para '12345678'. 
               O cliente deverá alterar a password no próximo login.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmResetPassword}>
+          <AlertDialogFooter className="flex flex-row gap-3 justify-center sm:justify-center mt-2">
+            <AlertDialogCancel className="mt-0 flex-1 sm:flex-none px-6 hover:bg-gray-100 focus-visible:ring-0 focus-visible:ring-offset-0">
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmResetPassword}
+              className="mt-0 flex-1 sm:flex-none px-6 bg-red-600 hover:bg-red-700 text-white focus-visible:ring-0 focus-visible:ring-offset-0"
+            >
               Resetar Password
             </AlertDialogAction>
           </AlertDialogFooter>

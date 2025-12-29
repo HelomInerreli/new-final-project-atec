@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { toast } from "sonner";
+// import { toast } from "sonner";
 import { type UseAddCommentModalReturn, validateComment } from "../interfaces/ModalComment";
 
+import { toast } from "../hooks/use-toast";
 
 const API_BASE_URL = "http://localhost:8000/api/v1";
 
@@ -47,19 +48,26 @@ export const useAddCommentModal = (
         }
       );
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Erro ao adicionar comentário");
-      }
-    
-      toast.success("Comentário adicionado com sucesso!");
+      if (!response.ok) throw new Error("Erro ao adicionar comentário");
+
+      toast({
+        title: "Comentário adicionado!",
+        description: "O comentário foi adicionado com sucesso à ordem de serviço.",
+        duration: 3000,
+      });
+
       setComment("");
       setCommentError(null);
       onSuccess();
       onClose();
     } catch (error: any) {
       console.error("Erro ao adicionar comentário:", error);
-      toast.error(error.message || "Erro ao adicionar comentário");
+      toast({
+        title: "Erro",
+        description: "Não foi possível adicionar o comentário. Tente novamente.",
+        variant: "destructive",
+        duration: 3000,
+      });
     } finally {
       setLoading(false);
     }

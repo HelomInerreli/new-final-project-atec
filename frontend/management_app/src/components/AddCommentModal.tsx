@@ -1,6 +1,7 @@
 import React from "react";
 import { useAddCommentModal } from "../hooks/useAddCommentModal";
 import { Button } from "./ui/button";
+import { toast } from "../hooks/use-toast";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -72,22 +73,27 @@ const AddCommentModal: React.FC<AddCommentModalProps> = ({
               </Button>
             </AlertDialogTrigger>
             
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Confirmar Adição de Comentário</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Tem certeza que deseja adicionar este comentário à ordem #{orderId}?
-                  <div className="comment-preview">
-                    <strong>Comentário:</strong><br />
-                    {comment}
+            <AlertDialogContent className="max-w-md">
+              <AlertDialogHeader className="space-y-4">
+                <AlertDialogTitle className="text-xl">Confirmar Adição de Comentário</AlertDialogTitle>
+                <AlertDialogDescription className="text-base">
+                  Tem certeza que deseja adicionar este comentário à ordem <span className="font-semibold text-red-600">#{orderId}</span>?
+                  <div className="mt-4 p-4 bg-gray-50 border-l-4 border-red-500 rounded-r-lg">
+                    <p className="text-sm font-semibold text-gray-700 mb-2">Comentário:</p>
+                    <p className="text-sm text-gray-800 leading-relaxed max-h-32 overflow-y-auto">
+                      {comment}
+                    </p>
                   </div>
                 </AlertDialogDescription>
               </AlertDialogHeader>
               
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction onClick={handleSubmit}>
-                  Sim, Adicionar
+              <AlertDialogFooter className="flex flex-row justify-center items-center gap-3 sm:flex-row sm:justify-center">
+                <AlertDialogCancel className="hover:bg-gray-100 m-0">Cancelar</AlertDialogCancel>
+                <AlertDialogAction 
+                  onClick={handleSubmit}
+                  className="bg-red-600 hover:bg-red-700 m-0"
+                >
+                  Adicionar
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>

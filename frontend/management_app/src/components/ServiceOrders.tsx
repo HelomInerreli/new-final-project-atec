@@ -44,23 +44,49 @@ const ServiceOrders: FC = () => {
         </header>
 
         <div className="so-actions">
-          <div className="search-wrapper">
-            <Search className="search-icon" />
-            <Input
+          <div className="mb-input-wrapper" style={{ position: "relative", flex: 1 }}>
+            <Search
+              className="lucide lucide-search"
+              style={{
+                position: "absolute",
+                left: "12px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                width: "20px",
+                height: "20px",
+                color: "#9ca3af",
+                pointerEvents: "none",
+                zIndex: 1,
+              }}
+            />
+            <input
               type="text"
-              placeholder=".    Buscar por cliente, veículo ou número..."
+              placeholder=""
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
+              className="mb-input"
+              style={{ paddingLeft: "46px" }}
+              onFocus={(e) => e.target.nextElementSibling?.classList.add("shrunken")}
+              onBlur={(e) => {
+                if (!e.target.value) {
+                  e.target.nextElementSibling?.classList.remove("shrunken");
+                }
+              }}
             />
+            <label
+              className={`mb-input-label ${searchTerm ? "shrunken" : ""}`}
+              style={{ left: "46px" }}
+            >
+              Buscar por cliente, veículo ou número...
+            </label>
           </div>
           
           <Select value={filterStatus} onValueChange={setFilterStatus}>
-            <SelectTrigger className="form-select">
-              <SelectValue />
+            <SelectTrigger className="w-full sm:w-[200px] border-2 border-red-600 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0" style={{ height: "56px" }}>
+              <SelectValue placeholder="Filtrar por status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todos os Status</SelectItem>
+              <SelectItem value="all">Todos os status</SelectItem>
               <SelectItem value="Em Andamento">Em Andamento</SelectItem>
               <SelectItem value="Pendente">Pendente</SelectItem>
               <SelectItem value="Concluída">Concluída</SelectItem>

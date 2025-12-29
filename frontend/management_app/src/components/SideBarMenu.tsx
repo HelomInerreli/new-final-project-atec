@@ -588,7 +588,7 @@ export default function SideBarMenu() {
               }
               component={<NavLink to="/users" />}
             >
-              {!collapsed && "Usuários"}
+              {!collapsed && "Funcionários"}
             </MenuItem>
 
             <MenuItem

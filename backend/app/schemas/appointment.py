@@ -36,9 +36,9 @@ class Appointment(AppointmentBase):
     vehicle_id: Optional[int] = None    
     customer: Optional[CustomerSchema] = None 
     vehicle: Optional[VehicleSchema] = None  
-    status: Optional[StatusSchema]
-    service: Optional[ServiceSchema]
-    service_id: Optional[int]
+    status: Optional[StatusSchema] = None
+    service: Optional[ServiceSchema] = None
+    service_id: Optional[int] = None
     extra_service_associations: List[AppointmentExtraService] = []
     comments: List[CommentOut] = []
     parts: List[OrderPartOut] = []

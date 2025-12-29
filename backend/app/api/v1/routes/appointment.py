@@ -39,6 +39,35 @@ def create_appointment(
     new_appointment = repo.create(appointment=appointment_in, email_service=email_service)
     return new_appointment
 
+@router.post("/{appointment_id}/parts")
+def add_part_to_appointment(
+    appointment_id: int,
+    product_id: int = Body(...),
+    quantity: int = Body(...),
+    db: Session = Depends(get_db)
+):
+    """
+    Adiciona uma peça a uma ordem de serviço.
+    """
+    repo = AppointmentRepository(db)
+    appointment = repo.add_part(appointment_id=appointment_id, product_id=product_id, quantity=quantity)
+    if not appointment:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Appointment not found")
+    return appointment
+
+@router.get("/{appointment_id}", response_model=Appointment)
+def get_appointment_details(
+    appointment_id: int,
+    repo: AppointmentRepository = Depends(get_appointment_repo)
+):
+    """
+    Get details of a specific appointment (with relations loaded).
+    """
+    db_appointment = repo.get_by_id_with_relations(appointment_id=appointment_id)
+    if not db_appointment:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Appointment not found")
+    return db_appointment
+
 
 @router.patch("/{appointment_id}/start_work", status_code=200)
 def start_work(appointment_id: int, db: Session = Depends(get_db)):

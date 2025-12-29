@@ -1,42 +1,9 @@
+import axios from 'axios';
+import type { Customer, CustomerCreate, CustomerUpdate, CustomerRegister } from '../interfaces/Customer';
 import http from "../api/http";
 
 const API_URL = "/customers/";
 
-export interface Customer {
-  id: number;
-  name: string;
-  phone?: string;
-  email?: string;
-  address?: string;
-  city?: string;
-  postal_code?: string;
-  country?: string;
-  birth_date?: string;
-  is_active?: boolean;
-  created_at?: string;
-  updated_at?: string;
-}
-
-export interface CustomerCreate {
-  name: string;
-  email: string;
-  phone?: string;
-  address?: string;
-  city?: string;
-  postal_code?: string;
-  country?: string;
-  birth_date?: string;
-}
-
-export interface CustomerUpdate {
-  name?: string;
-  phone?: string;
-  address?: string;
-  city?: string;
-  postal_code?: string;
-  country?: string;
-  birth_date?: string;
-}
 
 export const customerService = {
   getAll: async (): Promise<Customer[]> => {
@@ -61,5 +28,14 @@ export const customerService = {
 
   delete: async (id: number): Promise<void> => {
     await http.delete(`${API_URL}${id}`);
+  },
+
+  register: async (customerData: CustomerRegister): Promise<Customer> => {
+    const response = await axios.post('http://localhost:8000/api/v1/customersauth/register', customerData);
+    return response.data;
+  },
+
+  resetPassword: async (id: string): Promise<void> => {
+    await axios.post(`http://localhost:8000/api/v1/customersauth/reset-password/${id}`);
   },
 };
