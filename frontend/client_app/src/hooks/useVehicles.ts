@@ -191,6 +191,22 @@ export function useVehicles() {
     }, [selectedVehicle, loadVehicles, t]);
 
     /**
+     * Função para buscar dados de veículo da API externa
+     * @param plate - Matrícula do veículo
+     * @returns Promise<VehicleAPIData>
+     */
+    const handleGetFromAPI = useCallback(async (plate: string) => {
+        try {
+            const apiData = await vehicleService.getFromAPI(plate);
+            return apiData;
+        } catch (error: any) {
+            console.error('Erro ao buscar da API:', error);
+            alert(error.message || t('vehiclesPage.apiError'));
+            throw error;
+        }
+    }, [t]);
+
+    /**
      * Retorno do hook com todos os estados e funções
      */
     return {
@@ -207,5 +223,6 @@ export function useVehicles() {
         handleAddVehicle,   // Abrir modal de criação
         handleCloseModal,   // Fechar modal
         handleSaveVehicle,  // Salvar veículo
+        handleGetFromAPI,   // Buscar dados da API externa
     };
 }
