@@ -219,7 +219,7 @@ export default function Stock() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="mb-input"
-              style={{ paddingLeft: "46px", borderColor: "#dc3545" }}
+              style={{ paddingLeft: "46px", borderColor: "#f87171" }}
               onFocus={(e) =>
                 e.target.nextElementSibling?.classList.add("shrunken")
               }
@@ -428,3 +428,4 @@ export default function Stock() {
     </div>
   );
 }
+

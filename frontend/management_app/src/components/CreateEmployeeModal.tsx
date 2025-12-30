@@ -242,7 +242,7 @@ const CreateEmployeeModal: FC<CreateEmployeeModalProps> = ({ show, onClose, onSu
                               label.classList.remove("shrunken");
                             }
                           }}
-                          style={{ minHeight: "56px", paddingRight: "40px", borderColor: "#dc3545" }}
+                          style={{ minHeight: "56px", paddingRight: "40px", borderColor: "#fca5a5" }}
                         />
                         <label className={`mb-input-label ${form.date_of_birth ? "shrunken" : ""}`}>
                           Data de Nascimento *
@@ -289,7 +289,7 @@ const CreateEmployeeModal: FC<CreateEmployeeModalProps> = ({ show, onClose, onSu
                               label.classList.remove("shrunken");
                             }
                           }}
-                          style={{ minHeight: "56px", paddingRight: "40px", borderColor: "#dc3545" }}
+                          style={{ minHeight: "56px", paddingRight: "40px", borderColor: "#fca5a5" }}
                         />
                         <label className={`mb-input-label ${form.hired_at ? "shrunken" : ""}`}>
                           Data de Contratação *
@@ -401,3 +401,4 @@ const CreateEmployeeModal: FC<CreateEmployeeModalProps> = ({ show, onClose, onSu
 };
 
 export default CreateEmployeeModal;
+

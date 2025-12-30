@@ -94,7 +94,7 @@ const EditEmployeeModal: FC<EditEmployeeModalProps> = ({ show, employeeId, initi
                               e.target.nextElementSibling?.classList.remove("shrunken");
                             }
                           }}
-                          style={{ minHeight: "56px", borderColor: "#dc3545" }}
+                          style={{ minHeight: "56px", borderColor: "#f87171" }}
                         />
                         <label className={`mb-input-label ${form.name ? "shrunken" : ""}`}>
                           Nome *
@@ -117,7 +117,7 @@ const EditEmployeeModal: FC<EditEmployeeModalProps> = ({ show, employeeId, initi
                               e.target.nextElementSibling?.classList.remove("shrunken");
                             }
                           }}
-                          style={{ minHeight: "56px", borderColor: "#dc3545" }}
+                          style={{ minHeight: "56px", borderColor: "#f87171" }}
                         />
                         <label className={`mb-input-label ${form.last_name ? "shrunken" : ""}`}>
                           Apelido *
@@ -142,7 +142,7 @@ const EditEmployeeModal: FC<EditEmployeeModalProps> = ({ show, employeeId, initi
                             e.target.nextElementSibling?.classList.remove("shrunken");
                           }
                         }}
-                        style={{ minHeight: "56px", borderColor: "#dc3545" }}
+                        style={{ minHeight: "56px", borderColor: "#f87171" }}
                       />
                       <label className={`mb-input-label ${form.email ? "shrunken" : ""}`}>
                         Email *
@@ -167,7 +167,7 @@ const EditEmployeeModal: FC<EditEmployeeModalProps> = ({ show, employeeId, initi
                               e.target.nextElementSibling?.classList.remove("shrunken");
                             }
                           }}
-                          style={{ minHeight: "56px", borderColor: "#dc3545" }}
+                          style={{ minHeight: "56px", borderColor: "#f87171" }}
                         />
                         <label className={`mb-input-label ${form.phone ? "shrunken" : ""}`}>
                           Telefone *
@@ -192,7 +192,7 @@ const EditEmployeeModal: FC<EditEmployeeModalProps> = ({ show, employeeId, initi
                           }}
                           step="0.01"
                           min="0"
-                          style={{ minHeight: "56px", borderColor: "#dc3545" }}
+                          style={{ minHeight: "56px", borderColor: "#f87171" }}
                         />
                         <label className={`mb-input-label ${form.salary !== "" ? "shrunken" : ""}`}>
                           Salário (€) *
@@ -217,7 +217,7 @@ const EditEmployeeModal: FC<EditEmployeeModalProps> = ({ show, employeeId, initi
                             e.target.nextElementSibling?.classList.remove("shrunken");
                           }
                         }}
-                        style={{ minHeight: "56px", borderColor: "#dc3545" }}
+                        style={{ minHeight: "56px", borderColor: "#f87171" }}
                       />
                       <label className={`mb-input-label ${form.address ? "shrunken" : ""}`}>
                         Morada *
@@ -245,7 +245,7 @@ const EditEmployeeModal: FC<EditEmployeeModalProps> = ({ show, employeeId, initi
                               label.classList.remove("shrunken");
                             }
                           }}
-                          style={{ minHeight: "56px", paddingRight: "40px", borderColor: "#dc3545" }}
+                          style={{ minHeight: "56px", paddingRight: "40px", borderColor: "#f87171" }}
                         />
                         <label className={`mb-input-label ${form.date_of_birth ? "shrunken" : ""}`}>
                           Data de Nascimento *
@@ -292,7 +292,7 @@ const EditEmployeeModal: FC<EditEmployeeModalProps> = ({ show, employeeId, initi
                               label.classList.remove("shrunken");
                             }
                           }}
-                          style={{ minHeight: "56px", paddingRight: "40px", borderColor: "#dc3545" }}
+                          style={{ minHeight: "56px", paddingRight: "40px", borderColor: "#f87171" }}
                         />
                         <label className={`mb-input-label ${form.hired_at ? "shrunken" : ""}`}>
                           Data de Contratação *
@@ -404,3 +404,4 @@ const EditEmployeeModal: FC<EditEmployeeModalProps> = ({ show, employeeId, initi
 };
 
 export default EditEmployeeModal;
+
