@@ -360,7 +360,7 @@ const CreateAppointmentModal: FC<CreateAppointmentModalProps> = ({ show, onClose
                         <textarea
                           id="description"
                           className={`mb-input textarea ${form.description ? "filled" : ""}`}
-                          rows={4}
+                          rows={2}
                           placeholder=""
                           value={form.description}
                           onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}

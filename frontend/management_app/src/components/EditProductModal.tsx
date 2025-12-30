@@ -314,7 +314,7 @@ const EditProductModal: FC<EditProductModalProps> = ({ show, produto, onClose, o
                   <textarea
                     id="descricao"
                     className={`mb-input textarea ${form.descricao ? "filled" : ""}`}
-                    rows={3}
+                    rows={2}
                     placeholder=""
                     value={form.descricao}
                     onChange={(e) => setForm((f) => ({ ...f, descricao: e.target.value }))}
