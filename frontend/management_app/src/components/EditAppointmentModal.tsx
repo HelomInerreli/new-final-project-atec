@@ -392,7 +392,15 @@ const EditAppointmentModal: FC<EditAppointmentModalProps> = ({ show, appointment
             type="button"
             className="btn btn-danger"
             onClick={handleSubmit}
-            disabled={!form.customer_id || !form.vehicle_id || !form.service_id || !form.appointment_date || !form.appointment_time || submitting}
+            disabled={
+              !form.customer_id ||
+              !form.vehicle_id ||
+              !form.service_id ||
+              !form.appointment_date ||
+              !form.appointment_time ||
+              !form.status_id ||
+              submitting
+            }
           >
             {submitting ? (
               <>

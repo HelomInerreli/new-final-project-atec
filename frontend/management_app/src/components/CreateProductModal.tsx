@@ -84,6 +84,12 @@ const CreateProductModal: FC<CreateProductModalProps> = ({ show, onClose, onSucc
                       placeholder=""
                       value={form.partNumber}
                       onChange={(e) => setForm((f) => ({ ...f, partNumber: e.target.value }))}
+                      onFocus={(e) => e.target.nextElementSibling?.classList.add("shrunken")}
+                      onBlur={(e) => {
+                        if (!e.target.value) {
+                          e.target.nextElementSibling?.classList.remove("shrunken");
+                        }
+                      }}
                       style={{
                         borderColor: form.partNumber ? "#dc3545" : "#fca5a5",
                         minHeight: "56px",
@@ -104,6 +110,12 @@ const CreateProductModal: FC<CreateProductModalProps> = ({ show, onClose, onSucc
                       placeholder=""
                       value={form.nome}
                       onChange={(e) => setForm((f) => ({ ...f, nome: e.target.value }))}
+                      onFocus={(e) => e.target.nextElementSibling?.classList.add("shrunken")}
+                      onBlur={(e) => {
+                        if (!e.target.value) {
+                          e.target.nextElementSibling?.classList.remove("shrunken");
+                        }
+                      }}
                       style={{
                         borderColor: form.nome ? "#dc3545" : "#fca5a5",
                         minHeight: "56px",
@@ -168,6 +180,12 @@ const CreateProductModal: FC<CreateProductModalProps> = ({ show, onClose, onSucc
                       placeholder=""
                       value={form.fornecedor}
                       onChange={(e) => setForm((f) => ({ ...f, fornecedor: e.target.value }))}
+                      onFocus={(e) => e.target.nextElementSibling?.classList.add("shrunken")}
+                      onBlur={(e) => {
+                        if (!e.target.value) {
+                          e.target.nextElementSibling?.classList.remove("shrunken");
+                        }
+                      }}
                       style={{
                         borderColor: form.fornecedor ? "#dc3545" : "#fca5a5",
                         minHeight: "56px",
@@ -191,6 +209,12 @@ const CreateProductModal: FC<CreateProductModalProps> = ({ show, onClose, onSucc
                       placeholder=""
                       value={form.quantidade}
                       onChange={(e) => setForm((f) => ({ ...f, quantidade: e.target.value ? Number(e.target.value) : "" }))}
+                      onFocus={(e) => e.target.nextElementSibling?.classList.add("shrunken")}
+                      onBlur={(e) => {
+                        if (!e.target.value) {
+                          e.target.nextElementSibling?.classList.remove("shrunken");
+                        }
+                      }}
                       min="0"
                       style={{
                         borderColor: form.quantidade !== "" ? "#dc3545" : "#fca5a5",
@@ -334,9 +358,19 @@ const CreateProductModal: FC<CreateProductModalProps> = ({ show, onClose, onSucc
               <button
                 type="submit"
                 className="btn btn-danger"
-                disabled={submitting}
+                disabled={
+                  submitting ||
+                  !form.partNumber ||
+                  !form.nome ||
+                  !form.categoria ||
+                  !form.fornecedor ||
+                  form.quantidade === "" ||
+                  form.preco === "" ||
+                  form.costValue === "" ||
+                  form.minimumStock === ""
+                }
               >
-                {submitting ? "A criar..." : "Criar"}
+                {submitting ? "A criar..." : "Criar Produto"}
               </button>
             </div>
           </form>

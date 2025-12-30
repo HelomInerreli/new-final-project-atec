@@ -349,9 +349,19 @@ const EditProductModal: FC<EditProductModalProps> = ({ show, produto, onClose, o
               <button
                 type="submit"
                 className="btn btn-danger"
-                disabled={submitting}
+                disabled={
+                  submitting ||
+                  !form.partNumber ||
+                  !form.nome ||
+                  !form.categoria ||
+                  !form.fornecedor ||
+                  form.quantidade === "" ||
+                  form.preco === "" ||
+                  form.costValue === "" ||
+                  form.minimumStock === ""
+                }
               >
-                {submitting ? "A atualizar..." : "Atualizar"}
+                {submitting ? "A atualizar..." : "Atualizar Produto"}
               </button>
             </div>
           </form>

@@ -56,6 +56,16 @@
   color: #111827;
 }
 
+/* Label sobe quando input recebe foco */
+.mb-input:focus + .mb-input-label,
+.mb-input:not(:placeholder-shown) + .mb-input-label {
+  top: -8px;
+  transform: none;
+  font-size: 0.75rem;
+  color: #b91c1c;
+  background: #ffffff;
+}
+
 /* Borda vermelha forte quando preenchido */
 .mb-input.filled {
   border-color: #dc3545;
