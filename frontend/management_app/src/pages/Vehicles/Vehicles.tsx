@@ -10,8 +10,10 @@ import { Link } from "react-router-dom";
 import { Spinner, Alert } from "react-bootstrap";
 import { useState } from "react";
 import NewVehicleModal from "../../components/NewVehicleModal";
+import CreateVehicleModal from "../../components/CreateVehicleModal";
 import { useVehiclesPage } from "../../hooks/useVehicles";
 import { useFetchCustomers } from "../../hooks/useCustomers";
+import { toast } from "../../hooks/use-toast";
 import "../../styles/Vehicles.css";
 
 export default function Vehicles() {
@@ -322,6 +324,20 @@ export default function Vehicles() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Create Vehicle Modal */}
+      <CreateVehicleModal
+        show={newVehicleModalOpen}
+        onClose={() => setNewVehicleModalOpen(false)}
+        onSuccess={() => {
+          setNewVehicleModalOpen(false);
+          toast({
+            title: "Sucesso!",
+            description: "Veículo criado com sucesso.",
+          });
+          getFromAPI();
+        }}
+      />
     </div>
   );
 }
