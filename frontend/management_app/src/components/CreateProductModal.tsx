@@ -307,36 +307,37 @@ const CreateProductModal: FC<CreateProductModalProps> = ({ show, onClose, onSucc
                 </div>
               </div>
             </div>
-
-            {/* Footer */}
-            <div className="service-order-modal-footer">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={handleClose}
-                disabled={submitting}
-              >
-                Cancelar
-              </button>
-              <button
-                type="submit"
-                className="btn btn-danger"
-                disabled={
-                  submitting ||
-                  !form.partNumber ||
-                  !form.nome ||
-                  !form.categoria ||
-                  !form.fornecedor ||
-                  form.quantidade === "" ||
-                  form.preco === "" ||
-                  form.costValue === "" ||
-                  form.minimumStock === ""
-                }
-              >
-                {submitting ? "A criar..." : "Criar Produto"}
-              </button>
-            </div>
           </form>
+        </div>
+
+        {/* Footer */}
+        <div className="service-order-modal-footer">
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={handleClose}
+            disabled={submitting}
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            className="btn btn-danger"
+            onClick={handleSubmit}
+            disabled={
+              submitting ||
+              !form.partNumber ||
+              !form.nome ||
+              !form.categoria ||
+              !form.fornecedor ||
+              form.quantidade === "" ||
+              form.preco === "" ||
+              form.costValue === "" ||
+              form.minimumStock === ""
+            }
+          >
+            {submitting ? "A criar..." : "Criar Produto"}
+          </button>
         </div>
       </div>
     </div>

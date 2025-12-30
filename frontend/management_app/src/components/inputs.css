@@ -210,7 +210,7 @@
 .mb-input.date-input:not(.has-value)::-webkit-datetime-edit-month-field,
 .mb-input.date-input:not(.has-value)::-webkit-datetime-edit-day-field,
 .mb-input.date-input:not(.has-value)::-webkit-datetime-edit-year-field {
-  display: none !important;
+  color: transparent !important;
 }
 
 .mb-input.date-input.has-value::-webkit-datetime-edit,
@@ -218,7 +218,7 @@
 .mb-input.date-input.has-value::-webkit-datetime-edit-month-field,
 .mb-input.date-input.has-value::-webkit-datetime-edit-day-field,
 .mb-input.date-input.has-value::-webkit-datetime-edit-year-field {
-  display: block !important;
+  color: #111827 !important;
 }
 
 /* Firefox: hide the built-in text when empty */
