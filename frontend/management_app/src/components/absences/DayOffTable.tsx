@@ -37,11 +37,11 @@ export default function DayOffTable({ rows, onApprove, onReject }: DayOffTablePr
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Colaborador</TableHead>
-          <TableHead>Data</TableHead>
-          <TableHead>Motivo</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead className="text-right">Ações</TableHead>
+          <TableHead className="text-left font-semibold text-base text-black">Colaborador</TableHead>
+          <TableHead className="text-left font-semibold text-base text-black">Data</TableHead>
+          <TableHead className="text-left font-semibold text-base text-black">Motivo</TableHead>
+          <TableHead className="text-left font-semibold text-base text-black">Status</TableHead>
+          <TableHead className="text-right font-semibold text-base text-black">Ações</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -51,7 +51,16 @@ export default function DayOffTable({ rows, onApprove, onReject }: DayOffTablePr
             <TableCell>{format(f.data, "dd/MM/yyyy", { locale: ptBR })}</TableCell>
             <TableCell>{f.motivo}</TableCell>
             <TableCell>
-              <Badge variant={statusVariantMap[f.status]}>{statusLabels[f.status]}</Badge>
+              <Badge 
+                variant={statusVariantMap[f.status]}
+                className={
+                  f.status === "pendente" ? "bg-yellow-500 hover:bg-yellow-600 text-white" :
+                  f.status === "aprovada" ? "bg-green-600 hover:bg-green-700 text-white" :
+                  ""
+                }
+              >
+                {statusLabels[f.status]}
+              </Badge>
             </TableCell>
             <TableCell className="text-right">
               {f.status === "pendente" && (
