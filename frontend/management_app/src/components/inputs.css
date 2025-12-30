@@ -56,14 +56,26 @@
   color: #111827;
 }
 
-/* Label sobe quando input recebe foco */
-.mb-input:focus + .mb-input-label,
-.mb-input:not(:placeholder-shown) + .mb-input-label {
+/* Label sobe quando input recebe foco (exceto selects) */
+.mb-input:not(.select):focus + .mb-input-label {
   top: -8px;
   transform: none;
   font-size: 0.75rem;
   color: #b91c1c;
   background: #ffffff;
+}
+
+.mb-input:not(.select):not(:placeholder-shown) + .mb-input-label {
+  top: -8px;
+  transform: none;
+  font-size: 0.75rem;
+  color: #b91c1c;
+  background: #ffffff;
+}
+
+/* Borda vermelha ao focar */
+.mb-input:not(.select):focus {
+  border-color: #dc3545 !important;
 }
 
 /* Borda vermelha forte quando preenchido */
@@ -126,8 +138,7 @@
   -moz-appearance: none;
   appearance: none;
   background: #ffffff; /* white background like other inputs */
-  color: #111827; /* black text like other inputs */
-  border: 2px solid #dc3545;
+  color: #9ca3af; /* placeholder color by default */
 }
 .mb-input.select::placeholder {
   color: #9ca3af;
@@ -136,11 +147,20 @@
   display: none;
 }
 
-/* when empty use lighter placeholder color */
+/* when empty (has placeholder class) - lighter border and placeholder color */
 .mb-input.select.placeholder {
   color: #9ca3af;
 }
+
+/* when filled (no placeholder class) - darker border and black text */
+.mb-input.select:not(.placeholder) {
+  border-color: #dc3545; /* darker red when filled */
+  color: #111827; /* black text when filled */
+}
+
+/* on focus - darker border */
 .mb-input.select:focus {
+  border-color: #dc3545 !important; /* darker red when focused */
   color: #111827;
 }
 

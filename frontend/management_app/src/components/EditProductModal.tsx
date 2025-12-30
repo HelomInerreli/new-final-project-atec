@@ -98,11 +98,7 @@ const EditProductModal: FC<EditProductModalProps> = ({ show, produto, onClose, o
                       className={`mb-input ${form.partNumber ? "filled" : ""}`}
                       placeholder=""
                       value={form.partNumber}
-                      onChange={(e) => setForm((f) => ({ ...f, partNumber: e.target.value }))}
-                      style={{
-                        borderColor: form.partNumber ? "#dc3545" : "#fca5a5",
-                        minHeight: "56px",
-                      }}
+                      onChange={(e) => setForm((f) => ({ ...f, partNumber: e.target.value }))} style={{ minHeight: "56px" }}
                     />
                     <label htmlFor="partNumber" className={`mb-input-label ${form.partNumber ? "shrunken" : ""}`}>
                       Código da Peça *
@@ -118,11 +114,7 @@ const EditProductModal: FC<EditProductModalProps> = ({ show, produto, onClose, o
                       className={`mb-input ${form.nome ? "filled" : ""}`}
                       placeholder=""
                       value={form.nome}
-                      onChange={(e) => setForm((f) => ({ ...f, nome: e.target.value }))}
-                      style={{
-                        borderColor: form.nome ? "#dc3545" : "#fca5a5",
-                        minHeight: "56px",
-                      }}
+                      onChange={(e) => setForm((f) => ({ ...f, nome: e.target.value }))} style={{ minHeight: "56px" }}
                     />
                     <label htmlFor="nome" className={`mb-input-label ${form.nome ? "shrunken" : ""}`}>
                       Nome *
@@ -143,7 +135,6 @@ const EditProductModal: FC<EditProductModalProps> = ({ show, produto, onClose, o
                         style={{
                           textAlign: "left",
                           cursor: "pointer",
-                          borderColor: form.categoria ? "#dc3545" : "#fca5a5",
                           minHeight: "56px",
                         }}
                       >
@@ -182,11 +173,7 @@ const EditProductModal: FC<EditProductModalProps> = ({ show, produto, onClose, o
                       className={`mb-input ${form.fornecedor ? "filled" : ""}`}
                       placeholder=""
                       value={form.fornecedor}
-                      onChange={(e) => setForm((f) => ({ ...f, fornecedor: e.target.value }))}
-                      style={{
-                        borderColor: form.fornecedor ? "#dc3545" : "#fca5a5",
-                        minHeight: "56px",
-                      }}
+                      onChange={(e) => setForm((f) => ({ ...f, fornecedor: e.target.value }))} style={{ minHeight: "56px" }}
                     />
                     <label htmlFor="fornecedor" className={`mb-input-label ${form.fornecedor ? "shrunken" : ""}`}>
                       Fornecedor *
@@ -206,11 +193,7 @@ const EditProductModal: FC<EditProductModalProps> = ({ show, produto, onClose, o
                       placeholder=""
                       value={form.quantidade}
                       onChange={(e) => setForm((f) => ({ ...f, quantidade: e.target.value ? Number(e.target.value) : "" }))}
-                      min="0"
-                      style={{
-                        borderColor: form.quantidade !== "" ? "#dc3545" : "#fca5a5",
-                        minHeight: "56px",
-                      }}
+                      min="0" style={{ minHeight: "56px" }}
                     />
                     <label htmlFor="quantidade" className={`mb-input-label ${form.quantidade !== "" ? "shrunken" : ""}`}>
                       Quantidade *
@@ -227,11 +210,7 @@ const EditProductModal: FC<EditProductModalProps> = ({ show, produto, onClose, o
                       placeholder=""
                       value={form.reserveQuantity}
                       onChange={(e) => setForm((f) => ({ ...f, reserveQuantity: e.target.value ? Number(e.target.value) : "" }))}
-                      min="0"
-                      style={{
-                        borderColor: form.reserveQuantity !== "" ? "#dc3545" : "#fca5a5",
-                        minHeight: "56px",
-                      }}
+                      min="0" style={{ minHeight: "56px" }}
                     />
                     <label htmlFor="reserveQuantity" className={`mb-input-label ${form.reserveQuantity !== "" ? "shrunken" : ""}`}>
                       Qtd. Reservada
@@ -248,11 +227,7 @@ const EditProductModal: FC<EditProductModalProps> = ({ show, produto, onClose, o
                       placeholder=""
                       value={form.minimumStock}
                       onChange={(e) => setForm((f) => ({ ...f, minimumStock: e.target.value ? Number(e.target.value) : "" }))}
-                      min="0"
-                      style={{
-                        borderColor: form.minimumStock !== "" ? "#dc3545" : "#fca5a5",
-                        minHeight: "56px",
-                      }}
+                      min="0" style={{ minHeight: "56px" }}
                     />
                     <label htmlFor="minimumStock" className={`mb-input-label ${form.minimumStock !== "" ? "shrunken" : ""}`}>
                       Estoque Mínimo *
@@ -273,11 +248,7 @@ const EditProductModal: FC<EditProductModalProps> = ({ show, produto, onClose, o
                       value={form.costValue}
                       onChange={(e) => setForm((f) => ({ ...f, costValue: e.target.value ? Number(e.target.value) : "" }))}
                       step="0.01"
-                      min="0"
-                      style={{
-                        borderColor: form.costValue !== "" ? "#dc3545" : "#fca5a5",
-                        minHeight: "56px",
-                      }}
+                      min="0" style={{ minHeight: "56px" }}
                     />
                     <label htmlFor="costValue" className={`mb-input-label ${form.costValue !== "" ? "shrunken" : ""}`}>
                       Custo (€) *
@@ -295,11 +266,7 @@ const EditProductModal: FC<EditProductModalProps> = ({ show, produto, onClose, o
                       value={form.preco}
                       onChange={(e) => setForm((f) => ({ ...f, preco: e.target.value ? Number(e.target.value) : "" }))}
                       step="0.01"
-                      min="0"
-                      style={{
-                        borderColor: form.preco !== "" ? "#dc3545" : "#fca5a5",
-                        minHeight: "56px",
-                      }}
+                      min="0" style={{ minHeight: "56px" }}
                     />
                     <label htmlFor="preco" className={`mb-input-label ${form.preco !== "" ? "shrunken" : ""}`}>
                       Preço de Venda (€) *
@@ -323,11 +290,7 @@ const EditProductModal: FC<EditProductModalProps> = ({ show, produto, onClose, o
                       if (!e.target.value) {
                         e.target.nextElementSibling?.classList.remove("shrunken");
                       }
-                    }}
-                    style={{
-                      borderColor: form.descricao ? "#dc3545" : "#fca5a5",
-                      minHeight: "80px",
-                    }}
+                    }} style={{ minHeight: "80px" }}
                   />
                   <label htmlFor="descricao" className={`mb-input-label ${form.descricao ? "shrunken" : ""}`}>
                     Descrição *

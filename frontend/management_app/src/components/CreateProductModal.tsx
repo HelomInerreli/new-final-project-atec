@@ -89,11 +89,7 @@ const CreateProductModal: FC<CreateProductModalProps> = ({ show, onClose, onSucc
                         if (!e.target.value) {
                           e.target.nextElementSibling?.classList.remove("shrunken");
                         }
-                      }}
-                      style={{
-                        borderColor: form.partNumber ? "#dc3545" : "#fca5a5",
-                        minHeight: "56px",
-                      }}
+                      }} style={{ minHeight: "56px" }}
                     />
                     <label htmlFor="partNumber" className={`mb-input-label ${form.partNumber ? "shrunken" : ""}`}>
                       Código da Peça *
@@ -115,11 +111,7 @@ const CreateProductModal: FC<CreateProductModalProps> = ({ show, onClose, onSucc
                         if (!e.target.value) {
                           e.target.nextElementSibling?.classList.remove("shrunken");
                         }
-                      }}
-                      style={{
-                        borderColor: form.nome ? "#dc3545" : "#fca5a5",
-                        minHeight: "56px",
-                      }}
+                      }} style={{ minHeight: "56px" }}
                     />
                     <label htmlFor="nome" className={`mb-input-label ${form.nome ? "shrunken" : ""}`}>
                       Nome *
@@ -140,7 +132,6 @@ const CreateProductModal: FC<CreateProductModalProps> = ({ show, onClose, onSucc
                         style={{
                           textAlign: "left",
                           cursor: "pointer",
-                          borderColor: form.categoria ? "#dc3545" : "#fca5a5",
                           minHeight: "56px",
                         }}
                       >
@@ -185,11 +176,7 @@ const CreateProductModal: FC<CreateProductModalProps> = ({ show, onClose, onSucc
                         if (!e.target.value) {
                           e.target.nextElementSibling?.classList.remove("shrunken");
                         }
-                      }}
-                      style={{
-                        borderColor: form.fornecedor ? "#dc3545" : "#fca5a5",
-                        minHeight: "56px",
-                      }}
+                      }} style={{ minHeight: "56px" }}
                     />
                     <label htmlFor="fornecedor" className={`mb-input-label ${form.fornecedor ? "shrunken" : ""}`}>
                       Fornecedor *
@@ -215,11 +202,7 @@ const CreateProductModal: FC<CreateProductModalProps> = ({ show, onClose, onSucc
                           e.target.nextElementSibling?.classList.remove("shrunken");
                         }
                       }}
-                      min="0"
-                      style={{
-                        borderColor: form.quantidade !== "" ? "#dc3545" : "#fca5a5",
-                        minHeight: "56px",
-                      }}
+                      min="0" style={{ minHeight: "56px" }}
                     />
                     <label htmlFor="quantidade" className={`mb-input-label ${form.quantidade !== "" ? "shrunken" : ""}`}>
                       Quantidade *
@@ -236,11 +219,7 @@ const CreateProductModal: FC<CreateProductModalProps> = ({ show, onClose, onSucc
                       placeholder=""
                       value={form.reserveQuantity}
                       onChange={(e) => setForm((f) => ({ ...f, reserveQuantity: e.target.value ? Number(e.target.value) : "" }))}
-                      min="0"
-                      style={{
-                        borderColor: form.reserveQuantity !== "" ? "#dc3545" : "#fca5a5",
-                        minHeight: "56px",
-                      }}
+                      min="0" style={{ minHeight: "56px" }}
                     />
                     <label htmlFor="reserveQuantity" className={`mb-input-label ${form.reserveQuantity !== "" ? "shrunken" : ""}`}>
                       Qtd. Reservada
@@ -257,11 +236,7 @@ const CreateProductModal: FC<CreateProductModalProps> = ({ show, onClose, onSucc
                       placeholder=""
                       value={form.minimumStock}
                       onChange={(e) => setForm((f) => ({ ...f, minimumStock: e.target.value ? Number(e.target.value) : "" }))}
-                      min="0"
-                      style={{
-                        borderColor: form.minimumStock !== "" ? "#dc3545" : "#fca5a5",
-                        minHeight: "56px",
-                      }}
+                      min="0" style={{ minHeight: "56px" }}
                     />
                     <label htmlFor="minimumStock" className={`mb-input-label ${form.minimumStock !== "" ? "shrunken" : ""}`}>
                       Estoque Mínimo *
@@ -282,11 +257,7 @@ const CreateProductModal: FC<CreateProductModalProps> = ({ show, onClose, onSucc
                       value={form.costValue}
                       onChange={(e) => setForm((f) => ({ ...f, costValue: e.target.value ? Number(e.target.value) : "" }))}
                       step="0.01"
-                      min="0"
-                      style={{
-                        borderColor: form.costValue !== "" ? "#dc3545" : "#fca5a5",
-                        minHeight: "56px",
-                      }}
+                      min="0" style={{ minHeight: "56px" }}
                     />
                     <label htmlFor="costValue" className={`mb-input-label ${form.costValue !== "" ? "shrunken" : ""}`}>
                       Custo (€) *
@@ -304,11 +275,7 @@ const CreateProductModal: FC<CreateProductModalProps> = ({ show, onClose, onSucc
                       value={form.preco}
                       onChange={(e) => setForm((f) => ({ ...f, preco: e.target.value ? Number(e.target.value) : "" }))}
                       step="0.01"
-                      min="0"
-                      style={{
-                        borderColor: form.preco !== "" ? "#dc3545" : "#fca5a5",
-                        minHeight: "56px",
-                      }}
+                      min="0" style={{ minHeight: "56px" }}
                     />
                     <label htmlFor="preco" className={`mb-input-label ${form.preco !== "" ? "shrunken" : ""}`}>
                       Preço de Venda (€) *
@@ -332,11 +299,7 @@ const CreateProductModal: FC<CreateProductModalProps> = ({ show, onClose, onSucc
                       if (!e.target.value) {
                         e.target.nextElementSibling?.classList.remove("shrunken");
                       }
-                    }}
-                    style={{
-                      borderColor: form.descricao ? "#dc3545" : "#fca5a5",
-                      minHeight: "80px",
-                    }}
+                    }} style={{ minHeight: "80px" }}
                   />
                   <label htmlFor="descricao" className={`mb-input-label ${form.descricao ? "shrunken" : ""}`}>
                     Descrição *
