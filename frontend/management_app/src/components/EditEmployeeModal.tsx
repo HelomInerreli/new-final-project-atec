@@ -183,7 +183,7 @@ const EditEmployeeModal: FC<EditEmployeeModalProps> = ({ show, employeeId, initi
                           placeholder=""
                           className={`mb-input ${form.salary !== "" ? "filled" : ""}`}
                           value={form.salary}
-                          onChange={(e) => setForm((f) => ({ ...f, salary: e.target.value ? Number(e.target.value) : "" }))}
+                          onChange={(e) => setForm((f) => ({ ...f, salary: e.target.value }))}
                           onFocus={(e) => e.target.nextElementSibling?.classList.add("shrunken")}
                           onBlur={(e) => {
                             if (!e.target.value) {
