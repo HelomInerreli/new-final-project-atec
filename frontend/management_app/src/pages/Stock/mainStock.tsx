@@ -26,12 +26,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./../../components/ui/select";
-import { Plus, Search, Trash2 } from "lucide-react";
+import { Plus, Search, Pencil, Trash2 } from "lucide-react";
 import { toast } from "../../hooks/use-toast";
 import Badge from "react-bootstrap/Badge";
 import http from "../../api/http";
 import type { ProductCategory, StockStatus } from "../../interfaces/Product";
 import CreateProductModal from "../../components/CreateProductModal";
+import EditProductModal from "../../components/EditProductModal";
 
 const categorias: ProductCategory[] = [
   "Peças",
@@ -69,6 +70,8 @@ export default function Stock() {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoriaFiltro, setCategoriaFiltro] = useState("todos");
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedProduto, setSelectedProduto] = useState<Produto | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [produtoToDelete, setProdutoToDelete] = useState<string | null>(null);
   const [page, setPage] = useState<number>(1);
@@ -121,6 +124,11 @@ export default function Stock() {
   const handleDelete = (id: string) => {
     setProdutoToDelete(id);
     setDeleteDialogOpen(true);
+  };
+
+  const handleEdit = (produto: Produto) => {
+    setSelectedProduto(produto);
+    setEditModalOpen(true);
   };
 
   const confirmDelete = () => {
@@ -310,6 +318,13 @@ export default function Stock() {
                     <TableCell className="text-center">
                       <div className="flex justify-center gap-2">
                         <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => handleEdit(produto)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
                           variant="destructive"
                           size="icon"
                           onClick={() => handleDelete(produto.id)}
@@ -392,6 +407,21 @@ export default function Stock() {
         onClose={() => setCreateModalOpen(false)}
         onSuccess={() => {
           setCreateModalOpen(false);
+          fetchProducts();
+        }}
+      />
+
+      {/* Edit Product Modal */}
+      <EditProductModal
+        show={editModalOpen}
+        produto={selectedProduto}
+        onClose={() => {
+          setEditModalOpen(false);
+          setSelectedProduto(null);
+        }}
+        onSuccess={() => {
+          setEditModalOpen(false);
+          setSelectedProduto(null);
           fetchProducts();
         }}
       />
