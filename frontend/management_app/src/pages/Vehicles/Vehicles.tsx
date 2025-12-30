@@ -95,7 +95,7 @@ export default function Vehicles() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="mb-input"
-              style={{ paddingLeft: "46px", borderColor: "#f87171" }}
+              style={{ paddingLeft: "46px", borderColor: "#dc2626" }}
               onFocus={(e) =>
                 e.target.nextElementSibling?.classList.add("shrunken")
               }

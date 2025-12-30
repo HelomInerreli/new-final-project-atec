@@ -26,6 +26,8 @@ export default function Customers() {
   
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFiltro, setStatusFiltro] = useState("todos");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
   const [newCustomerModalOpen, setNewCustomerModalOpen] = useState(false);
   const [creatingCustomer, setCreatingCustomer] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -80,6 +82,13 @@ export default function Customers() {
       return matchesSearch && matchesStatus;
     });
   }, [clientes, searchTerm, statusFiltro]);
+
+  // Pagination
+  const totalPages = Math.ceil(filteredClientes.length / itemsPerPage);
+  const paginatedClientes = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredClientes.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredClientes, currentPage, itemsPerPage]);
 
   const handleDelete = (id: string) => {
     setClienteToDelete(id);
@@ -228,7 +237,7 @@ export default function Customers() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="mb-input"
-              style={{ paddingLeft: "46px", borderColor: "#f87171" }}
+              style={{ paddingLeft: "46px", borderColor: "#dc2626" }}
               onFocus={(e) =>
                 e.target.nextElementSibling?.classList.add("shrunken")
               }
@@ -296,7 +305,7 @@ export default function Customers() {
                 </TableCell>
               </TableRow>
             ) : (
-              filteredClientes.map((cliente) => (
+              paginatedClientes.map((cliente) => (
                 <TableRow key={cliente.id}>
                   <TableCell className="font-medium">
                     {cliente.name}
@@ -356,6 +365,31 @@ export default function Customers() {
           </TableBody>
         </Table>
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            disabled={currentPage === 1}
+          >
+            Anterior
+          </Button>
+          <span className="text-sm text-muted-foreground">
+            Página {currentPage} de {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+            disabled={currentPage === totalPages}
+          >
+            Próxima
+          </Button>
+        </div>
+      )}
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent className="sm:max-w-md">
