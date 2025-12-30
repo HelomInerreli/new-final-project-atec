@@ -9,7 +9,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Link } from "react-router-dom";
 import { Spinner, Alert } from "react-bootstrap";
 import { useState } from "react";
-import NewVehicleModal from "../../components/NewVehicleModal";
 import CreateVehicleModal from "../../components/CreateVehicleModal";
 import { useVehiclesPage } from "../../hooks/useVehicles";
 import { useFetchCustomers } from "../../hooks/useCustomers";
@@ -272,15 +271,6 @@ export default function Vehicles() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {/* New Vehicle Modal */}
-      <NewVehicleModal
-        isOpen={newVehicleModalOpen}
-        onClose={() => setNewVehicleModalOpen(false)}
-        onSubmit={handleCreateVehicle}
-        getFromAPI={getFromAPI}
-        loading={creatingVehicle}
-      />
 
       {/* Assign Customer Dialog */}
       <Dialog open={assignCustomerDialogOpen} onOpenChange={setAssignCustomerDialogOpen}>
