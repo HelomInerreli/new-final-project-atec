@@ -1,19 +1,9 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "../ui/button";
-import {
-  Dialog, DialogContent, DialogDescription, DialogFooter,
-  DialogHeader, DialogTitle, DialogTrigger
-} from "../ui/dialog";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue
-} from "../ui/select";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import { ptBR } from "date-fns/locale";
-import { CalendarIcon, Plus, X } from "lucide-react";
-import { cn } from "../lib/utils";
+import { Calendar, Plus } from "lucide-react";
 import { toast } from "sonner";
-import { Textarea } from "../ui/textarea";
+import "../../styles/CreateServiceOrderModal.css";
+import "../inputs.css";
 
 type EmployeeOpt = { id: string; name: string };
 
@@ -30,92 +20,187 @@ export default function DayOffCreateDialog({
 }: DayOffCreateDialogProps) {
   const [open, setOpen] = useState(false);
   const [selectedUsuario, setSelectedUsuario] = useState<string>("");
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string>("");
   const [motivo, setMotivo] = useState("");
+  const [employeeDropdownOpen, setEmployeeDropdownOpen] = useState(false);
+  const employeeDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (employeeDropdownRef.current && !employeeDropdownRef.current.contains(event.target as Node)) {
+        setEmployeeDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleConfirm = async () => {
     if (!selectedUsuario || !selectedDate || !motivo) {
       toast.error("Preencha todos os campos");
       return;
     }
-    await onConfirm({ employeeId: selectedUsuario, date: selectedDate, reason: motivo });
+    await onConfirm({ employeeId: selectedUsuario, date: new Date(selectedDate), reason: motivo });
     setSelectedUsuario("");
-    setSelectedDate(null);
+    setSelectedDate("");
     setMotivo("");
     setOpen(false);
     toast.success("Folga marcada com sucesso!");
   };
 
+  const selectedEmployee = employees.find(e => e.id === selectedUsuario);
+
+  if (!open) return (
+    <Button variant="destructive" onClick={() => setOpen(true)}>
+      <Plus className="mr-2 h-4 w-4" />
+      {triggerLabel}
+    </Button>
+  );
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="destructive">
-          <Plus className="mr-2 h-4 w-4" />
-          {triggerLabel}
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-2xl p-0 gap-0">
-        <DialogHeader className="bg-gradient-to-br from-red-600 to-red-700 text-white p-6 rounded-t-lg m-0 !flex-row items-center justify-between !space-y-0">
-          <DialogTitle className="text-white text-2xl font-bold">Marcar Folga</DialogTitle>
-          <button 
-            type="button"
-            onClick={() => setOpen(false)}
-            className="w-9 h-9 rounded-lg bg-white/20 hover:bg-white/30 flex items-center justify-center transition-all focus:outline-none flex-shrink-0 relative z-50"
-            aria-label="Fechar"
-          >
-            <X className="h-5 w-5 text-white" strokeWidth={2.5} />
+    <div className="service-order-modal-overlay" onClick={() => setOpen(false)}>
+      <div className="service-order-modal" onClick={(e) => e.stopPropagation()}>
+        {/* Header */}
+        <div className="service-order-modal-header">
+          <h5 className="service-order-modal-title">
+            <i className="bi bi-calendar-x"></i>
+            Marcar Folga
+          </h5>
+          <button type="button" className="modal-close-btn" onClick={() => setOpen(false)} aria-label="Fechar">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
           </button>
-        </DialogHeader>
-        <div className="space-y-4 py-4 px-6">
-          <div className="space-y-2">
-            <label className="text-sm font-semibold text-gray-700">Colaborador *</label>
-            <Select value={selectedUsuario} onValueChange={setSelectedUsuario}>
-              <SelectTrigger className="h-11">
-                <SelectValue placeholder="Selecione um colaborador" />
-              </SelectTrigger>
-              <SelectContent>
-                {employees.map(e => (
-                  <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-semibold text-gray-700">Data *</label>
-            <div className="relative w-full">
-              <DatePicker
-                selected={selectedDate}
-                onChange={(date) => setSelectedDate(date)}
-                isClearable
-                locale={ptBR}
-                dateFormat="dd/MM/yyyy"
-                placeholderText="Selecione a data"
-                minDate={new Date()}
-                className={cn(
-                  "flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
-                  !selectedDate && "text-muted-foreground"
-                )}
-                wrapperClassName="w-full"
-              />
-              <CalendarIcon className="absolute right-3 top-3 h-4 w-4 text-muted-foreground pointer-events-none" />
-            </div>
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-semibold text-gray-700">Motivo *</label>
-            <Textarea
-              value={motivo}
-              onChange={(e) => setMotivo(e.target.value)}
-              placeholder="Descreva o motivo da folga..."
-              rows={3}
-              className="resize-none"
-            />
-          </div>
         </div>
-        <DialogFooter className="px-6 pb-6 gap-2">
-          <Button variant="outline" onClick={() => setOpen(false)} className="border-2 border-gray-300">Cancelar</Button>
-          <Button onClick={handleConfirm} className="bg-red-600 hover:bg-red-700">Confirmar</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+
+        {/* Body */}
+        <div className="service-order-modal-body">
+          <form onSubmit={(e) => { e.preventDefault(); handleConfirm(); }}>
+            <div className="grid gap-4 py-4 px-6">
+              {/* Colaborador */}
+              <div className="grid gap-2">
+                <div className="mb-input-wrapper">
+                  <div ref={employeeDropdownRef} style={{ position: "relative" }}>
+                    <button
+                      type="button"
+                      className={`mb-input select ${!selectedUsuario ? "placeholder" : ""}`}
+                      onClick={() => setEmployeeDropdownOpen(!employeeDropdownOpen)}
+                      style={{
+                        textAlign: "left",
+                        cursor: "pointer",
+                        minHeight: "56px",
+                      }}
+                    >
+                      {selectedEmployee ? selectedEmployee.name : ""}
+                    </button>
+                    <label className={`mb-input-label ${selectedUsuario ? "shrunken" : ""}`}>
+                      Colaborador *
+                    </label>
+                    <span className="mb-select-caret">▼</span>
+
+                    {employeeDropdownOpen && (
+                      <ul className="mb-select-menu">
+                        {employees.map((employee) => (
+                          <li
+                            key={employee.id}
+                            className={`mb-select-item ${selectedUsuario === employee.id ? "selected" : ""}`}
+                            onClick={() => {
+                              setSelectedUsuario(employee.id);
+                              setEmployeeDropdownOpen(false);
+                            }}
+                          >
+                            {employee.name}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Data */}
+              <div className="grid gap-2">
+                <div className="mb-input-wrapper" style={{ position: "relative" }}>
+                  <input
+                    id="day_off_date"
+                    type="date"
+                    className={`mb-input date-input ${selectedDate ? "has-value" : ""}`}
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                    onFocus={(e) => {
+                      const label = e.target.nextElementSibling;
+                      if (label) label.classList.add("shrunken");
+                    }}
+                    onBlur={(e) => {
+                      const label = e.target.nextElementSibling;
+                      if (!e.target.value && label) {
+                        label.classList.remove("shrunken");
+                      }
+                    }}
+                    style={{ minHeight: "56px", paddingRight: "40px", borderColor: "#fca5a5" }}
+                  />
+                  <label className={`mb-input-label ${selectedDate ? "shrunken" : ""}`}>
+                    Data *
+                  </label>
+                  <Calendar
+                    onClick={() => {
+                      const input = document.getElementById("day_off_date") as HTMLInputElement;
+                      if (input) input.showPicker();
+                    }}
+                    style={{
+                      position: "absolute",
+                      right: "12px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      width: "20px",
+                      height: "20px",
+                      color: "#6b7280",
+                      cursor: "pointer",
+                      pointerEvents: "auto",
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Motivo */}
+              <div className="grid gap-2">
+                <div className="mb-input-wrapper">
+                  <textarea
+                    className={`mb-input ${motivo ? "has-value" : ""}`}
+                    value={motivo}
+                    onChange={(e) => setMotivo(e.target.value)}
+                    rows={3}
+                    style={{ minHeight: "80px", resize: "none", borderColor: "#f87171" }}
+                  />
+                  <label className={`mb-input-label ${motivo ? "shrunken" : ""}`}>
+                    Motivo *
+                  </label>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        {/* Footer */}
+        <div className="service-order-modal-footer">
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={() => setOpen(false)}
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            className="btn btn-danger"
+            onClick={handleConfirm}
+            disabled={!selectedUsuario || !selectedDate || !motivo}
+          >
+            Confirmar
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }

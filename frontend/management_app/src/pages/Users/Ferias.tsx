@@ -148,7 +148,6 @@ export default function Ferias() {
 				</button>
 				<div className="flex-1">
 					<h1 className="text-3xl font-bold">Gestão de Férias</h1>
-					<p className="text-muted-foreground mt-1">Visualize e gerencie as férias dos colaboradores</p>
 				</div>
 				<VacationCreateDialog
 					employees={employees.map((e) => ({ id: String(e.id), name: e.name }))}
@@ -169,7 +168,6 @@ export default function Ferias() {
 			<Card>
 				<CardHeader>
 					<CardTitle>Lista de Férias</CardTitle>
-					<CardDescription>Todas as férias registradas no sistema</CardDescription>
 				</CardHeader>
 				<CardContent>
 					<VacationTable rows={rows} onApprove={handleApprove} onReject={handleReject} />
