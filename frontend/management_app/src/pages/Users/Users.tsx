@@ -249,7 +249,15 @@ export default function Users() {
                                     <TableCell className="text-left">{employee.email}</TableCell>
                                     <TableCell className="text-left">{employee.phone || "-"}</TableCell>
                                     <TableCell className="text-left">
-                                        <Badge variant={roleVariants[employee.role.name] || 'default'}>
+                                        <Badge 
+                                            className={
+                                                employee.role.name === "Gestor" ? "bg-purple-600 hover:bg-purple-700 text-white" :
+                                                employee.role.name === "Mecanico" ? "bg-blue-600 hover:bg-blue-700 text-white" :
+                                                employee.role.name === "Eletricista" ? "bg-orange-600 hover:bg-orange-700 text-white" :
+                                                employee.role.name === "Borracheiro" ? "bg-teal-600 hover:bg-teal-700 text-white" :
+                                                "bg-gray-600 hover:bg-gray-700 text-white"
+                                            }
+                                        >
                                             {employee.role.name}
                                         </Badge>
                                     </TableCell>
