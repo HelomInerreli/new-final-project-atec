@@ -330,7 +330,6 @@ const CreateServiceOrderModal: FC<CreateServiceOrderModalProps> = ({ show, onClo
           {currentStep === 3 && (
             <>
               <button type="button" className="btn btn-outline-secondary" onClick={goToPreviousStep}>
-                <i className="bi bi-arrow-left"></i>
                 Voltar
               </button>
               <button type="button" className="btn btn-danger" onClick={handleSubmit} disabled={submitting}>
@@ -340,10 +339,7 @@ const CreateServiceOrderModal: FC<CreateServiceOrderModalProps> = ({ show, onClo
                     A criar...
                   </>
                 ) : (
-                  <>
-                    <i className="bi bi-check-circle"></i>
-                    Confirmar Ordem
-                  </>
+                  "Confirmar Ordem"
                 )}
               </button>
             </>

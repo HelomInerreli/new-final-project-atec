@@ -284,7 +284,6 @@ const CreateCustomerModal: FC<CreateCustomerModalProps> = ({ show, onClose, onSu
         {/* Footer */}
         <div className="service-order-modal-footer">
           <button type="button" className="btn btn-outline-secondary" onClick={handleClose}>
-            <i className="bi bi-x-circle"></i>
             Cancelar
           </button>
           <button
@@ -299,10 +298,7 @@ const CreateCustomerModal: FC<CreateCustomerModalProps> = ({ show, onClose, onSu
                 A criar...
               </>
             ) : (
-              <>
-                <i className="bi bi-check-circle"></i>
-                Criar Cliente
-              </>
+              "Criar Cliente"
             )}
           </button>
         </div>

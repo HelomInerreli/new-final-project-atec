@@ -385,7 +385,6 @@ const EditAppointmentModal: FC<EditAppointmentModalProps> = ({ show, appointment
         {/* Footer */}
         <div className="service-order-modal-footer">
           <button type="button" className="btn btn-outline-secondary" onClick={handleClose}>
-            <i className="bi bi-x-circle"></i>
             Cancelar
           </button>
           <button
@@ -408,10 +407,7 @@ const EditAppointmentModal: FC<EditAppointmentModalProps> = ({ show, appointment
                 A atualizar...
               </>
             ) : (
-              <>
-                <i className="bi bi-check-circle"></i>
-                Atualizar Agendamento
-              </>
+              "Atualizar Agendamento"
             )}
           </button>
         </div>

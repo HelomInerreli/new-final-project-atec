@@ -1,16 +1,18 @@
 import { type FC, useState, useEffect, useRef } from "react";
 import { Calendar } from "lucide-react";
-import { useCreateEmployeeModal } from "../hooks/useCreateEmployeeModal";
+import { useEditEmployeeModal, type EmployeeFormData } from "../hooks/useEditEmployeeModal";
 import "../styles/CreateServiceOrderModal.css";
 import "./inputs.css";
 
-interface CreateEmployeeModalProps {
+interface EditEmployeeModalProps {
   show: boolean;
+  employeeId: number;
+  initialData: EmployeeFormData;
   onClose: () => void;
   onSuccess: () => void;
 }
 
-const CreateEmployeeModal: FC<CreateEmployeeModalProps> = ({ show, onClose, onSuccess }) => {
+const EditEmployeeModal: FC<EditEmployeeModalProps> = ({ show, employeeId, initialData, onClose, onSuccess }) => {
   const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
   const roleDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -18,13 +20,14 @@ const CreateEmployeeModal: FC<CreateEmployeeModalProps> = ({ show, onClose, onSu
     form,
     setForm,
     roles,
-    selectedRole,
-    loadingData,
+    loading,
     submitting,
     error,
     handleSubmit,
     handleClose,
-  } = useCreateEmployeeModal(show, onSuccess, onClose);
+  } = useEditEmployeeModal({ employeeId, initialData, onSuccess, onClose });
+
+  const selectedRole = roles.find((r) => r.id.toString() === form.role_id);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -45,8 +48,8 @@ const CreateEmployeeModal: FC<CreateEmployeeModalProps> = ({ show, onClose, onSu
         {/* Header */}
         <div className="service-order-modal-header">
           <h5 className="service-order-modal-title">
-            <i className="bi bi-person-plus"></i>
-            Novo Funcionário
+            <i className="bi bi-pencil"></i>
+            Editar Funcionário
           </h5>
           <button type="button" className="modal-close-btn" onClick={handleClose} aria-label="Fechar">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -58,7 +61,7 @@ const CreateEmployeeModal: FC<CreateEmployeeModalProps> = ({ show, onClose, onSu
 
         {/* Body */}
         <div className="service-order-modal-body">
-          {loadingData ? (
+          {loading ? (
             <div className="loading-container">
               <div className="loading-spinner" />
               <p className="loading-text">A carregar dados...</p>
@@ -91,7 +94,7 @@ const CreateEmployeeModal: FC<CreateEmployeeModalProps> = ({ show, onClose, onSu
                               e.target.nextElementSibling?.classList.remove("shrunken");
                             }
                           }}
-                          style={{ minHeight: "56px" }}
+                          style={{ minHeight: "56px", borderColor: "#dc3545" }}
                         />
                         <label className={`mb-input-label ${form.name ? "shrunken" : ""}`}>
                           Nome *
@@ -114,7 +117,7 @@ const CreateEmployeeModal: FC<CreateEmployeeModalProps> = ({ show, onClose, onSu
                               e.target.nextElementSibling?.classList.remove("shrunken");
                             }
                           }}
-                          style={{ minHeight: "56px" }}
+                          style={{ minHeight: "56px", borderColor: "#dc3545" }}
                         />
                         <label className={`mb-input-label ${form.last_name ? "shrunken" : ""}`}>
                           Apelido *
@@ -139,7 +142,7 @@ const CreateEmployeeModal: FC<CreateEmployeeModalProps> = ({ show, onClose, onSu
                             e.target.nextElementSibling?.classList.remove("shrunken");
                           }
                         }}
-                        style={{ minHeight: "56px" }}
+                        style={{ minHeight: "56px", borderColor: "#dc3545" }}
                       />
                       <label className={`mb-input-label ${form.email ? "shrunken" : ""}`}>
                         Email *
@@ -164,7 +167,7 @@ const CreateEmployeeModal: FC<CreateEmployeeModalProps> = ({ show, onClose, onSu
                               e.target.nextElementSibling?.classList.remove("shrunken");
                             }
                           }}
-                          style={{ minHeight: "56px" }}
+                          style={{ minHeight: "56px", borderColor: "#dc3545" }}
                         />
                         <label className={`mb-input-label ${form.phone ? "shrunken" : ""}`}>
                           Telefone *
@@ -189,7 +192,7 @@ const CreateEmployeeModal: FC<CreateEmployeeModalProps> = ({ show, onClose, onSu
                           }}
                           step="0.01"
                           min="0"
-                          style={{ minHeight: "56px" }}
+                          style={{ minHeight: "56px", borderColor: "#dc3545" }}
                         />
                         <label className={`mb-input-label ${form.salary !== "" ? "shrunken" : ""}`}>
                           Salário (€) *
@@ -214,7 +217,7 @@ const CreateEmployeeModal: FC<CreateEmployeeModalProps> = ({ show, onClose, onSu
                             e.target.nextElementSibling?.classList.remove("shrunken");
                           }
                         }}
-                        style={{ minHeight: "56px" }}
+                        style={{ minHeight: "56px", borderColor: "#dc3545" }}
                       />
                       <label className={`mb-input-label ${form.address ? "shrunken" : ""}`}>
                         Morada *
@@ -345,9 +348,9 @@ const CreateEmployeeModal: FC<CreateEmployeeModalProps> = ({ show, onClose, onSu
                             {roles.map((role) => (
                               <li
                                 key={role.id}
-                                className={`mb-select-item ${form.role_id === role.id ? "selected" : ""}`}
+                                className={`mb-select-item ${form.role_id === role.id.toString() ? "selected" : ""}`}
                                 onClick={() => {
-                                  setForm((f) => ({ ...f, role_id: role.id }));
+                                  setForm((f) => ({ ...f, role_id: role.id.toString() }));
                                   setRoleDropdownOpen(false);
                                 }}
                               >
@@ -392,7 +395,7 @@ const CreateEmployeeModal: FC<CreateEmployeeModalProps> = ({ show, onClose, onSu
               !form.role_id
             }
           >
-            {submitting ? "A criar..." : "Criar Funcionário"}
+            {submitting ? "A atualizar..." : "Atualizar Funcionário"}
           </button>
         </div>
       </div>
@@ -400,4 +403,4 @@ const CreateEmployeeModal: FC<CreateEmployeeModalProps> = ({ show, onClose, onSu
   );
 };
 
-export default CreateEmployeeModal;
+export default EditEmployeeModal;

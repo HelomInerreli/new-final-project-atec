@@ -35,6 +35,8 @@ import { useRoles } from "../../hooks/useRoles";
 import type { Employee } from "../../interfaces/Employee";
 import { Skeleton } from "../../components/ui/skeleton";
 import CreateEmployeeModal from "../../components/CreateEmployeeModal";
+import EditEmployeeModal from "../../components/EditEmployeeModal";
+import type { EmployeeFormData } from "../../hooks/useEditEmployeeModal";
 import "../../components/inputs.css";
 
 const roleVariants: { [key: string]: "destructive" | "default" | "secondary" | "outline" } = {
@@ -52,6 +54,8 @@ export default function Users() {
     const [searchTerm, setSearchTerm] = useState("");
     const [roleFilter, setRoleFilter] = useState<string>("all");
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editFormData, setEditFormData] = useState<EmployeeFormData | null>(null);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
     const [deletingEmployeeId, setDeletingEmployeeId] = useState<number | null>(null);
@@ -78,9 +82,19 @@ export default function Users() {
     );
 
     const handleEdit = (employee: Employee) => {
-        // TODO: Implement edit modal
-        console.log("Edit employee:", employee);
-        toast.info("Funcionalidade de edição em desenvolvimento");
+        setEditingEmployee(employee);
+        setEditFormData({
+            name: employee.name,
+            last_name: employee.last_name,
+            email: employee.email,
+            phone: employee.phone || "",
+            salary: employee.salary?.toString() || "",
+            address: employee.address || "",
+            date_of_birth: employee.date_of_birth ? employee.date_of_birth.split('T')[0] : "",
+            hired_at: employee.hired_at ? employee.hired_at.split('T')[0] : "",
+            role_id: employee.role.id.toString(),
+        });
+        setIsEditModalOpen(true);
     };
 
     const handleDeleteClick = (id: number) => {
@@ -304,6 +318,23 @@ export default function Users() {
                 onClose={() => setIsCreateModalOpen(false)}
                 onSuccess={refetch}
             />
+
+            {editingEmployee && editFormData && (
+                <EditEmployeeModal
+                    show={isEditModalOpen}
+                    employeeId={editingEmployee.id}
+                    initialData={editFormData}
+                    onClose={() => {
+                        setIsEditModalOpen(false);
+                        setEditingEmployee(null);
+                        setEditFormData(null);
+                    }}
+                    onSuccess={() => {
+                        refetch();
+                        toast.success("Funcionário atualizado com sucesso!");
+                    }}
+                />
+            )}
 
             <AlertDialog
                 open={isDeleteDialogOpen}
