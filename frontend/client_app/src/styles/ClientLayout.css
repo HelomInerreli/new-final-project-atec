@@ -1,9 +1,11 @@
+/* Layout principal com sidebar e conteúdo */
 .client-layout {
   display: flex;
   min-height: 100vh;
   padding-top: 70px; /* Altura do header */
 }
 
+/* Área de conteúdo principal */
 .client-content {
   flex: 1;
   margin-left: 240px; /* Largura da sidebar */
@@ -12,6 +14,7 @@
   overflow-y: auto;
 }
 
+/* Secção de conteúdo com card branco */
 .content-section {
   background: white;
   padding: 30px;
@@ -19,17 +22,20 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* Títulos das secções */
 .content-section h2 {
   color: #333;
   margin-bottom: 20px;
   font-weight: 600;
 }
 
+/* Parágrafos das secções */
 .content-section p {
   color: #666;
   font-size: 16px;
 }
 
+/* Responsivo para dispositivos móveis */
 @media (max-width: 768px) {
   .client-layout {
     flex-direction: column;
