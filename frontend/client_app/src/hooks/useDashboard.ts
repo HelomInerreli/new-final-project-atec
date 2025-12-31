@@ -78,6 +78,29 @@ export function useDashboard(): UseDashboardReturn {
         }
     }, [loggedInCustomerId, isLoggedIn]);
 
+    /**
+     * Auto-refresh: atualiza os dados do dashboard a cada 15 segundos
+     * Usa refresh silencioso para não mostrar loading durante atualizações automáticas
+     */
+    useEffect(() => {
+        if (!isLoggedIn || !loggedInCustomerId) return;
+
+        const fetchDashboardDataSilent = async () => {
+            try {
+                const dashboardData = await dashboardService.getDashboardData(loggedInCustomerId);
+                setStats(dashboardData.stats);
+                setVehicles(dashboardData.vehicles);
+                setError(null);
+            } catch (err) {
+                console.error('Error auto-refreshing dashboard:', err);
+                // Não atualiza o erro no estado durante refresh silencioso
+            }
+        };
+
+        const interval = setInterval(fetchDashboardDataSilent, 15000); // 15 segundos
+        return () => clearInterval(interval);
+    }, [isLoggedIn, loggedInCustomerId]);
+
     return {
         stats,
         vehicles,

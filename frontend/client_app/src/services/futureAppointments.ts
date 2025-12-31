@@ -10,9 +10,10 @@ export async function getGroupedAppointments(customerId: number): Promise<Record
     try {
         const data = await getServices();
 
-        // Apenas Pendente (1) e Waitting Payment (6)
-        const allowedStatusIds = new Set([1, 6]);
-        const allowedStatusNames = new Set(['pendente', 'waitting payment']);
+        // Status permitidos: Pendente, In Repair, Awaiting Approval, Waitting Payment
+        // Excluir apenas: Finalized e Canceled
+        const allowedStatusIds = new Set([1, 2, 4, 6]); // 1=Pendente, 2=Awaiting Approval, 4=In Repair, 6=Waitting Payment
+        const allowedStatusNames = new Set(['pendente', 'awaiting approval', 'in repair', 'waitting payment']);
 
         // Filtrar agendamentos do cliente e status permitidos
         const filteredAppointments = data.filter((appointment: Appointment) => {
@@ -24,7 +25,7 @@ export async function getGroupedAppointments(customerId: number): Promise<Record
                 (typeof statusId === 'number' && allowedStatusIds.has(statusId)) ||
                 (statusName && allowedStatusNames.has(statusName));
 
-            // Excluir appointments com status "Finalized" ou outros
+            // Excluir appointments com status "Finalized" ou "Canceled"
             return matchCustomer && matchStatus;
         });
 

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { AppointmentStatusModalProps, Appointment, ExtraService } from '../interfaces/appointment';
 import { approveExtraService, rejectExtraService } from '../services/extraServices';
+import { useAppointmentAutoRefresh } from '../hooks/useAppointmentAutoRefresh';
 import '../styles/modal.css';
 
 // Fases de status baseadas no banco de dados (ordem de progressão)
@@ -49,6 +50,16 @@ const getStatusBadge = (status: Appointment["status"]) => {
 };
 
 export function AppointmentStatusModal({ appointment, open, onOpenChange }: AppointmentStatusModalProps) {
+  // Auto-refresh do appointment a cada 5 segundos quando o modal está aberto
+  const { appointment: liveAppointment } = useAppointmentAutoRefresh(
+    appointment?.id ?? null,
+    open,
+    5000 // atualiza a cada 5 segundos
+  );
+
+  // Usa o appointment atualizado automaticamente se disponível, senão usa o prop
+  const currentAppointment = liveAppointment || appointment;
+
   useEffect(() => {
     if (open) {
       document.body.classList.add('modal-open');
@@ -63,14 +74,14 @@ export function AppointmentStatusModal({ appointment, open, onOpenChange }: Appo
   const [loadingAction, setLoadingAction] = useState<number | null>(null);
 
   useEffect(() => {
-    if (appointment) {
-      if (appointment.extra_service_associations && appointment.extra_service_associations.length > 0) {
-        setExtraServices(appointment.extra_service_associations);
+    if (currentAppointment) {
+      if (currentAppointment.extra_service_associations && currentAppointment.extra_service_associations.length > 0) {
+        setExtraServices(currentAppointment.extra_service_associations);
       } else {
         setExtraServices([]);
       }
     }
-  }, [appointment]);
+  }, [currentAppointment]);
 
   const handleServiceAction = async (serviceId: number, action: 'approved' | 'rejected') => {
     try {
@@ -94,10 +105,10 @@ export function AppointmentStatusModal({ appointment, open, onOpenChange }: Appo
     }
   };
 
-  if (!appointment) return null;
+  if (!currentAppointment) return null;
 
-  const statusLower = appointment.status?.name?.toLowerCase();
-  const progressValue = getProgressValue(appointment.status?.name || "");
+  const statusLower = currentAppointment.status?.name?.toLowerCase();
+  const progressValue = getProgressValue(currentAppointment.status?.name || "");
   const currentPhaseIndex = statusPhases.findIndex(
     (phase) => phase.key === statusLower
   );
@@ -117,13 +128,19 @@ export function AppointmentStatusModal({ appointment, open, onOpenChange }: Appo
             <div className="modal-header">
               <h5 className="modal-title fw-bold">
                 <i className="bi bi-calendar-event me-2"></i>
-                {appointment.service?.name || 'Detalhes do Agendamento'}
+                {currentAppointment.service?.name || 'Detalhes do Agendamento'}
               </h5>
-              <button type="button" className="btn-close" onClick={() => onOpenChange(false)}></button>
+              <div className="d-flex align-items-center gap-2">
+                <span className="badge bg-success-subtle text-success-emphasis" title="Atualização automática ativa">
+                  <i className="bi bi-arrow-repeat me-1"></i>
+                  Live
+                </span>
+                <button type="button" className="btn-close" onClick={() => onOpenChange(false)}></button>
+              </div>
             </div>
             <div className="modal-body">
               <div className="mb-3 text-end">
-                {getStatusBadge(appointment.status)}
+                {getStatusBadge(currentAppointment.status)}
               </div>
 
               {/* Detalhes do Agendamento */}
@@ -132,20 +149,20 @@ export function AppointmentStatusModal({ appointment, open, onOpenChange }: Appo
                   <i className="bi bi-calendar me-3 mt-1 text-primary"></i>
                   <div>
                     <p className="text-muted text-uppercase small mb-1">Data do Agendamento</p>
-                    <p className="fw-semibold">{appointment.appointment_date || appointment.date}</p>
+                    <p className="fw-semibold">{currentAppointment.appointment_date || currentAppointment.date}</p>
                   </div>
                 </div>
 
                 <div className="mb-3">
                   <p className="text-muted text-uppercase small mb-1">Descrição</p>
-                  <p>{appointment.description}</p>
+                  <p>{currentAppointment.description}</p>
                 </div>
 
                 <div className="d-flex align-items-start">
                   <i className="bi bi-currency-euro me-3 mt-1 text-primary"></i>
                   <div>
                     <p className="text-muted text-uppercase small mb-1">Orçamento Estimado</p>
-                    <p className="fw-semibold">€{appointment.estimated_budget?.toFixed(2)}</p>
+                    <p className="fw-semibold">€{currentAppointment.estimated_budget?.toFixed(2)}</p>
                   </div>
                 </div>
               </div>
@@ -156,7 +173,7 @@ export function AppointmentStatusModal({ appointment, open, onOpenChange }: Appo
                   <i className="bi bi-car-front me-3 mt-1 text-primary"></i>
                   <div>
                     <p className="text-muted text-uppercase small mb-1">Veículo</p>
-                    <p className="fw-semibold">{appointment.vehicle?.brand} {appointment.vehicle?.model} - {appointment.vehicle?.plate}</p>
+                    <p className="fw-semibold">{currentAppointment.vehicle?.brand} {currentAppointment.vehicle?.model} - {currentAppointment.vehicle?.plate}</p>
                   </div>
                 </div>
 
@@ -164,8 +181,8 @@ export function AppointmentStatusModal({ appointment, open, onOpenChange }: Appo
                   <i className="bi bi-tools me-3 mt-1 text-primary"></i>
                   <div>
                     <p className="text-muted text-uppercase small mb-1">Serviço</p>
-                    <p className="fw-semibold">{appointment.service?.name}</p>
-                    {appointment.service?.description && <p className="text-muted small">{appointment.service.description}</p>}
+                    <p className="fw-semibold">{currentAppointment.service?.name}</p>
+                    {currentAppointment.service?.description && <p className="text-muted small">{currentAppointment.service.description}</p>}
                   </div>
                 </div>
               </div>
