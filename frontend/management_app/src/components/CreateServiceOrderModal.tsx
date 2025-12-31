@@ -294,7 +294,6 @@ const CreateServiceOrderModal: FC<CreateServiceOrderModalProps> = ({ show, onClo
           {currentStep === 1 && (
             <>
               <button type="button" className="btn btn-outline-secondary" onClick={handleClose}>
-                <i className="bi bi-x-circle"></i>
                 Cancelar
               </button>
               <button

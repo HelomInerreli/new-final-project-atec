@@ -25,10 +25,7 @@ export function FinanceHeader({
     return (
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-                <h1 className="text-3xl font-bold tracking-tight">Financeiro</h1>
-                <p className="text-muted-foreground">
-                    Visão geral financeira da oficina
-                </p>
+                <h1 className="text-4xl font-bold text-gray-900 leading-tight">Financeiro</h1>
             </div>
             <div className="flex items-center gap-2">
                 <div className="relative">
@@ -40,7 +37,7 @@ export function FinanceHeader({
                         dateFormat="dd/MM/yyyy"
                         placeholderText="Data inicial"
                         className={cn(
-                            "flex h-10 w-[150px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+                            "flex h-10 w-[150px] rounded-md border-2 border-red-600 bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
                             !startDate && "text-muted-foreground"
                         )}
                     />
@@ -57,13 +54,13 @@ export function FinanceHeader({
                         placeholderText="Data final"
                         minDate={startDate || undefined}
                         className={cn(
-                            "flex h-10 w-[150px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+                            "flex h-10 w-[150px] rounded-md border-2 border-red-600 bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
                             !endDate && "text-muted-foreground"
                         )}
                     />
                     <CalendarIcon className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
                 </div>
-                <Button onClick={onFilter} disabled={loading}>
+                <Button variant="destructive" onClick={onFilter} disabled={loading}>
                     {loading ? "Carregando..." : "Filtrar"}
                 </Button>
             </div>
