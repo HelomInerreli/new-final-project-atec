@@ -19,7 +19,7 @@ export const useCreateServiceModal = (
     name: "",
     description: "",
     price: "",
-    duration_minutes: 30,
+    duration_minutes: 0,
     is_active: true,
   });
 
@@ -33,7 +33,7 @@ export const useCreateServiceModal = (
         name: "",
         description: "",
         price: "",
-        duration_minutes: 30,
+        duration_minutes: 0,
         is_active: true,
       });
       setError(null);
@@ -85,7 +85,7 @@ export const useCreateServiceModal = (
       name: "",
       description: "",
       price: "",
-      duration_minutes: 30,
+      duration_minutes: 0,
       is_active: true,
     });
     setError(null);

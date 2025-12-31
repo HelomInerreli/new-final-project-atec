@@ -226,7 +226,7 @@ export default function ServicesManagement() {
                           <Button
                             variant="outline"
                             size="icon"
-                            onClick={() => handleOpenDialog(servico)}
+                            onClick={() => handleOpenEditModal(servico)}
                           >
                             <Pencil className="h-4 w-4" />
                           </Button>

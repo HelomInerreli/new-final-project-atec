@@ -28,7 +28,6 @@ const EditServiceModal: FC<EditServiceModalProps> = ({ show, service, onClose, o
       <div className="service-order-modal" onClick={(e) => e.stopPropagation()}>
         <div className="service-order-modal-header">
           <h5 className="service-order-modal-title">
-            <i className="bi bi-pencil"></i>
             Editar Serviço
           </h5>
           <button type="button" className="modal-close-btn" onClick={handleClose} aria-label="Fechar">
@@ -47,7 +46,7 @@ const EditServiceModal: FC<EditServiceModalProps> = ({ show, service, onClose, o
             </div>
           )}
 
-          <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+          <form id="edit-service-form" onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
             <div className="grid gap-4 py-4 px-6">
               {/* Nome do Serviço */}
               <div className="grid gap-2">
@@ -132,25 +131,35 @@ const EditServiceModal: FC<EditServiceModalProps> = ({ show, service, onClose, o
                 </div>
               </div>
             </div>
-
-            <div className="service-order-modal-footer">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={handleClose}
-                disabled={submitting}
-              >
-                Cancelar
-              </button>
-              <button
-                type="submit"
-                className="btn btn-primary"
-                disabled={submitting}
-              >
-                {submitting ? "A atualizar..." : "Atualizar Serviço"}
-              </button>
-            </div>
           </form>
+
+          <div className="service-order-modal-footer" style={{ 
+            borderTop: '1px solid #dee2e6', 
+            paddingTop: '1rem',
+            paddingLeft: '2rem',
+            paddingRight: '2rem',
+            paddingBottom: '0',
+            marginTop: '0',
+            marginLeft: '-2rem',
+            marginRight: '-2rem'
+          }}>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={handleClose}
+              disabled={submitting}
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              form="edit-service-form"
+              className="btn btn-danger"
+              disabled={submitting}
+            >
+              {submitting ? "A atualizar..." : "Atualizar Serviço"}
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -273,15 +282,15 @@ const DurationSelect: FC<{ value: number; onChange: (value: number) => void }> =
     <div className="mb-input-wrapper" ref={menuRef} style={{ position: 'relative' }}>
       <button
         type="button"
-        className={`mb-input select ${!value && !isFocused ? 'placeholder' : ''}`}
+        className={`mb-input select ${value === 0 ? 'placeholder' : ''}`}
         onClick={() => setIsOpen(!isOpen)}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
-        style={{ textAlign: 'left', cursor: 'pointer' }}
+        style={{ textAlign: 'left', cursor: 'pointer', minHeight: '56px' }}
       >
-        {value ? formatDuration(value) : ''}
+        {value > 0 ? formatDuration(value) : ''}
       </button>
-      <label className={`mb-input-label ${value || isFocused ? 'shrunken' : ''}`}>
+      <label className={`mb-input-label ${value > 0 || isFocused ? 'shrunken' : ''}`}>
         Duração (min) *
       </label>
       <span className="mb-select-caret">▼</span>
