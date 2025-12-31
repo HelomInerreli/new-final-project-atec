@@ -38,16 +38,17 @@ const ServiceOrders: FC = () => {
       return [
         { value: "all", label: "Todos os status" },
         { value: "Em Andamento", label: "Em Andamento" },
-        { value: "Pendente", label: "Pendente" }
+        { value: "Pendente", label: "Pendente" },
+        { value : "Concluída", label: "Concluída"}
       ];
     }
   }, [isManager]);
 
   const filtered = orders.filter((o: Order) => {
-    // Filtrar por papel do usuário - mecânicos só veem ordens "Em Andamento" e "Pendente"
+    // Filtrar por papel do usuário - mecânicos só veem ordens "Em Andamento", "Pendente", "Concluída"
     if (!isManager) {
       const status = (o.status || "").toLowerCase();
-      if (status !== "em andamento" && status !== "pendente") {
+      if (status !== "em andamento" && status !== "pendente" && status !== "concluída") {
         return false;
       }
     }
