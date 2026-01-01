@@ -10,15 +10,23 @@ export async function getGroupedPastAppointments(customerId: number): Promise<Re
     try {
         const data = await getServices();
 
-        // Filtrar agendamentos do cliente e status finalizado (id === 3)
+        // Filtrar agendamentos do cliente que estejam finalizados ou cancelados
+        // IMPORTANTE: Apenas status finais aparecem aqui (Finalized=3, Canceled=5)
+        // Appointments ativos (ex: aguardando pagamento) permanecem em Future mesmo com data passada
         const filteredAppointments = data.filter((appointment: Appointment) => {
-            const matchStatus = appointment.status?.id === 3;  // Mudança: status finalizado
             const matchCustomer =
                 appointment.customer_id === customerId ||
                 appointment.customer_id === Number(customerId) ||
                 String(appointment.customer_id) === String(customerId);
 
-            return matchStatus && matchCustomer;
+            const statusId = appointment.status?.id ?? appointment.status_id;
+            const statusName = appointment.status?.name?.toLowerCase();
+
+            // Apenas Finalized (id=3) ou Canceled (id=5 ou nome="canceled")
+            const isFinalized = statusId === 3 || statusName === 'finalized';
+            const isCanceled = statusId === 5 || statusName === 'canceled';
+
+            return matchCustomer && (isFinalized || isCanceled);
         });
 
         // Agrupar por mês (formato: 'Mês Ano') - mesmo que no futuro

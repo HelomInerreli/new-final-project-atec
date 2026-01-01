@@ -15,7 +15,9 @@ export async function getGroupedAppointments(customerId: number): Promise<Record
         const allowedStatusIds = new Set([1, 2, 4, 6]); // 1=Pendente, 2=Awaiting Approval, 4=In Repair, 6=Waitting Payment
         const allowedStatusNames = new Set(['pendente', 'awaiting approval', 'in repair', 'waitting payment']);
 
-        // Filtrar agendamentos do cliente e status permitidos
+        // Filtrar agendamentos do cliente com status ativo
+        // IMPORTANTE: Appointments com status ativo aparecem aqui INDEPENDENTE da data
+        // (ex: aguardando pagamento deve aparecer mesmo se a data já passou)
         const filteredAppointments = data.filter((appointment: Appointment) => {
             const statusId = appointment.status?.id ?? appointment.status_id;
             const statusName = appointment.status?.name?.toLowerCase();
@@ -25,7 +27,7 @@ export async function getGroupedAppointments(customerId: number): Promise<Record
                 (typeof statusId === 'number' && allowedStatusIds.has(statusId)) ||
                 (statusName && allowedStatusNames.has(statusName));
 
-            // Excluir appointments com status "Finalized" ou "Canceled"
+            // Appointments com status ativo aparecem aqui, independente da data
             return matchCustomer && matchStatus;
         });
 

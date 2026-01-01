@@ -162,7 +162,33 @@ export function AppointmentStatusModal({ appointment, open, onOpenChange }: Appo
                   <i className="bi bi-currency-euro me-3 mt-1 text-primary"></i>
                   <div>
                     <p className="text-muted text-uppercase small mb-1">Orçamento Estimado</p>
-                    <p className="fw-semibold">€{currentAppointment.estimated_budget?.toFixed(2)}</p>
+                    <p className="fw-semibold">
+                      €{(() => {
+                        // Calcular preço base do serviço
+                        const basePrice = currentAppointment.service?.price || 0;
+                        
+                        // Somar preços dos serviços extras aprovados
+                        const approvedExtrasTotal = extraServices
+                          .filter(service => service.status === 'approved')
+                          .reduce((sum, service) => sum + (service.price || 0), 0);
+                        
+                        const totalEstimated = basePrice + approvedExtrasTotal;
+                        return totalEstimated.toFixed(2);
+                      })()}
+                    </p>
+                    {(() => {
+                      const approvedExtras = extraServices.filter(s => s.status === 'approved');
+                      if (approvedExtras.length > 0) {
+                        const basePrice = currentAppointment.service?.price || 0;
+                        const extrasTotal = approvedExtras.reduce((sum, s) => sum + (s.price || 0), 0);
+                        return (
+                          <small className="text-muted">
+                            Base: €{basePrice.toFixed(2)} + Extras: €{extrasTotal.toFixed(2)}
+                          </small>
+                        );
+                      }
+                      return null;
+                    })()}
                   </div>
                 </div>
               </div>
