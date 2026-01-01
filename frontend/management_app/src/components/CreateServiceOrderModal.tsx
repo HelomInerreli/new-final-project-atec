@@ -1,11 +1,21 @@
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import type { FC } from "react";
 import type { CreateServiceOrderModalProps } from "../interfaces/ServiceOrderModal";
 import { useServiceOrderModal } from "../hooks/useServiceOrderModal";
+import { Calendar } from "lucide-react";
 import "../styles/CreateServiceOrderModal.css";
-
+import "../components/inputs.css";
 
 const CreateServiceOrderModal: FC<CreateServiceOrderModalProps> = ({ show, onClose, onSuccess }) => {
+  const [customerDropdownOpen, setCustomerDropdownOpen] = useState(false);
+  const [vehicleDropdownOpen, setVehicleDropdownOpen] = useState(false);
+  const [serviceDropdownOpen, setServiceDropdownOpen] = useState(false);
+  const [timeDropdownOpen, setTimeDropdownOpen] = useState(false);
+  
+  const customerDropdownRef = useRef<HTMLDivElement>(null);
+  const vehicleDropdownRef = useRef<HTMLDivElement>(null);
+  const serviceDropdownRef = useRef<HTMLDivElement>(null);
+  const timeDropdownRef = useRef<HTMLDivElement>(null);
   const {
     currentStep,
     loadingData,
@@ -27,6 +37,26 @@ const CreateServiceOrderModal: FC<CreateServiceOrderModalProps> = ({ show, onClo
     handleSubmit,
     handleClose,
   } = useServiceOrderModal(show, onSuccess, onClose);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (customerDropdownRef.current && !customerDropdownRef.current.contains(event.target as Node)) {
+        setCustomerDropdownOpen(false);
+      }
+      if (vehicleDropdownRef.current && !vehicleDropdownRef.current.contains(event.target as Node)) {
+        setVehicleDropdownOpen(false);
+      }
+      if (serviceDropdownRef.current && !serviceDropdownRef.current.contains(event.target as Node)) {
+        setServiceDropdownOpen(false);
+      }
+      if (timeDropdownRef.current && !timeDropdownRef.current.contains(event.target as Node)) {
+        setTimeDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   if (!show) return null;
 
@@ -83,157 +113,231 @@ const CreateServiceOrderModal: FC<CreateServiceOrderModalProps> = ({ show, onClo
               <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
                 {/* STEP 1 */}
                 {currentStep === 1 && (
-                  <>
-                    <div className="form-group">
-                      <label className="form-label">
-                        <i className="bi bi-person-fill"></i>
-                        Cliente *
-                      </label>
-                      <select
-                        className="form-select"
-                        value={form.customer_id}
-                        onChange={(e) => setForm((f) => ({ ...f, customer_id: Number(e.target.value) }))}
-                        required
-                      >
-                        <option value={0}>Selecione um cliente</option>
-                        {customers.map((c) => (
-                          <option key={c.id} value={c.id}>
-                            {c.name} {c.phone ? `— ${c.phone}` : ""}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="form-group">
-                      <label className="form-label">
-                        <i className="bi bi-wrench"></i>
-                        Serviço *
-                      </label>
-                      <select
-                        className="form-select"
-                        value={form.service_id}
-                        onChange={(e) => handleServiceChange(Number(e.target.value))}
-                        required
-                      >
-                        <option value={0}>Selecione um serviço</option>
-                        {services.map((s) => (
-                          <option key={s.id} value={s.id}>
-                            {s.name} — €{s.price}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="row">
-                      <div className="col-md-6">
-                        <div className="form-group">
-                          <label className="form-label">
-                            <i className="bi bi-calendar3"></i>
-                            Data *
+                  <div className="grid gap-4 py-4 px-6">
+                    <div className="grid gap-2">
+                      <div className="mb-input-wrapper">
+                        <div ref={customerDropdownRef} style={{ position: "relative" }}>
+                          <button
+                            type="button"
+                            className={`mb-input select ${!form.customer_id ? "placeholder" : ""}`}
+                            onClick={() => setCustomerDropdownOpen(!customerDropdownOpen)}
+                            style={{ textAlign: "left", cursor: "pointer" }}
+                          >
+                            {selectedCustomer ? selectedCustomer.name : ""}
+                          </button>
+                          <label className={`mb-input-label ${form.customer_id ? "shrunken" : ""}`}>
+                            Cliente *
                           </label>
+                          <span className="mb-select-caret">▼</span>
+
+                          {customerDropdownOpen && (
+                            <ul className="mb-select-menu" style={{ maxHeight: "250px", overflowY: "auto" }}>
+                              {customers.map((customer) => (
+                                <li
+                                  key={customer.id}
+                                  className={`mb-select-item ${form.customer_id === customer.id ? "selected" : ""}`}
+                                  onClick={() => {
+                                    setForm((f) => ({ ...f, customer_id: customer.id }));
+                                    setCustomerDropdownOpen(false);
+                                  }}
+                                >
+                                  {customer.name}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid gap-2">
+                      <div className="mb-input-wrapper">
+                        <div ref={serviceDropdownRef} style={{ position: "relative" }}>
+                          <button
+                            type="button"
+                            className={`mb-input select ${!form.service_id ? "placeholder" : ""}`}
+                            onClick={() => setServiceDropdownOpen(!serviceDropdownOpen)}
+                            style={{ textAlign: "left", cursor: "pointer" }}
+                          >
+                            {selectedService ? `${selectedService.name} - €${selectedService.price.toFixed(2)}` : ""}
+                          </button>
+                          <label className={`mb-input-label ${form.service_id ? "shrunken" : ""}`}>
+                            Serviço *
+                          </label>
+                          <span className="mb-select-caret">▼</span>
+
+                          {serviceDropdownOpen && (
+                            <ul className="mb-select-menu" style={{ maxHeight: "250px", overflowY: "auto" }}>
+                              {services.map((service) => (
+                                <li
+                                  key={service.id}
+                                  className={`mb-select-item ${form.service_id === service.id ? "selected" : ""}`}
+                                  onClick={() => {
+                                    handleServiceChange(service.id);
+                                    setServiceDropdownOpen(false);
+                                  }}
+                                >
+                                  {service.name} — €{service.price.toFixed(2)}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="grid gap-2">
+                        <div className="mb-input-wrapper" style={{ position: "relative" }}>
                           <input
+                            id="appointment_date"
                             type="date"
-                            className="form-control"
+                            className={`mb-input date-input ${form.appointment_date ? "has-value filled" : ""}`}
                             value={form.appointment_date}
                             onChange={(e) => handleDateChange(e.target.value)}
-                            min={new Date().toISOString().split('T')[0]}
+                            min={new Date().toISOString().split("T")[0]}
                             required
                           />
-                          <small className="form-text">
-                            <i className="bi bi-info-circle"></i>
-                            Apenas dias de semana (seg-sex)
-                          </small>
+                          <label className={`mb-input-label ${form.appointment_date ? "shrunken" : ""}`}>
+                            Data *
+                          </label>
+                          <Calendar
+                            size={20}
+                            style={{
+                              position: "absolute",
+                              right: "14px",
+                              top: "50%",
+                              transform: "translateY(-50%)",
+                              color: "#6b7280",
+                              cursor: "pointer",
+                            }}
+                            onClick={() => {
+                              const element = document.getElementById("appointment_date") as HTMLInputElement;
+                              element?.showPicker?.();
+                            }}
+                          />
                         </div>
                       </div>
 
-                      <div className="col-md-6">
-                        <div className="form-group">
-                          <label className="form-label">
-                            <i className="bi bi-clock"></i>
-                            Hora *
-                          </label>
-                          <select
-                            className="form-select"
-                            value={form.appointment_time}
-                            onChange={(e) => setForm((f) => ({ ...f, appointment_time: e.target.value }))}
-                            required
-                          >
-                            <option value="">Selecione a hora</option>
-                            {availableTimes.map((time) => (
-                              <option key={time} value={time}>
-                                {time}
-                              </option>
-                            ))}
-                          </select>
-                          <small className="form-text">
-                            <i className="bi bi-clock"></i>
-                            Horário: 09:00 - 17:00
-                          </small>
+                      <div className="grid gap-2">
+                        <div className="mb-input-wrapper">
+                          <div ref={timeDropdownRef} style={{ position: "relative" }}>
+                            <button
+                              type="button"
+                              className={`mb-input select ${!form.appointment_time ? "placeholder" : ""}`}
+                              onClick={() => setTimeDropdownOpen(!timeDropdownOpen)}
+                              style={{ textAlign: "left", cursor: "pointer", minHeight: "56px" }}
+                            >
+                              {form.appointment_time || ""}
+                            </button>
+                            <label className={`mb-input-label ${form.appointment_time ? "shrunken" : ""}`}>
+                              Hora *
+                            </label>
+                            <span className="mb-select-caret">▼</span>
+
+                            {timeDropdownOpen && (
+                              <ul className="mb-select-menu" style={{ maxHeight: "250px", overflowY: "auto" }}>
+                                {availableTimes.map((time) => (
+                                  <li
+                                    key={time}
+                                    className={`mb-select-item ${form.appointment_time === time ? "selected" : ""}`}
+                                    onClick={() => {
+                                      setForm((f) => ({ ...f, appointment_time: time }));
+                                      setTimeDropdownOpen(false);
+                                    }}
+                                  >
+                                    {time}
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </>
+                  </div>
                 )}
 
                 {/* STEP 2 */}
                 {currentStep === 2 && (
-                  <>
-                    <div className="form-group">
-                      <label className="form-label">
-                        <i className="bi bi-car-front"></i>
-                        Veículo *
-                      </label>
-                      <select
-                        className="form-select"
-                        value={form.vehicle_id}
-                        onChange={(e) => setForm((f) => ({ ...f, vehicle_id: Number(e.target.value) }))}
-                        required
-                      >
-                        <option value={0}>Selecione um veículo</option>
-                        {vehicles.map((v) => (
-                          <option key={v.id} value={v.id}>
-                            {v.brand ?? ""} {v.model ?? ""} {v.plate ? `— ${v.plate}` : ""}
-                          </option>
-                        ))}
-                      </select>
-                      {vehicles.length === 0 && (
-                        <small className="form-text text-warning">
-                          <i className="bi bi-exclamation-triangle"></i>
-                          Nenhum veículo encontrado para este cliente
-                        </small>
-                      )}
+                  <div className="grid gap-4 py-4 px-6">
+                    <div className="grid gap-2">
+                      <div className="mb-input-wrapper">
+                        <div ref={vehicleDropdownRef} style={{ position: "relative" }}>
+                          <button
+                            type="button"
+                            className={`mb-input select ${!form.vehicle_id ? "placeholder" : ""}`}
+                            onClick={() => form.customer_id && setVehicleDropdownOpen(!vehicleDropdownOpen)}
+                            disabled={!form.customer_id}
+                            style={{ textAlign: "left", cursor: !form.customer_id ? "not-allowed" : "pointer" }}
+                          >
+                            {selectedVehicle ? `${selectedVehicle.brand} ${selectedVehicle.model} - ${selectedVehicle.plate}` : ""}
+                          </button>
+                          <label className={`mb-input-label ${form.vehicle_id ? "shrunken" : ""}`}>
+                            Veículo *
+                          </label>
+                          <span className="mb-select-caret">▼</span>
+
+                          {vehicleDropdownOpen && form.customer_id && (
+                            <ul className="mb-select-menu" style={{ maxHeight: "250px", overflowY: "auto" }}>
+                              {vehicles.length === 0 ? (
+                                <li className="mb-select-item" style={{ cursor: "default", opacity: 0.6 }}>
+                                  Nenhum veículo encontrado
+                                </li>
+                              ) : (
+                                vehicles.map((vehicle) => (
+                                  <li
+                                    key={vehicle.id}
+                                    className={`mb-select-item ${form.vehicle_id === vehicle.id ? "selected" : ""}`}
+                                    onClick={() => {
+                                      setForm((f) => ({ ...f, vehicle_id: vehicle.id }));
+                                      setVehicleDropdownOpen(false);
+                                    }}
+                                  >
+                                    {vehicle.brand} {vehicle.model} - {vehicle.plate}
+                                  </li>
+                                ))
+                              )}
+                            </ul>
+                          )}
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="form-group">
-                      <label className="form-label">
-                        <i className="bi bi-file-text"></i>
-                        Descrição do Serviço *
-                      </label>
-                      <textarea
-                        className="form-control"
-                        rows={4}
-                        value={form.description}
-                        onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-                        placeholder="Descreva o problema ou serviço necessário..."
-                        required
-                      />
+                    <div className="grid gap-2">
+                      <div className="mb-input-wrapper">
+                        <textarea
+                          id="description"
+                          className={`mb-input textarea ${form.description ? "filled" : ""}`}
+                          rows={4}
+                          placeholder=" "
+                          value={form.description}
+                          onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+                        />
+                        <label className={`mb-input-label ${form.description ? "shrunken" : ""}`}>
+                          Descrição do Serviço *
+                        </label>
+                      </div>
                     </div>
 
-                    <div className="form-group">
-                      <label className="form-label">
-                        <i className="bi bi-currency-euro"></i>
-                        Orçamento Estimado
-                      </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        className="form-control"
-                        value={form.estimated_budget}
-                        onChange={(e) => setForm((f) => ({ ...f, estimated_budget: Number(e.target.value) }))}
-                      />
+                    <div className="grid gap-2">
+                      <div className="mb-input-wrapper">
+                        <input
+                          id="estimated_budget"
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          placeholder=" "
+                          className={`mb-input ${form.estimated_budget ? "filled" : ""}`}
+                          value={form.estimated_budget || ""}
+                          onChange={(e) => setForm((f) => ({ ...f, estimated_budget: e.target.value ? Number(e.target.value) : 0 }))}
+                        />
+                        <label className={`mb-input-label ${form.estimated_budget ? "shrunken" : ""}`}>
+                          Orçamento Estimado (€)
+                        </label>
+                      </div>
                     </div>
-                  </>
+                  </div>
                 )}
 
                 {/* STEP 3 */}
