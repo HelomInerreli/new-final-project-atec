@@ -121,7 +121,7 @@ const CreateServiceOrderModal: FC<CreateServiceOrderModalProps> = ({ show, onClo
                             type="button"
                             className={`mb-input select ${!form.customer_id ? "placeholder" : ""}`}
                             onClick={() => setCustomerDropdownOpen(!customerDropdownOpen)}
-                            style={{ textAlign: "left", cursor: "pointer" }}
+                            style={{ textAlign: "left", cursor: "pointer", minHeight: "56px" }}
                           >
                             {selectedCustomer ? selectedCustomer.name : ""}
                           </button>
@@ -157,7 +157,7 @@ const CreateServiceOrderModal: FC<CreateServiceOrderModalProps> = ({ show, onClo
                             type="button"
                             className={`mb-input select ${!form.service_id ? "placeholder" : ""}`}
                             onClick={() => setServiceDropdownOpen(!serviceDropdownOpen)}
-                            style={{ textAlign: "left", cursor: "pointer" }}
+                            style={{ textAlign: "left", cursor: "pointer", minHeight: "56px" }}
                           >
                             {selectedService ? `${selectedService.name} - €${selectedService.price.toFixed(2)}` : ""}
                           </button>
@@ -269,7 +269,7 @@ const CreateServiceOrderModal: FC<CreateServiceOrderModalProps> = ({ show, onClo
                             className={`mb-input select ${!form.vehicle_id ? "placeholder" : ""}`}
                             onClick={() => form.customer_id && setVehicleDropdownOpen(!vehicleDropdownOpen)}
                             disabled={!form.customer_id}
-                            style={{ textAlign: "left", cursor: !form.customer_id ? "not-allowed" : "pointer" }}
+                            style={{ textAlign: "left", cursor: !form.customer_id ? "not-allowed" : "pointer", minHeight: "56px" }}
                           >
                             {selectedVehicle ? `${selectedVehicle.brand} ${selectedVehicle.model} - ${selectedVehicle.plate}` : ""}
                           </button>
@@ -309,10 +309,11 @@ const CreateServiceOrderModal: FC<CreateServiceOrderModalProps> = ({ show, onClo
                         <textarea
                           id="description"
                           className={`mb-input textarea ${form.description ? "filled" : ""}`}
-                          rows={4}
+                          rows={2}
                           placeholder=" "
                           value={form.description}
                           onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+                          style={{ minHeight: "56px" }}
                         />
                         <label className={`mb-input-label ${form.description ? "shrunken" : ""}`}>
                           Descrição do Serviço *

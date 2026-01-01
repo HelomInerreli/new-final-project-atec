@@ -118,7 +118,7 @@ export default function Users() {
         <div className="flex-1 space-y-6 p-8">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-4xl font-bold text-gray-900 leading-tight">Funcionários</h1>
+                    <h1 className="text-4xl font-bold text-gray-900 leading-tight">Gestão de Funcionários</h1>
                 </div>
                 <div className="flex items-center gap-2">
                     <Button variant="outline" className="border-2 border-red-600" onClick={() => navigate('/ferias')}>
