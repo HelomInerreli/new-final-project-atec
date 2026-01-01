@@ -5,7 +5,7 @@ import { Button } from "./ui/button";
 import Input from "./Input";
 import AddPartsModal from "./AddPartsModal";
 import AddCommentModal from "./AddCommentModal";
-import { Trash2, ArrowLeft } from "lucide-react";
+import { Trash2, ArrowLeft, AlertTriangle } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -257,17 +257,24 @@ const ServiceOrderDetail: FC = () => {
                                 <Trash2 size={16} />
                               </button>
                             </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Apagar Comentário?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Esta ação não pode ser desfeita. O comentário será permanentemente removido.
+                          <AlertDialogContent className="sm:max-w-md">
+                            <AlertDialogHeader className="space-y-4">
+                              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+                                <AlertTriangle className="h-6 w-6 text-red-600" />
+                              </div>
+                              <AlertDialogTitle className="text-center text-xl">
+                                Eliminar Comentário
+                              </AlertDialogTitle>
+                              <AlertDialogDescription className="text-center text-base">
+                                Esta ação não pode ser desfeita. Tem a certeza que deseja eliminar permanentemente este comentário?
                               </AlertDialogDescription>
                             </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleDeleteComment(c.id)}>
-                                Sim, Apagar
+                            <AlertDialogFooter className="flex flex-row gap-3 justify-center sm:justify-center mt-2">
+                              <AlertDialogCancel className="mt-0 flex-1 sm:flex-none px-6 hover:bg-gray-100 focus-visible:ring-0 focus-visible:ring-offset-0">
+                                Cancelar
+                              </AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDeleteComment(c.id)} className="flex-1 sm:flex-none px-6 bg-red-600 hover:bg-red-700 focus-visible:ring-0 focus-visible:ring-offset-0">
+                                Eliminar
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
@@ -337,22 +344,29 @@ const ServiceOrderDetail: FC = () => {
                                 <AlertDialogTrigger asChild>
                                   <button
                                     className="delete-icon-btn delete-icon-btn-table"
-                                    title="Apagar peça"
+                                    title="Eliminar peça"
                                   >
                                     <Trash2 size={16} />
                                   </button>
                                 </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>Apagar Peça?</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      Esta ação não pode ser desfeita. A peça será removida e o stock será restaurado.
+                                <AlertDialogContent className="sm:max-w-md">
+                                  <AlertDialogHeader className="space-y-4">
+                                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+                                      <AlertTriangle className="h-6 w-6 text-red-600" />
+                                    </div>
+                                    <AlertDialogTitle className="text-center text-xl">
+                                      Eliminar Peça
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription className="text-center text-base">
+                                      Esta ação não pode ser desfeita. Tem a certeza que deseja eliminar permanentemente esta peça? O stock será restaurado.
                                     </AlertDialogDescription>
                                   </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                    <AlertDialogAction onClick={() => handleDeletePart(p.id)}>
-                                      Sim, Apagar
+                                  <AlertDialogFooter className="flex flex-row gap-3 justify-center sm:justify-center mt-2">
+                                    <AlertDialogCancel className="mt-0 flex-1 sm:flex-none px-6 hover:bg-gray-100 focus-visible:ring-0 focus-visible:ring-offset-0">
+                                      Cancelar
+                                    </AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => handleDeletePart(p.id)} className="flex-1 sm:flex-none px-6 bg-red-600 hover:bg-red-700 focus-visible:ring-0 focus-visible:ring-offset-0">
+                                      Eliminar
                                     </AlertDialogAction>
                                   </AlertDialogFooter>
                                 </AlertDialogContent>
