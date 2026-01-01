@@ -245,17 +245,18 @@ const ServiceOrderDetail: FC = () => {
                       </div>
                       <div className="timeline-line"></div>
                       <div className="timeline-content">
-                        <span className="timeline-text">{c.comment}</span>
-                        {isLatest && <span className="timeline-badge">NOVO</span>}
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <button
-                              className="delete-icon-btn"
-                              title="Apagar comentário"
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          </AlertDialogTrigger>
+                        <div className="timeline-content-wrapper">
+                          <div className="timeline-text">{c.comment}</div>
+                          {isLatest && <span className="timeline-badge">NOVO</span>}
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <button
+                                className="delete-icon-btn"
+                                title="Eliminar comentário"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
                               <AlertDialogTitle>Apagar Comentário?</AlertDialogTitle>
@@ -271,6 +272,7 @@ const ServiceOrderDetail: FC = () => {
                             </AlertDialogFooter>
                           </AlertDialogContent>
                         </AlertDialog>
+                        </div>
                       </div>
                     </div>
                   );
