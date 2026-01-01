@@ -107,12 +107,11 @@ const CreateAppointmentModal: FC<CreateAppointmentModalProps> = ({ show, onClose
                     <div className="grid grid-cols-2 gap-4">
                       <div className="grid gap-2">
                         <div className="mb-input-wrapper">
-                          <div ref={customerDropdownRef} style={{ position: "relative" }}>
+                          <div ref={customerDropdownRef} className="mb-dropdown-wrapper">
                             <button
                               type="button"
                               className={`mb-input select ${!form.customer_id ? "placeholder" : ""}`}
                               onClick={() => setCustomerDropdownOpen(!customerDropdownOpen)}
-                              style={{ textAlign: "left", cursor: "pointer" }}
                             >
                               {selectedCustomer ? selectedCustomer.name : ""}
                             </button>
@@ -143,13 +142,12 @@ const CreateAppointmentModal: FC<CreateAppointmentModalProps> = ({ show, onClose
 
                       <div className="grid gap-2">
                         <div className="mb-input-wrapper">
-                          <div ref={vehicleDropdownRef} style={{ position: "relative" }}>
+                          <div ref={vehicleDropdownRef} className="mb-dropdown-wrapper">
                             <button
                               type="button"
                               className={`mb-input select ${!form.vehicle_id ? "placeholder" : ""}`}
                               onClick={() => form.customer_id && setVehicleDropdownOpen(!vehicleDropdownOpen)}
                               disabled={!form.customer_id}
-                              style={{ textAlign: "left", cursor: !form.customer_id ? "not-allowed" : "pointer" }}
                             >
                               {selectedVehicle ? `${selectedVehicle.brand} ${selectedVehicle.model} - ${selectedVehicle.plate}` : ""}
                             </button>
@@ -161,7 +159,7 @@ const CreateAppointmentModal: FC<CreateAppointmentModalProps> = ({ show, onClose
                             {vehicleDropdownOpen && form.customer_id && (
                               <ul className="mb-select-menu" style={{ maxHeight: "250px", overflowY: "auto" }}>
                                 {vehicles.length === 0 ? (
-                                  <li className="mb-select-item" style={{ cursor: "default", opacity: 0.6 }}>
+                                  <li className="mb-select-item disabled">
                                     Nenhum veículo encontrado
                                   </li>
                                 ) : (

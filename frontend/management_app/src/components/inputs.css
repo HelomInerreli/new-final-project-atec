@@ -453,6 +453,53 @@ input[type="checkbox"]:checked::after {
   font-weight: bold;
 }
 
+/* Dropdown wrapper positioning */
+.mb-dropdown-wrapper {
+  position: relative;
+}
+
+/* Select button min-height removed - will be added via specific class */
+.mb-input.select {
+  text-align: left;
+  cursor: pointer;
+}
+
+.mb-input.select:disabled {
+  cursor: not-allowed;
+}
+
+/* Select menu styling */
+.mb-select-menu {
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+/* Disabled select item */
+.mb-select-item.disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+/* Date input wrapper */
+.mb-date-input-wrapper {
+  position: relative;
+}
+
+/* Calendar icon positioning */
+.mb-calendar-icon {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+  cursor: pointer;
+}
+
+/* Textarea minimum height */
+.mb-input.textarea {
+  min-height: 56px;
+}
+
 @media (max-width: 576px) {
   .mb-input {
     padding: 12px 40px 12px 12px;
