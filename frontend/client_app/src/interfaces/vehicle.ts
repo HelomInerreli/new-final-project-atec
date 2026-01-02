@@ -7,6 +7,11 @@ export interface Vehicle {
     model: string;
     kilometers: number;
     customer_id: number;
+    description?: string;
+    color?: string;
+    imported?: boolean;
+    engineSize?: string;
+    fuelType?: string;
     deleted_at?: string | null;
 }
 
@@ -16,12 +21,34 @@ export interface VehicleCreate {
     model: string;
     kilometers: number;
     customer_id: number;
+    description?: string;
+    color?: string;
+    imported?: boolean;
+    engineSize?: string;
+    fuelType?: string;
 }
 
 export interface VehicleUpdate {
     plate?: string;
     brand?: string;
     model?: string;
+    kilometers?: number;
+    description?: string;
+    color?: string;
+    imported?: boolean;
+    engineSize?: string;
+    fuelType?: string;
+}
+
+export interface VehicleAPIData {
+    plate: string;
+    brand?: string;
+    model?: string;
+    description?: string;
+    colour?: string;
+    engineSize?: string;
+    fuelType?: string;
+    imported?: boolean;
     kilometers?: number;
 }
 
@@ -38,4 +65,5 @@ export interface VehicleModalProps {
     customerId: number;
     onClose: () => void;
     onSave: (vehicle: Vehicle) => Promise<void>;
+    getFromAPI?: (plate: string) => Promise<VehicleAPIData>;
 }
