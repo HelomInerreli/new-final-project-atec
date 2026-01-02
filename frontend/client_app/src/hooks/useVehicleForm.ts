@@ -127,6 +127,10 @@ export function useVehicleForm(
         }
     };
 
+    /**
+     * Busca dados do veículo por matrícula numa API externa (se fornecida).
+     * Faz merge no formData: só substitui campos quando a API devolve valores.
+     */
     const handleGetFromAPI = async (getFromAPIFunc?: (plate: string) => Promise<VehicleAPIData>) => {
         if (getFromAPIFunc && formData.plate) {
             try {
@@ -154,30 +158,4 @@ export function useVehicleForm(
     };
 
     return { formData, errors, loading, handleChange, handleSubmit, handleGetFromAPI };
-    return { 
-        /**
-         * Dados atuais do formulário
-         */
-        formData, 
-        
-        /**
-         * Erros de validação por campo
-         */
-        errors, 
-        
-        /**
-         * Estado de submissão do formulário
-         */
-        loading, 
-        
-        /**
-         * Função para manipular alterações nos campos
-         */
-        handleChange, 
-        
-        /**
-         * Função para submeter o formulário
-         */
-        handleSubmit 
-    };
 }

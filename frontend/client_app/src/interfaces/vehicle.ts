@@ -112,5 +112,6 @@ export interface VehicleModalProps {
     onClose: () => void;
     /** Callback assíncrono executado ao salvar veículo (criar ou atualizar) */
     onSave: (vehicle: Vehicle) => Promise<void>;
+    /** Função opcional para procurar dados do veículo por matrícula (API externa) */
     getFromAPI?: (plate: string) => Promise<VehicleAPIData>;
 }
