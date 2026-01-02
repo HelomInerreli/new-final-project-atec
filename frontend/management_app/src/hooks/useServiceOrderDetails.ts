@@ -4,6 +4,7 @@ import { normalizeStatus } from "./useServiceOrder";
 import { STATUS_LABEL_TO_ID } from "../interfaces/ServiceOrderDetail";
 import { format } from "date-fns";
 
+
 /**
  * Hook para gerir detalhes de ordens de serviço
  * @param id - ID da ordem de serviço (opcional)
@@ -65,6 +66,11 @@ export const useServiceOrderDetails = (id: string | undefined) => {
     if (!silent) setLoading(true);
     try {
       const data = await getOrder(id);
+      console.log('[DEBUG] Dados recebidos do backend:', data);
+      console.log('[DEBUG] Status recebido:', data.status);
+      console.log('[DEBUG] Status name:', data.status?.name);
+      console.log('[DEBUG] is_paused:', data.is_paused);
+      console.log('[DEBUG] start_time:', data.start_time);
       setOrder(data);
     } catch (e: any) {
       alert("Erro ao carregar ordem: " + (e?.message ?? e));
