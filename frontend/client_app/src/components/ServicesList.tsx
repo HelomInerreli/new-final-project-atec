@@ -16,12 +16,38 @@ import { type ServiceInfo } from '../interfaces/service';
 import '../styles/ServicesList.css';
 import { NewCreateAppModal } from './NewCreateAppModal';
 
+/**
+ * Componente para exibir lista de serviços disponíveis
+ * Apresenta serviços em carousel com detalhes, características e preços
+ * Permite agendamento direto através de modal e contacto telefónico
+ * Inclui grelha de visão geral com todos os serviços
+ * @returns Componente JSX da página de lista de serviços
+ */
 export function ServicesList() {
+  /**
+   * Hook de tradução para internacionalização
+   */
   const { t } = useTranslation();
+  
+  /**
+   * Estado para controlar visibilidade do modal de criação de agendamento
+   * Tipo: boolean
+   * Inicial: false
+   */
   const [showCreateModal, setShowCreateModal] = useState(false);
+  
+  /**
+   * Estado para controlar visibilidade do modal de contacto
+   * Tipo: boolean
+   * Inicial: false
+   */
   const [showContactModal, setShowContactModal] = useState(false);
 
-  // ✅ Dados dos serviços
+  /**
+   * Array com informações de todos os serviços disponíveis
+   * Cada serviço inclui: id, nome, descrição, características, ícone e preço base
+   * Tipo: Array de ServiceInfo
+   */
   const services: ServiceInfo[] = [
     {
       id: 1,
@@ -108,7 +134,11 @@ export function ServicesList() {
     },
   ];
 
-  // ✅ Hook personalizado para carousel
+  /**
+   * Hook customizado para controlo do carousel
+   * Gere navegação automática e manual entre slides dos serviços
+   * Auto-advance a cada 6 segundos
+   */
   const { currentSlide, nextSlide, prevSlide, goToSlide } = useCarousel(
     services.length,
     6000
@@ -116,7 +146,7 @@ export function ServicesList() {
 
   return (
     <>
-      {/* Header */}
+      {/* Cabeçalho da página com título e subtítulo */}
       <header className="services-header">
         <div className="container text-center py-0">
           <div className="services-hero">
@@ -126,15 +156,15 @@ export function ServicesList() {
         </div>
       </header>
 
-      {/* Main Content */}
+      {/* Conteúdo principal com carousel, grelha de serviços e call-to-action */}
       <main className="services-main">
         <div className="container py-5">
           
-          {/* Carousel */}
+          {/* Carousel de serviços com detalhes completos */}
           <section className="services-carousel mb-5">
             <div className="carousel slide" id="servicesCarousel">
               
-              {/* Indicators */}
+              {/* Indicadores de navegação do carousel (bolinhas) */}
               <div className="carousel-indicators mb-4">
                 {services.map((_, i) => (
                   <button
@@ -147,7 +177,7 @@ export function ServicesList() {
                 ))}
               </div>
 
-              {/* Slides */}
+              {/* Slides do carousel com cards de serviços */}
               <div className="carousel-inner">
                 {services.map((service, i) => (
                   <div
@@ -159,7 +189,7 @@ export function ServicesList() {
                         <div className="card service-card border-0">
                           <div className="row g-0 h-100">
                             
-                            {/* Icon Area */}
+                            {/* Área do ícone com nome do serviço e preço */}
                             <div className="col-md-4 service-icon-area text-white">
                               <div className="text-center p-4">
                                 <i className={`${service.icon} mb-4 service-icon-large`} />
@@ -170,7 +200,7 @@ export function ServicesList() {
                               </div>
                             </div>
 
-                            {/* Content */}
+                            {/* Conteúdo do card com descrição, características e botões de ação */}
                             <div className="col-md-8">
                               <div className="card-body p-5 d-flex flex-column justify-content-center">
                                 <h2 className="service-title">{service.name}</h2>
@@ -178,7 +208,7 @@ export function ServicesList() {
                                   {service.description}
                                 </p>
                                 
-                                {/* Features */}
+                                {/* Lista de características incluídas no serviço */}
                                 <div className="service-features mb-4">
                                   <h5 className="mb-3">
                                     <i className="bi bi-check-circle-fill text-danger me-2" />
@@ -192,7 +222,7 @@ export function ServicesList() {
                                   ))}
                                 </div>
 
-                                {/* Actions */}
+                                {/* Botões de ação: agendar serviço e contactar */}
                                 <div className="d-flex gap-3">
                                   <button
                                     className="btn btn-danger px-4"
@@ -219,7 +249,7 @@ export function ServicesList() {
                 ))}
               </div>
 
-              {/* Controls */}
+              {/* Controlos de navegação anterior/seguinte */}
               <button
                 className="carousel-control-prev"
                 type="button"
@@ -243,7 +273,7 @@ export function ServicesList() {
             </div>
           </section>
 
-          {/* Overview Grid */}
+          {/* Grelha de visão geral com todos os serviços em cards */}
           <section className="services-overview mb-5">
             <h3 className="text-center mb-4 overview-title">
               {t('servicesPage.allServices')}
@@ -277,7 +307,7 @@ export function ServicesList() {
             </div>
           </section>
 
-          {/* Call to Action */}
+          {/* Seção call-to-action com botões de agendamento e contacto */}
           <section className="text-center">
             <div className="card border-0 shadow-sm rounded-3">
               <div className="card-body p-5">
@@ -307,7 +337,7 @@ export function ServicesList() {
         </div>
       </main>
 
-      {/* Contact Modal */}
+      {/* Modal de informações de contacto (email e telefone) */}
       <Modal
         show={showContactModal}
         onHide={() => setShowContactModal(false)}
@@ -342,7 +372,7 @@ export function ServicesList() {
         </Modal.Footer>
       </Modal>
 
-      {/* Appointment Modal */}
+      {/* Modal de criação de novo agendamento */}
       <NewCreateAppModal
         show={showCreateModal}
         onClose={() => setShowCreateModal(false)}

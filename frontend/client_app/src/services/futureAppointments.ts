@@ -2,9 +2,13 @@ import { getServices } from './ServiceHistoryServices';
 import type { Appointment } from '../interfaces/appointment';
 
 /**
- * Busca e agrupa agendamentos por mês.
- * @param customerId - ID do cliente.
- * @returns Objeto com agendamentos agrupados por mês (e.g., { 'Outubro 2023': [appointments] }).
+ * Busca e agrupa agendamentos futuros de um cliente por mês
+ * Filtra apenas agendamentos com status "Pendente" (1) ou "Waitting Payment" (6)
+ * Agrupa por mês no formato "mês ano" (ex: "outubro 2023")
+ * Ordena grupos cronologicamente (mais próximos primeiro) e agendamentos dentro de cada grupo por data
+ * @param customerId - ID numérico do cliente
+ * @returns Promise com objeto Record de agendamentos agrupados por mês (chave: "mês ano", valor: array de Appointment)
+ * @throws Erro se falhar a busca de agendamentos na API
  */
 export async function getGroupedAppointments(customerId: number): Promise<Record<string, Appointment[]>> {
     try {

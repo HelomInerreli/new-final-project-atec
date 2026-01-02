@@ -1,10 +1,14 @@
-import { getServices } from './ServiceHistoryServices';  // Reutiliza o serviço base
+import { getServices } from './ServiceHistoryServices';
 import type { Appointment } from '../interfaces/appointment';
 
 /**
- * Busca e agrupa agendamentos finalizados por mês.
- * @param customerId - ID do cliente.
- * @returns Objeto com agendamentos agrupados por mês (e.g., { 'Outubro 2023': [appointments] }).
+ * Busca e agrupa agendamentos finalizados de um cliente por mês
+ * Filtra apenas agendamentos com status "Finalizado" (id = 3)
+ * Agrupa por mês no formato "mês ano" (ex: "outubro 2023")
+ * Ordena grupos cronologicamente decrescente (mais recentes primeiro) e agendamentos dentro de cada grupo por data decrescente
+ * @param customerId - ID numérico do cliente
+ * @returns Promise com objeto Record de agendamentos agrupados por mês (chave: "mês ano", valor: array de Appointment)
+ * @throws Erro se falhar a busca de agendamentos na API
  */
 export async function getGroupedPastAppointments(customerId: number): Promise<Record<string, Appointment[]>> {
     try {

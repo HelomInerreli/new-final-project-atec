@@ -2,101 +2,101 @@
 
 /* Container principal (card) */
 .appointments-container{
-  max-width: 700px;
-  margin: 48px auto;
-  background: #fff;
-  border-radius: 22px;
-  box-shadow: 0 8px 36px rgba(37, 99, 235, 0.10), 0 1.5px 4px rgba(0,0,0,0.04);
-  padding: 40px 48px;
-  border: 1.5px solid #e0e7ff;
-  position: relative;
-  overflow: hidden;
-  font-family: 'Segoe UI', Arial, sans-serif;
+  max-width: 700px; /* largura máxima */
+  margin: 48px auto; /* margem centrada */
+  background: #fff; /* fundo branco */
+  border-radius: 22px; /* bordas arredondadas */
+  box-shadow: 0 8px 36px rgba(37, 99, 235, 0.10), 0 1.5px 4px rgba(0,0,0,0.04); /* sombra */
+  padding: 40px 48px; /* espaçamento interno */
+  border: 1.5px solid #e0e7ff; /* borda azul clara */
+  position: relative; /* posicionamento relativo */
+  overflow: hidden; /* esconde conteúdo excedente */
+  font-family: 'Segoe UI', Arial, sans-serif; /* fonte */
 }
 
-.appointments-container *{ box-sizing: border-box; }
+.appointments-container *{ box-sizing: border-box; } /* box-sizing para todos os filhos */
 
 /* Título */
 .appointments-title{
-  font-size: 2.2rem;
-  font-weight: 800;
-  color: #2563eb;
-  margin: 0 0 10px 0;
-  letter-spacing: -1px;
-  text-shadow: 0 2px 8px rgba(37,99,235,0.07);
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  font-size: 2.2rem; /* tamanho da fonte */
+  font-weight: 800; /* negrito extra */
+  color: #2563eb; /* cor azul */
+  margin: 0 0 10px 0; /* margem inferior */
+  letter-spacing: -1px; /* espaçamento entre letras */
+  text-shadow: 0 2px 8px rgba(37,99,235,0.07); /* sombra do texto */
+  display: flex; /* layout flexível */
+  align-items: center; /* centraliza verticalmente */
+  gap: 10px; /* espaço entre elementos */
 }
 .appointments-title::before{
-  content: "📅";
-  font-size: 1.9rem;
+  content: "📅"; /* emoji calendário */
+  font-size: 1.9rem; /* tamanho do emoji */
 }
 
 /* Lista de agendamentos */
 .appointments-list{
-  display: grid;
-  gap: 16px;
-  margin: 12px 0 0 0;
-  padding: 0;
+  display: grid; /* layout em grade */
+  gap: 16px; /* espaço entre items */
+  margin: 12px 0 0 0; /* margem superior */
+  padding: 0; /* sem padding */
 }
 
 /* Item */
 .appointment-item{
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 6px;
-  background: linear-gradient(90deg, #f1f5f9 80%, #e0e7ff 100%);
-  border-radius: 14px;
-  padding: 18px 20px;
-  transition: box-shadow .2s, transform .18s, background .18s;
-  box-shadow: 0 2px 10px rgba(37,99,235,0.04);
-  border: 1px solid #e0e7ff;
+  display: grid; /* layout em grade */
+  grid-template-columns: 1fr; /* uma coluna */
+  gap: 6px; /* espaço entre linhas */
+  background: linear-gradient(90deg, #f1f5f9 80%, #e0e7ff 100%); /* gradiente de fundo */
+  border-radius: 14px; /* bordas arredondadas */
+  padding: 18px 20px; /* espaçamento interno */
+  transition: box-shadow .2s, transform .18s, background .18s; /* animações */
+  box-shadow: 0 2px 10px rgba(37,99,235,0.04); /* sombra */
+  border: 1px solid #e0e7ff; /* borda azul clara */
 }
 .appointment-item:hover{
-  box-shadow: 0 6px 24px rgba(37,99,235,0.10);
-  background: linear-gradient(90deg, #e0e7ff 80%, #f1f5f9 100%);
-  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(37,99,235,0.10); /* sombra maior no hover */
+  background: linear-gradient(90deg, #e0e7ff 80%, #f1f5f9 100%); /* gradiente invertido */
+  transform: translateY(-2px); /* eleva item */
 }
 
 /* Linhas dentro do item */
 .appointment-item > div{
-  display: flex;
-  gap: 6px;
-  align-items: baseline;
-  color: #1e293b;
-  font-size: 1rem;
+  display: flex; /* layout flexível */
+  gap: 6px; /* espaço entre elementos */
+  align-items: baseline; /* alinha pela linha base */
+  color: #1e293b; /* cor do texto */
+  font-size: 1rem; /* tamanho da fonte */
 }
 .appointment-item strong{
-  color: #0f172a;
+  color: #0f172a; /* cor mais escura para labels */
   min-width: 90px; /* alinhamento dos rótulos */
 }
 
 /* “Status” como chip simples se quiseres destacar */
 .appointment-item .status-chip{
-  display: inline-block;
-  padding: .25rem .6rem;
-  border-radius: 999px;
-  font-weight: 700;
-  font-size: .85rem;
-  border: 1px solid #e2e8f0;
-  color: #475569;
-  background: #f8fafc;
+  display: inline-block; /* bloco inline */
+  padding: .25rem .6rem; /* espaçamento interno */
+  border-radius: 999px; /* totalmente arredondado */
+  font-weight: 700; /* negrito */
+  font-size: .85rem; /* tamanho da fonte */
+  border: 1px solid #e2e8f0; /* borda cinza */
+  color: #475569; /* cor do texto */
+  background: #f8fafc; /* fundo claro */
 }
-.status-chip.ok{ color:#16a34a; border-color:#bbf7d0; background:#f0fdf4; }
-.status-chip.warn{ color:#d97706; border-color:#fde68a; background:#fffbeb; }
+.status-chip.ok{ color:#16a34a; border-color:#bbf7d0; background:#f0fdf4; } /* chip verde */
+.status-chip.warn{ color:#d97706; border-color:#fde68a; background:#fffbeb; } /* chip amarelo */
 
 /* Responsivo */
 @media (max-width: 600px){
   .appointments-container{
-    padding: 18px 12px;
-    margin: 24px auto;
+    padding: 18px 12px; /* menos padding no mobile */
+    margin: 24px auto; /* menos margem no mobile */
   }
   .appointments-title{
-    font-size: 1.6rem;
-    gap: 8px;
+    font-size: 1.6rem; /* fonte menor no mobile */
+    gap: 8px; /* menos espaço no mobile */
   }
   .appointment-item{
-    padding: 14px 12px;
+    padding: 14px 12px; /* menos padding no mobile */
   }
 }

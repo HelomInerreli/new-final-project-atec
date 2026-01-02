@@ -1,7 +1,19 @@
 import React, { useState } from "react";
 import "../../styles/schedule.css";
 
+/**
+ * Componente de página para agendamento de serviços
+ * Permite ao utilizador preencher formulário com dados pessoais, viatura, serviço desejado e data/hora
+ * Exibe lista de serviços disponíveis em formato de grid com seleção por radio buttons
+ * Valida e submete agendamento (atualmente apenas exibe alert de confirmação)
+ * @returns Componente JSX da página de agendamento
+ */
 const Schedule: React.FC = () => {
+  /**
+   * Estado para armazenar dados do formulário de agendamento
+   * Tipo: objeto com campos de dados pessoais, viatura, serviço, data e hora
+   * Inicial: todos os campos vazios (strings vazias)
+   */
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -13,6 +25,10 @@ const Schedule: React.FC = () => {
     time: "",
   });
 
+  /**
+   * Lista de serviços disponíveis para agendamento
+   * Exibida como opções de seleção no formulário
+   */
   const servicesList = [
     "Revisão Geral",
     "Mudança de Óleo e Filtros",
@@ -28,8 +44,17 @@ const Schedule: React.FC = () => {
     "Suspensão e Amortecedores",
   ];
 
+  /**
+   * Array de horários disponíveis para agendamento
+   * Gera slots de hora em hora das 8:00 às 18:00 (11 slots)
+   */
   const times = Array.from({ length: 11 }, (_, i) => `${8 + i}:00`);
 
+  /**
+   * Handler para atualizar campos do formulário quando utilizador altera inputs
+   * Atualiza estado formData com novo valor do campo modificado
+   * @param e - Evento de mudança de input ou select
+   */
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -37,10 +62,16 @@ const Schedule: React.FC = () => {
     setFormData({ ...formData, [name]: value });
   };
 
+  /**
+   * Handler para submissão do formulário de agendamento
+   * Previne reload da página e exibe alert de confirmação com dados do agendamento
+   * @param e - Evento de submissão do formulário
+   * @todo Integrar com API backend para criar agendamento real
+   */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     alert(
-      `✅ Agendamento confirmado!\n\nServiço: ${formData.service}\nData: ${formData.date}\nHora: ${formData.time}`
+      ` Agendamento confirmado!\n\nServiço: ${formData.service}\nData: ${formData.date}\nHora: ${formData.time}`
     );
   };
 

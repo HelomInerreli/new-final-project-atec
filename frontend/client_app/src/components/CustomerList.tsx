@@ -4,12 +4,43 @@ import type { Customer } from "../interfaces/customer";
 import '../i18n';
 import { useTranslation } from "react-i18next";
 
+/**
+ * Componente para listar todos os clientes registados no sistema
+ * Exibe uma tabela com informações dos clientes (nome, email, telefone, morada, idade)
+ * @returns Componente JSX com a lista de clientes ou mensagens de estado
+ */
 export function CustomerList() {
+  /**
+   * Hook de tradução para internacionalização
+   */
   const { t } = useTranslation();
+
+  /**
+   * Estado para armazenar a lista de clientes
+   * Tipo: Array de Customer
+   * Inicia como array vazio
+   */
   const [customers, setCustomers] = useState<Customer[]>([]);
+
+  /**
+   * Estado para indicar se os dados estão sendo carregados
+   * Tipo: boolean
+   * Inicia como true
+   */
   const [loading, setLoading] = useState(true);
+
+  /**
+   * Estado para armazenar mensagens de erro
+   * Tipo: string | null
+   * Inicia como null (sem erro)
+   */
   const [error, setError] = useState<string | null>(null);
 
+  /**
+   * Efeito para carregar a lista de clientes ao montar o componente
+   * Busca os dados da API e atualiza o estado
+   * Executa apenas uma vez ao montar
+   */
   useEffect(() => {
     const fetchCustomers = async () => {
       try {
@@ -30,6 +61,7 @@ export function CustomerList() {
 
   return (
     <>
+      {/* Cabeçalho da página com título e descrição */}
       <div className="text-center mb-5">
         <h1 className="display-4 fw-bold text-dark mb-3">{t('customerList')}</h1>
         <p className="lead text-muted">
@@ -37,6 +69,7 @@ export function CustomerList() {
         </p>
       </div>
 
+      {/* Indicador de carregamento */}
       {loading && (
         <div className="text-center my-5">
           <div className="spinner-border text-primary" role="status">
@@ -46,6 +79,7 @@ export function CustomerList() {
         </div>
       )}
 
+      {/* Alerta de erro, exibido apenas se houver erro */}
       {error && (
         <div className="alert alert-danger" role="alert">
           <i className="bi bi-exclamation-triangle me-2"></i>
@@ -53,17 +87,22 @@ export function CustomerList() {
         </div>
       )}
 
+      {/* Tabela de clientes - exibida apenas quando carregamento termina sem erros */}
       {!loading && !error && (
         <>
           <div className="card shadow-sm">
+            {/* Cabeçalho do cartão com contador de clientes */}
             <div className="card-header bg-dark text-white">
               <h5 className="mb-0">
                 <i className="bi bi-people me-2"></i>
                 {t('registeredCustomers')} ({customers.length})
               </h5>
             </div>
+
+            {/* Tabela responsiva com dados dos clientes */}
             <div className="table-responsive">
               <table className="table table-striped table-hover mb-0">
+                {/* Cabeçalho da tabela */}
                 <thead className="table-light">
                   <tr>
                     <th scope="col">ID</th>
@@ -74,6 +113,8 @@ export function CustomerList() {
                     <th scope="col">{t('age')}</th>
                   </tr>
                 </thead>
+
+                {/* Corpo da tabela com lista de clientes ou mensagem de lista vazia */}
                 <tbody>
                   {customers.length > 0 ? (
                     customers.map((customer) => (
@@ -117,6 +158,7 @@ export function CustomerList() {
             </div>
           </div>
 
+          {/* Alerta de sucesso confirmando conexão com API */}
           <div className="alert alert-success mt-4" role="alert">
             <i className="bi bi-check-circle me-2"></i>
             <strong>{t('apiConnected')}</strong> - {t('customerDataFetchedSuccessfully')}

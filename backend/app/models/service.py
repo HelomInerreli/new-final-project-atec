@@ -13,5 +13,5 @@ class Service(Base):
     price = Column(Float, nullable=False)
     duration_minutes = Column(Integer, nullable=False)
     is_active = Column(Boolean, default=True)
-
+    area = Column(String(100), nullable=True) 
     appointments = relationship("Appointment", back_populates="service")

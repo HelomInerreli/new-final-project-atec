@@ -5,13 +5,45 @@ import { InvoiceDetail } from '../../components/InvoiceDetail';
 import '../../styles/PastAppointments.css';
 import '../../styles/invoiceDetail.css';
 
+/**
+ * Componente de página para gestão de faturas de agendamentos concluídos
+ * Exibe lista de faturas agrupadas por mês com visualização expandível
+ * Permite visualização detalhada de cada fatura individualmente
+ * Suporta seleção de fatura via URL (parâmetro appointment)
+ * Requer autenticação - exibe alerta se utilizador não autenticado
+ * @returns Componente JSX da página de faturas
+ */
 export function Invoices() {
+    /**
+     * Hook de tradução para internacionalização
+     */
     const { t } = useTranslation();
+    
+    /**
+     * Hook para obter agendamentos concluídos agrupados por mês
+     * Fornece dados de agendamentos, estados de loading/error e autenticação
+     */
     const { groupedAppointments, loading, error, isLoggedIn } = usePastAppointments();
+    
+    /**
+     * Estado para armazenar ID do agendamento selecionado para visualização de fatura
+     * Tipo: number | null
+     * Inicial: null (nenhuma fatura selecionada)
+     */
     const [selectedAppointmentId, setSelectedAppointmentId] = useState<number | null>(null);
+    
+    /**
+     * Estado para controlar quais meses estão expandidos na lista
+     * Tipo: Record<string, boolean> (chave: mês-ano, valor: expandido)
+     * Inicial: {} (todos os meses colapsados)
+     */
     const [expandedMonths, setExpandedMonths] = useState<Record<string, boolean>>({});
 
-    // Detectar appointment_id da URL ao carregar
+    /**
+     * Efeito para detectar appointment_id da URL ao carregar a página
+     * Extrai parâmetro 'appointment' da query string e seleciona fatura automaticamente
+     * Executado apenas na montagem do componente
+     */
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         const appointmentParam = urlParams.get('appointment');
@@ -24,14 +56,26 @@ export function Invoices() {
         }
     }, []);
 
+    /**
+     * Handler para visualizar detalhes de uma fatura específica
+     * @param appointmentId - ID do agendamento cuja fatura será visualizada
+     */
     const handleViewInvoice = (appointmentId: number) => {
         setSelectedAppointmentId(appointmentId);
     };
 
+    /**
+     * Handler para voltar à lista de faturas
+     * Remove seleção de fatura e exibe lista agrupada por mês
+     */
     const handleBackToList = () => {
         setSelectedAppointmentId(null);
     };
 
+    /**
+     * Handler para alternar expansão/colapso de um mês específico
+     * @param monthYear - Identificador do mês-ano a ser alternado
+     */
     const toggleMonth = (monthYear: string) => {
         setExpandedMonths(prev => ({
             ...prev,
@@ -66,7 +110,6 @@ export function Invoices() {
         );
     }
 
-    // Se selecionou uma fatura, mostra o detalhe
     if (selectedAppointmentId) {
         return (
             <div className="past-appointments-page">
@@ -93,7 +136,6 @@ export function Invoices() {
         );
     }
 
-    // Lista de faturas
     return (
         <div className="past-appointments-page">
             <div className="past-appointments-header">

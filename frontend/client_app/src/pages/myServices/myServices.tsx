@@ -3,11 +3,37 @@ import { useAuth } from "../../api/auth";
 import { useTranslation } from "react-i18next";
 import "../../styles/MyServices.css";
 
+/**
+ * Componente de página para dashboard de serviços do cliente
+ * Apresenta visão geral dos serviços disponíveis (veículos, agendamentos, histórico)
+ * Exibe cards informativos para navegação entre diferentes funcionalidades
+ * Requer autenticação - exibe alerta se utilizador não autenticado
+ * @returns Componente JSX da página My Services
+ */
 export function MyServices() {
+    /**
+     * Hook de tradução para internacionalização
+     */
     const { t } = useTranslation();
+    
+    /**
+     * Hook de autenticação para obter informações do cliente autenticado
+     * Fornece ID do cliente e estado de autenticação
+     */
     const { loggedInCustomerId, isLoggedIn } = useAuth();
+    
+    /**
+     * Estado para controlar loading inicial da página
+     * Tipo: boolean
+     * Inicial: true (exibe spinner durante verificação de autenticação)
+     */
     const [loading, setLoading] = useState(true);
 
+    /**
+     * Efeito para controlar estado de loading após verificação de autenticação
+     * Remove loading quando autenticação é verificada (independente do resultado)
+     * Executado quando isLoggedIn ou loggedInCustomerId mudam
+     */
     useEffect(() => {
         // Simular carregamento inicial (como no vehicles)
         if (isLoggedIn && loggedInCustomerId) {

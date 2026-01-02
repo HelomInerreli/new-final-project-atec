@@ -4,14 +4,62 @@ import { normalizeStatus } from "./useServiceOrder";
 import { STATUS_LABEL_TO_ID } from "../interfaces/ServiceOrderDetail";
 import { format } from "date-fns";
 
+/**
+ * Hook para gerir detalhes de ordens de serviço
+ * @param id - ID da ordem de serviço (opcional)
+ * @returns Objeto com dados da ordem, estados, ações e funções auxiliares
+ */
 export const useServiceOrderDetails = (id: string | undefined) => {
+  /**
+   * Estado para armazenar os dados completos da ordem de serviço
+   * Tipo: any | null
+   * Inicia como null (sem dados)
+   */
   const [order, setOrder] = useState<any | null>(null);
+
+  /**
+   * Estado para indicar se os dados estão sendo carregados
+   * Tipo: boolean
+   * Inicia como true para indicar que o carregamento está em progresso
+   */
   const [loading, setLoading] = useState<boolean>(true);
+
+  /**
+   * Estado para indicar se está a guardar alterações
+   * Tipo: boolean
+   * Inicia como false
+   */
   const [saving, setSaving] = useState<boolean>(false);
+
+  /**
+   * Estado para controlar a abertura do modal de peças
+   * Tipo: boolean
+   * Inicia como false (modal fechado)
+   */
   const [isPartsModalOpen, setIsPartsModalOpen] = useState(false);
+
+  /**
+   * Estado para controlar a abertura do modal de comentários
+   * Tipo: boolean
+   * Inicia como false (modal fechado)
+   */
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
+
+  /**
+   * Estado para armazenar o tempo atual de trabalho em segundos
+   * Tipo: number
+   * Inicia como 0
+   */
   const [currentTime, setCurrentTime] = useState<number>(0);
-  // Fetch order
+
+  /**
+   * Função para buscar os dados da ordem de serviço
+   * @param silent - Se true, não altera o estado de loading (para atualizações silenciosas)
+   */
+  /**
+   * Função para buscar os dados da ordem de serviço
+   * @param silent - Se true, não altera o estado de loading (para atualizações silenciosas)
+   */
   const fetchOrder = useCallback(async (silent = false) => {
     if (!id) return;
     if (!silent) setLoading(true);
@@ -26,6 +74,12 @@ export const useServiceOrderDetails = (id: string | undefined) => {
     }
   }, [id]);
 
+  /**
+   * Função para buscar o tempo atual de trabalho da ordem
+   */
+  /**
+   * Função para buscar o tempo atual de trabalho da ordem
+   */
   const fetchCurrentWorkTime = useCallback(async () => {
     if (!id) return;
     try {
@@ -37,13 +91,23 @@ export const useServiceOrderDetails = (id: string | undefined) => {
   }, [id]);
 
 
-  // Initial load
+  /**
+   * Efeito para carregar os dados iniciais da ordem
+   * Executa ao montar o componente ou quando o ID muda
+   */
   useEffect(() => {
     fetchOrder();
     fetchCurrentWorkTime();
   }, [fetchOrder]);
 
-  // Auto-refresh every 10 seconds
+  /**
+   * Efeito para atualizar automaticamente os dados a cada 10 segundos
+   * Executa atualizações silenciosas para manter os dados sincronizados
+   */
+  /**
+   * Efeito para atualizar automaticamente os dados a cada 10 segundos
+   * Executa atualizações silenciosas para manter os dados sincronizados
+   */
   useEffect(() => {
     if (!id || !order) return;
     const interval = setInterval(() => {
@@ -53,6 +117,14 @@ export const useServiceOrderDetails = (id: string | undefined) => {
     return () => clearInterval(interval);
   }, [id, order, fetchOrder, fetchCurrentWorkTime]);
 
+  /**
+   * Efeito para atualizar o contador de tempo em tempo real
+   * Incrementa o tempo a cada segundo quando o trabalho está ativo e não pausado
+   */
+  /**
+   * Efeito para atualizar o contador de tempo em tempo real
+   * Incrementa o tempo a cada segundo quando o trabalho está ativo e não pausado
+   */
   useEffect(() => {
     if (!order?.start_time || order?.is_paused) return;
     
@@ -63,7 +135,14 @@ export const useServiceOrderDetails = (id: string | undefined) => {
     return () => clearInterval(interval);
   }, [order?.start_time, order?.is_paused]);
   
-  // work actions
+  /**
+   * Função para iniciar o trabalho numa ordem de serviço
+   * Se o trabalho estiver pausado, retoma; caso contrário, inicia novo trabalho
+   */
+  /**
+   * Função para iniciar o trabalho numa ordem de serviço
+   * Se o trabalho estiver pausado, retoma; caso contrário, inicia novo trabalho
+   */
   const handleStartWork = useCallback(async () => {
     console.log('handleStartWork called, id:', id, 'order?.is_paused:', order?.is_paused, 'order:', order);
     if (!id) return;
@@ -83,6 +162,12 @@ export const useServiceOrderDetails = (id: string | undefined) => {
     }
   }, [id, order, fetchOrder, fetchCurrentWorkTime, resumeWork, startWork]);
 
+  /**
+   * Função para pausar o trabalho numa ordem de serviço
+   */
+  /**
+   * Função para pausar o trabalho numa ordem de serviço
+   */
   const handlePauseWork = useCallback(async () => {
     if (!id) return;
     try {
@@ -94,6 +179,9 @@ export const useServiceOrderDetails = (id: string | undefined) => {
     }
   }, [id, fetchOrder, fetchCurrentWorkTime]);
 
+  /**
+   * Função para retomar o trabalho numa ordem de serviço pausada
+   */
   const handleResumeWork = useCallback(async () => {
     if (!id) return;
     try {
@@ -105,6 +193,12 @@ export const useServiceOrderDetails = (id: string | undefined) => {
     }
   }, [id, fetchOrder, fetchCurrentWorkTime]);
 
+  /**
+   * Função para finalizar o trabalho numa ordem de serviço
+   */
+  /**
+   * Função para finalizar o trabalho numa ordem de serviço
+   */
   const handleFinalizeWork = useCallback(async () => {
     if (!id) return;
     try {
@@ -118,7 +212,16 @@ export const useServiceOrderDetails = (id: string | undefined) => {
 
 
 
-  // Format helpers
+  /**
+   * Função auxiliar para formatar campos genéricos
+   * @param v - Valor a ser formatado
+   * @returns String formatada ou "-" se valor for nulo/indefinido
+   */
+  /**
+   * Função auxiliar para formatar campos genéricos
+   * @param v - Valor a ser formatado
+   * @returns String formatada ou "-" se valor for nulo/indefinido
+   */
   const formatField = useCallback((v: any): string => {
     if (v === null || v === undefined) return "-";
     if (typeof v === "string" || typeof v === "number" || typeof v === "boolean") return String(v);
@@ -127,6 +230,16 @@ export const useServiceOrderDetails = (id: string | undefined) => {
     return String(v);
   }, []);
 
+  /**
+   * Função auxiliar para formatar datas
+   * @param d - Data a ser formatada
+   * @returns Data formatada no formato pt-PT ou "-" se inválida
+   */
+  /**
+   * Função auxiliar para formatar datas
+   * @param d - Data a ser formatada
+   * @returns Data formatada no formato pt-PT ou "-" se inválida
+   */
   const formatDate = useCallback((d: any): string => {
     if (!d) return "-";
     try {
@@ -143,6 +256,16 @@ export const useServiceOrderDetails = (id: string | undefined) => {
     }
   }, []);
 
+  /**
+   * Função auxiliar para formatar tempo em segundos para HH:MM:SS
+   * @param seconds - Tempo em segundos
+   * @returns Tempo formatado no formato HH:MM:SS
+   */
+  /**
+   * Função auxiliar para formatar tempo em segundos para HH:MM:SS
+   * @param seconds - Tempo em segundos
+   * @returns Tempo formatado no formato HH:MM:SS
+   */
   const formatTime = useCallback((seconds: number): string => {
     const hrs = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
@@ -150,6 +273,16 @@ export const useServiceOrderDetails = (id: string | undefined) => {
     return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   }, []);
 
+  /**
+   * Função auxiliar para formatar informações de veículo
+   * @param v - Dados do veículo
+   * @returns String com marca, modelo, matrícula e quilómetros formatados
+   */
+  /**
+   * Função auxiliar para formatar informações de veículo
+   * @param v - Dados do veículo
+   * @returns String com marca, modelo, matrícula e quilómetros formatados
+   */
   const formatVehicle = useCallback((v: any): string => {
     if (!v) return "-";
     if (typeof v === "string") return v;
@@ -162,6 +295,16 @@ export const useServiceOrderDetails = (id: string | undefined) => {
     return parts.join(" ") || "-";
   }, []);
 
+  /**
+   * Função auxiliar para obter o nome bruto do status
+   * @param o - Ordem ou objeto de status
+   * @returns Nome do status como string
+   */
+  /**
+   * Função auxiliar para obter o nome bruto do status
+   * @param o - Ordem ou objeto de status
+   * @returns Nome do status como string
+   */
   const getRawStatusName = useCallback((o: any): string => {
     if (!o) return "";
     const s = o.status ?? o;
@@ -171,7 +314,10 @@ export const useServiceOrderDetails = (id: string | undefined) => {
     return "";
   }, []);
 
-  // Change status
+  /**
+   * Função para alterar o status da ordem de serviço
+   * @param action - Ação a executar: "start", "pause" ou "finish"
+   */
   const changeStatus = useCallback(async (action: "start" | "pause" | "finish") => {
     if (!id || !order) return;
 
@@ -206,19 +352,42 @@ export const useServiceOrderDetails = (id: string | undefined) => {
     }
   }, [id, order, getRawStatusName, fetchOrder]);
 
-  // Sorted data
+  /**
+   * Array de comentários ordenados por data de criação (mais recentes primeiro)
+   * Tipo: Array de comentários
+   */
+  /**
+   * Array de comentários ordenados por data de criação (mais recentes primeiro)
+   * Tipo: Array de comentários
+   */
   const comments = (order?.comments ?? []).slice().sort((a: any, b: any) => {
     const ta = new Date(a.created_at).getTime();
     const tb = new Date(b.created_at).getTime();
     return tb - ta;
   });
 
+  /**
+   * Array de peças ordenadas por data de criação (mais recentes primeiro)
+   * Tipo: Array de peças
+   */
+  /**
+   * Array de peças ordenadas por data de criação (mais recentes primeiro)
+   * Tipo: Array de peças
+   */
   const parts = (order?.parts ?? []).slice().sort((a: any, b: any) => {
     const ta = new Date(a.created_at ?? 0).getTime();
     const tb = new Date(b.created_at ?? 0).getTime();
     return tb - ta;
   });
 
+  /**
+   * Função para apagar um comentário
+   * @param commentId - ID do comentário a apagar
+   */
+  /**
+   * Função para apagar um comentário
+   * @param commentId - ID do comentário a apagar
+   */
   const handleDeleteComment = useCallback(async (commentId: number) => {
     if (!id) return;
     try {
@@ -230,6 +399,14 @@ export const useServiceOrderDetails = (id: string | undefined) => {
     }
   }, [id, fetchOrder]);
 
+  /**
+   * Função para apagar uma peça
+   * @param partId - ID da peça a apagar
+   */
+  /**
+   * Função para apagar uma peça
+   * @param partId - ID da peça a apagar
+   */
   const handleDeletePart = useCallback(async (partId: number) => {
     if (!id) return;
     try {
@@ -241,38 +418,130 @@ export const useServiceOrderDetails = (id: string | undefined) => {
     }
   }, [id, fetchOrder]);
 
-
+  /**
+   * Nome bruto do status atual da ordem
+   */
   const currentRaw = getRawStatusName(order);
+
+  /**
+   * Nome normalizado do status atual da ordem
+   */
   const currentNormalized = normalizeStatus(currentRaw);
 
   return {
-    // State
+    /**
+     * Estado da ordem de serviço
+     */
     order,
+
+    /**
+     * Estado de carregamento
+     */
     loading,
+
+    /**
+     * Estado de guardar alterações
+     */
     saving,
+
+    /**
+     * Estado do modal de peças
+     */
     isPartsModalOpen,
+
+    /**
+     * Estado do modal de comentários
+     */
     isCommentModalOpen,
+
+    /**
+     * Array de comentários ordenados
+     */
     comments,
+
+    /**
+     * Array de peças ordenadas
+     */
     parts,
+
+    /**
+     * Status atual normalizado
+     */
     currentNormalized,
+
+    /**
+     * Tempo atual de trabalho em segundos
+     */
     currentTime,
 
-    // Actions
+    /**
+     * Função para definir estado do modal de peças
+     */
     setIsPartsModalOpen,
+
+    /**
+     * Função para definir estado do modal de comentários
+     */
     setIsCommentModalOpen,
+
+    /**
+     * Função para alterar o status da ordem
+     */
     changeStatus,
+
+    /**
+     * Função para recarregar dados da ordem
+     */
     fetchOrder,
+
+    /**
+     * Função para iniciar trabalho
+     */
     handleStartWork,
+
+    /**
+     * Função para pausar trabalho
+     */
     handlePauseWork,
+
+    /**
+     * Função para retomar trabalho
+     */
     handleResumeWork,
+
+    /**
+     * Função para finalizar trabalho
+     */
     handleFinalizeWork,
+
+    /**
+     * Função para apagar comentário
+     */
     handleDeleteComment,
+
+    /**
+     * Função para apagar peça
+     */
     handleDeletePart,
 
-    // Helpers
+    /**
+     * Função auxiliar para formatar campos
+     */
     formatField,
+
+    /**
+     * Função auxiliar para formatar datas
+     */
     formatDate,
+
+    /**
+     * Função auxiliar para formatar tempo
+     */
     formatTime,
+
+    /**
+     * Função auxiliar para formatar veículo
+     */
     formatVehicle,
   };
 };

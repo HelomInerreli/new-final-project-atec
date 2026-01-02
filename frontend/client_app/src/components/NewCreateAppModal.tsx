@@ -7,10 +7,32 @@ import { generateTimeSlots } from '../utils/timeSlots';
 import { locales } from '../utils/locales';
 import { pt } from 'date-fns/locale';
 
+/**
+ * Modal de criação de agendamento com formulário em 3 etapas
+ * Step 1: Seleção de data, horário e serviço
+ * Step 2: Seleção de veículo e descrição
+ * Step 3: Confirmação e resumo dos dados
+ * Redireciona para login se o utilizador não estiver autenticado
+ * @param show - Estado de visibilidade do modal
+ * @param onClose - Função callback para fechar o modal
+ * @param onSuccess - Função callback executada após criação bem-sucedida
+ * @returns Componente JSX do modal ou null se não estiver visível
+ */
 export const NewCreateAppModal: React.FC<CreateAppointmentModalProps> = ({ show, onClose, onSuccess }) => {
+    /**
+     * Hook de tradução para internacionalização
+     */
     const { t, i18n } = useTranslation();
+    
+    /**
+     * Gera lista de horários disponíveis para agendamento
+     */
     const timeSlots = generateTimeSlots();
     
+    /**
+     * Hook customizado que gere toda a lógica do modal de agendamento
+     * Retorna estados do formulário, dados de veículos/serviços, e funções de navegação/submissão
+     */
     const {
         currentStep,
         loading,
@@ -42,14 +64,13 @@ export const NewCreateAppModal: React.FC<CreateAppointmentModalProps> = ({ show,
             style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
             onClick={handleClose}
         >
+            {/* Container do modal */}
             <div
                 className="modal-dialog modal-dialog-centered modal-lg"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="modal-content">
-                    {/* Progress Bar */}
-
-                    {/* Cabeçalho */}
+                    {/* Cabeçalho do modal com título e botão de fecho */}
                     <div className="modal-header">
                         <h5 className="modal-title">
                             {t('appointmentModal.createAppointment', { defaultValue: 'Criar Agendamento' })}
@@ -62,6 +83,7 @@ export const NewCreateAppModal: React.FC<CreateAppointmentModalProps> = ({ show,
                         ></button>
                     </div>
 
+                    {/* Barra de progresso com indicador do passo atual */}
                     <div className="px-3 pt-4 pb-3">
                         <div className="d-flex justify-content-between align-items-center mb-2">
                             <span className="fw-medium">
@@ -87,13 +109,14 @@ export const NewCreateAppModal: React.FC<CreateAppointmentModalProps> = ({ show,
                         </div>
                     </div>
 
-                    {/* Corpo */}
+                    {/* Corpo do modal com formulário de 3 etapas */}
                     <div className="modal-body">
                         <form onSubmit={handleSubmit}>
 
+                            {/* Step 1: Seleção de data, horário e serviço */}
                             {currentStep === 1 && (
                                 <>
-                                    {/* Data */}
+                                    {/* Campo de seleção de data com DatePicker */}
                                     <div className="mb-3">
                                         <label className="form-label fw-semibold">
                                             <LucideCalendar size={16} className="me-1" />
@@ -110,7 +133,7 @@ export const NewCreateAppModal: React.FC<CreateAppointmentModalProps> = ({ show,
                                         />
                                     </div>
 
-                                    {/* Horário */}
+                                    {/* Campo de seleção de horário */}
                                     <div className="mb-3">
                                         <label className="form-label fw-semibold">{t('appointmentModal.timeLabel', { defaultValue: 'Horário *' })}</label>
                                         <select
@@ -135,7 +158,7 @@ export const NewCreateAppModal: React.FC<CreateAppointmentModalProps> = ({ show,
                                         )}
                                     </div>
 
-                                    {/* Serviço */}
+                                    {/* Campo de seleção de serviço com preço */}
                                     <div className="mb-3">
                                         <label className="form-label fw-semibold">
                                             <i className="bi bi-wrench me-1"></i>
@@ -171,7 +194,7 @@ export const NewCreateAppModal: React.FC<CreateAppointmentModalProps> = ({ show,
                                         )}
                                     </div>
 
-                                    {/* ✅ ADICIONAR AVISO SE NÃO ESTIVER LOGADO */}
+                                    {/* Aviso para utilizadores não autenticados */}
                                     {!isLoggedIn && (
                                         <div className="alert alert-info">
                                             <i className="bi bi-info-circle me-2"></i>
@@ -188,9 +211,10 @@ export const NewCreateAppModal: React.FC<CreateAppointmentModalProps> = ({ show,
                                 </>
                             )}
 
+                            {/* Step 2: Seleção de veículo e descrição do problema */}
                             {currentStep === 2 && (<>
 
-                                {/* Veículo */}
+                                {/* Campo de seleção de veículo */}
                                 <div className="mb-3">
                                     <label className="form-label fw-semibold">
                                         <i className="bi bi-car-front me-1"></i>
@@ -228,7 +252,7 @@ export const NewCreateAppModal: React.FC<CreateAppointmentModalProps> = ({ show,
                                     )}
                                 </div>
 
-                                {/* Descrição */}
+                                {/* Campo de texto para descrição do problema */}
                                 <div className="mb-3">
                                     <label className="form-label fw-semibold">{t('appointmentModal.descriptionLabel', { defaultValue: 'Descrição' })}</label>
                                     <textarea
@@ -247,6 +271,7 @@ export const NewCreateAppModal: React.FC<CreateAppointmentModalProps> = ({ show,
                             </>
                             )}
 
+                            {/* Step 3: Resumo e confirmação dos dados do agendamento */}
                             {currentStep === 3 && (
                                 <div className="bg-light rounded p-4 border">
                                     <h5 className="fw-bold text-danger mb-3">
@@ -301,7 +326,7 @@ export const NewCreateAppModal: React.FC<CreateAppointmentModalProps> = ({ show,
                                 </div>
                             )}
 
-                            {/* Erro */}
+                            {/* Mensagem de erro (se houver) */}
                             {error && (
                                 <div className="alert alert-danger" role="alert">
                                     <i className="bi bi-exclamation-circle me-2"></i>
@@ -311,8 +336,9 @@ export const NewCreateAppModal: React.FC<CreateAppointmentModalProps> = ({ show,
                         </form>
                     </div>
 
-                    {/* Rodapé */}
+                    {/* Rodapé do modal com botões de navegação entre steps */}
                     <div className="modal-footer">
+                        {/* Botões do Step 1: Cancelar e Próximo/Login */}
                         {currentStep === 1 && (
                             <>
                                 <button
@@ -328,7 +354,7 @@ export const NewCreateAppModal: React.FC<CreateAppointmentModalProps> = ({ show,
                                     onClick={goToNextStep}
                                     disabled={isLoggedIn && (!formData.service_id || !selectData || !selectedTime)}
                                 >
-                                    {/* ✅ TEXTO DINÂMICO NO BOTÃO */}
+                                    {/* Texto dinâmico: login ou próximo */}
                                     {!isLoggedIn ? (
                                         <>
                                             <i className="bi bi-box-arrow-in-right me-1"></i>
@@ -345,6 +371,7 @@ export const NewCreateAppModal: React.FC<CreateAppointmentModalProps> = ({ show,
                             </>
                         )}
 
+                        {/* Botões do Step 2: Voltar e Próximo */}
                         {currentStep === 2 && (
                             <>
                                 <button
@@ -364,6 +391,7 @@ export const NewCreateAppModal: React.FC<CreateAppointmentModalProps> = ({ show,
                             </>
                         )}
 
+                        {/* Botões do Step 3: Voltar e Confirmar */}
                         {currentStep === 3 && (
                             <>
                                 <button
