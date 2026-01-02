@@ -442,21 +442,29 @@ class AppointmentRepository:
         if not db_appointment:
             return None
 
+        #  Apenas na primeira vez: guarda que foi iniciado
         if not db_appointment.start_time:
             db_appointment.start_time = datetime.utcnow()
-            db_appointment.is_paused = False
-            db_appointment.pause_time = None
-
-            # Muda status para "In Repair"
-            in_repair_status = self.db.query(Status).filter(Status.name == "In Repair").first()
-            if in_repair_status:
-                db_appointment.status_id = in_repair_status.id
-                
-            comment = OrderComment(
-                service_order_id=appointment_id,
-                comment=f"Ordem de serviço :{appointment_id} iniciada.",
-            )
-            self.db.add(comment)
+        
+        #  SEMPRE que inicia (mesmo depois de pausar):
+        db_appointment.is_paused = False
+        db_appointment.pause_time = None
+        
+        # Muda status para "In Repair"
+        in_repair_status = self.db.query(Status).filter(Status.name == "In Repair").first()
+        if not in_repair_status:
+            in_repair_status = Status(name="In Repair")
+            self.db.add(in_repair_status)
+            self.db.commit()
+            self.db.refresh(in_repair_status)
+        db_appointment.status_id = in_repair_status.id
+        
+        #  Comentário SEMPRE que inicia
+        comment = OrderComment(
+            service_order_id=appointment_id,
+            comment=f"Ordem de serviço :{appointment_id} iniciada.",
+        )
+        self.db.add(comment)
             
             # #Enviar email ao cliente
             # try:
@@ -495,8 +503,12 @@ class AppointmentRepository:
         
         # Muda status para "Pending"
         pending_status = self.db.query(Status).filter(Status.name == "Pendente").first()
-        if pending_status:
-            db_appointment.status_id = pending_status.id
+        if not pending_status:
+            pending_status = Status(name="Pendente")
+            self.db.add(pending_status)
+            self.db.commit()
+            self.db.refresh(pending_status)
+        db_appointment.status_id = pending_status.id
             
         comment = OrderComment(
             service_order_id=appointment_id,
@@ -521,8 +533,12 @@ class AppointmentRepository:
 
         # Retoma status "In Repair"
         in_repair_status = self.db.query(Status).filter(Status.name == "In Repair").first()
-        if in_repair_status:
-            db_appointment.status_id = in_repair_status.id
+        if not in_repair_status:
+            in_repair_status = Status(name="In Repair")
+            self.db.add(in_repair_status)
+            self.db.commit()
+            self.db.refresh(in_repair_status)
+        db_appointment.status_id = in_repair_status.id
             
         comment = OrderComment(
             service_order_id=appointment_id,
@@ -551,8 +567,12 @@ class AppointmentRepository:
 
         # Muda status para "Finalized"
         finalized_status = self.db.query(Status).filter(Status.name == "Finalized").first()
-        if finalized_status:
-            db_appointment.status_id = finalized_status.id
+        if not finalized_status:
+            finalized_status = Status(name="Finalized")
+            self.db.add(finalized_status)
+            self.db.commit()
+            self.db.refresh(finalized_status)
+        db_appointment.status_id = finalized_status.id
             
         comment = OrderComment(
             service_order_id=appointment_id,
