@@ -1,6 +1,5 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "../../components/ui/button";
-import { Input } from "../../components/ui/input";
 import { Umbrella, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -11,14 +10,6 @@ import {
     TableHeader,
     TableRow,
 } from "../../components/ui/table";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "../../components/ui/dialog";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -36,32 +27,17 @@ import {
     SelectTrigger,
     SelectValue,
 } from "../../components/ui/select";
-import { Label } from "../../components/ui/label";
 import { Badge } from "../../components/ui/badge";
-import { Plus, Pencil, Trash2, Search, X } from "lucide-react";
-import { useForm, Controller, useWatch } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import { Plus, Pencil, Trash2, Search } from "lucide-react";
 import { toast } from "sonner";
 import { useEmployees } from "../../hooks/useEmployees";
 import { useRoles } from "../../hooks/useRoles";
 import type { Employee } from "../../interfaces/Employee";
 import { Skeleton } from "../../components/ui/skeleton";
-
-// Schema de validação para o formulário de funcionário
-const employeeSchema = z.object({
-    name: z.string().min(1, "Nome é obrigatório"),
-    last_name: z.string().min(1, "Apelido é obrigatório"),
-    email: z.string().email("Email inválido"),
-    phone: z.string().min(1, "Telefone é obrigatório"),
-    address: z.string().min(1, "Morada é obrigatória"),
-    date_of_birth: z.string().min(1, "Data de nascimento é obrigatória"),
-    salary: z.coerce.number().positive("Salário deve ser um número positivo"),
-    hired_at: z.string().min(1, "Data de contratação é obrigatória"),
-    role_id: z.coerce.number().min(1, "Função é obrigatória"),
-});
-
-type EmployeeFormData = z.infer<typeof employeeSchema>;
+import CreateEmployeeModal from "../../components/CreateEmployeeModal";
+import EditEmployeeModal from "../../components/EditEmployeeModal";
+import type { EmployeeFormData } from "../../hooks/useEditEmployeeModal";
+import "../../components/inputs.css";
 
 const roleVariants: { [key: string]: "destructive" | "default" | "secondary" | "outline" } = {
     Gestor: "destructive",
@@ -72,27 +48,19 @@ const roleVariants: { [key: string]: "destructive" | "default" | "secondary" | "
 
 export default function Users() {
     const navigate = useNavigate();
-    const { employees, loading, error, addEmployee, updateEmployee, removeEmployee } = useEmployees();
-    const { roles, loading: rolesLoading } = useRoles();
+    const { employees, loading, error, updateEmployee, removeEmployee, refetch } = useEmployees();
+    const { roles } = useRoles();
 
     const [searchTerm, setSearchTerm] = useState("");
     const [roleFilter, setRoleFilter] = useState<string>("all");
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editFormData, setEditFormData] = useState<EmployeeFormData | null>(null);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
     const [deletingEmployeeId, setDeletingEmployeeId] = useState<number | null>(null);
     const [page, setPage] = useState<number>(1);
     const pageSize = 5;
-
-    const { register, handleSubmit, reset, control, formState: { errors } } = useForm({
-        resolver: zodResolver(employeeSchema),
-        defaultValues: {
-            role_id: 0, // Ensure a default value to avoid uncontrolled component warnings
-        }
-    });
-
-    // Watch form values for label animation
-    const watchedValues = useWatch({ control });
 
     const filteredEmployees = employees.filter((employee) => {
         const matchesSearch =
@@ -113,39 +81,20 @@ export default function Users() {
         page * pageSize
     );
 
-    const onSubmit = async (data: EmployeeFormData) => {
-        const promise = () => editingEmployee
-            ? updateEmployee(editingEmployee.id, data)
-            : addEmployee(data);
-
-        toast.promise(promise(), {
-            loading: `A ${editingEmployee ? 'atualizar' : 'criar'} funcionário...`,
-            success: `Funcionário ${editingEmployee ? 'atualizado' : 'criado'} com sucesso!`,
-            error: `Erro ao ${editingEmployee ? 'atualizar' : 'criar'} funcionário.`,
-        });
-
-        handleDialogClose();
-    };
-
     const handleEdit = (employee: Employee) => {
         setEditingEmployee(employee);
-        // Formata as datas para o formato YYYY-MM-DD para os inputs type="date"
-        const formatDate = (dateString: string) => {
-            if (!dateString) return "";
-            const date = new Date(dateString);
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        };
-        
-        const defaultValues = {
-            ...employee,
-            date_of_birth: formatDate(employee.date_of_birth),
-            hired_at: formatDate(employee.hired_at),
-        };
-        reset(defaultValues);
-        setIsDialogOpen(true);
+        setEditFormData({
+            name: employee.name,
+            last_name: employee.last_name,
+            email: employee.email,
+            phone: employee.phone || "",
+            salary: employee.salary?.toString() || "",
+            address: employee.address || "",
+            date_of_birth: employee.date_of_birth ? employee.date_of_birth.split('T')[0] : "",
+            hired_at: employee.hired_at ? employee.hired_at.split('T')[0] : "",
+            role_id: employee.role.id.toString(),
+        });
+        setIsEditModalOpen(true);
     };
 
     const handleDeleteClick = (id: number) => {
@@ -165,27 +114,11 @@ export default function Users() {
         setDeletingEmployeeId(null);
     };
 
-    const handleDialogClose = () => {
-        setIsDialogOpen(false);
-        reset({
-            name: "",
-            last_name: "",
-            email: "",
-            phone: "",
-            address: "",
-            date_of_birth: "",
-            salary: undefined,
-            hired_at: "",
-            role_id: 0,
-        });
-        setEditingEmployee(null);
-    };
-
     return (
         <div className="flex-1 space-y-6 p-8">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-4xl font-bold text-gray-900 leading-tight">Funcionários</h1>
+                    <h1 className="text-4xl font-bold text-gray-900 leading-tight">Gestão de Funcionários</h1>
                 </div>
                 <div className="flex items-center gap-2">
                     <Button variant="outline" className="border-2 border-red-600" onClick={() => navigate('/ferias')}>
@@ -196,21 +129,7 @@ export default function Users() {
                         <Umbrella className="h-4 w-4 mr-2" />
                         Folgas
                     </Button>
-                    <Button variant="destructive" className="border-red-500" onClick={() => { 
-                        setEditingEmployee(null); 
-                        reset({
-                            name: "",
-                            last_name: "",
-                            email: "",
-                            phone: "",
-                            address: "",
-                            date_of_birth: "",
-                            salary: undefined,
-                            hired_at: "",
-                            role_id: 0,
-                        }); 
-                        setIsDialogOpen(true); 
-                    }}>
+                    <Button variant="destructive" className="border-red-500" onClick={() => setIsCreateModalOpen(true)}>
                         <Plus className="mr-2 h-4 w-4" />
                         Novo Funcionário
                     </Button>
@@ -238,7 +157,7 @@ export default function Users() {
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="mb-input"
-                            style={{ paddingLeft: "46px" }}
+                            style={{ paddingLeft: "46px", borderColor: "#dc2626" }}
                             onFocus={(e) =>
                                 e.target.nextElementSibling?.classList.add("shrunken")
                             }
@@ -330,7 +249,15 @@ export default function Users() {
                                     <TableCell className="text-left">{employee.email}</TableCell>
                                     <TableCell className="text-left">{employee.phone || "-"}</TableCell>
                                     <TableCell className="text-left">
-                                        <Badge variant={roleVariants[employee.role.name] || 'default'}>
+                                        <Badge 
+                                            className={
+                                                employee.role.name === "Gestor" ? "bg-purple-600 hover:bg-purple-700 text-white" :
+                                                employee.role.name === "Mecanico" ? "bg-blue-600 hover:bg-blue-700 text-white" :
+                                                employee.role.name === "Eletricista" ? "bg-orange-600 hover:bg-orange-700 text-white" :
+                                                employee.role.name === "Borracheiro" ? "bg-teal-600 hover:bg-teal-700 text-white" :
+                                                "bg-gray-600 hover:bg-gray-700 text-white"
+                                            }
+                                        >
                                             {employee.role.name}
                                         </Badge>
                                     </TableCell>
@@ -394,259 +321,28 @@ export default function Users() {
                 </div>
             </div>
 
-            <Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
-                <DialogContent className="sm:max-w-[625px] p-0 gap-0">
-                    <form onSubmit={handleSubmit(onSubmit)}>
-                        <DialogHeader className="bg-gradient-to-br from-red-600 to-red-700 text-white p-6 rounded-t-lg m-0 !flex-row items-center justify-between !space-y-0">
-                            <DialogTitle className="text-white text-2xl font-bold">
-                                {editingEmployee ? "Editar Funcionário" : "Novo Funcionário"}
-                            </DialogTitle>
-                            <button 
-                                type="button"
-                                onClick={handleDialogClose}
-                                className="w-9 h-9 rounded-lg bg-white/20 hover:bg-white/30 flex items-center justify-center transition-all focus:outline-none flex-shrink-0"
-                                aria-label="Fechar"
-                            >
-                                <X className="h-5 w-5 text-white" strokeWidth={2.5} />
-                            </button>
-                        </DialogHeader>
-                        <div className="grid grid-cols-2 gap-4 py-4 px-6">
-                            <div className="mb-input-wrapper">
-                                <input
-                                    id="name"
-                                    type="text"
-                                    className="mb-input"
-                                    placeholder=""
-                                    {...register("name")}
-                                    onFocus={(e) => e.target.nextElementSibling?.classList.add("shrunken")}
-                                    onBlur={(e) => {
-                                        if (!e.target.value) {
-                                            e.target.nextElementSibling?.classList.remove("shrunken");
-                                        }
-                                    }}
-                                />
-                                <label className={`mb-input-label ${watchedValues.name ? "shrunken" : ""}`}>Nome *</label>
-                                {errors.name && <p className="text-sm text-destructive mt-1">{errors.name.message}</p>}
-                            </div>
-                            <div className="mb-input-wrapper">
-                                <input
-                                    id="last_name"
-                                    type="text"
-                                    className="mb-input"
-                                    placeholder=""
-                                    {...register("last_name")}
-                                    onFocus={(e) => e.target.nextElementSibling?.classList.add("shrunken")}
-                                    onBlur={(e) => {
-                                        if (!e.target.value) {
-                                            e.target.nextElementSibling?.classList.remove("shrunken");
-                                        }
-                                    }}
-                                />
-                                <label className={`mb-input-label ${watchedValues.last_name ? "shrunken" : ""}`}>Apelido *</label>
-                                {errors.last_name && <p className="text-sm text-destructive mt-1">{errors.last_name.message}</p>}
-                            </div>
-                            <div className="mb-input-wrapper col-span-2">
-                                <input
-                                    id="email"
-                                    type="email"
-                                    className="mb-input"
-                                    placeholder=""
-                                    {...register("email")}
-                                    onFocus={(e) => e.target.nextElementSibling?.classList.add("shrunken")}
-                                    onBlur={(e) => {
-                                        if (!e.target.value) {
-                                            e.target.nextElementSibling?.classList.remove("shrunken");
-                                        }
-                                    }}
-                                />
-                                <label className={`mb-input-label ${watchedValues.email ? "shrunken" : ""}`}>Email *</label>
-                                {errors.email && <p className="text-sm text-destructive mt-1">{errors.email.message}</p>}
-                            </div>
-                            <div className="mb-input-wrapper">
-                                <input
-                                    id="phone"
-                                    type="text"
-                                    className="mb-input"
-                                    placeholder=""
-                                    {...register("phone")}
-                                    onFocus={(e) => e.target.nextElementSibling?.classList.add("shrunken")}
-                                    onBlur={(e) => {
-                                        if (!e.target.value) {
-                                            e.target.nextElementSibling?.classList.remove("shrunken");
-                                        }
-                                    }}
-                                />
-                                <label className={`mb-input-label ${watchedValues.phone ? "shrunken" : ""}`}>Telefone *</label>
-                                {errors.phone && <p className="text-sm text-destructive mt-1">{errors.phone.message}</p>}
-                            </div>
-                            <div className="mb-input-wrapper">
-                                <input
-                                    id="salary"
-                                    type="number"
-                                    className="mb-input"
-                                    placeholder=""
-                                    {...register("salary")}
-                                    onFocus={(e) => e.target.nextElementSibling?.classList.add("shrunken")}
-                                    onBlur={(e) => {
-                                        if (!e.target.value) {
-                                            e.target.nextElementSibling?.classList.remove("shrunken");
-                                        }
-                                    }}
-                                />
-                                <label className={`mb-input-label ${watchedValues.salary ? "shrunken" : ""}`}>Salário (€) *</label>
-                                {errors.salary && <p className="text-sm text-destructive mt-1">{errors.salary.message}</p>}
-                            </div>
-                            <div className="mb-input-wrapper col-span-2">
-                                <input
-                                    id="address"
-                                    type="text"
-                                    className="mb-input"
-                                    placeholder=""
-                                    {...register("address")}
-                                    onFocus={(e) => e.target.nextElementSibling?.classList.add("shrunken")}
-                                    onBlur={(e) => {
-                                        if (!e.target.value) {
-                                            e.target.nextElementSibling?.classList.remove("shrunken");
-                                        }
-                                    }}
-                                />
-                                <label className={`mb-input-label ${watchedValues.address ? "shrunken" : ""}`}>Morada *</label>
-                                {errors.address && <p className="text-sm text-destructive mt-1">{errors.address.message}</p>}
-                            </div>
-                            <div className="mb-input-wrapper">
-                                <Controller
-                                    name="date_of_birth"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <input
-                                            id="date_of_birth"
-                                            type="date"
-                                            className={`mb-input date-input ${field.value ? "has-value" : ""}`}
-                                            placeholder=""
-                                            value={field.value || ""}
-                                            onChange={field.onChange}
-                                            onFocus={(e) => e.target.nextElementSibling?.classList.add("shrunken")}
-                                            onBlur={(e) => {
-                                                field.onBlur();
-                                                if (!e.target.value) {
-                                                    e.target.nextElementSibling?.classList.remove("shrunken");
-                                                }
-                                            }}
-                                        />
-                                    )}
-                                />
-                                <label className="mb-input-label shrunken">Data de Nascimento *</label>
-                                {errors.date_of_birth && <p className="text-sm text-destructive mt-1">{errors.date_of_birth.message}</p>}
-                            </div>
-                            <div className="mb-input-wrapper">
-                                <Controller
-                                    name="hired_at"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <input
-                                            id="hired_at"
-                                            type="date"
-                                            className={`mb-input date-input ${field.value ? "has-value" : ""}`}
-                                            placeholder=""
-                                            value={field.value || ""}
-                                            onChange={field.onChange}
-                                            onFocus={(e) => e.target.nextElementSibling?.classList.add("shrunken")}
-                                            onBlur={(e) => {
-                                                field.onBlur();
-                                                if (!e.target.value) {
-                                                    e.target.nextElementSibling?.classList.remove("shrunken");
-                                                }
-                                            }}
-                                        />
-                                    )}
-                                />
-                                <label className="mb-input-label shrunken">Data de Contratação *</label>
-                                {errors.hired_at && <p className="text-sm text-destructive mt-1">{errors.hired_at.message}</p>}
-                            </div>
-                            <div className="mb-input-wrapper col-span-2">
-                                <Controller
-                                    name="role_id"
-                                    control={control}
-                                    render={({ field }) => {
-                                        const [isOpen, setIsOpen] = useState(false);
-                                        const [isFocused, setIsFocused] = useState(false);
-                                        const menuRef = useRef<HTMLDivElement>(null);
-                                        
-                                        const selectedRole = roles.find(r => r.id === field.value);
-                                        const hasValue = field.value && field.value > 0;
+            <CreateEmployeeModal
+                show={isCreateModalOpen}
+                onClose={() => setIsCreateModalOpen(false)}
+                onSuccess={refetch}
+            />
 
-                                        useEffect(() => {
-                                            const handleClickOutside = (event: MouseEvent) => {
-                                                if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-                                                    setIsOpen(false);
-                                                }
-                                            };
-                                            document.addEventListener("mousedown", handleClickOutside);
-                                            return () => document.removeEventListener("mousedown", handleClickOutside);
-                                        }, []);
-
-                                        return (
-                                            <div ref={menuRef} style={{ position: "relative" }}>
-                                                <button
-                                                    type="button"
-                                                    className={`mb-input select ${!hasValue && !isFocused ? "placeholder" : ""}`}
-                                                    onClick={() => setIsOpen(!isOpen)}
-                                                    onFocus={() => setIsFocused(true)}
-                                                    onBlur={() => setIsFocused(false)}
-                                                    style={{ textAlign: "left", cursor: "pointer" }}
-                                                >
-                                                    {selectedRole ? selectedRole.name : ""}
-                                                </button>
-                                                <label className={`mb-input-label ${hasValue || isFocused ? "shrunken" : ""}`}>
-                                                    Função *
-                                                </label>
-                                                <span className="mb-select-caret">▼</span>
-
-                                                {isOpen && (
-                                                    <ul className="mb-select-menu" style={{ maxHeight: "250px", overflowY: "auto" }}>
-                                                        {rolesLoading ? (
-                                                            <li className="mb-select-item" style={{ cursor: "default", opacity: 0.6 }}>
-                                                                A carregar...
-                                                            </li>
-                                                        ) : (
-                                                            roles.map(role => (
-                                                                <li
-                                                                    key={role.id}
-                                                                    className={`mb-select-item ${field.value === role.id ? "selected" : ""}`}
-                                                                    onClick={() => {
-                                                                        field.onChange(role.id);
-                                                                        setIsOpen(false);
-                                                                    }}
-                                                                >
-                                                                    {role.name}
-                                                                </li>
-                                                            ))
-                                                        )}
-                                                    </ul>
-                                                )}
-                                            </div>
-                                        );
-                                    }}
-                                />
-                                {errors.role_id && <p className="text-sm text-destructive mt-1">{errors.role_id.message}</p>}
-                            </div>
-                        </div>
-                        <DialogFooter className="px-6 pb-6 !flex-row !justify-between">
-                            <Button
-                                type="button"
-                                variant="outline"
-                                className="hover:bg-gray-100 hover:text-gray-900 focus-visible:ring-0 focus-visible:ring-offset-0"
-                                onClick={handleDialogClose}
-                            >
-                                Cancelar
-                            </Button>
-                            <Button type="submit" variant="destructive">
-                                {editingEmployee ? "Salvar Alterações" : "Criar Funcionário"}
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </DialogContent>
-            </Dialog>
+            {editingEmployee && editFormData && (
+                <EditEmployeeModal
+                    show={isEditModalOpen}
+                    employeeId={editingEmployee.id}
+                    initialData={editFormData}
+                    onClose={() => {
+                        setIsEditModalOpen(false);
+                        setEditingEmployee(null);
+                        setEditFormData(null);
+                    }}
+                    onSuccess={() => {
+                        refetch();
+                        toast.success("Funcionário atualizado com sucesso!");
+                    }}
+                />
+            )}
 
             <AlertDialog
                 open={isDeleteDialogOpen}
@@ -681,3 +377,4 @@ export default function Users() {
         </div>
     );
 }
+

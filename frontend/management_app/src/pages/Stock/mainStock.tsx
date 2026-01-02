@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button } from "./../../components/ui/button";
 import { Input } from "./../../components/ui/input";
-import { Label } from "./../../components/ui/label";
 import {
   Table,
   TableBody,
@@ -10,14 +9,6 @@ import {
   TableHeader,
   TableRow,
 } from "./../../components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "./../../components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -35,14 +26,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./../../components/ui/select";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { Plus, Search, Pencil, Trash2 } from "lucide-react";
 import { toast } from "../../hooks/use-toast";
 import Badge from "react-bootstrap/Badge";
 import http from "../../api/http";
 import type { ProductCategory, StockStatus } from "../../interfaces/Product";
+import CreateProductModal from "../../components/CreateProductModal";
+import EditProductModal from "../../components/EditProductModal";
 
 const categorias: ProductCategory[] = [
   "Peças",
@@ -61,46 +51,31 @@ const statusMap: Record<StockStatus, { bg: string; text: string }> = {
   Esgotado: { bg: "danger", text: "Esgotado" },
 };
 
-const produtoSchema = z.object({
-  partNumber: z.string().min(1, "Código da peça é obrigatório"),
-  nome: z.string().min(1, "Nome é obrigatório"),
-  descricao: z.string().min(1, "Descrição é obrigatória"),
-  quantidade: z.number().min(0, "Quantidade deve ser positiva"),
-  reserveQuantity: z
-    .number()
-    .min(0, "Quantidade reservada deve ser positiva")
-    .optional(),
-  preco: z.number().min(0, "Preço deve ser positivo"),
-  costValue: z.number().min(0, "Custo deve ser positivo"),
-  categoria: z.string().min(1, "Categoria é obrigatória"),
-  fornecedor: z.string().min(1, "Fornecedor é obrigatório"),
-  minimumStock: z.number().min(0, "Estoque mínimo deve ser positivo"),
-});
-
-type Produto = z.infer<typeof produtoSchema> & { id: string };
-
-const initialProdutos: Produto[] = [];
+interface Produto {
+  id: string;
+  partNumber: string;
+  nome: string;
+  descricao: string;
+  quantidade: number;
+  reserveQuantity?: number;
+  preco: number;
+  costValue: number;
+  categoria: string;
+  fornecedor: string;
+  minimumStock: number;
+}
 
 export default function Stock() {
-  const [produtos, setProdutos] = useState<Produto[]>(initialProdutos);
+  const [produtos, setProdutos] = useState<Produto[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [categoriaFiltro, setCategoriaFiltro] = useState("todos");
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingProduto, setEditingProduto] = useState<Produto | null>(null);
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedProduto, setSelectedProduto] = useState<Produto | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [produtoToDelete, setProdutoToDelete] = useState<string | null>(null);
   const [page, setPage] = useState<number>(1);
   const pageSize = 5;
-
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    formState: { errors },
-  } = useForm<z.infer<typeof produtoSchema>>({
-    resolver: zodResolver(produtoSchema),
-  });
 
   const filteredProdutos = produtos.filter((produto) => {
     const matchesSearch =
@@ -122,113 +97,38 @@ export default function Stock() {
     page * pageSize
   );
 
-  const onSubmit = (data: z.infer<typeof produtoSchema>) => {
-    (async () => {
-      try {
-        if (editingProduto) {
-          const payload = {
-            partNumber: data.partNumber,
-            name: data.nome,
-            description: data.descricao,
-            category: data.categoria,
-            brand: data.fornecedor,
-            quantity: data.quantidade,
-            reserveQuantity: data.reserveQuantity || 0,
-            costValue: data.costValue,
-            saleValue: data.preco,
-            minimumStock: data.minimumStock,
-          };
-          const idNum = Number(editingProduto.id);
-          await http.put(`/products/${idNum}`, payload);
-          setProdutos(
-            produtos.map((p) =>
-              p.id === editingProduto.id
-                ? {
-                    ...p,
-                    partNumber: data.partNumber,
-                    nome: data.nome,
-                    descricao: data.descricao,
-                    quantidade: data.quantidade,
-                    reserveQuantity: data.reserveQuantity || 0,
-                    preco: data.preco,
-                    costValue: data.costValue,
-                    categoria: data.categoria,
-                    fornecedor: data.fornecedor,
-                    minimumStock: data.minimumStock,
-                  }
-                : p
-            )
-          );
-          toast({
-            title: "Produto atualizado",
-            description: "O produto foi atualizado com sucesso.",
-          });
-        } else {
-          const payload = {
-            partNumber: data.partNumber,
-            name: data.nome,
-            description: data.descricao,
-            category: data.categoria,
-            brand: data.fornecedor,
-            quantity: data.quantidade,
-            reserveQuantity: data.reserveQuantity || 0,
-            costValue: data.costValue,
-            saleValue: data.preco,
-            minimumStock: data.minimumStock,
-          };
-          const res = await http.post("/products/", payload);
-          const created = res.data;
-          const novoProduto: Produto = {
-            id: String(created.id),
-            partNumber: created.partNumber || `PN-${created.id}`,
-            nome: created.name,
-            descricao: created.description || "",
-            quantidade: created.quantity || 0,
-            reserveQuantity: created.reserveQuantity ?? 0,
-            preco: created.saleValue ?? created.sale_value ?? 0,
-            costValue: created.costValue ?? created.cost_value ?? 0,
-            categoria: created.category || "",
-            fornecedor: created.brand || "",
-            minimumStock: created.minimumStock ?? 1,
-          };
-          setProdutos((prev) => [...prev, novoProduto]);
-          toast({
-            title: "Produto adicionado",
-            description: "O novo produto foi adicionado com sucesso.",
-          });
-        }
-      } catch (err: any) {
-        console.error(err);
-        toast({
-          title: "Erro",
-          description: err?.message || "Falha na operação",
-        });
-      } finally {
-        setDialogOpen(false);
-        setEditingProduto(null);
-        reset();
-      }
-    })();
-  };
-
-  const handleEdit = (produto: Produto) => {
-    setEditingProduto(produto);
-    setValue("partNumber", produto.partNumber);
-    setValue("nome", produto.nome);
-    setValue("descricao", produto.descricao);
-    setValue("quantidade", produto.quantidade);
-    setValue("reserveQuantity", produto.reserveQuantity || 0);
-    setValue("preco", produto.preco);
-    setValue("costValue", produto.costValue);
-    setValue("categoria", produto.categoria);
-    setValue("fornecedor", produto.fornecedor);
-    setValue("minimumStock", produto.minimumStock);
-    setDialogOpen(true);
+  const fetchProducts = async () => {
+    try {
+      const res = await http.get("/products/");
+      const items = Array.isArray(res.data) ? res.data : [];
+      const mapped: Produto[] = items.map((p: any) => ({
+        id: String(p.id),
+        partNumber: p.partNumber || `PN-${p.id}`,
+        nome: p.name,
+        descricao: p.description || "",
+        quantidade: p.quantity ?? 0,
+        reserveQuantity: p.reserveQuantity ?? 0,
+        preco: p.saleValue ?? p.sale_value ?? 0,
+        costValue: p.costValue ?? p.cost_value ?? 0,
+        categoria: p.category || "",
+        fornecedor: p.brand || "",
+        minimumStock: p.minimumStock ?? p.minimum_stock ?? 1,
+      }));
+      setProdutos(mapped);
+    } catch (err) {
+      console.error("Failed to load products", err);
+      toast({ title: "Erro", description: "Falha ao carregar produtos" });
+    }
   };
 
   const handleDelete = (id: string) => {
     setProdutoToDelete(id);
     setDeleteDialogOpen(true);
+  };
+
+  const handleEdit = (produto: Produto) => {
+    setSelectedProduto(produto);
+    setEditModalOpen(true);
   };
 
   const confirmDelete = () => {
@@ -251,12 +151,6 @@ export default function Stock() {
         setProdutoToDelete(null);
       }
     })();
-  };
-
-  const handleDialogClose = () => {
-    setDialogOpen(false);
-    setEditingProduto(null);
-    reset();
   };
 
   const getQuantidadeStatus = (
@@ -290,29 +184,6 @@ export default function Stock() {
   };
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await http.get("/products/");
-        const items = Array.isArray(res.data) ? res.data : [];
-        const mapped: Produto[] = items.map((p: any) => ({
-          id: String(p.id),
-          partNumber: p.partNumber || `PN-${p.id}`,
-          nome: p.name,
-          descricao: p.description || "",
-          quantidade: p.quantity ?? 0,
-          reserveQuantity: p.reserveQuantity ?? 0,
-          preco: p.saleValue ?? p.sale_value ?? 0,
-          costValue: p.costValue ?? p.cost_value ?? 0,
-          categoria: p.category || "",
-          fornecedor: p.brand || "",
-          minimumStock: p.minimumStock ?? p.minimum_stock ?? 1,
-        }));
-        setProdutos(mapped);
-      } catch (err) {
-        console.error("Failed to load products", err);
-        toast({ title: "Erro", description: "Falha ao carregar produtos" });
-      }
-    };
     fetchProducts();
   }, []);
 
@@ -322,188 +193,9 @@ export default function Stock() {
         <div>
           <h1 className="text-4xl font-bold text-gray-900 leading-tight">Gestão de Stock</h1>
         </div>
-        <Dialog
-          open={dialogOpen}
-          onOpenChange={(open: boolean) => {
-            setDialogOpen(open);
-            if (!open) {
-              setEditingProduto(null);
-              reset();
-            }
-          }}
-        >
-          <DialogTrigger asChild>
-            <Button variant="destructive">
-              <Plus className="mr-2 h-4 w-4" />
-              Novo Produto
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>
-                {editingProduto ? "Editar Produto" : "Novo Produto"}
-              </DialogTitle>
-              <DialogDescription>
-                {editingProduto
-                  ? "Atualize as informações do produto"
-                  : "Adicione um novo produto ao stock"}
-              </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="partNumber">Código da Peça</Label>
-                  <Input id="partNumber" {...register("partNumber")} />
-                  {errors.partNumber && (
-                    <p className="text-sm text-destructive">
-                      {errors.partNumber.message}
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="nome">Nome do Produto</Label>
-                  <Input id="nome" {...register("nome")} />
-                  {errors.nome && (
-                    <p className="text-sm text-destructive">
-                      {errors.nome.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="categoria">Categoria</Label>
-                  <Select
-                    onValueChange={(value) => setValue("categoria", value)}
-                    defaultValue={editingProduto?.categoria}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categorias.map((cat) => (
-                        <SelectItem key={cat} value={cat}>
-                          {cat}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {errors.categoria && (
-                    <p className="text-sm text-destructive">
-                      {errors.categoria.message}
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="fornecedor">Fornecedor</Label>
-                  <Input id="fornecedor" {...register("fornecedor")} />
-                  {errors.fornecedor && (
-                    <p className="text-sm text-destructive">
-                      {errors.fornecedor.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="descricao">Descrição</Label>
-                <Input id="descricao" {...register("descricao")} />
-                {errors.descricao && (
-                  <p className="text-sm text-destructive">
-                    {errors.descricao.message}
-                  </p>
-                )}
-              </div>
-
-              <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="quantidade">Quantidade</Label>
-                  <Input
-                    id="quantidade"
-                    type="number"
-                    {...register("quantidade", { valueAsNumber: true })}
-                  />
-                  {errors.quantidade && (
-                    <p className="text-sm text-destructive">
-                      {errors.quantidade.message}
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="reserveQuantity">Quantidade Reservada</Label>
-                  <Input
-                    id="reserveQuantity"
-                    type="number"
-                    {...register("reserveQuantity", { valueAsNumber: true })}
-                  />
-                  {errors.reserveQuantity && (
-                    <p className="text-sm text-destructive">
-                      {errors.reserveQuantity.message}
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="minimumStock">Estoque Mínimo</Label>
-                  <Input
-                    id="minimumStock"
-                    type="number"
-                    {...register("minimumStock", { valueAsNumber: true })}
-                  />
-                  {errors.minimumStock && (
-                    <p className="text-sm text-destructive">
-                      {errors.minimumStock.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="costValue">Custo (€)</Label>
-                  <Input
-                    id="costValue"
-                    type="number"
-                    step="0.01"
-                    {...register("costValue", { valueAsNumber: true })}
-                  />
-                  {errors.costValue && (
-                    <p className="text-sm text-destructive">
-                      {errors.costValue.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="preco">Preço de Venda (€)</Label>
-                  <Input
-                    id="preco"
-                    type="number"
-                    step="0.01"
-                    {...register("preco", { valueAsNumber: true })}
-                  />
-                  {errors.preco && (
-                    <p className="text-sm text-destructive">
-                      {errors.preco.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-2 pt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleDialogClose}
-                >
-                  Cancelar
-                </Button>
-                <Button type="submit">
-                  {editingProduto ? "Atualizar" : "Adicionar"}
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+        <Button variant="destructive" onClick={() => setCreateModalOpen(true)}>
+          <Plus className="mr-2 h-4 w-4" /> Novo Produto
+        </Button>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4 mb-4">
@@ -527,7 +219,7 @@ export default function Stock() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="mb-input"
-              style={{ paddingLeft: "46px" }}
+              style={{ paddingLeft: "46px", borderColor: "#dc2626" }}
               onFocus={(e) =>
                 e.target.nextElementSibling?.classList.add("shrunken")
               }
@@ -708,6 +400,32 @@ export default function Stock() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Create Product Modal */}
+      <CreateProductModal
+        show={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        onSuccess={() => {
+          setCreateModalOpen(false);
+          fetchProducts();
+        }}
+      />
+
+      {/* Edit Product Modal */}
+      <EditProductModal
+        show={editModalOpen}
+        produto={selectedProduto}
+        onClose={() => {
+          setEditModalOpen(false);
+          setSelectedProduto(null);
+        }}
+        onSuccess={() => {
+          setEditModalOpen(false);
+          setSelectedProduto(null);
+          fetchProducts();
+        }}
+      />
     </div>
   );
 }
+

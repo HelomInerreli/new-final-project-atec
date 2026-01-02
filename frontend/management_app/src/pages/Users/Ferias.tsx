@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { useEmployees } from "../../hooks/useEmployees";
 import { useAbsences, useAbsenceTypes } from "../../hooks/useAbsences";
 import { absenceService } from "../../services/absenceService";
+import "../../styles/ServiceOrderDetail.css";
 
 export default function Ferias() {
 	const navigate = useNavigate();
@@ -142,12 +143,11 @@ export default function Ferias() {
 	return (
 		<div className="container mx-auto p-6">
 			<div className="flex items-center gap-4 mb-6">
-				<Button variant="ghost" size="icon" onClick={() => navigate('/users')}>
-					<ArrowLeft className="h-5 w-5" />
-				</Button>
+				<button className="so-back-btn" onClick={() => navigate('/users')}>
+					<ArrowLeft size={24} />
+				</button>
 				<div className="flex-1">
 					<h1 className="text-3xl font-bold">Gestão de Férias</h1>
-					<p className="text-muted-foreground mt-1">Visualize e gerencie as férias dos colaboradores</p>
 				</div>
 				<VacationCreateDialog
 					employees={employees.map((e) => ({ id: String(e.id), name: e.name }))}
@@ -168,7 +168,6 @@ export default function Ferias() {
 			<Card>
 				<CardHeader>
 					<CardTitle>Lista de Férias</CardTitle>
-					<CardDescription>Todas as férias registradas no sistema</CardDescription>
 				</CardHeader>
 				<CardContent>
 					<VacationTable rows={rows} onApprove={handleApprove} onReject={handleReject} />

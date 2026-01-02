@@ -38,29 +38,36 @@ export default function VacationTable({ rows, onApprove, onReject }: VacationTab
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Colaborador</TableHead>
-          <TableHead>Data Início</TableHead>
-          <TableHead>Data Fim</TableHead>
-          <TableHead>Dias</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead className="text-right">Ações</TableHead>
+          <TableHead className="text-center font-semibold text-base text-black">Colaborador</TableHead>
+          <TableHead className="text-left font-semibold text-base text-black">Data Início</TableHead>
+          <TableHead className="text-left font-semibold text-base text-black">Data Fim</TableHead>
+          <TableHead className="text-left font-semibold text-base text-black">Dias</TableHead>
+          <TableHead className="text-left font-semibold text-base text-black">Status</TableHead>
+          <TableHead className="text-center font-semibold text-base text-black">Ações</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {rows.map((f) => (
           <TableRow key={f.id}>
-            <TableCell className="font-medium">{f.usuarioNome}</TableCell>
-            <TableCell>{format(f.dataInicio, "dd/MM/yyyy", { locale: ptBR })}</TableCell>
-            <TableCell>{format(f.dataFim, "dd/MM/yyyy", { locale: ptBR })}</TableCell>
-            <TableCell>{f.diasUtilizados} dias</TableCell>
-            <TableCell>
-              <Badge variant={statusVariantMap[f.status]}>
+            <TableCell className="text-center font-medium">{f.usuarioNome}</TableCell>
+            <TableCell className="text-left">{format(f.dataInicio, "dd/MM/yyyy", { locale: ptBR })}</TableCell>
+            <TableCell className="text-left">{format(f.dataFim, "dd/MM/yyyy", { locale: ptBR })}</TableCell>
+            <TableCell className="text-left">{f.diasUtilizados} dias</TableCell>
+            <TableCell className="text-left">
+              <Badge 
+                variant={statusVariantMap[f.status]}
+                className={
+                  f.status === "pendente" ? "bg-yellow-500 hover:bg-yellow-600 text-white" :
+                  f.status === "aprovada" ? "bg-green-600 hover:bg-green-700 text-white" :
+                  ""
+                }
+              >
                 {statusLabels[f.status]}
               </Badge>
             </TableCell>
-            <TableCell className="text-right">
+            <TableCell className="text-center">
               {f.status === "pendente" && (
-                <div className="flex justify-end gap-2">
+                <div className="flex justify-center gap-2">
                   {onApprove && (
                     <Button size="sm" variant="outline" onClick={() => onApprove(f.id)}>
                       Aprovar

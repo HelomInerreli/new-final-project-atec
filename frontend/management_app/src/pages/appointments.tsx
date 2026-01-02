@@ -63,6 +63,8 @@ import { serviceService } from "../services/serviceService";
 import type { Service } from "../services/serviceService";
 import { statusService } from "../services/statusService";
 import type { Status } from "../services/statusService";
+import CreateAppointmentModal from "../components/CreateAppointmentModal";
+import EditAppointmentModal from "../components/EditAppointmentModal";
 import "../components/inputs.css";
 
 interface FormData {
@@ -98,6 +100,9 @@ export default function Agendamentos() {
   const [statusFilter, setStatusFilter] = useState<string>("todos");
   const [monthFilter, setMonthFilter] = useState<string>("todos");
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
@@ -331,6 +336,21 @@ export default function Agendamentos() {
     const appointmentMonth = appointmentDate.getMonth(); // 0-11
     const appointmentYear = appointmentDate.getFullYear();
 
+    // Excluir cancelados e concluídos por padrão, exceto se o filtro for explícito
+    const isCancelled = statusName.toLowerCase().includes("cancelado") || 
+                       statusName.toLowerCase().includes("cancelada");
+    const isCompleted = statusName.toLowerCase().includes("concluído") || 
+                       statusName.toLowerCase().includes("concluída") ||
+                       statusName.toLowerCase().includes("completo");
+    
+    if (isCancelled && statusFilter !== "cancelado" && statusFilter !== "cancelada") {
+      return false;
+    }
+    
+    if (isCompleted && statusFilter !== "concluído" && statusFilter !== "concluída" && statusFilter !== "completo") {
+      return false;
+    }
+
     const matchesSearch =
       customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       vehicleInfo.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -433,20 +453,6 @@ export default function Agendamentos() {
 
         await appointmentService.update(editingId, updateData);
         toast({ title: "Sucesso!", description: "Agendamento atualizado." });
-      } else {
-        // Create new appointment
-        const createData: AppointmentCreate = {
-          customer_id: parseInt(formData.customer_id),
-          vehicle_id: parseInt(formData.vehicle_id),
-          service_id: parseInt(formData.service_id),
-          appointment_date: appointmentDateTime.toISOString(),
-          description: formData.description,
-          estimated_budget: parseFloat(formData.estimated_budget) || 0,
-          actual_budget: 0,
-        };
-
-        await appointmentService.create(createData);
-        toast({ title: "Sucesso!", description: "Novo agendamento criado." });
       }
 
       await loadAppointments();
@@ -497,7 +503,7 @@ export default function Agendamentos() {
         <Button
           variant="destructive"
           className="gap-2"
-          onClick={() => handleOpenDialog(null)}
+          onClick={() => setIsCreateModalOpen(true)}
         >
           <Plus className="h-4 w-4" />
           Novo Agendamento
@@ -526,7 +532,7 @@ export default function Agendamentos() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="mb-input"
-              style={{ paddingLeft: "46px" }}
+              style={{ paddingLeft: "46px", borderColor: "#dc2626" }}
               onFocus={(e) =>
                 e.target.nextElementSibling?.classList.add("shrunken")
               }
@@ -654,7 +660,10 @@ export default function Agendamentos() {
                 <Button
                   variant="outline"
                   className="flex-1"
-                  onClick={() => handleOpenDialog(appointment)}
+                  onClick={() => {
+                    setSelectedAppointment(appointment);
+                    setIsEditModalOpen(true);
+                  }}
                 >
                   <Pencil className="h-4 w-4" />
                 </Button>
@@ -715,13 +724,13 @@ export default function Agendamentos() {
         </Card>
       )}
 
-      {/* Dialog para Criar/Editar */}
+      {/* Dialog para Editar */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
         <DialogContent className="sm:max-w-[800px] p-0 gap-0">
           <form onSubmit={handleFormSubmit}>
             <DialogHeader className="bg-gradient-to-br from-red-600 to-red-700 text-white p-6 rounded-t-lg m-0 !flex-row items-center justify-between !space-y-0">
               <DialogTitle className="text-white text-2xl font-bold">
-                {editingId ? "Editar Agendamento" : "Novo Agendamento"}
+                Editar Agendamento
               </DialogTitle>
               <button 
                 type="button"
@@ -1359,16 +1368,37 @@ export default function Agendamentos() {
                 Cancelar
               </Button>
               <Button type="submit" variant="destructive" disabled={loading}>
-                {loading
-                  ? "A processar..."
-                  : editingId
-                  ? "Salvar Alterações"
-                  : "Criar Agendamento"}
+                {loading ? "A processar..." : "Salvar Alterações"}
               </Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Modal de Criação de Agendamento */}
+      <CreateAppointmentModal
+        show={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSuccess={() => {
+          loadAppointments();
+          toast({ title: "Sucesso!", description: "Agendamento criado com sucesso." });
+        }}
+      />
+
+      {/* Modal de Edição de Agendamento */}
+      <EditAppointmentModal
+        show={isEditModalOpen}
+        appointment={selectedAppointment}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedAppointment(null);
+        }}
+        onSuccess={() => {
+          loadAppointments();
+          toast({ title: "Sucesso!", description: "Agendamento atualizado com sucesso." });
+        }}
+      />
     </div>
   );
 }
+

@@ -1,47 +1,26 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { Search, Plus, Pencil, Trash2, AlertTriangle } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { toast } from "../hooks/use-toast";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../components/ui/alert-dialog";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "../components/ui/form";
 import { serviceService, type Service } from "../services/serviceService";
+import CreateServiceModal from "../components/CreateServiceModal";
+import EditServiceModal from "../components/EditServiceModal";
 import "../components/inputs.css";
-
-const servicoSchema = z.object({
-  name: z.string().min(3, "Nome deve ter no mínimo 3 caracteres"),
-  description: z.string().optional(),
-  price: z.number().min(0.01, "Preço deve ser maior que 0"),
-  duration_minutes: z.number().min(1, "Duração deve ser maior que 0"),
-  is_active: z.boolean().optional(),
-});
 
 export default function ServicesManagement() {
   const [servicos, setServicos] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingServico, setEditingServico] = useState<Service | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [servicoToDelete, setServicoToDelete] = useState<number | null>(null);
   const [page, setPage] = useState<number>(1);
   const pageSize = 5;
-
-  const form = useForm<z.infer<typeof servicoSchema>>({
-    resolver: zodResolver(servicoSchema),
-    defaultValues: {
-      name: "",
-      description: "",
-      price: undefined,
-      duration_minutes: 30,
-      is_active: true,
-    },
-  });
 
   // Load services from API
   useEffect(() => {
@@ -86,59 +65,17 @@ export default function ServicesManagement() {
     page * pageSize
   );
 
-  const handleOpenDialog = (servico?: Service) => {
-    if (servico) {
-      setEditingServico(servico);
-      form.reset({
-        name: servico.name,
-        description: servico.description || "",
-        price: servico.price,
-        duration_minutes: servico.duration_minutes || 30,
-        is_active: servico.is_active,
-      });
-    } else {
-      setEditingServico(null);
-      form.reset({
-        name: "",
-        description: "",
-        price: undefined,
-        duration_minutes: 30,
-        is_active: true,
-      });
-    }
-    setDialogOpen(true);
+  const handleOpenCreateModal = () => {
+    setCreateModalOpen(true);
   };
 
-  const handleSubmit = async (values: z.infer<typeof servicoSchema>) => {
-    console.log("🚀 handleSubmit chamado com valores:", values);
-    try {
-      if (editingServico) {
-        console.log("✏️ Atualizando serviço ID:", editingServico.id);
-        await serviceService.update(editingServico.id, values);
-        toast({
-          title: "Serviço atualizado",
-          description: "O serviço foi atualizado com sucesso.",
-        });
-      } else {
-        console.log("➕ Criando novo serviço");
-        await serviceService.create(values);
-        toast({
-          title: "Serviço criado",
-          description: "O serviço foi criado com sucesso.",
-        });
-      }
-      setDialogOpen(false);
-      form.reset();
-      loadServices(); // Reload the list
-    } catch (error) {
-      console.error("❌ Erro no handleSubmit:", error);
-      toast({
-        title: "Erro",
-        description: editingServico ? "Não foi possível atualizar o serviço." : "Não foi possível criar o serviço.",
-        variant: "destructive",
-      });
-      console.error("Error saving service:", error);
-    }
+  const handleOpenEditModal = (servico: Service) => {
+    setEditingServico(servico);
+    setEditModalOpen(true);
+  };
+
+  const handleModalSuccess = () => {
+    loadServices();
   };
 
   const handleDeleteClick = (id: number) => {
@@ -189,7 +126,7 @@ export default function ServicesManagement() {
         <div>
           <h1 className="text-4xl font-bold text-gray-900 leading-tight">Gestão de Serviços</h1>
         </div>
-        <Button variant="destructive" onClick={() => handleOpenDialog()}>
+        <Button variant="destructive" onClick={handleOpenCreateModal}>
           <Plus className="mr-2 h-4 w-4" />
           Novo Serviço
         </Button>
@@ -215,7 +152,7 @@ export default function ServicesManagement() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="mb-input"
-            style={{ paddingLeft: '46px' }}
+            style={{ paddingLeft: '46px', borderColor: '#dc3545' }}
             onFocus={(e) => e.target.nextElementSibling?.classList.add('shrunken')}
             onBlur={(e) => {
               if (!e.target.value) {
@@ -289,7 +226,7 @@ export default function ServicesManagement() {
                           <Button
                             variant="outline"
                             size="icon"
-                            onClick={() => handleOpenDialog(servico)}
+                            onClick={() => handleOpenEditModal(servico)}
                           >
                             <Pencil className="h-4 w-4" />
                           </Button>
@@ -357,302 +294,22 @@ export default function ServicesManagement() {
         </div>
       </div>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>{editingServico ? "Editar Serviço" : "Novo Serviço"}</DialogTitle>
-            <DialogDescription>
-              {editingServico ? "Edite as informações do serviço abaixo." : "Preencha as informações do novo serviço."}
-            </DialogDescription>
-          </DialogHeader>
-          <Form {...form}>
-            <form onSubmit={(e) => {
-              console.log("📝 Form onSubmit triggered");
-              console.log("Form values:", form.getValues());
-              console.log("Form errors:", form.formState.errors);
-              form.handleSubmit(handleSubmit)(e);
-            }} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <div className="mb-input-wrapper">
-                        <input
-                          type="text"
-                          placeholder=""
-                          className="mb-input"
-                          {...field}
-                          onFocus={(e) => e.target.nextElementSibling?.classList.add('shrunken')}
-                          onBlur={(e) => {
-                            if (!e.target.value) {
-                              e.target.nextElementSibling?.classList.remove('shrunken');
-                            }
-                          }}
-                        />
-                        <label className={`mb-input-label ${field.value ? 'shrunken' : ''}`}>
-                          Nome do Serviço
-                        </label>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <div className="mb-input-wrapper">
-                        <textarea
-                          placeholder=""
-                          className="mb-input textarea"
-                          rows={3}
-                          {...field}
-                          onFocus={(e) => e.target.nextElementSibling?.classList.add('shrunken')}
-                          onBlur={(e) => {
-                            if (!e.target.value) {
-                              e.target.nextElementSibling?.classList.remove('shrunken');
-                            }
-                          }}
-                        />
-                        <label className={`mb-input-label ${field.value ? 'shrunken' : ''}`}>
-                          Descrição
-                        </label>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="price"
-                  render={({ field }) => {
-                    const [isFocused, setIsFocused] = useState(false);
-                    return (
-                      <FormItem>
-                        <FormControl>
-                          <div className="mb-input-wrapper" style={{ position: 'relative' }}>
-                            <input
-                              type="number"
-                              step="any"
-                              min="0"
-                              placeholder=""
-                              className="mb-input"
-                              {...field}
-                              value={field.value === undefined || field.value === null || isNaN(field.value) ? '' : field.value}
-                              onChange={(e) => {
-                                const value = e.target.value;
-                                if (value === '') {
-                                  field.onChange(undefined);
-                                } else {
-                                  const numValue = parseFloat(value);
-                                  field.onChange(isNaN(numValue) ? undefined : numValue);
-                                }
-                              }}
-                              onFocus={(e) => {
-                                setIsFocused(true);
-                                e.target.nextElementSibling?.classList.add('shrunken');
-                              }}
-                              onBlur={(e) => {
-                                setIsFocused(false);
-                                if (!e.target.value) {
-                                  e.target.nextElementSibling?.classList.remove('shrunken');
-                                }
-                              }}
-                            />
-                            <div style={{
-                              position: 'absolute',
-                              right: '10px',
-                              top: '50%',
-                              transform: 'translateY(-50%)',
-                              display: 'flex',
-                              flexDirection: 'column',
-                              gap: '2px'
-                            }}>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const currentValue = field.value || 0;
-                                  field.onChange(currentValue + 5);
-                                }}
-                                style={{
-                                  background: 'transparent',
-                                  border: 'none',
-                                  cursor: 'pointer',
-                                  fontSize: '14px',
-                                  color: '#6b7280',
-                                  padding: '0',
-                                  lineHeight: 1,
-                                  height: '12px'
-                                }}
-                              >
-                                ▲
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const currentValue = field.value || 0;
-                                  const newValue = currentValue - 5;
-                                  field.onChange(newValue >= 0 ? newValue : 0);
-                                }}
-                                style={{
-                                  background: 'transparent',
-                                  border: 'none',
-                                  cursor: 'pointer',
-                                  fontSize: '14px',
-                                  color: '#6b7280',
-                                  padding: '0',
-                                  lineHeight: 1,
-                                  height: '12px'
-                                }}
-                              >
-                                ▼
-                              </button>
-                            </div>
-                            <label className={`mb-input-label ${(field.value && !isNaN(field.value)) || isFocused ? 'shrunken' : ''}`}>
-                              Preço (€)
-                            </label>
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    );
-                  }}
-                />
-                <FormField
-                  control={form.control}
-                  name="duration_minutes"
-                  render={({ field }) => {
-                    const [isOpen, setIsOpen] = useState(false);
-                    const [isFocused, setIsFocused] = useState(false);
-                    const menuRef = useRef<HTMLDivElement>(null);
-                    const hasValue = field.value !== undefined && field.value !== null;
-                    const durations = [15, 30, 45, 60, 75, 90, 105, 120, 135, 150, 165, 180, 195, 210, 225, 240];
-                    
-                    const formatDuration = (minutes: number) => {
-                      return minutes < 60 ? `${minutes} min` : `${Math.floor(minutes / 60)}h ${minutes % 60 > 0 ? `${minutes % 60}min` : ''}`.trim();
-                    };
+      {/* Modals */}
+      <CreateServiceModal 
+        show={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        onSuccess={handleModalSuccess}
+      />
 
-                    useEffect(() => {
-                      const handleClickOutside = (event: MouseEvent) => {
-                        if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-                          setIsOpen(false);
-                        }
-                      };
-                      if (isOpen) {
-                        document.addEventListener('mousedown', handleClickOutside);
-                      }
-                      return () => document.removeEventListener('mousedown', handleClickOutside);
-                    }, [isOpen]);
-
-                    return (
-                      <FormItem>
-                        <FormControl>
-                          <div className="mb-input-wrapper" ref={menuRef} style={{ position: 'relative' }}>
-                            <button
-                              type="button"
-                              className={`mb-input select ${!hasValue && !isFocused ? 'placeholder' : ''}`}
-                              onClick={() => setIsOpen(!isOpen)}
-                              onFocus={() => setIsFocused(true)}
-                              onBlur={() => setIsFocused(false)}
-                              style={{ textAlign: 'left', cursor: 'pointer' }}
-                            >
-                              {hasValue ? formatDuration(field.value) : ''}
-                            </button>
-                            <label className={`mb-input-label ${hasValue || isFocused ? 'shrunken' : ''}`}>
-                              Duração (min)
-                            </label>
-                            <span className="mb-select-caret">▼</span>
-                            
-                            {isOpen && (
-                              <ul className="mb-select-menu" style={{ maxHeight: '250px', overflowY: 'auto' }}>
-                                {durations.map((minutes) => (
-                                  <li
-                                    key={minutes}
-                                    className={`mb-select-item ${field.value === minutes ? 'selected' : ''}`}
-                                    onClick={() => {
-                                      field.onChange(minutes);
-                                      setIsOpen(false);
-                                    }}
-                                  >
-                                    {formatDuration(minutes)}
-                                  </li>
-                                ))}
-                              </ul>
-                            )}
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    );
-                  }}
-                />
-              </div>
-              
-              {editingServico && (
-                <FormField
-                  control={form.control}
-                  name="is_active"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <div className="flex items-center gap-4">
-                          <label className="text-sm font-medium">Estado:</label>
-                          <div className="flex gap-2">
-                            <button
-                              type="button"
-                              onClick={() => field.onChange(true)}
-                              className={`px-4 py-2 rounded-md font-medium transition-colors ${
-                                field.value 
-                                  ? 'bg-green-600 text-white' 
-                                  : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
-                              }`}
-                            >
-                              Ativo
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => field.onChange(false)}
-                              className={`px-4 py-2 rounded-md font-medium transition-colors ${
-                                !field.value 
-                                  ? 'bg-red-600 text-white' 
-                                  : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
-                              }`}
-                            >
-                              Inativo
-                            </button>
-                          </div>
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setDialogOpen(false)}
-                  className="hover:bg-gray-100 hover:text-gray-900 focus-visible:ring-0 focus-visible:ring-offset-0"
-                >
-                  Cancelar
-                </Button>
-                <Button type="submit" variant="destructive">
-                  {editingServico ? "Guardar" : "Criar"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
+      <EditServiceModal 
+        show={editModalOpen}
+        service={editingServico}
+        onClose={() => {
+          setEditModalOpen(false);
+          setEditingServico(null);
+        }}
+        onSuccess={handleModalSuccess}
+      />
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent className="sm:max-w-md">

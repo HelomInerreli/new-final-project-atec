@@ -9,14 +9,15 @@
   width: 100%;
   box-sizing: border-box;
   padding: 14px 44px 14px 14px; /* room for toggle/caret */
-  border: 2px solid #dc3545; /* projeto vermelho */
+  border: 2px solid #fca5a5; /* vermelho mais claro quando vazio */
   border-radius: 8px;
   background: #ffffff !important;
   font-size: 1rem;
   font-weight: normal;
   transition: box-shadow 0.15s ease, border-color 0.15s ease, padding 0.15s ease,
     color 0.12s ease;
-  color: #111827;
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
 }
 
 /* Prevent autofill/number input background */
@@ -27,6 +28,8 @@
   -webkit-box-shadow: 0 0 0 30px white inset !important;
   box-shadow: 0 0 0 30px white inset !important;
   background-color: #ffffff !important;
+  -webkit-text-fill-color: #111827 !important;
+  color: #111827 !important;
 }
 
 .mb-input.placeholder {
@@ -51,6 +54,33 @@
   box-shadow: 0 0 0 6px rgba(220, 53, 69, 0.06);
   border-color: #b91c1c;
   color: #111827;
+}
+
+/* Label sobe quando input recebe foco (exceto selects) */
+.mb-input:not(.select):focus + .mb-input-label {
+  top: -8px;
+  transform: none;
+  font-size: 0.75rem;
+  color: #b91c1c;
+  background: #ffffff;
+}
+
+.mb-input:not(.select):not(:placeholder-shown) + .mb-input-label {
+  top: -8px;
+  transform: none;
+  font-size: 0.75rem;
+  color: #b91c1c;
+  background: #ffffff;
+}
+
+/* Borda vermelha ao focar */
+.mb-input:not(.select):focus {
+  border-color: #dc3545 !important;
+}
+
+/* Borda vermelha forte quando preenchido */
+.mb-input.filled {
+  border-color: #dc3545;
 }
 
 /* Floating label */
@@ -108,8 +138,7 @@
   -moz-appearance: none;
   appearance: none;
   background: #ffffff; /* white background like other inputs */
-  color: #111827; /* black text like other inputs */
-  border: 2px solid #dc3545;
+  color: #9ca3af; /* placeholder color by default */
 }
 .mb-input.select::placeholder {
   color: #9ca3af;
@@ -118,11 +147,20 @@
   display: none;
 }
 
-/* when empty use lighter placeholder color */
+/* when empty (has placeholder class) - lighter border and placeholder color */
 .mb-input.select.placeholder {
   color: #9ca3af;
 }
+
+/* when filled (no placeholder class) - darker border and black text */
+.mb-input.select:not(.placeholder) {
+  border-color: #dc3545; /* darker red when filled */
+  color: #111827; /* black text when filled */
+}
+
+/* on focus - darker border */
 .mb-input.select:focus {
+  border-color: #dc3545 !important; /* darker red when focused */
   color: #111827;
 }
 
@@ -159,32 +197,37 @@
 
 /* WebKit-specific: hide composed datetime edit display when empty (target the pseudo elements directly)
    and ensure they show on focus. Removing the space before pseudo-elements so selector targets them. */
+.mb-input.date-input::-webkit-datetime-edit {
+  color: #111827 !important;
+}
+
+.mb-input.date-input:not(.has-value)::-webkit-datetime-edit-fields-wrapper {
+  color: transparent !important;
+}
+
 .mb-input.date-input:not(.has-value)::-webkit-datetime-edit,
 .mb-input.date-input:not(.has-value)::-webkit-datetime-edit-text,
 .mb-input.date-input:not(.has-value)::-webkit-datetime-edit-month-field,
 .mb-input.date-input:not(.has-value)::-webkit-datetime-edit-day-field,
 .mb-input.date-input:not(.has-value)::-webkit-datetime-edit-year-field {
-  color: transparent;
+  color: transparent !important;
 }
 
-.mb-input.date-input:focus::-webkit-datetime-edit,
-.mb-input.date-input:focus::-webkit-datetime-edit-text,
-.mb-input.date-input:focus::-webkit-datetime-edit-month-field,
-.mb-input.date-input:focus::-webkit-datetime-edit-day-field,
-.mb-input.date-input:focus::-webkit-datetime-edit-year-field {
-  color: #111827;
+.mb-input.date-input.has-value::-webkit-datetime-edit,
+.mb-input.date-input.has-value::-webkit-datetime-edit-text,
+.mb-input.date-input.has-value::-webkit-datetime-edit-month-field,
+.mb-input.date-input.has-value::-webkit-datetime-edit-day-field,
+.mb-input.date-input.has-value::-webkit-datetime-edit-year-field {
+  color: #111827 !important;
 }
 
-/* Firefox: hide the built-in text when empty by making the color transparent for the whole control
-   and restore on focus. Firefox doesn't support the webkit pseudo-elements; this is a best-effort fallback. */
+/* Firefox: hide the built-in text when empty */
 .mb-input.date-input:not(.has-value) {
-  color: transparent;
+  color: transparent !important;
 }
-.mb-input.date-input:not(.has-value)::placeholder {
-  color: transparent;
-}
-.mb-input.date-input:focus {
-  color: #111827;
+
+.mb-input.date-input.has-value {
+  color: #111827 !important;
 }
 
 /* Radio/Checkbox minimal styling helper */
@@ -379,6 +422,82 @@
 .mb-select-button .mb-select-value,
 .mb-select-button .mb-select-value * {
   font-weight: normal;
+}
+
+/* Checkbox styling - white background when unchecked */
+input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #dc3545;
+  border-radius: 3px;
+  background-color: white;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+}
+
+input[type="checkbox"]:checked {
+  background-color: #dc3545;
+}
+
+input[type="checkbox"]:checked::after {
+  content: "✓";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+/* Dropdown wrapper positioning */
+.mb-dropdown-wrapper {
+  position: relative;
+}
+
+/* Select button min-height removed - will be added via specific class */
+.mb-input.select {
+  text-align: left;
+  cursor: pointer;
+}
+
+.mb-input.select:disabled {
+  cursor: not-allowed;
+}
+
+/* Select menu styling */
+.mb-select-menu {
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+/* Disabled select item */
+.mb-select-item.disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+/* Date input wrapper */
+.mb-date-input-wrapper {
+  position: relative;
+}
+
+/* Calendar icon positioning */
+.mb-calendar-icon {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+  cursor: pointer;
+}
+
+/* Textarea minimum height */
+.mb-input.textarea {
+  min-height: 56px;
 }
 
 @media (max-width: 576px) {

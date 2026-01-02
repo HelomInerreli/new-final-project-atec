@@ -9,9 +9,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Link } from "react-router-dom";
 import { Spinner, Alert } from "react-bootstrap";
 import { useState } from "react";
-import NewVehicleModal from "../../components/NewVehicleModal";
+import CreateVehicleModal from "../../components/CreateVehicleModal";
 import { useVehiclesPage } from "../../hooks/useVehicles";
 import { useFetchCustomers } from "../../hooks/useCustomers";
+import { toast } from "../../hooks/use-toast";
 import "../../styles/Vehicles.css";
 
 export default function Vehicles() {
@@ -94,7 +95,7 @@ export default function Vehicles() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="mb-input"
-              style={{ paddingLeft: "46px" }}
+              style={{ paddingLeft: "46px", borderColor: "#dc2626" }}
               onFocus={(e) =>
                 e.target.nextElementSibling?.classList.add("shrunken")
               }
@@ -271,15 +272,6 @@ export default function Vehicles() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* New Vehicle Modal */}
-      <NewVehicleModal
-        isOpen={newVehicleModalOpen}
-        onClose={() => setNewVehicleModalOpen(false)}
-        onSubmit={handleCreateVehicle}
-        getFromAPI={getFromAPI}
-        loading={creatingVehicle}
-      />
-
       {/* Assign Customer Dialog */}
       <Dialog open={assignCustomerDialogOpen} onOpenChange={setAssignCustomerDialogOpen}>
         <DialogContent>
@@ -322,6 +314,21 @@ export default function Vehicles() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Create Vehicle Modal */}
+      <CreateVehicleModal
+        show={newVehicleModalOpen}
+        onClose={() => setNewVehicleModalOpen(false)}
+        onSuccess={() => {
+          setNewVehicleModalOpen(false);
+          toast({
+            title: "Sucesso!",
+            description: "Veículo criado com sucesso.",
+          });
+          getFromAPI();
+        }}
+      />
     </div>
   );
 }
+
