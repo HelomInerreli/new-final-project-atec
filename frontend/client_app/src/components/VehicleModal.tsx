@@ -16,7 +16,7 @@ import '../styles/VehicleModal.css';
  * @param onSave - Função callback após guardar com sucesso
  * @returns Componente JSX do modal de veículo
  */
-export function VehicleModal({ show, vehicle, customerId, onClose, onSave }: VehicleModalProps) {
+export function VehicleModal({ show, vehicle, customerId, onClose, onSave, getFromAPI }: VehicleModalProps) {
   /**
    * Hook de tradução para internacionalização
    */
@@ -27,7 +27,7 @@ export function VehicleModal({ show, vehicle, customerId, onClose, onSave }: Veh
    * Fornece dados do formulário, erros de validação, estado de carregamento e handlers
    * Recebe veículo para edição (ou null para novo), customerId e função de tradução
    */
-  const { formData, errors, loading, handleChange, handleSubmit } = useVehicleForm(vehicle ?? null, customerId, t);
+  const { formData, errors, loading, handleChange, handleSubmit, handleGetFromAPI } = useVehicleForm(vehicle ?? null, customerId, t);
 
   /**
    * Determina se está em modo de edição (veículo existente com ID) ou adição (novo veículo)
@@ -167,77 +167,6 @@ export function VehicleModal({ show, vehicle, customerId, onClose, onSave }: Veh
                 />
               </Form.Group>
             </div>
-          {/* Campo de matrícula (obrigatório, maiúsculas, máx 10 caracteres) */}
-          <Form.Group className="mb-3">
-            <Form.Label>{t('vehicleModal.plate')} *</Form.Label>
-            <Form.Control
-              type="text"
-              name="plate"
-              value={formData.plate}
-              onChange={handleChange}
-              placeholder={t('vehicleModal.platePlaceholder')}
-              isInvalid={!!errors.plate}
-              maxLength={10}
-              style={{ textTransform: 'uppercase' }}
-            />
-            <Form.Control.Feedback type="invalid">
-              {errors.plate}
-            </Form.Control.Feedback>
-            <Form.Text className="text-muted">
-              {t('vehicleModal.plateHelper')}
-            </Form.Text>
-          </Form.Group>
-
-          {/* Campo de marca do veículo (obrigatório, máx 50 caracteres) */}
-          <Form.Group className="mb-3">
-            <Form.Label>{t('vehicleModal.brand')} *</Form.Label>
-            <Form.Control
-              type="text"
-              name="brand"
-              value={formData.brand}
-              onChange={handleChange}
-              placeholder={t('vehicleModal.brandPlaceholder')}
-              isInvalid={!!errors.brand}
-              maxLength={50}
-            />
-            <Form.Control.Feedback type="invalid">
-              {errors.brand}
-            </Form.Control.Feedback>
-          </Form.Group>
-
-          {/* Campo de modelo do veículo (obrigatório, máx 50 caracteres) */}
-          <Form.Group className="mb-3">
-            <Form.Label>{t('vehicleModal.model')} *</Form.Label>
-            <Form.Control
-              type="text"
-              name="model"
-              value={formData.model}
-              onChange={handleChange}
-              placeholder={t('vehicleModal.modelPlaceholder')}
-              isInvalid={!!errors.model}
-              maxLength={50}
-            />
-            <Form.Control.Feedback type="invalid">
-              {errors.model}
-            </Form.Control.Feedback>
-          </Form.Group>
-
-          {/* Campo de quilometragem (obrigatório, numérico, mínimo 0) */}
-          <Form.Group className="mb-3">
-            <Form.Label>{t('vehicleModal.kilometers')} *</Form.Label>
-            <Form.Control
-              type="number"
-              name="kilometers"
-              value={formData.kilometers}
-              onChange={handleChange}
-              placeholder="0"
-              isInvalid={!!errors.kilometers}
-              min="0"
-            />
-            <Form.Control.Feedback type="invalid">
-              {errors.kilometers}
-            </Form.Control.Feedback>
-          </Form.Group>
 
             {/* Row 5: Imported */}
             <div className="col-md-6">
@@ -275,10 +204,14 @@ export function VehicleModal({ show, vehicle, customerId, onClose, onSave }: Veh
 
         {/* Rodapé do modal com botões de cancelar e guardar */}
         <Modal.Footer>
+          {/*
+            Botão para ir buscar dados por matrícula (API externa).
+            Só fica ativo quando há matrícula e quando a função getFromAPI foi fornecida pelo componente.
+          */}
           <Button 
             variant="primary" 
             onClick={() => handleGetFromAPI(getFromAPI)} 
-            disabled={loading || !formData.plate}
+            disabled={loading || !formData.plate || !getFromAPI}
             className="me-auto"
           >
             {t('vehicleModal.getFromAPI')}
