@@ -51,30 +51,7 @@
   padding: 1.5rem;
 }
 
-.vehicle-details-card {
-  border: 1px solid #dc3545;
-  border-radius: 8px;
-}
-
 /* Badge Styling */
 .badge {
   font-weight: 500;
-}
-
-.vehicle-status-badge {
-  font-size: 0.75rem;
-  padding: 0.25rem 0.75rem;
-}
-
-/* Container */
-.vehicle-details-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-}
-
-/* Icon Sizing */
-.icon-small {
-  width: 16px;
-  height: 16px;
 }

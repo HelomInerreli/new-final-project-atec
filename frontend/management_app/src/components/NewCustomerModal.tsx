@@ -3,10 +3,12 @@ import { Alert, Spinner } from 'react-bootstrap';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
-import { X } from 'lucide-react';
+import { X, Calendar as CalendarIcon } from 'lucide-react';
 import './../styles/NewCustomerModal.css';
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import { Calendar } from "../components/ui/calendar"
+import { Popover, PopoverContent, PopoverTrigger } from "../components/ui/popover"
+import { format, parseISO } from "date-fns"
+import { cn } from "../components/lib/utils"
 import type { CustomerRegister } from '../interfaces/Customer';
 import { useNewCustomerModal } from '../hooks/useNewCustomerModal';
 
@@ -102,23 +104,38 @@ const NewCustomerModal: React.FC<NewCustomerModalProps> = ({
 
                 {/* Row 2: Birth Date and Address */}
                 <div className="col-md-6">
-                  <Label htmlFor="birth_date" className="d-flex form-label small text-muted mb-1">
+                  <Label className="d-flex form-label small text-muted mb-1">
                     Data de Nascimento
                   </Label>
-                  <DatePicker
-                    selected={formData.birth_date ? new Date(formData.birth_date) : null}
-                    onChange={handleDateChange}
-                    dateFormat="dd/MM/yyyy"
-                    maxDate={new Date()}
-                    minDate={new Date("1900-01-01")}
-                    showYearDropdown
-                    showMonthDropdown
-                    dropdownMode="select"
-                    disabled={loading}
-                    className="form-control modal-input"
-                    placeholderText="Selecione a data"
-                    wrapperClassName="w-100"
-                  />
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal modal-calendar-button",
+                          !formData.birth_date && "text-muted-foreground"
+                        )}
+                        disabled={loading}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {formData.birth_date ? format(parseISO(formData.birth_date), "dd/MM/yyyy") : "Selecione a data"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 modal-popover-content" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={formData.birth_date ? parseISO(formData.birth_date) : undefined}
+                        onSelect={handleDateChange}
+                        disabled={(date) =>
+                          date > new Date() || date < new Date("1900-01-01")
+                        }
+                        captionLayout="dropdown-buttons"
+                        fromYear={1900}
+                        toYear={new Date().getFullYear()}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 <div className="col-md-6">
                   <Label htmlFor='address' className="d-flex form-label small text-muted mb-1">
