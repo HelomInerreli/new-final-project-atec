@@ -16,22 +16,102 @@ import {
 import RegisterCustomerInfoModal from './RegisterCustomerInfoModal';
 import LoginModal from './LoginModal';
 
+/**
+ * Componente de registo de novos utilizadores
+ * Permite registo através de email/password, Google OAuth ou Facebook OAuth
+ * Após preenchimento inicial, abre modal para informações adicionais do cliente
+ * Valida existência de email antes de prosseguir com o registo
+ * @returns Componente JSX do formulário de registo
+ */
 const Register: React.FC = () => {
+  /**
+   * Estado para o email do utilizador
+   * Tipo: string
+   * Inicial: string vazia
+   */
   const [email, setEmail] = useState('');
+  
+  /**
+   * Estado para a palavra-passe
+   * Tipo: string
+   * Inicial: string vazia
+   */
   const [password, setPassword] = useState('');
+  
+  /**
+   * Estado para confirmação da palavra-passe
+   * Tipo: string
+   * Inicial: string vazia
+   */
   const [confirmPassword, setConfirmPassword] = useState('');
+  
+  /**
+   * Estado para controlar visibilidade do modal de informações adicionais
+   * Tipo: boolean
+   * Inicial: false
+   */
   const [showModal, setShowModal] = useState(false);
+  
+  /**
+   * Estado para armazenar dados de autenticação do Google
+   * Tipo: GoogleAuthData | null
+   * Inicial: null
+   */
   const [googleData, setGoogleData] = useState<GoogleAuthData | null>(null);
+  
+  /**
+   * Estado para armazenar dados de autenticação do Facebook
+   * Tipo: FacebookAuthData | null
+   * Inicial: null
+   */
   const [facebookData, setFacebookData] = useState<FacebookAuthData | null>(null);
+  
+  /**
+   * Estado de carregamento durante processos assíncronos
+   * Tipo: boolean
+   * Inicial: false
+   */
   const [loading, setLoading] = useState(false);
+  
+  /**
+   * Estado para mensagens de erro
+   * Tipo: string
+   * Inicial: string vazia
+   */
   const [error, setError] = useState('');
+  
+  /**
+   * Estado para controlar visibilidade do modal de login
+   * Tipo: boolean
+   * Inicial: false
+   */
   const [showLoginModal, setShowLoginModal] = useState(false);
 
+  /**
+   * Hook de navegação do React Router
+   */
   const navigate = useNavigate();
+  
+  /**
+   * Hook para ler parâmetros de URL (usado para detetar callback OAuth)
+   */
   const [searchParams] = useSearchParams();
+  
+  /**
+   * Hook de autenticação para realizar login após registo bem-sucedido
+   */
   const { login } = useAuth();
+  
+  /**
+   * Hook de tradução para internacionalização
+   */
   const { t } = useTranslation();
 
+  /**
+   * Efeito para processar callback de autenticação OAuth (Google/Facebook)
+   * Executa quando há parâmetros na URL indicando retorno de OAuth
+   * Recupera dados do localStorage e abre modal para completar registo
+   */
   useEffect(() => {
     const isGoogleAuth = searchParams.get('google');
     const isFacebookAuth = searchParams.get('facebook');
@@ -55,6 +135,12 @@ const Register: React.FC = () => {
     }
   }, [searchParams]);
 
+  /**
+   * Processa o registo com email e palavra-passe
+   * Valida confirmação de palavra-passe, comprimento mínimo e existência de email
+   * Se validações passarem, abre modal para informações adicionais
+   * @param e - Evento de submissão do formulário
+   */
   const handleEmailRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -94,6 +180,10 @@ const Register: React.FC = () => {
       }
   };
 
+  /**
+   * Inicia o processo de registo com Google OAuth
+   * Redireciona para endpoint do backend que gere a autenticação Google
+   */
   const handleGoogleRegister = async () => {
     try {
       setLoading(true);
@@ -106,6 +196,10 @@ const Register: React.FC = () => {
     }
   };
 
+  /**
+   * Inicia o processo de registo com Facebook OAuth
+   * Redireciona para endpoint do backend que gere a autenticação Facebook
+   */
   const handleFacebookRegister = async () => {
     try {
       setLoading(true);
@@ -118,6 +212,12 @@ const Register: React.FC = () => {
     }
   };
 
+  /**
+   * Completa o registo após recolha de informações adicionais no modal
+   * Determina o método de registo (Google, Facebook ou credenciais) e chama API apropriada
+   * Após sucesso, realiza login automático e redireciona para dashboard
+   * @param customerData - Dados adicionais do cliente (nome, telefone, morada, etc.)
+   */
   const handleCompleteRegistration = async (customerData: Omit<RegisterData, 'email' | 'password'>) => {
     try {
       setLoading(true);
@@ -169,6 +269,7 @@ const Register: React.FC = () => {
   return (
     <div className="">
       <div className="">
+        {/* Título do formulário de registo */}
         <div>
           <h2 className="text-center fw-bold">
             {t('createAccount')}
@@ -176,12 +277,14 @@ const Register: React.FC = () => {
         </div>
 
         <Form onSubmit={handleEmailRegister}>
+          {/* Alerta de erro (exibido apenas se houver erro) */}
           {error && (
             <Alert variant="danger" className="text-center">
               {error}
             </Alert>
           )}
           
+          {/* Campo de email */}
           <Form.Group className="mb-2">
             <Form.Label htmlFor='email'>{t('email')}</Form.Label>
             <Form.Control
@@ -194,6 +297,7 @@ const Register: React.FC = () => {
             />
           </Form.Group>
           
+          {/* Campo de palavra-passe */}
           <Form.Group className="mb-2">
             <Form.Label htmlFor="password">{t('password')}</Form.Label>
             <Form.Control
@@ -206,6 +310,7 @@ const Register: React.FC = () => {
             />
           </Form.Group>
 
+          {/* Campo de confirmação de palavra-passe */}
           <Form.Group className="mb-3">
             <Form.Label htmlFor="confirmPassword">{t('confirmPassword')}</Form.Label>
             <Form.Control
@@ -218,7 +323,9 @@ const Register: React.FC = () => {
             />
           </Form.Group>
 
+          {/* Botões de ação */}
           <div className="d-grid gap-1">
+            {/* Botão de registo com email/password */}
             <Button 
               type="submit" 
               variant="dark" 
@@ -241,10 +348,12 @@ const Register: React.FC = () => {
               )}
             </Button>
 
+            {/* Separador */}
             <div className="text-center">
               <span className="text-muted">{t('or')}</span>
             </div>
 
+            {/* Botão de registo com Google */}
             <Button
               type="button"
               variant="outline-dark"
@@ -260,6 +369,7 @@ const Register: React.FC = () => {
               {t('register')} {t('with')} {t('google')}
             </Button>
 
+            {/* Botão de registo com Facebook */}
             <Button
               type="button"
               variant="outline-primary"
@@ -275,6 +385,7 @@ const Register: React.FC = () => {
               {t('register')} {t('with')} {t('facebook')}
             </Button>
 
+            {/* Botão para abrir modal de login */}
             <Button 
               type="button" 
               variant="dark" 
@@ -287,6 +398,7 @@ const Register: React.FC = () => {
           </div>
         </Form>
         
+        {/* Modal para completar informações de registo */}
         {showModal && (
           <RegisterCustomerInfoModal
             isOpen={showModal}
@@ -299,6 +411,7 @@ const Register: React.FC = () => {
           />
         )}
         
+        {/* Modal de login */}
         <LoginModal
           show={showLoginModal}
           onClose={() => setShowLoginModal(false)}

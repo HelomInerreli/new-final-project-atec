@@ -5,6 +5,10 @@ import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { useAuth } from '../api/auth';
 
+/**
+ * Interface para representar um agendamento
+ * Contém todas as informações necessárias de um agendamento
+ */
 interface Appointment {
   id: number;
   appointment_date: string;
@@ -20,21 +24,71 @@ interface Appointment {
 
 
 
+/**
+ * Componente para listar todos os agendamentos de um cliente
+ * Exibe uma tabela com os agendamentos e valida permissões de acesso
+ * @returns Componente JSX com a lista de agendamentos ou mensagens de estado
+ */
 export function AppointmentList() {
+  /**
+   * Hook de tradução para internacionalização
+   */
   const { t } = useTranslation();
+
+  /**
+   * Parâmetro de rota com o ID do cliente
+   */
   const { customerId } = useParams();
+
+  /**
+   * Estado para armazenar a lista de agendamentos do cliente
+   * Tipo: Array de Appointment
+   * Inicia como array vazio
+   */
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+
+  /**
+   * Estado para indicar se os dados estão sendo carregados
+   * Tipo: boolean
+   * Inicia como true
+   */
   const [loading, setLoading] = useState(true);
+
+  /**
+   * Estado para armazenar mensagens de erro
+   * Tipo: string | null
+   * Inicia como null (sem erro)
+   */
   const [error, setError] = useState<string | null>(null);
+
+  /**
+   * Estado para indicar se o componente foi montado
+   * Tipo: boolean
+   * Usado para evitar execução de efeitos antes da montagem completa
+   */
   const [mounted, setMounted] = useState(false);
 
-  // Usa o sistema de autenticação real
+  /**
+   * Hook de autenticação
+   * loggedInCustomerId - ID do cliente autenticado
+   * isLoggedIn - Estado de autenticação do utilizador
+   */
   const { loggedInCustomerId, isLoggedIn } = useAuth();
 
+  /**
+   * Efeito para marcar o componente como montado
+   * Executa apenas uma vez ao montar
+   */
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  /**
+   * Efeito para carregar os agendamentos do cliente
+   * Valida autenticação e permissões antes de buscar os dados
+   * Cliente só pode ver os próprios agendamentos
+   * Executa quando o componente é montado ou quando dependências mudam
+   */
   useEffect(() => {
     if (!mounted) return;
 
@@ -72,10 +126,17 @@ export function AppointmentList() {
     fetchAppointments();
   }, [mounted, t, customerId, loggedInCustomerId, isLoggedIn]);
 
+  /**
+   * Retorna mensagem de loading enquanto o componente não está completamente montado
+   */
   if (!mounted) {
     return <div>Loading...</div>;
   }
 
+  /**
+   * Retorna alerta se o utilizador não estiver autenticado
+   * Solicita login para visualizar agendamentos
+   */
   if (!isLoggedIn || loggedInCustomerId == null) {
     return (
       <div className="alert alert-warning text-center my-5">
@@ -85,6 +146,12 @@ export function AppointmentList() {
     );
   }
 
+  /**
+   * Função para determinar a cor do badge baseado no status
+   * Retorna classe Bootstrap apropriada para cada tipo de status
+   * @param status - Status do agendamento (string ou objeto)
+   * @returns Nome da classe de cor Bootstrap (success, warning, danger, secondary)
+   */
   const getStatusColor = (status: string | any): string => {
     const statusStr = String(status || '').toLowerCase();
     switch (statusStr) {
@@ -97,6 +164,7 @@ export function AppointmentList() {
 
   return (
     <>
+      {/* Cabeçalho da página com título, info do utilizador e descrição */}
       <div className="text-center mb-5">
         <h1 className="display-4 fw-bold text-dark mb-3">{t('appointmentList')}</h1>
         <div className="alert alert-info">
@@ -107,6 +175,7 @@ export function AppointmentList() {
         </p>
       </div>
 
+      {/* Indicador de carregamento */}
       {loading && (
         <div className="text-center my-5">
           <div className="spinner-border text-primary" role="status">
@@ -116,6 +185,7 @@ export function AppointmentList() {
         </div>
       )}
 
+      {/* Alerta de erro, exibido apenas se houver erro */}
       {error && (
         <div className="alert alert-danger" role="alert">
           <i className="bi bi-exclamation-triangle me-2"></i>
@@ -123,17 +193,22 @@ export function AppointmentList() {
         </div>
       )}
 
+      {/* Tabela de agendamentos - exibida apenas quando carregamento termina sem erros */}
       {!loading && !error && (
         <>
           <div className="card shadow-sm">
+            {/* Cabeçalho do cartão com contador de agendamentos */}
             <div className="card-header bg-dark text-white">
               <h5 className="mb-0">
                 <i className="bi bi-calendar-check me-2"></i>
                 {t('registeredAppointments')} ({appointments.length})
               </h5>
             </div>
+
+            {/* Tabela responsiva com dados dos agendamentos */}
             <div className="table-responsive">
               <table className="table table-striped table-hover mb-0">
+                {/* Cabeçalho da tabela */}
                 <thead className="table-light">
                   <tr>
                     <th scope="col">ID</th>
@@ -145,6 +220,8 @@ export function AppointmentList() {
                     <th scope="col">Actual Budget</th>
                   </tr>
                 </thead>
+
+                {/* Corpo da tabela com lista de agendamentos ou mensagem de lista vazia */}
                 <tbody>
                   {appointments.length > 0 ? (
                     appointments.map((appointment) => (
@@ -175,6 +252,7 @@ export function AppointmentList() {
             </div>
           </div>
 
+          {/* Alerta de sucesso confirmando conexão com API */}
           <div className="alert alert-success mt-4" role="alert">
             <i className="bi bi-check-circle me-2"></i>
             <strong>{t('apiConnected')}</strong> - {t('appointmentDataFetchedSuccessfully')}

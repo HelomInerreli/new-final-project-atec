@@ -1,5 +1,6 @@
-import { useState, type FC } from "react";
+import { useState, type FC, useMemo } from "react";
 import { useServiceOrder } from "../hooks/useServiceOrder";
+import { useCurrentUser } from "../hooks/useCurrentUser";
 import OrderCard from "../components/OrderCard";
 import CreateServiceOrderModal from "../components/CreateServiceOrderModal";
 import { Button } from "./ui/button";
@@ -11,17 +12,55 @@ import type { Order } from "../interfaces/Order";
 
 const ServiceOrders: FC = () => {
   const { orders, loading, error, refresh } = useServiceOrder();
+  const { user } = useCurrentUser();
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [showNewModal, setShowNewModal] = useState<boolean>(false);
 
+  // Determinar se o usuário é gerente/admin
+  const isManager = useMemo(() => {
+    if (!user) return false;
+    const role = user.role.toLowerCase();
+    return role === 'admin' || role === 'administrador' || role === 'gerente' || role === 'gestor';
+  }, [user]);
+
+  // Opções de status disponíveis baseado no papel do usuário
+  const availableStatuses = useMemo(() => {
+    if (isManager) {
+      return [
+        { value: "all", label: "Todos os status" },
+        { value: "Em Andamento", label: "Em Andamento" },
+        { value: "Pendente", label: "Pendente" },
+        { value: "Concluída", label: "Concluída" },
+        { value: "Cancelada", label: "Cancelada" }
+      ];
+    } else {
+      return [
+        { value: "all", label: "Todos os status" },
+        { value: "Em Andamento", label: "Em Andamento" },
+        { value: "Pendente", label: "Pendente" },
+        { value : "Concluída", label: "Concluída"}
+      ];
+    }
+  }, [isManager]);
+
   const filtered = orders.filter((o: Order) => {
+    // Filtrar por papel do usuário - mecânicos só veem ordens "Em Andamento", "Pendente", "Concluída"
+    if (!isManager) {
+      const status = (o.status || "").toLowerCase();
+      if (status !== "em andamento" && status !== "pendente" && status !== "concluída") {
+        return false;
+      }
+    }
+
+    // Aplicar filtros de busca
     const q = searchTerm.trim().toLowerCase();
     const client = String(o.client ?? "").toLowerCase();
     const vehicle = String(o.vehicle ?? "").toLowerCase();
     const id = String(o.id ?? "").toLowerCase();
     const matchesSearch = q === "" || client.includes(q) || vehicle.includes(q) || id.includes(q);
     
+    // Aplicar filtro de status
     if (filterStatus === "all") return matchesSearch;
     const matchesStatus = o.status === filterStatus;
     return matchesSearch && matchesStatus;
@@ -86,11 +125,11 @@ const ServiceOrders: FC = () => {
               <SelectValue placeholder="Filtrar por status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todos os status</SelectItem>
-              <SelectItem value="Em Andamento">Em Andamento</SelectItem>
-              <SelectItem value="Pendente">Pendente</SelectItem>
-              <SelectItem value="Concluída">Concluída</SelectItem>
-              <SelectItem value="Cancelada">Cancelada</SelectItem>
+              {availableStatuses.map(status => (
+                <SelectItem key={status.value} value={status.value}>
+                  {status.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>

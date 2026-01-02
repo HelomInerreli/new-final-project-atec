@@ -4,13 +4,48 @@ import { setAuthToken, useAuth } from '../api/auth';
 import AccountRelinkModal from './AccountRelinkModal';
 import Home from '../pages/Home/Home';
 
+/**
+ * Componente para processar callbacks de autenticação OAuth
+ * Gere login, registo e religamento de contas do Google/Facebook
+ * Processa parâmetros da URL e redireciona conforme o tipo de operação
+ * @returns Componente JSX com página inicial e modal de religamento
+ */
 const AuthCallback: React.FC = () => {
+  /**
+   * Parâmetros de pesquisa da URL
+   * Contém informações sobre o tipo de autenticação e dados do utilizador
+   */
   const [searchParams] = useSearchParams();
+
+  /**
+   * Hook de navegação para redirecionar entre páginas
+   */
   const navigate = useNavigate();
+
+  /**
+   * Hook de autenticação com função de login
+   */
   const { login } = useAuth();
+
+  /**
+   * Estado para controlar a visibilidade do modal de religamento de conta
+   * Tipo: boolean
+   * Inicia como false (modal fechado)
+   */
   const [showRelinkModal, setShowRelinkModal] = useState(false);
+
+  /**
+   * Estado para indicar se o processo de religamento está em andamento
+   * Tipo: boolean
+   * Inicia como false
+   */
   const [relinkLoading, setRelinkLoading] = useState(false);
 
+  /**
+   * Efeito para processar o callback de autenticação
+   * Identifica o tipo de operação (login, registo, religamento) e executa a ação apropriada
+   * Executa ao montar o componente ou quando os parâmetros mudam
+   */
   useEffect(() => {
     const type = searchParams.get('type');
     const error = searchParams.get('error');
@@ -51,6 +86,11 @@ const AuthCallback: React.FC = () => {
     }
   }, [searchParams, navigate, login]);
 
+  /**
+   * Função para confirmar o religamento de uma conta OAuth a uma conta existente
+   * Envia pedido ao servidor, guarda o token de autenticação e redireciona para o perfil
+   * Recarrega a página após sucesso para atualizar o estado de autenticação
+   */
   const handleConfirmRelink = async () => {
     try {
       setRelinkLoading(true);
@@ -97,17 +137,33 @@ const AuthCallback: React.FC = () => {
     }
   };
 
+  /**
+   * Função para fechar o modal de religamento e voltar à página inicial
+   * Cancela o processo de religamento
+   */
   const handleCloseRelink = () => {
     setShowRelinkModal(false);
     navigate('/');
   };
 
-  // Get relink data for the modal
+  /**
+   * Provedor OAuth (Google ou Facebook) extraído dos parâmetros da URL
+   */
   const provider = searchParams.get('provider') as 'google' | 'facebook';
+
+  /**
+   * Dados do utilizador do provedor OAuth
+   * Contém nome e email da conta Google/Facebook
+   */
   const providerUserData = {
     name: searchParams.get('name') || '',
     email: searchParams.get('email') || ''
   };
+
+  /**
+   * Dados do utilizador existente na base de dados
+   * Contém nome e email da conta já registada
+   */
   const existingUserData = {
     name: searchParams.get('existing_user_name') || '',
     email: searchParams.get('existing_user_email') || ''
