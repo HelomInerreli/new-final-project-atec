@@ -20,6 +20,7 @@ export function Vehicles() {
     handleAddVehicle,
     handleCloseModal,
     handleSaveVehicle,
+    handleGetFromAPI,
   } = useVehicles();
 
   const { t } = useTranslation(); // Assuming useTranslation is imported
@@ -98,6 +99,7 @@ export function Vehicles() {
         customerId={loggedInCustomerId!}
         onClose={handleCloseModal}
         onSave={handleSaveVehicle}
+        getFromAPI={handleGetFromAPI}
       />
     </div>
   );

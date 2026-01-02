@@ -1,4 +1,4 @@
-import type { Vehicle, VehicleCreate, VehicleUpdate } from '../interfaces/vehicle';
+import type { Vehicle, VehicleCreate, VehicleUpdate, VehicleAPIData } from '../interfaces/vehicle';
 import http from "../api/http";
 
 export const vehicleService = {
@@ -76,6 +76,19 @@ export const vehicleService = {
         } catch (error: any) {
             console.error('Erro ao atualizar quilômetros:', error);
             throw new Error(`Falha ao atualizar quilômetros: ${error.message || 'Erro desconhecido'}`);
+        }
+    },
+
+    /**
+     * Buscar dados de veículo da API externa por matrícula
+     */
+    async getFromAPI(plate: string): Promise<VehicleAPIData> {
+        try {
+            const response = await http.get(`/vehiclesapi/${plate}`);
+            return response.data;
+        } catch (error: any) {
+            console.error('Erro ao buscar veículo da API:', error);
+            throw new Error(`Falha ao buscar da API: ${error.message || 'Erro desconhecido'}`);
         }
     },
 };
