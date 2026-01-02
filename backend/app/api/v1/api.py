@@ -16,6 +16,7 @@ from app.api.v1.routes import (
     status, role, employee,absence, absenceType, absenceStatus, finance
 )
 
+# Criação do roteador principal da API
 
 api_router = APIRouter()
 

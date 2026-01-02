@@ -1,6 +1,3 @@
-/* Import DatePicker styles */
-@import './DatePicker.css';
-
 /* Custom Back Button Style */
 .back-button-custom {
   background-color: transparent !important;
@@ -45,3 +42,4 @@
   background-color: transparent !important;
   color: #dc3545 !important;
 }
+

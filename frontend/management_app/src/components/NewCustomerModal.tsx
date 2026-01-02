@@ -7,10 +7,13 @@ import { X, Calendar as CalendarIcon } from 'lucide-react';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '../components/ui/dialog';
 import './../styles/CustomerDetails.css';
 import './inputs.css';
+import './../styles/NewCustomerModal.css';
 import { Calendar } from "../components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "../components/ui/popover"
 import { format, parseISO } from "date-fns"
 import { cn } from "../components/lib/utils"
+import type { CustomerRegister } from '../interfaces/Customer';
+import { useNewCustomerModal } from '../hooks/useNewCustomerModal';
 
 interface NewCustomerModalProps {
   isOpen: boolean;
