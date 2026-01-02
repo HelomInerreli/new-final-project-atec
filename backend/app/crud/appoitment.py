@@ -465,24 +465,23 @@ class AppointmentRepository:
             comment=f"Ordem de serviço :{appointment_id} iniciada.",
         )
         self.db.add(comment)
-            
-            # #Enviar email ao cliente
-            # try:
-            #     if db_appointment.customer and db_appointment.customer.auth and db_appointment.customer.auth.email:
-            #         email_service = EmailService()
-            #         customer_name = db_appointment.customer.name or "Cliente"
-            #         service_name = db_appointment.service.name if db_appointment.service else "Serviço"
-            #         vehicle_plate = db_appointment.vehicle.license_plate if db_appointment.vehicle else "Veículo"
+            #Enviar Email ao cliente
+        try:
+                if db_appointment.customer and db_appointment.customer.auth and db_appointment.customer.auth.email:
+                    email_service = EmailService()
+                    customer_name = db_appointment.customer.name or "Cliente"
+                    service_name = db_appointment.service.name if db_appointment.service else "Serviço"
+                    vehicle_plate = db_appointment.vehicle.plate if db_appointment.vehicle else "Veículo"
                 
-            #         email_service.send_work_started_email(
-            #             customer_email=db_appointment.customer.auth.email,
-            #             customer_name=customer_name,
-            #             service_name=service_name,
-            #             vehicle_plate=vehicle_plate
-            #         )
-            #         print(f"Email de início de trabalho enviado para {db_appointment.customer.auth.email}")
-            # except Exception as e:
-            #     print(f"Erro ao enviar email de início de trabalho: {e}")
+                    email_service.send_work_started_email(
+                        customer_email=db_appointment.customer.auth.email,
+                        customer_name=customer_name,
+                        service_name=service_name,
+                        vehicle_plate=vehicle_plate
+                    )
+                print(f"Email de início de trabalho enviado para {db_appointment.customer.auth.email}")
+        except Exception as e:
+            print(f"Erro ao enviar email de início de trabalho: {e}")
         
             
         self.db.commit()
@@ -580,13 +579,12 @@ class AppointmentRepository:
         )
         self.db.add(comment)    
         
-        # Enviar email ao cliente
         try:
             if db_appointment.customer and db_appointment.customer.auth and db_appointment.customer.auth.email:
                 email_service = EmailService()
                 customer_name = db_appointment.customer.name or "Cliente"
                 service_name = db_appointment.service.name if db_appointment.service else "Serviço"
-                vehicle_plate = db_appointment.vehicle.license_plate if db_appointment.vehicle else "Veículo"
+                vehicle_plate = db_appointment.vehicle.plate if db_appointment.vehicle else "Veículo"
             
                 email_service.send_work_completed_email(
                     customer_email=db_appointment.customer.auth.email,
