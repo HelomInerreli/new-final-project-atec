@@ -3,21 +3,17 @@ import { Button } from "./../../components/ui/button";
 import { Input } from "./../../components/ui/input";
 import { Label } from "./../../components/ui/label";
 import { Badge } from "./../../components/ui/badge";
-import { ArrowLeft, Edit, Trash2, Car, Save} from "lucide-react";
+import { ArrowLeft, Edit, Trash2, Save, X, Calendar as CalendarIcon } from "lucide-react";
 import { useCustomerDetailsPage } from "./../../hooks/useCustomerDetails";
 import { Spinner, Alert} from "react-bootstrap";
 import "./../../styles/CustomerDetails.css";
-import { X, Calendar as CalendarIcon } from 'lucide-react';
-import { Calendar } from "../../components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/popover"
-import { format, parseISO } from "date-fns"
-import { cn } from "../../components/lib/utils"
+import DatePicker from "react-datepicker";
 import type { Vehicle } from "../../interfaces/Vehicle";
 
 
 export default function CustomerDetails() {
   const { id } = useParams<{ id: string }>();
-  
+
   const {
     customerData,
     loading,
@@ -168,47 +164,30 @@ export default function CustomerDetails() {
               />
             </div>
             <div className="col-md-6">
-              <Label className="d-flex form-label small text-muted mb-1">
+              <Label htmlFor="birth_date" className="form-label small text-muted mb-1 d-block text-start">
                 Data de Nascimento
               </Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !formData.birth_date && "text-muted-foreground"
-                    )}
-                    style={{ backgroundColor: '#f8f9fa', height: '38px', borderColor: '#dee2e6', color: '#495057' }}
-                    disabled={!isEditing}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {formData.birth_date ? format(parseISO(formData.birth_date), "dd/MM/yyyy") : "Selecione a data"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 z-[1100]" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={formData.birth_date ? parseISO(formData.birth_date) : undefined}
-                    onSelect={(date) => {
-                      setFormData({
-                        ...formData,
-                        birth_date: date ? format(date, "yyyy-MM-dd") : ''
-                      })
-                    }}
-                    disabled={(date) =>
-                      date > new Date() || date < new Date("1900-01-01")
-                    }
-                    captionLayout="dropdown-buttons"
-                    fromYear={1900}
-                    toYear={new Date().getFullYear()}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
+              <DatePicker 
+                selected={formData.birth_date ? new Date(formData.birth_date) : null}
+                onChange={(date) => {
+                  setFormData({
+                    ...formData,
+                    birth_date: date ? date.toISOString().split('T')[0] : ''
+                  })
+                }}
+                dateFormat="dd/MM/yyyy"
+                maxDate={new Date()}
+                minDate={new Date("1900-01-01")}
+                showYearDropdown
+                showMonthDropdown
+                dropdownMode="select"
+                disabled={!isEditing}
+                className="form-control"
+                placeholderText="Selecione a data"
+                wrapperClassName="w-100"
+              />
             </div>
 
-                
             {/* Row 3: Address */}
             <div className="col-12">
               <Label htmlFor="address" className="form-label small text-muted mb-1 d-block text-start">
@@ -268,7 +247,7 @@ export default function CustomerDetails() {
             {/* Row 5: Registration Date */}
             <div className="col-12">
               <Label className="form-label small text-muted mb-1 d-block text-start">
-                Data de Cadastro
+                Data de Registro
               </Label>
               <Input
                 value={new Date(customerData.customer.created_at).toLocaleDateString("pt-PT")}
@@ -286,13 +265,6 @@ export default function CustomerDetails() {
         <div className="card-body p-4">
           <div className="d-flex justify-content-between align-items-center mb-4">
             <h5 className="mb-0 fw-semibold">Veículos do Cliente</h5>
-            <Button 
-              variant="destructive"
-              className="btn-custom-filled"
-            >
-              <Car className="me-2" style={{ width: '16px', height: '16px' }} />
-              Adicionar Veículo (IN PROGRESS)
-            </Button>
           </div>
 
           {vehicles.length === 0 ? (
@@ -304,7 +276,7 @@ export default function CustomerDetails() {
               {vehicles.map((veiculo, index) => (
                 <div key={veiculo.id}>
                   {index > 0 && <hr className="my-2" style={{ borderColor: '#dc3545' }} />}
-                  
+
                   <div className="row g-3 text-start">
                     <div className="col-md-4">
                       <p className="small text-muted">Marca/Modelo</p>
@@ -323,12 +295,14 @@ export default function CustomerDetails() {
                       <p className="mb-0 fw-semibold">{new Date(customerData.customer.updated_at).toLocaleDateString("pt-PT")}</p>
                     </div>
                     <div className="col-md-2 align-self-center">
-                      <Button 
-                        variant="outline" 
-                        className="btn-custom-outline"
-                      >
-                        Ver Detalhes (IN PROGRESS)
-                      </Button>
+                      <Link to={`/vehicles/${veiculo.id}`}>
+                        <Button 
+                          variant="outline" 
+                          className="btn-custom-outline"
+                        >
+                          Ver Detalhes
+                        </Button>
+                      </Link>
                     </div>
                   </div>
                 </div>
