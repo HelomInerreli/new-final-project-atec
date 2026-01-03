@@ -32,15 +32,54 @@ export function Header({ className = "" }: HeaderProps) {
   };
 
   const menuItems = [
-    { label: "Home", href: "/" },
-    { label: t("serviceList"), href: "/services" },
-    { label: t("about"), href: "/about" },
-    { label: t("contact"), href: "/contact" },
+    { label: "Home", href: "/", section: "home-section" },
+    { label: t("serviceList"), href: "/services", section: null },
+    // { label: t("about"), href: "/", section: "about-section" },
+    // { label: t("contact"), href: "/", section: "contact-section" },
   ];
 
   // Função para verificar se a rota está ativa
   const isActiveRoute = (href: string) => {
     return location.pathname === href;
+  };
+
+  // Função para navegação com scroll
+  const handleNavigation = (href: string, section: string | null, e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    if (section && location.pathname === "/") {
+      // Se já estamos na home, apenas fazer scroll
+      const element = document.getElementById(section);
+      if (element) {
+        const offset = 80;
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - offset;
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth"
+        });
+      }
+    } else if (section) {
+      // Se não estamos na home, navegar e depois fazer scroll
+      navigate(href);
+      setTimeout(() => {
+        const element = document.getElementById(section);
+        if (element) {
+          const offset = 80;
+          const elementPosition = element.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - offset;
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: "smooth"
+          });
+        }
+      }, 100);
+    } else {
+      // Navegação normal para outras páginas
+      navigate(href);
+    }
+    
+    setIsMenuOpen(false);
   };
 
   // Funções para obter nome de usuário e iniciais
@@ -100,12 +139,13 @@ export function Header({ className = "" }: HeaderProps) {
                         : ""
                     }`}
                     href={item.href}
-                    onClick={() => setIsMenuOpen(false)}
-                    style={
-                      isActiveRoute(item.href)
+                    onClick={(e) => handleNavigation(item.href, item.section, e)}
+                    style={{
+                      ...(isActiveRoute(item.href)
                         ? { borderBottom: "2px solid #dc3545" }
-                        : {}
-                    }
+                        : {}),
+                      cursor: "pointer"
+                    }}
                   >
                     {item.label}
                   </a>
@@ -124,12 +164,13 @@ export function Header({ className = "" }: HeaderProps) {
                         : ""
                     }`}
                     href={item.href}
-                    onClick={() => setIsMenuOpen(false)}
-                    style={
-                      isActiveRoute(item.href)
+                    onClick={(e) => handleNavigation(item.href, item.section, e)}
+                    style={{
+                      ...(isActiveRoute(item.href)
                         ? { borderBottom: "2px solid #dc3545" }
-                        : {}
-                    }
+                        : {}),
+                      cursor: "pointer"
+                    }}
                   >
                     {item.label}
                   </a>

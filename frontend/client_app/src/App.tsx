@@ -1,5 +1,5 @@
 import "./styles/App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Layout } from "./pages/master/Layout";
 import { CustomerList } from "./components/CustomerList";
 import { ServiceHistory } from "./components/ServiceHistory";
@@ -8,10 +8,7 @@ import { AppointmentList } from "./components/AppointmentList";
 import { ServicesList } from "./components/ServicesList";
 import Register from "./components/Register";
 import AuthCallback from "./components/AuthCallback";
-
 import { FutureAppointments } from "./components/FutureAppointement";
-import { SobrePage } from "./pages/Sobre/SobrePage";
-import { ContactPage } from "./pages/contact/ContactPage";
 import { ClientLayout } from "./pages/clientLayout/ClientLayout";
 import Profile from "./pages/profile/profile";
 
@@ -32,11 +29,11 @@ function App() {
           <Route path="/services" element={<ServicesList />} />
           <Route path="/register" element={<Register />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
-          <Route path="/about" element={<SobrePage />} />
           <Route path="/profile" element={<Profile />} />
-          {/* <Route path="/contact" element={<ClientMenu />} /> */}
-          <Route path="/contact" element={<ContactPage />} />
           <Route path="/my-services" element={<ClientLayout />} />
+          {/* Redirect old routes to home */}
+          <Route path="/about" element={<Navigate to="/" replace />} />
+          <Route path="/contact" element={<Navigate to="/" replace />} />
         </Routes>
       </Layout>
     </BrowserRouter>
