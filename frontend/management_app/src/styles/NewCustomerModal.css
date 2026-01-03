@@ -55,16 +55,3 @@
 .modal-input {
   background-color: #f8f9fa;
 }
-
-/* Calendar Button */
-.modal-calendar-button {
-  background-color: #f8f9fa;
-  height: 38px;
-  border-color: #dee2e6;
-  color: #495057;
-}
-
-/* Popover Content */
-.modal-popover-content {
-  z-index: 1100;
-}

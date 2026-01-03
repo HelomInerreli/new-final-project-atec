@@ -30,12 +30,16 @@ class VehicleUpdate(BaseModel):
 class Vehicle(VehicleBase):
     id: int
     customer_id: int
+    created_at: datetime
+    updated_at: datetime
     deleted_at: Optional[datetime] = None  
 
 class VehicleWithCustomer(VehicleBase):
     id: int
     customer_id: int
     customer_name: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
     deleted_at: Optional[datetime] = None
 
     class Config:

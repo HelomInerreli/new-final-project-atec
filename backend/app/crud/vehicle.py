@@ -50,6 +50,8 @@ class VehicleRepository:
                 "description": vehicle.description,
                 "engineSize": vehicle.engineSize,
                 "fuelType": vehicle.fuelType,
+                "created_at": vehicle.created_at,
+                "updated_at": vehicle.updated_at,
                 "deleted_at": vehicle.deleted_at,
                 "customer_name": customer_name
             }
