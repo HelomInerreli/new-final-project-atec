@@ -5,7 +5,6 @@ import { Vehicles } from "../vehicles/vehicles";
 import { Appointments } from "../future_appointments/FutureAppointments";
 import { PastAppointmentsPage } from "../pastAppointments/PastAppointmentsPage";
 import { Invoices } from "../invoices/invoices";
-import Profile from "../profile/profile";
 import Dashboard from "../dashboard/Dashboard";
 import { useAuth } from "../../api/auth";
 import { useTranslation } from "react-i18next";

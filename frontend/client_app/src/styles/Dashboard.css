@@ -128,13 +128,32 @@
 }
 
 /* Responsive Design */
+@media (max-width: 1024px) {
+    .dashboard-page {
+        padding: 1.5rem 1rem;
+    }
+
+    .dashboard-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.25rem;
+    }
+
+    .recent-appointments-table {
+        font-size: 0.9rem;
+    }
+}
+
 @media (max-width: 768px) {
     .dashboard-page {
         padding: 1rem 0.5rem;
     }
 
     .dashboard-header h1 {
-        font-size: 2rem;
+        font-size: 1.75rem;
+    }
+
+    .dashboard-subtitle {
+        font-size: 1rem;
     }
 
     .dashboard-stats-grid {
@@ -144,6 +163,10 @@
 
     .dashboard-recent-section {
         padding: 1rem;
+    }
+
+    .section-title {
+        font-size: 1.25rem;
     }
 
     .recent-appointments-table {
@@ -184,6 +207,49 @@
         text-transform: uppercase;
         font-size: 0.75rem;
         letter-spacing: 0.5px;
+    }
+
+    .no-recent-activity {
+        padding: 3rem 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-page {
+        padding: 0.75rem 0.25rem;
+    }
+
+    .dashboard-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .dashboard-subtitle {
+        font-size: 0.9rem;
+    }
+
+    .dashboard-stats-grid {
+        gap: 0.75rem;
+    }
+
+    .dashboard-recent-section {
+        padding: 0.75rem;
+        border-radius: 8px;
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+    }
+
+    .no-recent-activity {
+        padding: 2rem 1rem;
+    }
+
+    .no-recent-activity h3 {
+        font-size: 1.1rem;
+    }
+
+    .no-recent-activity p {
+        font-size: 0.9rem;
     }
 }
 
