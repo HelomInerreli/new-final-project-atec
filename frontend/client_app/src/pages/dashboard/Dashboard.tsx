@@ -1,126 +1,186 @@
-import React, { useMemo } from "react";
-import "../../styles/Dashboard.css";
-import { Container, Row, Col } from "react-bootstrap";
-import "bootstrap/dist/css/bootstrap.min.css";
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import { useDashboard } from '../../hooks/useDashboard';
+import { DashboardStatCard } from '../../components/DashboardStatCard';
+import { 
+    formatDateTime, 
+    formatNextAppointment, 
+    formatVehicleInfo, 
+    formatServiceName,
+    formatCountDescription 
+} from '../../utils/dashboardFormatters';
+import { navigateToSection } from '../../utils/navigationHelpers';
+import { FaCar, FaCalendarAlt, FaHistory, FaClock } from 'react-icons/fa';
+import '../../styles/Dashboard.css';
 
-const Dashboard: React.FC = () => {
-  // Exemplo (substitui pela tua fonte de dados quando quiseres)
-  const stats = {
-    appointmentsToday: 2,
-    nextAppointment: "2025-10-14T10:00:00",
-    pendingReviews: 1,
-    tiresToReplace: 2,
-    lastInvoice: 320.5,
-  };
+/**
+ * Página principal do Dashboard do cliente
+ * Exibe estatísticas resumidas e agendamentos recentes
+ */
+export function Dashboard() {
+    const { t } = useTranslation();
+    const navigate = useNavigate();
+    const { stats, loading, error, isLoggedIn } = useDashboard();
 
-  const nextApptText = useMemo(() => {
-    const d = new Date(stats.nextAppointment);
-    return d.toLocaleString("pt-PT", { dateStyle: "short", timeStyle: "short" });
-  }, [stats.nextAppointment]);
+    // Verificação de login
+    if (!isLoggedIn) {
+        return (
+            <div className="dashboard-page">
+                <div className="alert alert-warning">
+                    {t('dashboard.pleaseLogin', { defaultValue: 'Por favor, faça login para ver o dashboard' })}
+                </div>
+            </div>
+        );
+    }
 
-  const currency = useMemo(
-    () => new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" }),
-    []
-  );
+    // Estado de carregamento
+    if (loading) {
+        return (
+            <div className="dashboard-page">
+                <div className="text-center py-5">
+                    <div className="spinner-border text-danger" role="status">
+                        <span className="visually-hidden">{t('loading')}</span>
+                    </div>
+                    <p className="mt-3">{t('dashboard.loading', { defaultValue: 'A carregar dashboard...' })}</p>
+                </div>
+            </div>
+        );
+    }
 
-  return (
-    <Container fluid className="dashboard">
-      <header className="dashboard-header text-center mb-4">
-        <h1>Dashboard</h1>
-        <p className="subtitle">Resumo rápido da sua atividade</p>
-      </header>
-      {/* KPIs (apenas visual, sem ação) */}
-      <Row className="justify-content-center g-4 kpi-grid">
-        <Col xs={12} sm={6} lg={3}>
-          <div className="dashboard-card">
-            <div className="icon-badge" aria-hidden>📅</div>
-            <div className="card-text">
-              <div className="dashboard-card-title">Marcações hoje</div>
-              <div className="dashboard-card-value">{stats.appointmentsToday}</div>
-              <div className="dashboard-card-desc">Próxima: {nextApptText}</div>
+    // Estado de erro
+    if (error) {
+        return (
+            <div className="dashboard-page">
+                <div className="alert alert-danger" role="alert">
+                    {error}
+                </div>
             </div>
-          </div>
-        </Col>
-        <Col xs={12} sm={6} lg={3}>
-          <div className="dashboard-card">
-            <div className="icon-badge" aria-hidden>🛠️</div>
-            <div className="card-text">
-              <div className="dashboard-card-title">Revisões pendentes</div>
-              <div className="dashboard-card-value">{stats.pendingReviews}</div>
-              <div className="dashboard-card-desc">Acompanhe o estado</div>
-            </div>
-          </div>
-        </Col>
-        <Col xs={12} sm={6} lg={3}>
-          <div className="dashboard-card">
-            <div className="icon-badge" aria-hidden>🛞</div>
-            <div className="card-text">
-              <div className="dashboard-card-title">Pneus a substituir</div>
-              <div className="dashboard-card-value">{stats.tiresToReplace}</div>
-              <div className="dashboard-card-desc">Ver recomendações</div>
-            </div>
-          </div>
-        </Col>
-        <Col xs={12} sm={6} lg={3}>
-          <div className="dashboard-card">
-            <div className="icon-badge" aria-hidden>💳</div>
-            <div className="card-text">
-              <div className="dashboard-card-title">Última fatura</div>
-              <div className="dashboard-card-value">
-                {currency.format(stats.lastInvoice)}
-              </div>
-              <div className="dashboard-card-desc">Histórico disponível</div>
-            </div>
-          </div>
-        </Col>
-      </Row>
+        );
+    }
 
-      {/* Caixa simples de “atividade recente” (opcional) */}
-      <Row className="justify-content-center mt-4 w-100">
-        <Col xs={12} md={10} lg={8}>
-          <section className="recent-card">
-            <div className="recent-header">
-              <span>Atividade recente</span>
+    return (
+        <div className="dashboard-page">
+            {/* Header */}
+            <div className="dashboard-header">
+                <h1>{t('dashboard.title', { defaultValue: 'Dashboard' })}</h1>
+                <p className="dashboard-subtitle">
+                    {t('dashboard.subtitle', { defaultValue: 'Resumo rápido da sua atividade' })}
+                </p>
             </div>
-            <table className="recent-table">
-              <thead>
-                <tr>
-                  <th>Tipo</th>
-                  <th>Descrição</th>
-                  <th>Data</th>
-                  <th className="right">Valor</th>
-                  <th>Estado</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td data-label="Tipo">Marcação</td>
-                  <td data-label="Descrição">Alinhamento e Mudança de Óleo</td>
-                  <td data-label="Data">{new Date("2025-10-12T16:30:00").toLocaleString("pt-PT", { dateStyle: "short", timeStyle: "short" })}</td>
-                  <td className="right" data-label="Valor">—</td>
-                  <td data-label="Estado"><span className="chip ok">Concluído</span></td>
-                </tr>
-                <tr>
-                  <td data-label="Tipo">Fatura</td>
-                  <td data-label="Descrição">FT-2025-010</td>
-                  <td data-label="Data">{new Date("2025-10-12T17:00:00").toLocaleString("pt-PT", { dateStyle: "short", timeStyle: "short" })}</td>
-                  <td className="right" data-label="Valor">{currency.format(122.35)}</td>
-                  <td data-label="Estado"><span className="chip ok">Paga</span></td>
-                </tr>
-                <tr>
-                  <td data-label="Tipo">Revisão</td>
-                  <td data-label="Descrição">Revisão Periódica</td>
-                  <td data-label="Data">{new Date("2025-10-10T10:00:00").toLocaleString("pt-PT", { dateStyle: "short", timeStyle: "short" })}</td>
-                  <td className="right" data-label="Valor">—</td>
-                  <td data-label="Estado"><span className="chip warn">Agendada</span></td>
-                </tr>
-              </tbody>
-            </table>
-          </section>
-        </Col>
-      </Row>
-    </Container>
-  );
-};
+
+            {/* Estatísticas em Cards */}
+            <div className="dashboard-stats-grid">
+                <DashboardStatCard
+                    icon={<FaCar size={32} />}
+                    title={t('dashboard.vehicles', { defaultValue: 'Veículos Registrados' })}
+                    value={stats.totalVehicles}
+                    description={formatCountDescription(
+                        stats.totalVehicles,
+                        t('dashboard.vehicleDescriptionSingular', { defaultValue: 'veículo ativo' }),
+                        t('dashboard.vehicleDescriptionPlural', { defaultValue: 'veículos ativos' })
+                    )}
+                    color="red"
+                    onClick={() => navigateToSection('vehicles', navigate)}
+                />
+
+                <DashboardStatCard
+                    icon={<FaCalendarAlt size={32} />}
+                    title={t('dashboard.futureAppointments', { defaultValue: 'Agendamentos Futuros' })}
+                    value={stats.futureAppointments}
+                    description={formatCountDescription(
+                        stats.futureAppointments,
+                        t('dashboard.appointmentDescriptionSingular', { defaultValue: 'agendamento pendente' }),
+                        t('dashboard.appointmentDescriptionPlural', { defaultValue: 'agendamentos pendentes' })
+                    )}
+                    color="blue"
+                    onClick={() => navigateToSection('appointments', navigate)}
+                />
+
+                <DashboardStatCard
+                    icon={<FaHistory size={32} />}
+                    title={t('dashboard.completedServices', { defaultValue: 'Serviços Realizados' })}
+                    value={stats.pastAppointments}
+                    description={t('dashboard.completedServicesDescription', { 
+                        defaultValue: 'histórico completo' 
+                    })}
+                    color="green"
+                    onClick={() => navigateToSection('service-history', navigate)}
+                />
+
+                <DashboardStatCard
+                    icon={<FaClock size={32} />}
+                    title={t('dashboard.nextAppointment', { defaultValue: 'Próximo Agendamento' })}
+                    value={stats.nextAppointment ? '📅' : '—'}
+                    description={formatNextAppointment(
+                        stats.nextAppointment,
+                        t('dashboard.noUpcomingAppointments', { defaultValue: 'Nenhum agendamento' })
+                    )}
+                    color="orange"
+                />
+            </div>
+
+            {/* Agendamentos Recentes */}
+            {stats.recentAppointments.length > 0 && (
+                <div className="dashboard-recent-section">
+                    <h2 className="section-title">
+                        {t('dashboard.recentActivity', { defaultValue: 'Atividade Recente' })}
+                    </h2>
+                    
+                    <div className="recent-appointments-table-wrapper">
+                        <table className="recent-appointments-table">
+                            <thead>
+                                <tr>
+                                    <th>{t('dashboard.table.date', { defaultValue: 'Data' })}</th>
+                                    <th>{t('dashboard.table.vehicle', { defaultValue: 'Veículo' })}</th>
+                                    <th>{t('dashboard.table.services', { defaultValue: 'Serviços' })}</th>
+                                    <th>{t('dashboard.table.status', { defaultValue: 'Estado' })}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {stats.recentAppointments.map((appointment) => (
+                                    <tr key={appointment.id}>
+                                        <td data-label={t('dashboard.table.date', { defaultValue: 'Data' })}>
+                                            {formatDateTime(appointment.appointment_date)}
+                                        </td>
+                                        <td data-label={t('dashboard.table.vehicle', { defaultValue: 'Veículo' })}>
+                                            {formatVehicleInfo(appointment.vehicle)}
+                                        </td>
+                                        <td data-label={t('dashboard.table.services', { defaultValue: 'Serviços' })}>
+                                            {formatServiceName(appointment.service)}
+                                        </td>
+                                        <td data-label={t('dashboard.table.status', { defaultValue: 'Estado' })}>
+                                            <span className="status-badge status-completed">
+                                                {t('dashboard.status.completed', { defaultValue: 'Concluído' })}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
+
+            {/* Mensagem quando não há agendamentos recentes */}
+            {stats.recentAppointments.length === 0 && (
+                <div className="no-recent-activity">
+                    <FaHistory size={48} color="#ccc" />
+                    <h3>{t('dashboard.noRecentActivity', { defaultValue: 'Sem atividade recente' })}</h3>
+                    <p>
+                        {t('dashboard.noRecentActivityMessage', { 
+                            defaultValue: 'Você ainda não tem serviços concluídos. Agende seu primeiro serviço!' 
+                        })}
+                    </p>
+                    <button 
+                        className="btn btn-danger"
+                        onClick={() => navigateToSection('appointments', navigate)}
+                    >
+                        {t('dashboard.scheduleService', { defaultValue: 'Agendar Serviço' })}
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+}
 
 export default Dashboard;

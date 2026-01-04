@@ -5,7 +5,9 @@ from typing import List
 from app.database import get_db
 from app.crud.appoitment import AppointmentRepository
 from app.models.appoitment_extra_service import AppointmentExtraService as AppointmentExtraServiceModel
+from app.models.extra_service import ExtraService as ExtraServiceModel
 from app.schemas.appointment_extra_service import AppointmentExtraService as AppointmentExtraServiceSchema
+from app.schemas.extra_service import ExtraService as ExtraServiceSchema
 
 router = APIRouter()
 
@@ -13,6 +15,14 @@ router = APIRouter()
 def get_appointment_repo(db: Session = Depends(get_db)) -> AppointmentRepository:
     """Dependency to provide an AppointmentRepository instance."""
     return AppointmentRepository(db)
+
+
+@router.get("/catalog", response_model=List[ExtraServiceSchema])
+def list_extra_services_catalog(db: Session = Depends(get_db)):
+    """
+    List all available extra services from the catalog.
+    """
+    return db.query(ExtraServiceModel).all()
 
 
 @router.patch("/requests/{request_id}/approve", response_model=AppointmentExtraServiceSchema)

@@ -72,6 +72,28 @@ export function usePastAppointments() {
         fetchAppointments();
     }, [isLoggedIn, loggedInCustomerId, t]);
 
+    /**
+     * Auto-refresh: atualiza os agendamentos passados a cada 10 segundos
+     * Usa silent loading para não mostrar spinner durante atualizações automáticas
+     */
+    useEffect(() => {
+        if (!isLoggedIn || !loggedInCustomerId) return;
+
+        const fetchAppointmentsSilent = async () => {
+            try {
+                const grouped = await getGroupedPastAppointments(loggedInCustomerId);
+                setGroupedAppointments(grouped);
+                setError(null);
+            } catch (err: any) {
+                console.error('Error auto-refreshing past appointments:', err);
+                // Não atualiza o erro no estado durante refresh silencioso
+            }
+        };
+
+        const interval = setInterval(fetchAppointmentsSilent, 10000); // 10 segundos
+        return () => clearInterval(interval);
+    }, [isLoggedIn, loggedInCustomerId]);
+
     return {
         groupedAppointments,
         loading,

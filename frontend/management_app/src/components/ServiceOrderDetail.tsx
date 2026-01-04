@@ -1,4 +1,4 @@
-import React, { type FC } from "react";
+import { type FC, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useServiceOrderDetails } from "../hooks/useServiceOrderDetails";
 import { Button } from "./ui/button";
@@ -6,6 +6,7 @@ import Input from "./Input";
 import AddPartsModal from "./AddPartsModal";
 import AddCommentModal from "./AddCommentModal";
 import { Trash2, ArrowLeft } from "lucide-react";
+import AddExtraServiceModal from "./AddExtraServiceModal";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,6 +23,7 @@ import "../styles/ServiceOrderDetail.css";
 const ServiceOrderDetail: FC = () => {
   const { id } = useParams<{ id?: string }>();
   const navigate = useNavigate();
+  const [isExtraServiceModalOpen, setIsExtraServiceModalOpen] = useState(false);
 
   const {
     order,
@@ -365,6 +367,65 @@ const ServiceOrderDetail: FC = () => {
               )}
             </div>
           </div>
+
+          {/* SERVIÇOS EXTRAS */}
+          <div className="so-panel">
+            <div className="so-panel-header">
+              <h6 className="so-panel-title so-panel-title-extras">
+                Serviços Extras Propostos
+              </h6>
+              <button 
+                className="so-add-icon-btn so-add-icon-btn-extras"
+                onClick={() => setIsExtraServiceModalOpen(true)}
+                title="Propor serviço extra"
+              >
+                +
+              </button>
+            </div>
+
+            <div className="extras-list-wrapper">
+              {!order.extra_service_associations || order.extra_service_associations.length === 0 ? (
+                <div className="so-empty-message">Sem serviços extras propostos</div>
+              ) : (
+                <div className="extras-list">
+                  {order.extra_service_associations.map((extra: any, i: number) => {
+                    const statusClass = 
+                      extra.status === 'approved' ? 'status-approved' :
+                      extra.status === 'rejected' ? 'status-rejected' :
+                      'status-pending';
+                    
+                    const statusLabel = 
+                      extra.status === 'approved' ? 'Aprovado' :
+                      extra.status === 'rejected' ? 'Recusado' :
+                      'Pendente';
+
+                    return (
+                      <div key={i} className={`extra-item ${statusClass}`}>
+                        <div className="extra-header">
+                          <h6 className="extra-name">{extra.name || 'Serviço Extra'}</h6>
+                          <span className={`extra-status badge ${statusClass}`}>
+                            {statusLabel}
+                          </span>
+                        </div>
+                        {extra.description && (
+                          <p className="extra-description">{extra.description}</p>
+                        )}
+                        <div className="extra-footer">
+                          <span className="extra-price">€{Number(extra.price ?? 0).toFixed(2)}</span>
+                          {extra.duration_minutes && (
+                            <span className="extra-duration">
+                              <i className="bi bi-clock me-1"></i>
+                              {extra.duration_minutes} min
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -378,6 +439,13 @@ const ServiceOrderDetail: FC = () => {
       <AddPartsModal
         isOpen={isPartsModalOpen}
         onClose={() => setIsPartsModalOpen(false)}
+        orderId={id!}
+        onSuccess={fetchOrder}
+      />
+
+      <AddExtraServiceModal
+        isOpen={isExtraServiceModalOpen}
+        onClose={() => setIsExtraServiceModalOpen(false)}
         orderId={id!}
         onSuccess={fetchOrder}
       />

@@ -92,13 +92,19 @@ export const useAppointmentModal = (show: boolean, onSuccess: () => void, onClos
                 return;
             }
 
+            // Criar a data no timezone local para evitar problemas de conversão
             const dateTime = new Date(selectData);
             const [hours, minutes] = selectedTime.split(':');
-            dateTime.setHours(parseInt(hours), parseInt(minutes));
+            dateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+
+            // Calcular o orçamento estimado baseado no serviço selecionado
+            const selectedService = services.find(s => s.id === formData.service_id);
+            const estimatedBudget = selectedService?.price || 0;
 
             setFormData(prev => ({
                 ...prev,
-                appointment_date: dateTime.toISOString()
+                appointment_date: dateTime.toISOString(),
+                estimated_budget: estimatedBudget
             }));
 
             setError(null);
@@ -137,8 +143,17 @@ export const useAppointmentModal = (show: boolean, onSuccess: () => void, onClos
 
         try {
             setLoading(true);
+            
+            // Se não há descrição, usar descrição padrão baseada no serviço
+            let description = formData.description;
+            if (!description || description.trim() === '') {
+                const selectedService = services.find(s => s.id === formData.service_id);
+                description = `Agendamento para ${selectedService?.name || 'serviço'}. ${selectedService?.description || ''}`;
+            }
+            
             const appointmentData: CreateAppointmentData = {
                 ...formData,
+                description,
                 customer_id: loggedInCustomerId,
             };
             await appointmentService.create(appointmentData);

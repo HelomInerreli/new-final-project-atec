@@ -1,18 +1,28 @@
 import { useState } from 'react';
 import { usePastAppointments } from '../hooks/usePastAppointments';
 import { useTranslation } from 'react-i18next';
+import { InvoiceDetail } from './InvoiceDetail';
 import '../styles/PastAppointments.css';
 
 export function PastAppointments() {
     const { t } = useTranslation();
     const { groupedAppointments, loading, error, isLoggedIn } = usePastAppointments();
     const [expandedMonths, setExpandedMonths] = useState<Record<string, boolean>>({});
+    const [selectedAppointmentId, setSelectedAppointmentId] = useState<number | null>(null);
 
     const toggleMonth = (monthYear: string) => {
         setExpandedMonths(prev => ({
             ...prev,
             [monthYear]: !prev[monthYear]
         }));
+    };
+
+    const handleViewInvoice = (appointmentId: number) => {
+        setSelectedAppointmentId(appointmentId);
+    };
+
+    const handleBackToList = () => {
+        setSelectedAppointmentId(null);
     };
 
     if (!isLoggedIn) {
@@ -38,6 +48,33 @@ export function PastAppointments() {
         return (
             <div className="alert alert-danger">
                 {error}
+            </div>
+        );
+    }
+
+    // Se selecionou uma fatura, mostra o detalhe
+    if (selectedAppointmentId) {
+        return (
+            <div className="past-appointments-page">
+                <button 
+                    className="btn btn-secondary mb-4"
+                    onClick={handleBackToList}
+                    style={{ 
+                        background: '#6c757d',
+                        color: 'white',
+                        border: 'none',
+                        padding: '0.75rem 1.5rem',
+                        borderRadius: '8px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'background 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = '#5a6268'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = '#6c757d'}
+                >
+                    ← {t('back')}
+                </button>
+                <InvoiceDetail appointmentId={selectedAppointmentId} />
             </div>
         );
     }
@@ -125,6 +162,29 @@ export function PastAppointments() {
                                                         <span className="past-budget-value">€{appointment.estimated_budget.toFixed(0)}</span>
                                                     </div>
                                                 </div>
+                                            </div>
+
+                                            <div className="past-card-footer">
+                                                <button 
+                                                    className="btn-view-invoice"
+                                                    onClick={() => handleViewInvoice(appointment.id)}
+                                                    style={{
+                                                        width: '100%',
+                                                        background: '#dc3545',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        padding: '0.75rem 1.5rem',
+                                                        borderRadius: '8px',
+                                                        fontWeight: '600',
+                                                        cursor: 'pointer',
+                                                        transition: 'background 0.2s ease',
+                                                        marginTop: '1rem'
+                                                    }}
+                                                    onMouseEnter={(e) => e.currentTarget.style.background = '#c82333'}
+                                                    onMouseLeave={(e) => e.currentTarget.style.background = '#dc3545'}
+                                                >
+                                                    📄 {t('invoices.viewInvoice')}
+                                                </button>
                                             </div>
                                         </div>
                                     ))}
