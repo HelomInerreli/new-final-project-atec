@@ -252,7 +252,7 @@ export default function AddExtraServiceModal({
             <Button type="button" variant="outline" onClick={handleClose}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={submitting || loadingCatalog}>
+            <Button type="submit" disabled={submitting || loadingCatalog} className="bg-red-600 hover:bg-red-700 text-white">
               {submitting ? 'Enviando...' : 'Enviar Proposta'}
             </Button>
           </DialogFooter>
