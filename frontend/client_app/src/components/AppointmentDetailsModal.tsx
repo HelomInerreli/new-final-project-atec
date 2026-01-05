@@ -176,7 +176,7 @@ export function AppointmentStatusModal({
   /**
    * Retorna null se não houver agendamento para exibir
    */
-  if (!appointment) return null;
+  if (!appointment || !currentAppointment) return null;
 
   /**
    * Status do agendamento em minúsculas para comparação
@@ -192,7 +192,6 @@ export function AppointmentStatusModal({
    * Índice da fase atual no array de fases
    * Usado para determinar quais fases já foram concluídas
    */
-  if (!currentAppointment) return null;
 
   const currentPhaseIndex = statusPhases.findIndex(
     (phase) => phase.key === statusLower
