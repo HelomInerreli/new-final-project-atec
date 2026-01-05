@@ -94,5 +94,53 @@ class EmailService:
             </body>
         </html>
         """
+        
+        return self.send_email(customer_email, subject, html_content)
+    
+    def send_work_started_email(self, customer_email: str, customer_name: str, service_name: str, vehicle_plate: str):
+        """Envia email quando o trabalho é iniciado"""
+        subject = f"Trabalho Iniciado - {vehicle_plate}"
+    
+        html_content = f"""
+        <html>
+            <body>
+                <h2>Trabalho Iniciado</h2>
+                <p>Caro(a) {customer_name},</p>
+                <p>Informamos que o trabalho no seu veículo <strong>{vehicle_plate}</strong> foi iniciado.</p>
+                <p><strong>Serviço:</strong> {service_name}</p>
+                <div style="background-color: #f0f8ff; padding: 15px; border-left: 4px solid #007bff; margin: 20px 0;">
+                    <p>✓ A nossa equipa já está a trabalhar no seu veículo.</p>
+                    <p>✓ Será notificado quando o trabalho for concluído.</p>
+                </div>
+                <br>
+                <p>Atenciosamente,</p>
+                <p>A Equipa da Oficina</p>
+            </body>
+        </html>
+        """
+
+        return self.send_email(customer_email, subject, html_content)
+
+    def send_work_completed_email(self, customer_email: str, customer_name: str, service_name: str, vehicle_plate: str):
+        """Envia email quando o trabalho é finalizado"""
+        subject = f"Trabalho Concluído - {vehicle_plate}"
+    
+        html_content = f"""
+        <html>
+            <body>
+                <h2>Trabalho Concluído</h2>
+                <p>Caro(a) {customer_name},</p>
+                <p>Temos o prazer de informar que o trabalho no seu veículo <strong>{vehicle_plate}</strong> foi concluído com sucesso!</p>
+                <p><strong>Serviço:</strong> {service_name}</p>
+                <div style="background-color: #e8f5e9; padding: 15px; border-left: 4px solid #4caf50; margin: 20px 0;">
+                    <p>✓ O seu veículo está pronto para levantamento.</p>
+                    <p>✓ Por favor, entre em contacto connosco para agendar o levantamento.</p>
+                </div>
+                <br>
+                <p>Obrigado pela sua confiança!</p>
+                <p>A Equipa da Oficina</p>
+            </body>
+        </html>
+        """
 
         return self.send_email(customer_email, subject, html_content)
