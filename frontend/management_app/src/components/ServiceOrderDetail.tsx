@@ -248,9 +248,9 @@ const ServiceOrderDetail: FC = () => {
 
         <div className="so-divider" />
 
-        <div className="so-panels-grid">
+        <div className="so-panels-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '24px' }}>
           {/* COMENTÁRIOS */}
-          <div className="so-panel">
+          <div className="so-panel" style={{ minWidth: 0 }}>
             <div className="so-panel-header">
               <h6 className="so-panel-title so-panel-title-comments">
                 Comentários (Acompanhamento)
@@ -293,9 +293,6 @@ const ServiceOrderDetail: FC = () => {
                       <div className="timeline-content">
                         <div className="timeline-content-wrapper">
                           <div className="timeline-text">{c.comment}</div>
-                          {isLatest && (
-                            <span className="timeline-badge">NOVO</span>
-                          )}
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
                               <button
@@ -332,6 +329,9 @@ const ServiceOrderDetail: FC = () => {
                               </AlertDialogFooter>
                             </AlertDialogContent>
                           </AlertDialog>
+                          {isLatest && (
+                            <span className="timeline-badge">NOVO</span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -342,7 +342,7 @@ const ServiceOrderDetail: FC = () => {
           </div>
 
           {/* PEÇAS */}
-          <div className="so-panel">
+          <div className="so-panel" style={{ minWidth: 0 }}>
             <div className="so-panel-header">
               <h6 className="so-panel-title so-panel-title-parts">
                 Peças Utilizadas
@@ -446,13 +446,13 @@ const ServiceOrderDetail: FC = () => {
           </div>
 
           {/* SERVIÇOS EXTRAS */}
-          <div className="so-panel">
+          <div className="so-panel" style={{ minWidth: 0 }}>
             <div className="so-panel-header">
-              <h6 className="so-panel-title so-panel-title-extras">
+              <h6 className="so-panel-title so-panel-title-parts">
                 Serviços Extras Propostos
               </h6>
               <button
-                className="so-add-icon-btn so-add-icon-btn-extras"
+                className="so-add-icon-btn so-add-icon-btn-parts"
                 onClick={() => setIsExtraServiceModalOpen(true)}
                 title="Propor serviço extra"
               >
