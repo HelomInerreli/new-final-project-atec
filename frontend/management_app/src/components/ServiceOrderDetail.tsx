@@ -1,164 +1,63 @@
-import React, { useEffect, useState, type FC } from "react";
+import React, { type FC } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getOrder, updateOrder } from "../services/OrderDetails";
+import { useServiceOrderDetails } from "../hooks/useServiceOrderDetails";
+import { Button } from "./ui/button";
 import Input from "./Input";
-import { normalizeStatus } from "../hooks/useServiceOrder";
 import AddPartsModal from "./AddPartsModal";
 import AddCommentModal from "./AddCommentModal";
+import { Trash2, ArrowLeft } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "./ui/alert-dialog";
 import "../styles/ServiceOrderDetail.css";
 
 const ServiceOrderDetail: FC = () => {
   const { id } = useParams<{ id?: string }>();
   const navigate = useNavigate();
 
-  const [order, setOrder] = useState<any | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [saving, setSaving] = useState<boolean>(false);
-  const [isPartsModalOpen, setIsPartsModalOpen] = useState(false);
-  const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
-
-  const fetchOrder = async (silent = false) => {
-    if (!id) return;
-    if (!silent) setLoading(true);
-    try {
-      const data = await getOrder(id);
-      setOrder(data);
-    } catch (e: any) {
-      alert("Erro ao carregar ordem: " + (e?.message ?? e));
-      setOrder(null);
-    } finally {
-      if (!silent) setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchOrder();
-  }, [id]);
-
-  useEffect(() => {
-    if (!id || !order) return;
-    const iv = setInterval(() => {
-      fetchOrder(true);
-    }, 10000);
-    return () => clearInterval(iv);
-  }, [id, order]);
-
-  const formatField = (v: any): string => {
-    if (v === null || v === undefined) return "-";
-    if (typeof v === "string" || typeof v === "number" || typeof v === "boolean") return String(v);
-    if (Array.isArray(v)) return v.map(formatField).join(", ");
-    if (typeof v === "object") return String(v.name ?? v.title ?? JSON.stringify(v));
-    return String(v);
-  };
-
-  const formatDate = (d: any): string => {
-    if (!d) return "-";
-    try {
-      const dt = new Date(d);
-      return isNaN(dt.getTime()) ? String(d) : dt.toLocaleString("pt-PT", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit"
-      });
-    } catch {
-      return String(d);
-    }
-  };
-
-  const formatVehicle = (v: any): string => {
-    if (!v) return "-";
-    if (typeof v === "string") return v;
-    const plate = v.plate ?? v.license_plate ?? "";
-    const brand = v.brand ?? v.make ?? "";
-    const model = v.model ?? v.model_name ?? "";
-    const km = v.kilometers ?? v.km ?? null;
-    const parts = [brand, model, plate].filter(Boolean);
-    if (km) parts.push(`${km} km`);
-    return parts.join(" ");
-  };
-
-  const getRawStatusName = (o: any): string => {
-    if (!o) return "";
-    const s = o.status ?? o;
-    if (!s) return "";
-    if (typeof s === "string") return s;
-    if (typeof s === "object") return String(s.name ?? s.label ?? "");
-    return "";
-  };
-
-  const changeStatus = async (action: "start" | "pause" | "finish") => {
-    if (!id || !order) return;
-
-    const STATUS_LABEL_TO_ID: Record<string, number> = {
-      "Pendente": 1,
-      "Cancelada": 2,
-      "Concluída": 3,
-      "Em Andamento": 4,
-      "Aguardando Aprovação": 5,
-      "Aguardando Pagamento": 6,
-    };
-
-    const newStatusLabel = action === "start" ? "Em Andamento" : action === "pause" ? "Pendente" : "Concluída";
-    const currentRaw = getRawStatusName(order);
-    const currentNormalized = normalizeStatus(currentRaw);
-
-    if (currentNormalized === newStatusLabel) return;
-    if (currentNormalized === "Concluída" && action !== "finish") {
-      alert("Ordem já concluída.");
-      return;
-    }
-
-    const ok = confirm(`Confirmar alteração de status para "${newStatusLabel}"?`);
-    if (!ok) return;
-
-    const newStatusId = STATUS_LABEL_TO_ID[newStatusLabel];
-    if (!newStatusId) {
-      alert("Status inválido");
-      return;
-    }
-
-    setSaving(true);
-    const previous = order;
-    setOrder({ ...order, status_id: newStatusId });
-
-    try {
-      await updateOrder(id, { status_id: newStatusId });
-      await fetchOrder();
-    } catch (e: any) {
-      setOrder(previous);
-      alert("Erro ao atualizar status.");
-    } finally {
-      setSaving(false);
-    }
-  };
+  const {
+    order,
+    loading,
+    saving,
+    isPartsModalOpen,
+    isCommentModalOpen,
+    comments,
+    parts,
+    currentNormalized,
+    setIsPartsModalOpen,
+    setIsCommentModalOpen,
+    fetchOrder,
+    formatField,
+    formatDate,
+    formatVehicle,
+    currentTime,
+    formatTime,
+    handleStartWork,
+    handlePauseWork,
+    handleFinalizeWork,
+    handleDeleteComment,
+    handleDeletePart,
+  } = useServiceOrderDetails(id);
 
   if (loading) return <div className="so-loading">Carregando...</div>;
   if (!order) return <div className="so-loading">Ordem não encontrada</div>;
-
-  const currentRaw = getRawStatusName(order);
-  const currentNormalized = normalizeStatus(currentRaw);
-
-  const comments = (order.comments ?? []).slice().sort((a: any, b: any) => {
-    const ta = new Date(a.created_at).getTime();
-    const tb = new Date(b.created_at).getTime();
-    return tb - ta;
-  });
-
-  // ✅ ORDENA AS PEÇAS DO MAIS RECENTE PARA O MAIS ANTIGO
-  const parts = (order.parts ?? []).slice().sort((a: any, b: any) => {
-    const ta = new Date(a.created_at ?? a.added_at ?? 0).getTime();
-    const tb = new Date(b.created_at ?? b.added_at ?? 0).getTime();
-    return tb - ta;
-  });
 
   return (
     <div className="so-page-wrapper">
       <div className="so-card">
         <div className="so-card-header">
-          <button className="so-back-btn" onClick={() => navigate(-1)}>← Voltar</button>
-          <h2 className="so-card-title">Ordem de Serviço #{order.id}</h2>
+          <button className="so-back-btn" onClick={() => navigate(-1)}>
+              <ArrowLeft size={24} />
+          </button>
+          <h2 className="so-card-title">Ordem de Serviço :{order.id}</h2>
         </div>
 
         <h5 className="so-section-title">Informações do Cliente e Serviço</h5>
@@ -168,17 +67,17 @@ const ServiceOrderDetail: FC = () => {
             <div className="so-info-column">
               <Input
                 label="Cliente"
-                value={formatField(order.customer_name ?? order.customer)}
+                value={formatField(order.customer?.name) || `Cliente #${order.customer_id}`}
                 className="readonly-input"
               />
               <Input
                 label="Veículo"
-                value={formatVehicle(order.vehicle_info ?? order.vehicle)}
+                value={formatVehicle(order.vehicle) || `Veículo #${order.vehicle_id}`}
                 className="readonly-input"
               />
               <Input
                 label="Serviço"
-                value={formatField(order.service_name ?? order.service)}
+                value={formatField(order.service?.name) || `Serviço #${order.service_id}`}
                 className="readonly-input"
               />
             </div>
@@ -186,7 +85,7 @@ const ServiceOrderDetail: FC = () => {
             <div className="so-info-column">
               <Input
                 label="Status"
-                value={formatField(order.status)}
+                value={formatField(order.status?.name) || "-"}
                 className="readonly-input"
               />
               <Input
@@ -195,42 +94,125 @@ const ServiceOrderDetail: FC = () => {
                 className="readonly-input"
               />
               <Input
-                label="Estimado"
-                value={`€ ${Number(order.estimated_budget ?? 0).toFixed(2)}`}
+                label="Tempo trabalhado"
+                value={formatTime(currentTime)}
                 className="readonly-input"
               />
+            
             </div>
           </div>
 
           <div className="so-action-column">
-            <button
-              className="btn btn-primary so-action-btn"
-              onClick={() => changeStatus("start")}
-              disabled={saving || ["Em Andamento", "Concluída"].includes(currentNormalized)}
-            >
-              Iniciar
-            </button>
-            <button
-              className="btn btn-warning so-action-btn"
-              onClick={() => changeStatus("pause")}
-              disabled={saving || ["Pendente", "Concluída"].includes(currentNormalized)}
-            >
-              Pausar
-            </button>
-            <button
-              className="btn btn-success so-action-btn"
-              onClick={() => changeStatus("finish")}
-              disabled={saving || currentNormalized === "Concluída"}
-            >
-              Finalizar
-            </button>
+            {/* BOTÃO INICIAR */}
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="so-action-btn btn-start"
+                  disabled={saving || currentNormalized === "Concluída"}                >
+                  Iniciar
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent className="max-w-md">
+                <AlertDialogHeader className="space-y-4">
+                  <AlertDialogTitle className="text-xl">Iniciar Ordem de Serviço?</AlertDialogTitle>
+                  <AlertDialogDescription className="text-base">
+                    A ordem <span className="font-semibold text-red-600">#{order.id}</span> será marcada como <span className="font-semibold">"Em Andamento"</span>.
+                    <div className="mt-4 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg">
+                      <p className="text-sm text-gray-700">
+                        ✓ O cronômetro de trabalho será iniciado automaticamente.
+                      </p>
+                    </div>
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter className="flex flex-row justify-center items-center gap-3 sm:flex-row sm:justify-center">
+                  <AlertDialogCancel className="hover:bg-gray-100 m-0">Cancelar</AlertDialogCancel>
+                  <AlertDialogAction 
+                    onClick={handleStartWork}
+                    className="bg-red-600 hover:bg-red-700 m-0"
+                  >
+                    Iniciar
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
+            {/* BOTÃO PAUSAR */}
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="so-action-btn btn-warning"
+                  disabled={saving || ["Pendente", "Concluída"].includes(currentNormalized)}
+                >
+                  Pausar
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent className="max-w-md">
+                <AlertDialogHeader className="space-y-4">
+                  <AlertDialogTitle className="text-xl">Pausar Ordem de Serviço?</AlertDialogTitle>
+                  <AlertDialogDescription className="text-base">
+                    O trabalho em andamento será interrompido temporariamente.
+                    <div className="mt-4 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg">
+                      <p className="text-sm text-gray-700">
+                        ⚠️ Pode retomar a qualquer momento clicando em <span className="font-semibold">"Iniciar"</span>.
+                      </p>
+                    </div>
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter className="flex flex-row justify-center items-center gap-3 sm:flex-row sm:justify-center">
+                  <AlertDialogCancel className="hover:bg-gray-100 m-0">Cancelar</AlertDialogCancel>
+                  <AlertDialogAction 
+                    onClick={handlePauseWork}
+                    className="bg-red-600 hover:bg-red-700 m-0"
+                  >
+                    Pausar
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
+            {/* BOTÃO FINALIZAR */}
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="outline"
+                className="so-action-btn btn-success"
+                disabled={saving || currentNormalized === "Concluída"}
+              >
+                Finalizar
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent className="max-w-md">
+              <AlertDialogHeader className="space-y-4">
+                <AlertDialogTitle className="text-xl">Finalizar Ordem de Serviço?</AlertDialogTitle>
+                <AlertDialogDescription className="text-base">
+                  Esta ação irá marcar a ordem <span className="font-semibold text-red-600">#{order.id}</span> como <span className="font-semibold">concluída</span>.
+                  <div className="mt-4 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg">
+                    <p className="text-sm text-gray-700">
+                      ⚠️ Certifique-se de que todos os trabalhos foram finalizados e documentados.
+                    </p>
+                  </div>
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter className="flex flex-row justify-center items-center gap-3 sm:flex-row sm:justify-center">
+                <AlertDialogCancel className="hover:bg-gray-100 m-0">Cancelar</AlertDialogCancel>
+                <AlertDialogAction 
+                  onClick={handleFinalizeWork}
+                  className="bg-red-600 hover:bg-red-700 m-0"
+                >
+                  Finalizar
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
           </div>
         </div>
 
         <div className="so-divider" />
 
         <div className="so-panels-grid">
-          {/* PAINEL DE COMENTÁRIOS */}
+          {/* COMENTÁRIOS */}
           <div className="so-panel">
             <div className="so-panel-header">
               <h6 className="so-panel-title so-panel-title-comments">
@@ -261,12 +243,34 @@ const ServiceOrderDetail: FC = () => {
                         <div className="timeline-month">{day}</div>
                         <div className="timeline-time">{time}</div>
                       </div>
-                      <div className="timeline-line" />
+                      <div className="timeline-line"></div>
                       <div className="timeline-content">
-                        <div className="timeline-text-wrapper">
-                          {isLatest && <span className="timeline-badge">NOVO</span>}
-                          <div className="timeline-text">{c.comment}</div>
-                        </div>
+                        <span className="timeline-text">{c.comment}</span>
+                        {isLatest && <span className="timeline-badge">NOVO</span>}
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <button
+                              className="delete-icon-btn"
+                              title="Apagar comentário"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Apagar Comentário?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Esta ação não pode ser desfeita. O comentário será permanentemente removido.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDeleteComment(c.id)}>
+                                Sim, Apagar
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </div>
                   );
@@ -275,14 +279,14 @@ const ServiceOrderDetail: FC = () => {
             </div>
           </div>
 
-          {/* ✅ PAINEL DE PEÇAS ORDENADAS */}
+          {/* PEÇAS */}
           <div className="so-panel">
             <div className="so-panel-header">
               <h6 className="so-panel-title so-panel-title-parts">
                 Peças Utilizadas
               </h6>
               <button 
-                className="so-add-icon-btn"
+                className="so-add-icon-btn so-add-icon-btn-parts"
                 onClick={() => setIsPartsModalOpen(true)}
                 title="Adicionar peça"
               >
@@ -290,34 +294,74 @@ const ServiceOrderDetail: FC = () => {
               </button>
             </div>
 
-            <div className="timeline">
+            <div className="parts-table-wrapper">
               {parts.length === 0 ? (
-                <div className="so-empty-message">Sem peças</div>
+                <div className="so-empty-message">Sem peças adicionadas</div>
               ) : (
-                parts.map((p: any, i: number) => {
-                  const isLatest = i === 0; // ✅ AGORA A PRIMEIRA É A MAIS RECENTE
-                  const dt = new Date(p.created_at ?? p.added_at ?? Date.now());
-                  const day = dt.toLocaleDateString("pt-PT", { day: "2-digit", month: "short" });
-                  const time = dt.toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" });
-                  
-                  return (
-                    <div key={i} className={`timeline-item ${isLatest ? "active" : ""}`}>
-                      <div className="timeline-left">
-                        <div className="timeline-month">{day}</div>
-                        <div className="timeline-time">{time}</div>
-                      </div>
-                      <div className="timeline-line" />
-                      <div className="timeline-content">
-                        <div className="timeline-text-wrapper">
-                          {isLatest && <span className="timeline-badge-part">NOVO</span>}
-                          <div className="timeline-text">
-                            {formatField(p.name)} <strong>(Qtd: {p.qty ?? p.quantity ?? 1})</strong>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })
+                <table className="parts-table">
+                  <thead>
+                    <tr>
+                      <th>Nome</th>
+                      <th>Código</th>
+                      <th>Qtd</th>
+                      <th>Data</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {parts.map((p: any, i: number) => {
+                      const dt = new Date(p.created_at ?? Date.now());
+                      const dateStr = dt.toLocaleDateString("pt-PT", { 
+                        day: "2-digit", 
+                        month: "2-digit",
+                        year: "numeric"
+                      });
+                      const timeStr = dt.toLocaleTimeString("pt-PT", { 
+                        hour: "2-digit", 
+                        minute: "2-digit" 
+                      });
+                      
+                      return (
+                        <tr key={i}>
+                          <td className="part-name-cell">{formatField(p.name)}</td>
+                          <td className="part-sku-cell">{p.part_number ?? "-"}</td>
+                          <td className="part-qty-cell">{p.quantity ?? 1}</td>
+                          <td className="part-date-cell">
+                            <div className="part-date-cell-content">
+                              <div className="part-date-info">
+                                {dateStr}
+                                <span className="part-time">{timeStr}</span>
+                              </div>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <button
+                                    className="delete-icon-btn delete-icon-btn-table"
+                                    title="Apagar peça"
+                                  >
+                                    <Trash2 size={16} />
+                                  </button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Apagar Peça?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Esta ação não pode ser desfeita. A peça será removida e o stock será restaurado.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => handleDeletePart(p.id)}>
+                                      Sim, Apagar
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog> 
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               )}
             </div>
           </div>

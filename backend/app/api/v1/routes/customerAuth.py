@@ -137,6 +137,7 @@ async def register(
     customer_data: CustomerAuthRegister,
     db: Session = Depends(get_db)
 ):
+    print(f"[DEBUG] Received registration data: {customer_data.model_dump()}")
     print(f"Registration attempt for: {customer_data.email}, name: {customer_data.name}")
     
     existing_customer = db.query(CustomerAuth).filter(CustomerAuth.email == customer_data.email).first()
@@ -916,6 +917,28 @@ async def change_password(
         print(f"Error changing password: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
     
+#endregion
+
+#region Admin Actions
+@router.post("/reset-password/{customer_id}")
+def reset_password(
+    customer_id: int,
+    db: Session = Depends(get_db)
+):
+    """
+    Reset a customer's password to '12345678'.
+    """
+    customer_auth = db.query(CustomerAuth).filter(CustomerAuth.id_customer == customer_id).first()
+    if not customer_auth:
+        raise HTTPException(status_code=404, detail="Customer authentication record not found")
+    
+    # Hash the default password
+    hashed_password = get_password_hash("12345678")
+    
+    customer_auth.password_hash = hashed_password
+    db.commit()
+    
+    return {"message": "Password reset successfully to '12345678'"}
 #endregion
 
 # region CRUD Endpoints for CustomerAuth

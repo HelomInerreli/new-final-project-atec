@@ -7,20 +7,25 @@ from passlib.context import CryptContext
 from jose import JWTError, jwt
 from authlib.integrations.starlette_client import OAuth
 from starlette.config import Config
+from starlette.datastructures import Secret
+
+config = Config(".env")
 from sqlalchemy.orm import Session
 from sqlalchemy.orm import joinedload
+from app.models.user import User
 
 # Import get_db from the correct location
 from app.deps import get_db
 
 # OAuth2 scheme for FastAPI
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/customersauth/token")
+oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="api/v1/customersauth/token", auto_error=False)
 
 # Password hashing context
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # JWT Configuration
-SECRET_KEY = "zdda2ziZKqQjainj_FdrHBjqD5lRCRRtpXF_V5Q6t7I"
+SECRET_KEY = config('SECRET_KEY', cast=str)
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -30,8 +35,8 @@ oauth = OAuth(config)
 
 oauth.register(
     name='google',
-    client_id='636659541977-1n8hp3c1sbv2220nr2gtn1v5pus8rr4h.apps.googleusercontent.com',
-    client_secret='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',
+    client_id=config('GOOGLE_CLIENT_ID', cast=str),
+    client_secret=config('GOOGLE_CLIENT_SECRET', cast=str),
     server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
     client_kwargs={
         'scope': 'openid email profile https://www.googleapis.com/auth/user.birthday.read'
@@ -52,8 +57,8 @@ def create_google_user_data(user_info: dict) -> dict:
 
 oauth.register(
     name='facebook',
-    client_id='852745794579007',
-    client_secret='536755a9adf4aaa56be9776c3f3a1cd7',
+    client_id=config('FACEBOOK_CLIENT_ID', cast=str),
+    client_secret=config('FACEBOOK_CLIENT_SECRET', cast=str),
     access_token_url='https://graph.facebook.com/oauth/access_token',
     authorize_url='https://www.facebook.com/dialog/oauth',
     api_base_url='https://graph.facebook.com/',
@@ -103,6 +108,14 @@ def verify_token(token: str) -> Optional[dict]:
     except JWTError:
         return None
 
+def decode_token(token: str) -> dict:
+    """Decode and verify a JWT token, raising exception on failure."""
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload
+    except JWTError as e:
+        raise HTTPException(status_code=401, detail=f"Invalid token: {str(e)}")
+
 def get_current_user_id(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     """Get current user ID from JWT token."""
     credentials_exception = HTTPException(
@@ -141,3 +154,42 @@ def get_current_user_with_customer(token: str = Depends(oauth2_scheme), db: Sess
     
     return customer_auth
 
+
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> User:
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+    
+    user = db.query(User).filter(User.id == int(user_id)).first()
+    if user is None:
+        raise credentials_exception
+    return user
+
+
+def get_current_user_optional(token: Optional[str] = Depends(oauth2_scheme_optional), db: Session = Depends(get_db)) -> Optional[User]:
+    """
+    Retorna o usuário atual ou None se não autenticado.
+    Útil para endpoints que funcionam com ou sem autenticação.
+    """
+    if not token:
+        return None
+    
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            return None
+    except JWTError:
+        return None
+    
+    user = db.query(User).filter(User.id == int(user_id)).first()
+    return user

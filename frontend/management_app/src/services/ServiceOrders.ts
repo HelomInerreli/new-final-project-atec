@@ -1,6 +1,8 @@
 import http from "../api/http";
 import type { Appointment } from "../interfaces/Appointment";
 import type { Customer } from "../interfaces/Customer";
+import type { CreateAppointmentPayload } from "../interfaces/Payload"; 
+
 
 export const getAppointments = async (params?: {
   status?: string;
@@ -74,15 +76,6 @@ export const getAppointmentById = async (id: number): Promise<Appointment> => {
   }
 };
 
-export const createAppointment = async (appointment: Appointment): Promise<Appointment> => {
-  try {
-    const res = await http.post<Appointment>("/appointments", appointment, { withCredentials: true });
-    return res.data;
-  } catch (err) {
-    console.error("createAppointment error:", err);
-    throw err;
-  }
-};
 
 export const updateAppointment = async (id: number, appointment: Appointment): Promise<Appointment> => {
   try {
@@ -99,6 +92,16 @@ export const deleteAppointment = async (id: number): Promise<void> => {
     await http.delete(`/appointments/${id}`, { withCredentials: true });
   } catch (err) {
     console.error("deleteAppointment error:", err);
+    throw err;
+  }
+};
+
+export const createAppointment = async (appointment: CreateAppointmentPayload): Promise<Appointment> => { // ✅ ALTERAR: appointment: Appointment → appointment: CreateAppointmentPayload
+  try {
+    const res = await http.post<Appointment>("/appointments", appointment, { withCredentials: true });
+    return res.data;
+  } catch (err) {
+    console.error("createAppointment error:", err);
     throw err;
   }
 };

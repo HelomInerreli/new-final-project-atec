@@ -24,6 +24,8 @@ class AppointmentCreate(AppointmentBase):
 class AppointmentUpdate(BaseModel):
     appointment_date: Optional[datetime] = None
     description: Optional[str] = None
+    vehicle_id: Optional[int] = None
+    service_id: Optional[int] = None
     status_id: Optional[int] = None
     estimated_budget: Optional[float] = None
     actual_budget: Optional[float] = None
@@ -34,12 +36,16 @@ class Appointment(AppointmentBase):
     vehicle_id: Optional[int] = None    
     customer: Optional[CustomerSchema] = None 
     vehicle: Optional[VehicleSchema] = None  
-    status: Optional[StatusSchema]
-    service: Optional[ServiceSchema]
-    service_id: Optional[int]
+    status: Optional[StatusSchema] = None
+    service: Optional[ServiceSchema] = None
+    service_id: Optional[int] = None
     extra_service_associations: List[AppointmentExtraService] = []
     comments: List[CommentOut] = []
     parts: List[OrderPartOut] = []
+    start_time: Optional[datetime] = None
+    total_worked_time: Optional[int] = 0
+    is_paused: Optional[bool] = False
+    
 
     class Config:
         from_attributes = True

@@ -1,25 +1,69 @@
-import { useState, useEffect } from "react";
-import { Calendar, Clock, Search, Plus, Phone, Mail, Trash2, Edit } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
+import { useState, useEffect, useRef } from "react";
+import {
+  Calendar,
+  Clock,
+  Search,
+  Plus,
+  Phone,
+  Mail,
+  Trash2,
+  Pencil,
+  AlertTriangle,
+} from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../components/ui/dialog";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../components/ui/alert-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../components/ui/alert-dialog";
 import { Label } from "../components/ui/label";
 import { Textarea } from "../components/ui/textarea";
 import { toast } from "../hooks/use-toast";
 import { appointmentService } from "../services/appointmentService";
-import type { Appointment, AppointmentCreate, AppointmentUpdate } from "../services/appointmentService";
+import type {
+  Appointment,
+  AppointmentCreate,
+  AppointmentUpdate,
+} from "../services/appointmentService";
 import { customerService } from "../services/customerService";
-import type { Customer } from "../services/customerService";
+import type { Customer } from "../interfaces/Customer";
 import { vehicleService } from "../services/vehicleService";
-import type { Vehicle } from "../services/vehicleService";
+import type { Vehicle } from "../interfaces/Vehicle";
 import { serviceService } from "../services/serviceService";
 import type { Service } from "../services/serviceService";
 import { statusService } from "../services/statusService";
 import type { Status } from "../services/statusService";
+import "../components/inputs.css";
 
 interface FormData {
   customer_id: string;
@@ -52,10 +96,25 @@ export default function Agendamentos() {
   const [customerVehicles, setCustomerVehicles] = useState<Vehicle[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("todos");
+  const [monthFilter, setMonthFilter] = useState<string>("todos");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Dropdown states
+  const [customerDropdownOpen, setCustomerDropdownOpen] = useState(false);
+  const [vehicleDropdownOpen, setVehicleDropdownOpen] = useState(false);
+  const [serviceDropdownOpen, setServiceDropdownOpen] = useState(false);
+  const [timeDropdownOpen, setTimeDropdownOpen] = useState(false);
+  const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
+
+  // Refs for dropdowns
+  const customerDropdownRef = useRef<HTMLDivElement>(null);
+  const vehicleDropdownRef = useRef<HTMLDivElement>(null);
+  const serviceDropdownRef = useRef<HTMLDivElement>(null);
+  const timeDropdownRef = useRef<HTMLDivElement>(null);
+  const statusDropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     loadAppointments();
@@ -64,12 +123,59 @@ export default function Agendamentos() {
     loadStatuses();
   }, []);
 
+  // Handle click outside for dropdowns
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        customerDropdownRef.current &&
+        !customerDropdownRef.current.contains(event.target as Node)
+      ) {
+        setCustomerDropdownOpen(false);
+      }
+      if (
+        vehicleDropdownRef.current &&
+        !vehicleDropdownRef.current.contains(event.target as Node)
+      ) {
+        setVehicleDropdownOpen(false);
+      }
+      if (
+        serviceDropdownRef.current &&
+        !serviceDropdownRef.current.contains(event.target as Node)
+      ) {
+        setServiceDropdownOpen(false);
+      }
+      if (
+        timeDropdownRef.current &&
+        !timeDropdownRef.current.contains(event.target as Node)
+      ) {
+        setTimeDropdownOpen(false);
+      }
+      if (
+        statusDropdownRef.current &&
+        !statusDropdownRef.current.contains(event.target as Node)
+      ) {
+        setStatusDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const loadAppointments = async () => {
     try {
       console.log("🔄 Iniciando carregamento de agendamentos...");
       setLoading(true);
       const data = await appointmentService.getAll();
       console.log("✅ Agendamentos carregados:", data);
+      console.log("📊 Total de appointments:", data.length);
+      if (data.length > 0) {
+        console.log("📋 Exemplo do primeiro appointment:", data[0]);
+        console.log("  - Customer:", data[0].customer);
+        console.log("  - Vehicle:", data[0].vehicle);
+        console.log("  - Service:", data[0].service);
+        console.log("  - Status:", data[0].status);
+      }
       setAppointments(data);
     } catch (error) {
       console.error("❌ Erro ao carregar agendamentos:", error);
@@ -99,7 +205,7 @@ export default function Agendamentos() {
       console.log("🔄 Carregando serviços...");
       const data = await serviceService.getAll();
       console.log("✅ Serviços carregados:", data);
-      setServices(data.filter(s => s.is_active));
+      setServices(data.filter((s) => s.is_active));
     } catch (error) {
       console.error("❌ Erro ao carregar serviços:", error);
     }
@@ -110,6 +216,7 @@ export default function Agendamentos() {
       console.log("🔄 Carregando status...");
       const data = await statusService.getAll();
       console.log("✅ Status carregados:", data);
+      // Mostrar todos os status disponíveis
       setStatuses(data);
     } catch (error) {
       console.error("❌ Erro ao carregar status:", error);
@@ -118,67 +225,111 @@ export default function Agendamentos() {
 
   const loadVehiclesByCustomer = async (customerId: number) => {
     try {
-      const allVehicles = await vehicleService.getAll();
-      const filtered = allVehicles.filter(v => v.customer_id === customerId);
-      setCustomerVehicles(filtered);
+      console.log("🔄 Carregando veículos para o cliente:", customerId);
+      const vehicles = await vehicleService.getByCustomerId(customerId);
+      console.log("✅ Veículos carregados:", vehicles);
+      setCustomerVehicles(vehicles);
+      if (vehicles.length === 0) {
+        toast({
+          title: "Aviso",
+          description: "Este cliente não tem veículos cadastrados.",
+          variant: "default",
+        });
+      }
     } catch (error) {
-      console.error("Erro ao carregar veículos:", error);
+      console.error("❌ Erro ao carregar veículos:", error);
+      setCustomerVehicles([]);
+      toast({
+        title: "Erro",
+        description: "Erro ao carregar veículos do cliente.",
+        variant: "destructive",
+      });
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { id, value } = e.target;
 
     // Validate date to ensure it's a weekday
-    if (id === 'appointment_date' && value) {
-      const selectedDate = new Date(value + 'T00:00:00');
+    if (id === "appointment_date" && value) {
+      const selectedDate = new Date(value + "T00:00:00");
       const dayOfWeek = selectedDate.getDay();
       // 0 = Sunday, 6 = Saturday
       if (dayOfWeek === 0 || dayOfWeek === 6) {
         toast({
           title: "Data Inválida",
-          description: "Por favor, selecione um dia de semana (segunda a sexta-feira).",
-          variant: "destructive"
+          description:
+            "Por favor, selecione um dia de semana (segunda a sexta-feira).",
+          variant: "destructive",
         });
         return;
       }
     }
 
-    setFormData(prev => ({ ...prev, [id]: value }));
+    setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
   const handleSelectChange = (field: keyof FormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-
-    // When customer changes, load their vehicles
+    console.log("🔄 handleSelectChange:", field, value);
+    // When customer changes, load their vehicles and reset vehicle_id
     if (field === "customer_id" && value) {
-      loadVehiclesByCustomer(parseInt(value));
-      setFormData(prev => ({ ...prev, vehicle_id: "" }));
+      console.log(
+        "👤 Cliente selecionado, ID:",
+        value,
+        "carregando veículos..."
+      );
+      setFormData((prev) => {
+        const newData = { ...prev, [field]: value, vehicle_id: "" };
+        console.log("📝 Novo formData:", newData);
+        return newData;
+      });
+      const customerId = parseInt(value);
+      console.log("🔢 Chamando loadVehiclesByCustomer com:", customerId);
+      loadVehiclesByCustomer(customerId);
+    } else {
+      setFormData((prev) => ({ ...prev, [field]: value }));
     }
   };
 
   const translateStatus = (statusName?: string): string => {
     if (!statusName) return "Pendente";
     const lower = statusName.toLowerCase();
-    if (lower.includes("finalizad") || lower.includes("finalized")) return "Finalizado";
-    if (lower.includes("aguarda") || lower.includes("waiting")) return "Aguarda Pagamento";
-    return "Pendente";
+    if (lower.includes("concluída") || lower.includes("concluida") || lower.includes("concluído") || lower.includes("concluido"))
+      return "Concluída";
+    if (lower.includes("em andamento") || lower.includes("em progresso"))
+      return "Em Andamento";
+    if (lower.includes("cancelada") || lower.includes("cancelado"))
+      return "Cancelada";
+    if (lower.includes("pendente"))
+      return "Pendente";
+    return statusName;
   };
 
   const getStatusColor = (statusName?: string) => {
     if (!statusName) return "bg-yellow-100 text-yellow-800"; // Default to Pendente color
     const lower = statusName.toLowerCase();
-    if (lower.includes("finalizad") || lower.includes("finalized")) return "bg-green-100 text-green-800";
-    if (lower.includes("aguarda") || lower.includes("waiting")) return "bg-orange-100 text-orange-800";
+    if (lower.includes("concluída") || lower.includes("concluida") || lower.includes("concluído") || lower.includes("concluido"))
+      return "bg-green-100 text-green-800";
+    if (lower.includes("em andamento") || lower.includes("em progresso"))
+      return "bg-blue-100 text-blue-800";
+    if (lower.includes("cancelada") || lower.includes("cancelado"))
+      return "bg-gray-100 text-gray-600";
     return "bg-yellow-100 text-yellow-800"; // Pendente
   };
 
   const filteredAppointments = appointments.filter((appointment) => {
     const customerName = appointment.customer?.name || "";
-    const vehicleInfo = appointment.vehicle ? `${appointment.vehicle.brand} ${appointment.vehicle.model} - ${appointment.vehicle.license_plate}` : "";
+    const vehicleInfo = appointment.vehicle
+      ? `${appointment.vehicle.brand} ${appointment.vehicle.model} - ${appointment.vehicle.license_plate}`
+      : "";
     const serviceName = appointment.service?.name || "";
     const statusName = appointment.status?.name || "";
     const translatedStatus = translateStatus(statusName).toLowerCase();
+    const appointmentDate = new Date(appointment.appointment_date);
+    const appointmentMonth = appointmentDate.getMonth(); // 0-11
+    const appointmentYear = appointmentDate.getFullYear();
 
     const matchesSearch =
       customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -186,18 +337,37 @@ export default function Agendamentos() {
       serviceName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       appointment.id.toString().includes(searchTerm);
 
-    const matchesStatus = statusFilter === "todos" ||
+    const matchesStatus =
+      statusFilter === "todos" ||
       translatedStatus.includes(statusFilter.toLowerCase()) ||
       statusName.toLowerCase().includes(statusFilter.toLowerCase());
 
-    return matchesSearch && matchesStatus;
+    const matchesMonth = 
+      monthFilter === "todos" ||
+      (monthFilter !== "todos" && 
+       appointmentMonth === parseInt(monthFilter) &&
+       appointmentYear === 2025);
+
+    return matchesSearch && matchesStatus && matchesMonth;
+  }).sort((a, b) => {
+    // Ordenar do mais antigo para o mais recente
+    const dateA = new Date(a.appointment_date).getTime();
+    const dateB = new Date(b.appointment_date).getTime();
+    return dateA - dateB;
   });
+
+  // Debug log
+  console.log("🔍 Filtro de appointments:");
+  console.log("  - Total appointments:", appointments.length);
+  console.log("  - Filtered appointments:", filteredAppointments.length);
+  console.log("  - Search term:", searchTerm);
+  console.log("  - Status filter:", statusFilter);
 
   const handleOpenDialog = (appointment: Appointment | null) => {
     if (appointment) {
       setEditingId(appointment.id);
       const appointmentDateTime = new Date(appointment.appointment_date);
-      const dateStr = appointmentDateTime.toISOString().split('T')[0];
+      const dateStr = appointmentDateTime.toISOString().split("T")[0];
       const timeStr = appointmentDateTime.toTimeString().slice(0, 5);
 
       setFormData({
@@ -225,11 +395,17 @@ export default function Agendamentos() {
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!formData.customer_id || !formData.vehicle_id || !formData.service_id || !formData.appointment_date || !formData.appointment_time) {
+    if (
+      !formData.customer_id ||
+      !formData.vehicle_id ||
+      !formData.service_id ||
+      !formData.appointment_date ||
+      !formData.appointment_time
+    ) {
       toast({
         title: "Erro de Validação",
         description: "Preencha todos os campos obrigatórios.",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
@@ -238,15 +414,21 @@ export default function Agendamentos() {
       setLoading(true);
 
       // Combine date and time into ISO string
-      const appointmentDateTime = new Date(`${formData.appointment_date}T${formData.appointment_time}`);
+      const appointmentDateTime = new Date(
+        `${formData.appointment_date}T${formData.appointment_time}`
+      );
 
       if (editingId) {
         // Update existing appointment
         const updateData: AppointmentUpdate = {
+          vehicle_id: parseInt(formData.vehicle_id),
+          service_id: parseInt(formData.service_id),
           appointment_date: appointmentDateTime.toISOString(),
           description: formData.description,
           estimated_budget: parseFloat(formData.estimated_budget) || 0,
-          status_id: formData.status_id ? parseInt(formData.status_id) : undefined,
+          status_id: formData.status_id
+            ? parseInt(formData.status_id)
+            : undefined,
         };
 
         await appointmentService.update(editingId, updateData);
@@ -292,7 +474,7 @@ export default function Agendamentos() {
       toast({
         title: "Eliminado",
         description: "O agendamento foi eliminado com sucesso.",
-        variant: "destructive"
+        variant: "destructive",
       });
     } catch (error) {
       console.error("Erro ao eliminar agendamento:", error);
@@ -308,12 +490,15 @@ export default function Agendamentos() {
 
   return (
     <div className="flex-1 space-y-6 p-8">
-      <div className="flex items-center justify-between">
+      <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Agendamentos</h1>
-          <p className="text-muted-foreground">Gerencie os agendamentos de serviços da oficina</p>
+          <h1 className="text-4xl font-bold text-gray-900 leading-tight">Gestão de Agendamentos</h1>
         </div>
-        <Button variant="destructive" className="gap-2" onClick={() => handleOpenDialog(null)}>
+        <Button
+          variant="destructive"
+          className="gap-2"
+          onClick={() => handleOpenDialog(null)}
+        >
           <Plus className="h-4 w-4" />
           Novo Agendamento
         </Button>
@@ -321,17 +506,76 @@ export default function Agendamentos() {
 
       {/* Filtros */}
       <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Buscar por cliente, veículo ou ID..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-9" />
+        <div className="mb-input-wrapper flex-1">
+          <div style={{ position: "relative" }}>
+            <Search
+              size={20}
+              style={{
+                position: "absolute",
+                left: "14px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                color: "#6b7280",
+                pointerEvents: "none",
+                zIndex: 1,
+              }}
+            />
+            <input
+              type="text"
+              placeholder=""
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="mb-input"
+              style={{ paddingLeft: "46px" }}
+              onFocus={(e) =>
+                e.target.nextElementSibling?.classList.add("shrunken")
+              }
+              onBlur={(e) => {
+                if (!e.target.value) {
+                  e.target.nextElementSibling?.classList.remove("shrunken");
+                }
+              }}
+            />
+            <label
+              className={`mb-input-label ${searchTerm ? "shrunken" : ""}`}
+              style={{ left: "46px" }}
+            >
+              Buscar por cliente, veículo ou ID...
+            </label>
+          </div>
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full sm:w-[200px]"><SelectValue placeholder="Filtrar por status" /></SelectTrigger>
+          <SelectTrigger className="w-full sm:w-[200px] border-2 border-red-600 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0" style={{ height: "56px" }}>
+            <SelectValue placeholder="Filtrar por status" />
+          </SelectTrigger>
           <SelectContent>
             <SelectItem value="todos">Todos os status</SelectItem>
             <SelectItem value="pendente">Pendente</SelectItem>
-            <SelectItem value="aguarda pagamento">Aguarda Pagamento</SelectItem>
-            <SelectItem value="finalizado">Finalizado</SelectItem>
+            <SelectItem value="em andamento">Em Andamento</SelectItem>
+            <SelectItem value="concluída">Concluída</SelectItem>
+            <SelectItem value="cancelada">Cancelada</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={monthFilter} onValueChange={setMonthFilter}>
+          <SelectTrigger className="w-full sm:w-[200px] border-2 border-red-600 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0" style={{ height: "56px" }}>
+            <SelectValue placeholder="Filtrar por mês" />
+          </SelectTrigger>
+          <SelectContent className="w-[350px]">
+            <SelectItem value="todos" className="col-span-3">Todos os meses</SelectItem>
+            <div className="grid grid-cols-3 gap-1 p-2">
+              <SelectItem value="0" className="text-center">Jan</SelectItem>
+              <SelectItem value="1" className="text-center">Fev</SelectItem>
+              <SelectItem value="2" className="text-center">Mar</SelectItem>
+              <SelectItem value="3" className="text-center">Abr</SelectItem>
+              <SelectItem value="4" className="text-center">Mai</SelectItem>
+              <SelectItem value="5" className="text-center">Jun</SelectItem>
+              <SelectItem value="6" className="text-center">Jul</SelectItem>
+              <SelectItem value="7" className="text-center">Ago</SelectItem>
+              <SelectItem value="8" className="text-center">Set</SelectItem>
+              <SelectItem value="9" className="text-center">Out</SelectItem>
+              <SelectItem value="10" className="text-center">Nov</SelectItem>
+              <SelectItem value="11" className="text-center">Dez</SelectItem>
+            </div>
           </SelectContent>
         </Select>
       </div>
@@ -340,21 +584,34 @@ export default function Agendamentos() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
         {filteredAppointments.map((appointment) => {
           const appointmentDate = new Date(appointment.appointment_date);
-          const dateStr = appointmentDate.toLocaleDateString('pt-BR');
-          const timeStr = appointmentDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+          const dateStr = appointmentDate.toLocaleDateString("pt-BR");
+          const timeStr = appointmentDate.toLocaleTimeString("pt-BR", {
+            hour: "2-digit",
+            minute: "2-digit",
+          });
           const vehicleInfo = appointment.vehicle
             ? `${appointment.vehicle.brand} ${appointment.vehicle.model} - ${appointment.vehicle.license_plate}`
-            : 'N/A';
+            : "N/A";
 
           return (
-            <Card key={appointment.id} className="flex flex-col hover:shadow-lg transition-shadow">
+            <Card
+              key={appointment.id}
+              className="flex flex-col hover:shadow-lg transition-shadow border-2 border-red-600"
+            >
               <CardHeader>
                 <div className="space-y-2">
-                  <Badge className={getStatusColor(appointment.status?.name)} variant="outline">
+                  <Badge
+                    className={getStatusColor(appointment.status?.name)}
+                    variant="outline"
+                  >
                     {translateStatus(appointment.status?.name)}
                   </Badge>
-                  <CardTitle className="text-lg">{appointment.customer?.name || 'N/A'}</CardTitle>
-                  <CardDescription className="mt-1">{vehicleInfo}</CardDescription>
+                  <CardTitle className="text-lg">
+                    {appointment.customer?.name || "N/A"}
+                  </CardTitle>
+                  <CardDescription className="mt-1">
+                    {vehicleInfo}
+                  </CardDescription>
                 </div>
               </CardHeader>
               <CardContent className="space-y-3 flex-1">
@@ -367,52 +624,73 @@ export default function Agendamentos() {
                   </div>
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Phone className="h-4 w-4" />
-                    <span>{appointment.customer?.phone || 'N/A'}</span>
+                    <span>{appointment.customer?.phone || "N/A"}</span>
                   </div>
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Mail className="h-4 w-4" />
-                    <span className="truncate">{appointment.customer?.email || 'N/A'}</span>
+                    <span className="truncate">
+                      {appointment.customer?.email || "N/A"}
+                    </span>
                   </div>
                 </div>
                 <div className="pt-3 border-t">
-                  <p className="font-medium text-sm">{appointment.service?.name || 'N/A'}</p>
-                  {appointment.description && <p className="text-xs text-muted-foreground mt-1">{appointment.description}</p>}
+                  <p className="font-medium text-sm">
+                    {appointment.service?.name || "N/A"}
+                  </p>
+                  {appointment.description && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {appointment.description}
+                    </p>
+                  )}
                   {appointment.estimated_budget > 0 && (
-                    <p className="text-xs font-semibold mt-1">Orçamento: €{appointment.estimated_budget.toFixed(2)}</p>
+                    <p className="text-xs font-semibold mt-1">
+                      Orçamento: €{appointment.estimated_budget.toFixed(2)}
+                    </p>
                   )}
                 </div>
               </CardContent>
 
               <div className="flex gap-2 p-4 pt-0">
                 <Button
-                  variant="ghost"
-                  size="sm"
-                  className="bg-transparent hover:bg-white"
+                  variant="outline"
+                  className="flex-1"
                   onClick={() => handleOpenDialog(appointment)}
                 >
-                  <Edit className="h-4 w-4 text-red-600" />
+                  <Pencil className="h-4 w-4" />
                 </Button>
 
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button
-                      variant="ghost"
-                      size="sm"
-                      className="bg-transparent hover:bg-white"
+                      variant="destructive"
+                      className="flex-1"
                     >
-                      <Trash2 className="h-4 w-4 text-red-600" />
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Tem a certeza absoluta?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Esta ação não pode ser desfeita. Isto irá eliminar permanentemente o agendamento.
+                  <AlertDialogContent className="sm:max-w-md">
+                    <AlertDialogHeader className="space-y-4">
+                      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+                        <AlertTriangle className="h-6 w-6 text-red-600" />
+                      </div>
+                      <AlertDialogTitle className="text-center text-xl">
+                        Eliminar Agendamento
+                      </AlertDialogTitle>
+                      <AlertDialogDescription className="text-center text-base">
+                        Esta ação não pode ser desfeita. Tem a certeza que
+                        deseja eliminar permanentemente este agendamento?
                       </AlertDialogDescription>
                     </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel className="hover:bg-gray-100 hover:text-gray-900 focus-visible:ring-0 focus-visible:ring-offset-0">Cancelar</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => handleDelete(appointment.id)}>Continuar</AlertDialogAction>
+                    <AlertDialogFooter className="flex flex-row gap-3 justify-center sm:justify-center mt-2">
+                      <AlertDialogCancel className="mt-0 flex-1 sm:flex-none px-6 hover:bg-gray-100 focus-visible:ring-0 focus-visible:ring-offset-0">
+                        Cancelar
+                      </AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => handleDelete(appointment.id)}
+                        className="mt-0 flex-1 sm:flex-none px-6 bg-red-600 hover:bg-red-700 text-white focus-visible:ring-0 focus-visible:ring-offset-0"
+                      >
+                        Eliminar
+                      </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
@@ -424,165 +702,649 @@ export default function Agendamentos() {
 
       {/* Mensagem de Nenhum Resultado */}
       {filteredAppointments.length === 0 && (
-        <Card><CardContent className="flex flex-col items-center justify-center py-12"><Calendar className="h-12 w-12 text-muted-foreground mb-4" /><h3 className="text-lg font-semibold mb-2">Nenhum agendamento encontrado</h3><p className="text-sm text-muted-foreground">Tente ajustar os filtros ou criar um novo agendamento</p></CardContent></Card>
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-12">
+            <Calendar className="h-12 w-12 text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold mb-2">
+              Nenhum agendamento encontrado
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              Tente ajustar os filtros ou criar um novo agendamento
+            </p>
+          </CardContent>
+        </Card>
       )}
 
       {/* Dialog para Criar/Editar */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[800px] p-0 gap-0">
           <form onSubmit={handleFormSubmit}>
-            <DialogHeader>
-              <DialogTitle>{editingId ? "Editar Agendamento" : "Novo Agendamento"}</DialogTitle>
-              <DialogDescription>{editingId ? "Altere os dados do agendamento abaixo." : "Preencha os dados para criar um novo agendamento."}</DialogDescription>
+            <DialogHeader className="bg-gradient-to-br from-red-600 to-red-700 text-white p-6 rounded-t-lg m-0 !flex-row items-center justify-between !space-y-0">
+              <DialogTitle className="text-white text-2xl font-bold">
+                {editingId ? "Editar Agendamento" : "Novo Agendamento"}
+              </DialogTitle>
+              <button 
+                type="button"
+                onClick={() => {
+                  setIsFormOpen(false);
+                  setEditingId(null);
+                  setFormData(initialFormData);
+                  setCustomerVehicles([]);
+                }}
+                className="w-9 h-9 rounded-lg bg-white/20 hover:bg-white/30 flex items-center justify-center transition-all focus:outline-none flex-shrink-0"
+                style={{ outline: "none", boxShadow: "none" }}
+                aria-label="Fechar"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
+            <div className="grid gap-4 py-4 px-6">
               <div className="grid gap-2">
-                <Label htmlFor="customer_id">Cliente *</Label>
-                <Select
-                  value={formData.customer_id}
-                  onValueChange={(value) => handleSelectChange("customer_id", value)}
-                  disabled={!!editingId}
-                >
-                  <SelectTrigger id="customer_id">
-                    <SelectValue placeholder="Selecione um cliente" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {customers.map((customer) => (
-                      <SelectItem key={customer.id} value={customer.id.toString()}>
-                        {customer.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="mb-input-wrapper">
+                  {(() => {
+                    const [isOpen, setIsOpen] = useState(false);
+                    const [isFocused, setIsFocused] = useState(false);
+                    const menuRef = useRef<HTMLDivElement>(null);
+                    const hasValue = formData.customer_id !== "";
+                    const selectedCustomer = customers.find(
+                      (c) => c.id.toString() === formData.customer_id
+                    );
+
+                    useEffect(() => {
+                      const handleClickOutside = (event: MouseEvent) => {
+                        if (
+                          menuRef.current &&
+                          !menuRef.current.contains(event.target as Node)
+                        ) {
+                          setIsOpen(false);
+                        }
+                      };
+                      if (isOpen) {
+                        document.addEventListener(
+                          "mousedown",
+                          handleClickOutside
+                        );
+                      }
+                      return () =>
+                        document.removeEventListener(
+                          "mousedown",
+                          handleClickOutside
+                        );
+                    }, [isOpen]);
+
+                    return (
+                      <div ref={menuRef} style={{ position: "relative" }}>
+                        <button
+                          type="button"
+                          className={`mb-input select ${
+                            !hasValue && !isFocused ? "placeholder" : ""
+                          }`}
+                          onClick={() => !editingId && setIsOpen(!isOpen)}
+                          onFocus={() => setIsFocused(true)}
+                          onBlur={() => setIsFocused(false)}
+                          disabled={!!editingId}
+                          style={{
+                            textAlign: "left",
+                            cursor: editingId ? "not-allowed" : "pointer",
+                          }}
+                        >
+                          {selectedCustomer ? selectedCustomer.name : ""}
+                        </button>
+                        <label
+                          className={`mb-input-label ${
+                            hasValue || isFocused ? "shrunken" : ""
+                          }`}
+                        >
+                          Cliente *
+                        </label>
+                        <span className="mb-select-caret">▼</span>
+
+                        {isOpen && !editingId && (
+                          <ul
+                            className="mb-select-menu"
+                            style={{ maxHeight: "250px", overflowY: "auto" }}
+                          >
+                            {customers.map((customer) => (
+                              <li
+                                key={customer.id}
+                                className={`mb-select-item ${
+                                  formData.customer_id ===
+                                  customer.id.toString()
+                                    ? "selected"
+                                    : ""
+                                }`}
+                                onClick={() => {
+                                  handleSelectChange(
+                                    "customer_id",
+                                    customer.id.toString()
+                                  );
+                                  setIsOpen(false);
+                                }}
+                              >
+                                {customer.name}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    );
+                  })()}
+                </div>
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="vehicle_id">Veículo *</Label>
-                <Select
-                  value={formData.vehicle_id}
-                  onValueChange={(value) => handleSelectChange("vehicle_id", value)}
-                  disabled={!formData.customer_id || !!editingId}
-                >
-                  <SelectTrigger id="vehicle_id">
-                    <SelectValue placeholder="Selecione um veículo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {customerVehicles.map((vehicle) => (
-                      <SelectItem key={vehicle.id} value={vehicle.id.toString()}>
-                        {vehicle.brand} {vehicle.model} - {vehicle.license_plate}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="mb-input-wrapper">
+                  <div
+                    ref={vehicleDropdownRef}
+                    style={{ position: "relative" }}
+                  >
+                    <button
+                      type="button"
+                      className={`mb-input select ${
+                        !formData.vehicle_id ? "placeholder" : ""
+                      }`}
+                      onClick={() => {
+                        if (!formData.customer_id) return;
+                        setVehicleDropdownOpen(!vehicleDropdownOpen);
+                      }}
+                      disabled={!formData.customer_id}
+                      style={{
+                        textAlign: "left",
+                        cursor: !formData.customer_id
+                          ? "not-allowed"
+                          : "pointer",
+                      }}
+                    >
+                      {(() => {
+                        const selectedVehicle = customerVehicles.find(
+                          (v) => v.id.toString() === formData.vehicle_id
+                        );
+                        return selectedVehicle
+                          ? `${selectedVehicle.brand} ${selectedVehicle.model} - ${selectedVehicle.plate}`
+                          : "";
+                      })()}
+                    </button>
+                    <label
+                      className={`mb-input-label ${
+                        formData.vehicle_id || vehicleDropdownOpen
+                          ? "shrunken"
+                          : ""
+                      }`}
+                    >
+                      Veículo *
+                    </label>
+                    <span className="mb-select-caret">▼</span>
+
+                    {vehicleDropdownOpen && formData.customer_id && (
+                      <ul
+                        className="mb-select-menu"
+                        style={{ maxHeight: "250px", overflowY: "auto" }}
+                      >
+                        {customerVehicles.length === 0 ? (
+                          <li
+                            className="mb-select-item"
+                            style={{ cursor: "default", opacity: 0.6 }}
+                          >
+                            Nenhum veículo encontrado
+                          </li>
+                        ) : (
+                          customerVehicles.map((vehicle) => (
+                            <li
+                              key={vehicle.id}
+                              className={`mb-select-item ${
+                                formData.vehicle_id === vehicle.id.toString()
+                                  ? "selected"
+                                  : ""
+                              }`}
+                              onClick={() => {
+                                handleSelectChange(
+                                  "vehicle_id",
+                                  vehicle.id.toString()
+                                );
+                                setVehicleDropdownOpen(false);
+                              }}
+                            >
+                              {vehicle.brand} {vehicle.model} - {vehicle.plate}
+                            </li>
+                          ))
+                        )}
+                      </ul>
+                    )}
+                  </div>
+                </div>
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="service_id">Serviço *</Label>
-                <Select
-                  value={formData.service_id}
-                  onValueChange={(value) => handleSelectChange("service_id", value)}
-                  disabled={!!editingId}
-                >
-                  <SelectTrigger id="service_id">
-                    <SelectValue placeholder="Selecione um serviço" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {services.map((service) => (
-                      <SelectItem key={service.id} value={service.id.toString()}>
-                        {service.name} - €{service.price.toFixed(2)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="mb-input-wrapper">
+                  {(() => {
+                    const [isOpen, setIsOpen] = useState(false);
+                    const [isFocused, setIsFocused] = useState(false);
+                    const menuRef = useRef<HTMLDivElement>(null);
+                    const hasValue = formData.service_id !== "";
+                    const selectedService = services.find(
+                      (s) => s.id.toString() === formData.service_id
+                    );
+
+                    useEffect(() => {
+                      const handleClickOutside = (event: MouseEvent) => {
+                        if (
+                          menuRef.current &&
+                          !menuRef.current.contains(event.target as Node)
+                        ) {
+                          setIsOpen(false);
+                        }
+                      };
+                      if (isOpen) {
+                        document.addEventListener(
+                          "mousedown",
+                          handleClickOutside
+                        );
+                      }
+                      return () =>
+                        document.removeEventListener(
+                          "mousedown",
+                          handleClickOutside
+                        );
+                    }, [isOpen]);
+
+                    return (
+                      <div ref={menuRef} style={{ position: "relative" }}>
+                        <button
+                          type="button"
+                          className={`mb-input select ${
+                            !hasValue && !isFocused ? "placeholder" : ""
+                          }`}
+                          onClick={() => setIsOpen(!isOpen)}
+                          onFocus={() => setIsFocused(true)}
+                          onBlur={() => setIsFocused(false)}
+                          style={{ textAlign: "left", cursor: "pointer" }}
+                        >
+                          {selectedService
+                            ? `${
+                                selectedService.name
+                              } - €${selectedService.price.toFixed(2)}`
+                            : ""}
+                        </button>
+                        <label
+                          className={`mb-input-label ${
+                            hasValue || isFocused ? "shrunken" : ""
+                          }`}
+                        >
+                          Serviço *
+                        </label>
+                        <span className="mb-select-caret">▼</span>
+
+                        {isOpen && (
+                          <ul
+                            className="mb-select-menu"
+                            style={{ maxHeight: "250px", overflowY: "auto" }}
+                          >
+                            {services.map((service) => (
+                              <li
+                                key={service.id}
+                                className={`mb-select-item ${
+                                  formData.service_id === service.id.toString()
+                                    ? "selected"
+                                    : ""
+                                }`}
+                                onClick={() => {
+                                  handleSelectChange(
+                                    "service_id",
+                                    service.id.toString()
+                                  );
+                                  setIsOpen(false);
+                                }}
+                              >
+                                {service.name} - €{service.price.toFixed(2)}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    );
+                  })()}
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="appointment_date">Data *</Label>
-                  <Input
-                    id="appointment_date"
-                    type="date"
-                    value={formData.appointment_date}
-                    onChange={handleInputChange}
-                    min={new Date().toISOString().split('T')[0]}
-                    required
-                    className="[&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:sepia [&::-webkit-calendar-picker-indicator]:saturate-[500%] [&::-webkit-calendar-picker-indicator]:hue-rotate-[-15deg] [&::-webkit-calendar-picker-indicator]:brightness-90"
-                  />
+                  <div
+                    className="mb-input-wrapper"
+                    style={{ position: "relative" }}
+                  >
+                    <input
+                      id="appointment_date"
+                      type="date"
+                      className={`mb-input date-input ${
+                        formData.appointment_date ? "has-value" : ""
+                      }`}
+                      value={formData.appointment_date}
+                      onChange={(e) => {
+                        const selectedDate = new Date(
+                          e.target.value + "T00:00:00"
+                        );
+                        const dayOfWeek = selectedDate.getDay();
+                        if (dayOfWeek === 0 || dayOfWeek === 6) {
+                          e.target.value = "";
+                          toast({
+                            title: "Data Inválida",
+                            description:
+                              "Por favor, selecione um dia útil (Segunda a Sexta-feira).",
+                            variant: "destructive",
+                          });
+                          return;
+                        }
+                        handleInputChange(e);
+                      }}
+                      min={new Date().toISOString().split("T")[0]}
+                      required
+                      onFocus={(e) =>
+                        e.target.nextElementSibling?.classList.add("shrunken")
+                      }
+                      onBlur={(e) => {
+                        if (!e.target.value) {
+                          e.target.nextElementSibling?.classList.remove(
+                            "shrunken"
+                          );
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        // Prevent manual typing of weekend dates
+                        const input = e.currentTarget;
+                        setTimeout(() => {
+                          if (input.value) {
+                            const date = new Date(input.value + "T00:00:00");
+                            const day = date.getDay();
+                            if (day === 0 || day === 6) {
+                              input.value = "";
+                              setFormData((prev) => ({
+                                ...prev,
+                                appointment_date: "",
+                              }));
+                            }
+                          }
+                        }, 0);
+                      }}
+                    />
+                    <label
+                      className={`mb-input-label ${
+                        formData.appointment_date ? "shrunken" : ""
+                      }`}
+                    >
+                      Data *
+                    </label>
+                    <Calendar
+                      size={20}
+                      style={{
+                        position: "absolute",
+                        right: "14px",
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        color: "#6b7280",
+                        cursor: "pointer",
+                      }}
+                      onClick={() => {
+                        const element = document.getElementById("appointment_date") as HTMLInputElement;
+                        element?.showPicker?.();
+                      }}
+                    />
+                  </div>
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="appointment_time">Hora *</Label>
-                  <Select
-                    value={formData.appointment_time}
-                    onValueChange={(value) => handleSelectChange("appointment_time", value)}
-                  >
-                    <SelectTrigger id="appointment_time">
-                      <SelectValue placeholder="Selecione a hora" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {[
-                        "09:00", "09:15", "09:30", "09:45",
-                        "10:00", "10:15", "10:30", "10:45",
-                        "11:00", "11:15", "11:30", "11:45",
-                        "12:00", "12:15", "12:30", "12:45",
-                        "13:00", "13:15", "13:30", "13:45",
-                        "14:00", "14:15", "14:30", "14:45",
-                        "15:00", "15:15", "15:30", "15:45",
-                        "16:00", "16:15", "16:30", "16:45",
-                        "17:00"
-                      ].map((time) => (
-                        <SelectItem key={time} value={time}>
-                          {time}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div className="mb-input-wrapper">
+                    {(() => {
+                      const [isOpen, setIsOpen] = useState(false);
+                      const [isFocused, setIsFocused] = useState(false);
+                      const menuRef = useRef<HTMLDivElement>(null);
+                      const hasValue = formData.appointment_time !== "";
+                      const times = [
+                        "09:00",
+                        "09:15",
+                        "09:30",
+                        "09:45",
+                        "10:00",
+                        "10:15",
+                        "10:30",
+                        "10:45",
+                        "11:00",
+                        "11:15",
+                        "11:30",
+                        "11:45",
+                        "12:00",
+                        "12:15",
+                        "12:30",
+                        "12:45",
+                        "13:00",
+                        "13:15",
+                        "13:30",
+                        "13:45",
+                        "14:00",
+                        "14:15",
+                        "14:30",
+                        "14:45",
+                        "15:00",
+                        "15:15",
+                        "15:30",
+                        "15:45",
+                        "16:00",
+                        "16:15",
+                        "16:30",
+                        "16:45",
+                        "17:00",
+                      ];
+
+                      useEffect(() => {
+                        const handleClickOutside = (event: MouseEvent) => {
+                          if (
+                            menuRef.current &&
+                            !menuRef.current.contains(event.target as Node)
+                          ) {
+                            setIsOpen(false);
+                          }
+                        };
+                        if (isOpen) {
+                          document.addEventListener(
+                            "mousedown",
+                            handleClickOutside
+                          );
+                        }
+                        return () =>
+                          document.removeEventListener(
+                            "mousedown",
+                            handleClickOutside
+                          );
+                      }, [isOpen]);
+
+                      return (
+                        <div ref={menuRef} style={{ position: "relative" }}>
+                          <button
+                            type="button"
+                            className={`mb-input select ${
+                              !hasValue && !isFocused ? "placeholder" : ""
+                            }`}
+                            onClick={() => setIsOpen(!isOpen)}
+                            onFocus={() => setIsFocused(true)}
+                            onBlur={() => setIsFocused(false)}
+                            style={{ textAlign: "left", cursor: "pointer" }}
+                          >
+                            {formData.appointment_time || ""}
+                          </button>
+                          <label
+                            className={`mb-input-label ${
+                              hasValue || isFocused ? "shrunken" : ""
+                            }`}
+                          >
+                            Hora *
+                          </label>
+                          <span className="mb-select-caret">▼</span>
+
+                          {isOpen && (
+                            <ul
+                              className="mb-select-menu"
+                              style={{ maxHeight: "250px", overflowY: "auto" }}
+                            >
+                              {times.map((time) => (
+                                <li
+                                  key={time}
+                                  className={`mb-select-item ${
+                                    formData.appointment_time === time
+                                      ? "selected"
+                                      : ""
+                                  }`}
+                                  onClick={() => {
+                                    handleSelectChange(
+                                      "appointment_time",
+                                      time
+                                    );
+                                    setIsOpen(false);
+                                  }}
+                                >
+                                  {time}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      );
+                    })()}
+                  </div>
                 </div>
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="estimated_budget">Orçamento Estimado (€)</Label>
-                <Input
-                  id="estimated_budget"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={formData.estimated_budget}
-                  onChange={handleInputChange}
-                />
+                <div className="mb-input-wrapper">
+                  <input
+                    id="estimated_budget"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder=""
+                    className="mb-input"
+                    value={formData.estimated_budget}
+                    onChange={handleInputChange}
+                    onFocus={(e) =>
+                      e.target.nextElementSibling?.classList.add("shrunken")
+                    }
+                    onBlur={(e) => {
+                      if (!e.target.value) {
+                        e.target.nextElementSibling?.classList.remove(
+                          "shrunken"
+                        );
+                      }
+                    }}
+                  />
+                  <label
+                    className={`mb-input-label ${
+                      formData.estimated_budget ? "shrunken" : ""
+                    }`}
+                  >
+                    Orçamento Estimado (€)
+                  </label>
+                </div>
               </div>
 
               {editingId && (
                 <div className="grid gap-2">
-                  <Label htmlFor="status_id">Status</Label>
-                  <Select
-                    value={formData.status_id}
-                    onValueChange={(value) => handleSelectChange("status_id", value)}
-                  >
-                    <SelectTrigger id="status_id">
-                      <SelectValue placeholder="Selecione um status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {statuses.map((status) => (
-                        <SelectItem key={status.id} value={status.id.toString()}>
-                          {translateStatus(status.name)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div className="mb-input-wrapper">
+                    <div
+                      ref={statusDropdownRef}
+                      style={{ position: "relative" }}
+                    >
+                      <button
+                        type="button"
+                        className={`mb-input select ${
+                          !formData.status_id ? "placeholder" : ""
+                        }`}
+                        onClick={() =>
+                          setStatusDropdownOpen(!statusDropdownOpen)
+                        }
+                        style={{ textAlign: "left", cursor: "pointer" }}
+                      >
+                        {(() => {
+                          const selectedStatus = statuses.find(
+                            (s) => s.id.toString() === formData.status_id
+                          );
+                          return selectedStatus
+                            ? translateStatus(selectedStatus.name)
+                            : "";
+                        })()}
+                      </button>
+                      <label
+                        className={`mb-input-label ${
+                          formData.status_id || statusDropdownOpen
+                            ? "shrunken"
+                            : ""
+                        }`}
+                      >
+                        Status
+                      </label>
+                      <span className="mb-select-caret">▼</span>
+
+                      {statusDropdownOpen && (
+                        <ul
+                          className="mb-select-menu"
+                          style={{ maxHeight: "250px", overflowY: "auto" }}
+                        >
+                          {statuses.map((status) => (
+                              <li
+                                key={status.id}
+                                className={`mb-select-item ${
+                                  formData.status_id === status.id.toString()
+                                    ? "selected"
+                                    : ""
+                                }`}
+                                onClick={() => {
+                                  handleSelectChange(
+                                    "status_id",
+                                    status.id.toString()
+                                  );
+                                  setStatusDropdownOpen(false);
+                                }}
+                              >
+                                {translateStatus(status.name)}
+                              </li>
+                            ))}
+                        </ul>
+                      )}
+                    </div>
+                  </div>
                 </div>
               )}
 
               <div className="grid gap-2">
-                <Label htmlFor="description">Descrição</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  placeholder="Observações ou detalhes adicionais"
-                />
+                <div className="mb-input-wrapper">
+                  <textarea
+                    id="description"
+                    className="mb-input textarea"
+                    rows={3}
+                    placeholder=""
+                    value={formData.description}
+                    onChange={handleInputChange}
+                    onFocus={(e) =>
+                      e.target.nextElementSibling?.classList.add("shrunken")
+                    }
+                    onBlur={(e) => {
+                      if (!e.target.value) {
+                        e.target.nextElementSibling?.classList.remove(
+                          "shrunken"
+                        );
+                      }
+                    }}
+                  />
+                  <label
+                    className={`mb-input-label ${
+                      formData.description ? "shrunken" : ""
+                    }`}
+                  >
+                    Descrição
+                  </label>
+                </div>
               </div>
             </div>
-            <DialogFooter>
+            <DialogFooter className="px-6 pb-6 !flex-row !justify-between">
               <Button
                 type="button"
                 variant="outline"
@@ -597,7 +1359,11 @@ export default function Agendamentos() {
                 Cancelar
               </Button>
               <Button type="submit" variant="destructive" disabled={loading}>
-                {loading ? "A processar..." : (editingId ? "Salvar Alterações" : "Criar Agendamento")}
+                {loading
+                  ? "A processar..."
+                  : editingId
+                  ? "Salvar Alterações"
+                  : "Criar Agendamento"}
               </Button>
             </DialogFooter>
           </form>

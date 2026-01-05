@@ -4,7 +4,9 @@ from typing import List, Dict, Any
 
 from app.database import get_db
 from app.crud.vehicleApi import VehicleApiRepository
+from app.crud.vehicle import VehicleRepository
 from app.schemas.vehicleApi import VehicleApi, VehicleApiCreate
+from app.schemas.vehicle import Vehicle, VehicleCreate
 import requests
 from app.core.config import settings
 from app.utils.vehicle_parsers import parse_vehicle_xml

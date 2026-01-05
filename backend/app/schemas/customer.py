@@ -23,6 +23,7 @@ class CustomerUpdate(BaseModel):
     postal_code: Optional[str] = None
     country: Optional[str] = None
     birth_date: Optional[date] = None
+    email: Optional[EmailStr] = None
 
 class CustomerResponse(CustomerBase):
     id: int
