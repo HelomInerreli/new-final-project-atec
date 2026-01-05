@@ -4,6 +4,7 @@ import { normalizeStatus } from "./useServiceOrder";
 import { STATUS_LABEL_TO_ID } from "../interfaces/ServiceOrderDetail";
 import { format } from "date-fns";
 
+
 /**
  * Hook para gerir detalhes de ordens de serviço
  * @param id - ID da ordem de serviço (opcional)
@@ -93,7 +94,7 @@ export const useServiceOrderDetails = (id: string | undefined) => {
 
   /**
    * Efeito para carregar os dados iniciais da ordem
-   * Executa ao montar o componente ou quando o ID muda
+   * Executa ao montar o componente ou quando o ID muda!
    */
   useEffect(() => {
     fetchOrder();

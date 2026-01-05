@@ -442,21 +442,47 @@ class AppointmentRepository:
         if not db_appointment:
             return None
 
+        #  Apenas na primeira vez: guarda que foi iniciado
         if not db_appointment.start_time:
             db_appointment.start_time = datetime.utcnow()
-            db_appointment.is_paused = False
-            db_appointment.pause_time = None
-
-            # Muda status para "In Repair"
-            in_repair_status = self.db.query(Status).filter(Status.name == "In Repair").first()
-            if in_repair_status:
-                db_appointment.status_id = in_repair_status.id
+        
+        #  SEMPRE que inicia (mesmo depois de pausar):
+        db_appointment.is_paused = False
+        db_appointment.pause_time = None
+        
+        # Muda status para "In Repair"
+        in_repair_status = self.db.query(Status).filter(Status.name == "In Repair").first()
+        if not in_repair_status:
+            in_repair_status = Status(name="In Repair")
+            self.db.add(in_repair_status)
+            self.db.commit()
+            self.db.refresh(in_repair_status)
+        db_appointment.status_id = in_repair_status.id
+        
+        #  Comentário SEMPRE que inicia
+        comment = OrderComment(
+            service_order_id=appointment_id,
+            comment=f"Ordem de serviço :{appointment_id} iniciada.",
+        )
+        self.db.add(comment)
+            #Enviar Email ao cliente
+        try:
+                if db_appointment.customer and db_appointment.customer.auth and db_appointment.customer.auth.email:
+                    email_service = EmailService()
+                    customer_name = db_appointment.customer.name or "Cliente"
+                    service_name = db_appointment.service.name if db_appointment.service else "Serviço"
+                    vehicle_plate = db_appointment.vehicle.plate if db_appointment.vehicle else "Veículo"
                 
-            comment = OrderComment(
-                service_order_id=appointment_id,
-                comment=f"Ordem de serviço :{appointment_id} iniciada.",
-            )
-            self.db.add(comment)
+                    email_service.send_work_started_email(
+                        customer_email=db_appointment.customer.auth.email,
+                        customer_name=customer_name,
+                        service_name=service_name,
+                        vehicle_plate=vehicle_plate
+                    )
+                print(f"Email de início de trabalho enviado para {db_appointment.customer.auth.email}")
+        except Exception as e:
+            print(f"Erro ao enviar email de início de trabalho: {e}")
+        
             
         self.db.commit()
         self.db.refresh(db_appointment)
@@ -476,8 +502,12 @@ class AppointmentRepository:
         
         # Muda status para "Pending"
         pending_status = self.db.query(Status).filter(Status.name == "Pendente").first()
-        if pending_status:
-            db_appointment.status_id = pending_status.id
+        if not pending_status:
+            pending_status = Status(name="Pendente")
+            self.db.add(pending_status)
+            self.db.commit()
+            self.db.refresh(pending_status)
+        db_appointment.status_id = pending_status.id
             
         comment = OrderComment(
             service_order_id=appointment_id,
@@ -488,6 +518,7 @@ class AppointmentRepository:
         self.db.commit()
         self.db.refresh(db_appointment)
         return db_appointment
+        
 
     def resume_work(self, appointment_id: int) -> Optional[Appointment]:
         """Retoma o trabalho: redefine start_time para continuar contando."""
@@ -501,8 +532,12 @@ class AppointmentRepository:
 
         # Retoma status "In Repair"
         in_repair_status = self.db.query(Status).filter(Status.name == "In Repair").first()
-        if in_repair_status:
-            db_appointment.status_id = in_repair_status.id
+        if not in_repair_status:
+            in_repair_status = Status(name="In Repair")
+            self.db.add(in_repair_status)
+            self.db.commit()
+            self.db.refresh(in_repair_status)
+        db_appointment.status_id = in_repair_status.id
             
         comment = OrderComment(
             service_order_id=appointment_id,
@@ -513,6 +548,7 @@ class AppointmentRepository:
         self.db.commit()
         self.db.refresh(db_appointment)
         return db_appointment
+        
 
     def finalize_work(self, appointment_id: int) -> Optional[Appointment]:
         """Finaliza o trabalho: calcula tempo final e marca como finalizado."""
@@ -530,14 +566,35 @@ class AppointmentRepository:
 
         # Muda status para "Finalized"
         finalized_status = self.db.query(Status).filter(Status.name == "Finalized").first()
-        if finalized_status:
-            db_appointment.status_id = finalized_status.id
+        if not finalized_status:
+            finalized_status = Status(name="Finalized")
+            self.db.add(finalized_status)
+            self.db.commit()
+            self.db.refresh(finalized_status)
+        db_appointment.status_id = finalized_status.id
             
         comment = OrderComment(
             service_order_id=appointment_id,
             comment=f"Ordem de serviço :{appointment_id} finalizada",
         )
         self.db.add(comment)    
+        
+        try:
+            if db_appointment.customer and db_appointment.customer.auth and db_appointment.customer.auth.email:
+                email_service = EmailService()
+                customer_name = db_appointment.customer.name or "Cliente"
+                service_name = db_appointment.service.name if db_appointment.service else "Serviço"
+                vehicle_plate = db_appointment.vehicle.plate if db_appointment.vehicle else "Veículo"
+            
+                email_service.send_work_completed_email(
+                    customer_email=db_appointment.customer.auth.email,
+                    customer_name=customer_name,
+                    service_name=service_name,
+                    vehicle_plate=vehicle_plate
+                )
+                print(f"Email de trabalho finalizado enviado para {db_appointment.customer.auth.email}")
+        except Exception as e:
+            print(f"Erro ao enviar email de trabalho finalizado: {e}")
 
         self.db.commit()
         self.db.refresh(db_appointment)
