@@ -94,7 +94,7 @@ export const useServiceOrderDetails = (id: string | undefined) => {
 
   /**
    * Efeito para carregar os dados iniciais da ordem
-   * Executa ao montar o componente ou quando o ID muda
+   * Executa ao montar o componente ou quando o ID muda!
    */
   useEffect(() => {
     fetchOrder();
