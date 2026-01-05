@@ -1,40 +1,48 @@
 /* ===== Appointments (scoped) ===== */
 
-/* Container principal (card) */
-.appointments-container{
-  max-width: 700px; /* largura máxima */
-  margin: 48px auto; /* margem centrada */
-  background: #fff; /* fundo branco */
-  border-radius: 22px; /* bordas arredondadas */
-  box-shadow: 0 8px 36px rgba(37, 99, 235, 0.10), 0 1.5px 4px rgba(0,0,0,0.04); /* sombra */
-  padding: 40px 48px; /* espaçamento interno */
-  border: 1.5px solid #e0e7ff; /* borda azul clara */
-  position: relative; /* posicionamento relativo */
-  overflow: hidden; /* esconde conteúdo excedente */
-  font-family: 'Segoe UI', Arial, sans-serif; /* fonte */
+.appointments-page {
+  padding: 2rem 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.appointments-container *{ box-sizing: border-box; } /* box-sizing para todos os filhos */
+/* Container principal (card) */
+.appointments-container {
+  max-width: 900px;
+  margin: 0 auto 48px;
+  background: #fff;
+  border-radius: 22px;
+  box-shadow: 0 8px 36px rgba(37, 99, 235, 0.1), 0 1.5px 4px rgba(0, 0, 0, 0.04);
+  padding: 40px 48px;
+  border: 1.5px solid #e0e7ff;
+  position: relative;
+  overflow: hidden;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.appointments-container * {
+  box-sizing: border-box;
+} /* box-sizing para todos os filhos */
 
 /* Título */
-.appointments-title{
+.appointments-title {
   font-size: 2.2rem; /* tamanho da fonte */
   font-weight: 800; /* negrito extra */
   color: #2563eb; /* cor azul */
   margin: 0 0 10px 0; /* margem inferior */
   letter-spacing: -1px; /* espaçamento entre letras */
-  text-shadow: 0 2px 8px rgba(37,99,235,0.07); /* sombra do texto */
+  text-shadow: 0 2px 8px rgba(37, 99, 235, 0.07); /* sombra do texto */
   display: flex; /* layout flexível */
   align-items: center; /* centraliza verticalmente */
   gap: 10px; /* espaço entre elementos */
 }
-.appointments-title::before{
+.appointments-title::before {
   content: "📅"; /* emoji calendário */
   font-size: 1.9rem; /* tamanho do emoji */
 }
 
 /* Lista de agendamentos */
-.appointments-list{
+.appointments-list {
   display: grid; /* layout em grade */
   gap: 16px; /* espaço entre items */
   margin: 12px 0 0 0; /* margem superior */
@@ -42,61 +50,136 @@
 }
 
 /* Item */
-.appointment-item{
+.appointment-item {
   display: grid; /* layout em grade */
   grid-template-columns: 1fr; /* uma coluna */
   gap: 6px; /* espaço entre linhas */
-  background: linear-gradient(90deg, #f1f5f9 80%, #e0e7ff 100%); /* gradiente de fundo */
+  background: linear-gradient(
+    90deg,
+    #f1f5f9 80%,
+    #e0e7ff 100%
+  ); /* gradiente de fundo */
   border-radius: 14px; /* bordas arredondadas */
   padding: 18px 20px; /* espaçamento interno */
-  transition: box-shadow .2s, transform .18s, background .18s; /* animações */
-  box-shadow: 0 2px 10px rgba(37,99,235,0.04); /* sombra */
+  transition: box-shadow 0.2s, transform 0.18s, background 0.18s; /* animações */
+  box-shadow: 0 2px 10px rgba(37, 99, 235, 0.04); /* sombra */
   border: 1px solid #e0e7ff; /* borda azul clara */
 }
-.appointment-item:hover{
-  box-shadow: 0 6px 24px rgba(37,99,235,0.10); /* sombra maior no hover */
-  background: linear-gradient(90deg, #e0e7ff 80%, #f1f5f9 100%); /* gradiente invertido */
+.appointment-item:hover {
+  box-shadow: 0 6px 24px rgba(37, 99, 235, 0.1); /* sombra maior no hover */
+  background: linear-gradient(
+    90deg,
+    #e0e7ff 80%,
+    #f1f5f9 100%
+  ); /* gradiente invertido */
   transform: translateY(-2px); /* eleva item */
 }
 
 /* Linhas dentro do item */
-.appointment-item > div{
+.appointment-item > div {
   display: flex; /* layout flexível */
   gap: 6px; /* espaço entre elementos */
   align-items: baseline; /* alinha pela linha base */
   color: #1e293b; /* cor do texto */
   font-size: 1rem; /* tamanho da fonte */
 }
-.appointment-item strong{
+.appointment-item strong {
   color: #0f172a; /* cor mais escura para labels */
   min-width: 90px; /* alinhamento dos rótulos */
 }
 
 /* “Status” como chip simples se quiseres destacar */
-.appointment-item .status-chip{
+.appointment-item .status-chip {
   display: inline-block; /* bloco inline */
-  padding: .25rem .6rem; /* espaçamento interno */
+  padding: 0.25rem 0.6rem; /* espaçamento interno */
   border-radius: 999px; /* totalmente arredondado */
   font-weight: 700; /* negrito */
-  font-size: .85rem; /* tamanho da fonte */
+  font-size: 0.85rem; /* tamanho da fonte */
   border: 1px solid #e2e8f0; /* borda cinza */
   color: #475569; /* cor do texto */
   background: #f8fafc; /* fundo claro */
 }
-.status-chip.ok{ color:#16a34a; border-color:#bbf7d0; background:#f0fdf4; } /* chip verde */
-.status-chip.warn{ color:#d97706; border-color:#fde68a; background:#fffbeb; } /* chip amarelo */
+.status-chip.ok {
+  color: #16a34a;
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+} /* chip verde */
+.status-chip.warn {
+  color: #d97706;
+  border-color: #fde68a;
+  background: #fffbeb;
+} /* chip amarelo */
 
 /* Responsivo */
-@media (max-width: 600px){
-  .appointments-container{
-    padding: 18px 12px; /* menos padding no mobile */
-    margin: 24px auto; /* menos margem no mobile */
+@media (max-width: 1024px) {
+  .appointments-page {
+    padding: 1.5rem 1rem;
   }
-  .appointments-title{
-    font-size: 1.6rem; /* fonte menor no mobile */
-    gap: 8px; /* menos espaço no mobile */
+
+  .appointments-container {
+    max-width: 800px;
+    padding: 35px 40px;
   }
-  .appointment-item{
+}
+
+@media (max-width: 768px) {
+  .appointments-page {
+    padding: 1rem 0.75rem;
+  }
+
+  .appointments-container {
+    max-width: 100%;
+    padding: 24px 20px;
+    margin: 0 auto 24px;
+    border-radius: 16px;
+  }
+
+  .appointments-title {
+    font-size: 1.8rem;
+    gap: 8px;
+  }
+
+  .appointment-item {
+    padding: 16px 18px;
+  }
+
+  .appointment-item strong {
+    min-width: 80px;
+  }
+}
+
+@media (max-width: 480px) {
+  .appointments-page {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .appointments-container {
+    padding: 18px 14px;
+    margin: 0 auto 16px;
+    border-radius: 12px;
+  }
+
+  .appointments-title {
+    font-size: 1.5rem;
+    gap: 6px;
+  }
+
+  .appointment-item {
+    padding: 14px 16px;
+  }
+
+  .appointment-item > div {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .appointment-item strong {
+    min-width: unset;
+    font-size: 0.85rem;
+    color: #64748b;
+  }
+  .appointment-item {
     padding: 14px 12px; /* menos padding no mobile */
   }
 }

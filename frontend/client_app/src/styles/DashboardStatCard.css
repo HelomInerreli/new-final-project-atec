@@ -1,0 +1,75 @@
+/* Componente DashboardStatCard */
+.dashboard-stat-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+    height: 100%;
+}
+
+.dashboard-stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.dashboard-stat-card.clickable {
+    cursor: pointer;
+}
+
+.stat-card-header {
+    padding: 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.stat-card-header-red {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+}
+
+.stat-card-header-blue {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+}
+
+.stat-card-header-green {
+    background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+}
+
+.stat-card-header-orange {
+    background: linear-gradient(135deg, #fd7e14 0%, #dc6502 100%);
+}
+
+.stat-icon {
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-card-body {
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.stat-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #7f8c8d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.75rem;
+}
+
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.stat-description {
+    font-size: 0.875rem;
+    color: #95a5a6;
+    margin: 0;
+}

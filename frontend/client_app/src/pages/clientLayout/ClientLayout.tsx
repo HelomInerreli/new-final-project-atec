@@ -1,25 +1,26 @@
 import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { ClientMenu } from "../../components/ClientMenu";
 import { Vehicles } from "../vehicles/vehicles";
 import { Appointments } from "../future_appointments/FutureAppointments";
 import { PastAppointmentsPage } from "../pastAppointments/PastAppointmentsPage";
 import { Invoices } from "../invoices/invoices";
-import Profile from "../profile/profile";
 import Dashboard from "../dashboard/Dashboard";
 import { useAuth } from "../../api/auth";
 import { useTranslation } from "react-i18next";
+import { getActiveSectionFromURL } from "../../utils/navigationHelpers";
 import "../../styles/ClientLayout.css";
 
 /**
  * Tipo para as seções disponíveis na área do cliente
  * Define as páginas navegáveis: dashboard, agendamentos, veículos, histórico e faturas
  */
-export type ClientSection = 
-  | "dashboard" 
-  | "appointments" 
-  | "vehicles" 
-  | "service-history" 
-  | "invoices"
+export type ClientSection =
+  | "dashboard"
+  | "appointments"
+  | "vehicles"
+  | "service-history"
+  | "invoices";
 
 /**
  * Layout principal da área do cliente
@@ -34,13 +35,16 @@ export function ClientLayout() {
    * Tipo: ClientSection
    * Inicial: "dashboard"
    */
-  const [activeSection, setActiveSection] = useState<ClientSection>("dashboard");
-  
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [activeSection, setActiveSection] =
+    useState<ClientSection>("dashboard");
+
   /**
    * Hook de autenticação para verificar estado de login do utilizador
    */
   const { isLoggedIn } = useAuth();
-  
+
   /**
    * Hook de tradução para internacionalização
    */
@@ -52,16 +56,17 @@ export function ClientLayout() {
    * Limpa URL após processar para evitar persistência de parâmetros
    * Executa uma única vez no mount do componente
    */
+  // Sincronizar estado com a URL
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const section = urlParams.get('section') as ClientSection;
-    
-    if (section) {
-      setActiveSection(section);
-      // Limpar parâmetros da URL após processar
-      window.history.replaceState({}, '', '/my-services');
-    }
-  }, []);
+    const sectionFromURL = getActiveSectionFromURL();
+    setActiveSection(sectionFromURL);
+  }, [searchParams]);
+
+  // Função para mudar de seção e atualizar a URL
+  const handleSectionChange = (section: ClientSection) => {
+    setActiveSection(section);
+    navigate(`/my-services?section=${section}`, { replace: true });
+  };
 
   /**
    * Retorna alerta se utilizador não estiver autenticado
@@ -69,9 +74,7 @@ export function ClientLayout() {
   if (!isLoggedIn) {
     return (
       <div className="client-layout">
-        <div className="alert alert-warning m-5">
-          {t('pleaseLogin')}
-        </div>
+        <div className="alert alert-warning m-5">{t("pleaseLogin")}</div>
       </div>
     );
   }
@@ -92,9 +95,7 @@ export function ClientLayout() {
       case "service-history":
         return <PastAppointmentsPage />;
       case "invoices":
-        return (
-          <Invoices />
-        );
+        return <Invoices />;
       default:
         return <Dashboard />;
     }
@@ -103,14 +104,12 @@ export function ClientLayout() {
   return (
     <div className="client-layout">
       {/* Menu lateral de navegação do cliente */}
-      <ClientMenu 
-        activeSection={activeSection} 
-        onSectionChange={setActiveSection} 
+      <ClientMenu
+        activeSection={activeSection}
+        onSectionChange={handleSectionChange}
       />
       {/* Área de conteúdo dinâmico */}
-      <div className="client-content">
-        {renderContent()}
-      </div>
+      <div className="client-content">{renderContent()}</div>
     </div>
   );
 }

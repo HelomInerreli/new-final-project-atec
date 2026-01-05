@@ -551,7 +551,7 @@ class AppointmentRepository:
         
 
     def finalize_work(self, appointment_id: int) -> Optional[Appointment]:
-        """Finaliza o trabalho: calcula tempo final e marca como finalizado."""
+        """Finaliza o trabalho: calcula tempo final e muda status para 'Waitting Payment'."""
         db_appointment = self.get_by_id(appointment_id=appointment_id)
         if not db_appointment:
             return None
@@ -595,6 +595,10 @@ class AppointmentRepository:
                 print(f"Email de trabalho finalizado enviado para {db_appointment.customer.auth.email}")
         except Exception as e:
             print(f"Erro ao enviar email de trabalho finalizado: {e}")
+        # Muda status para "Waitting Payment" (aguardando pagamento do cliente)
+        waitting_payment_status = self.db.query(Status).filter(Status.name == "Waitting Payment").first()
+        if waitting_payment_status:
+            db_appointment.status_id = waitting_payment_status.id
 
         self.db.commit()
         self.db.refresh(db_appointment)

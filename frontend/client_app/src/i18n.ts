@@ -564,6 +564,7 @@ i18next.use(initReactI18next).init({
         appointmentsPage: {
           title: "My Appointments",
         },
+
         
         // Invoice translations
         invoices: {
@@ -1180,6 +1181,7 @@ i18next.use(initReactI18next).init({
         appointmentsPage: {
           title: "Detalhes do Agendamento",
         },
+        
         
         // Invoice translations
         invoices: {
@@ -2406,6 +2408,7 @@ i18next.use(initReactI18next).init({
           estimatedPriceLabel: "Prix Estimé:",
         },
 
+       
         // Invoice translations
         invoices: {
           title: "Mes Factures",
