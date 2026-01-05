@@ -118,6 +118,37 @@
   color: #6c757d;
 }
 
+.customers-container {
+  height: 100%;
+  background-color: transparent;
+  display: flex;
+  flex-direction: column;
+}
+
+.customers-header-wrapper {
+  flex-shrink: 0;
+}
+
+.customers-status-select {
+  width: 200px;
+  flex-shrink: 0;
+}
+
+.customers-table-wrapper {
+  overflow-y: auto;
+  background-color: #fff;
+  border-radius: 0.375rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  min-height: 0;
+}
+
+.customers-table-header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #fff;
+}
+
 .no-results p {
   margin: 0;
   font-size: 1.1rem;

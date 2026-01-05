@@ -1,7 +1,7 @@
 .order-card {
   border: 2px solid #dc3545;
   border-radius: 12px;
-  background-color: #fff;
+  background-color: rgb(245, 245, 245);
   padding: 24px 28px;
   transition: box-shadow 0.2s, transform 0.2s;
   display: flex;
@@ -34,7 +34,7 @@
   flex-wrap: wrap;
 }
 
-/* Chips de status */
+
 .status-chip {
   padding: 6px 14px;
   border-radius: 12px;
@@ -66,8 +66,9 @@
 
 /* Meta - informações do card em linha */
 .meta {
-  display: flex;
-  gap: 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, auto));
+  gap: 12px 24px;
   color: #666;
   font-size: 0.95rem;
   flex-wrap: wrap;
@@ -75,6 +76,7 @@
 
 .meta > div {
   color: #666;
+
 }
 
 .meta strong {
@@ -85,22 +87,6 @@
 .card-actions {
   margin-left: 20px;
   flex-shrink: 0;
-}
-
-.btn-action {
-  background-color: #dc3545;
-  color: white;
-  border: 2px solid #dc3545;
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }
 
 .btn-action:hover {

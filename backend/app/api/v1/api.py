@@ -10,9 +10,11 @@ from app.api.v1.routes import (
 	vehicleApi,
 	product,
 	notification,
+	managementAuth,
 	userNotification,
+	metrics,
+    status, role, employee,absence, absenceType, absenceStatus, finance
 )
-from app.api.v1.routes import customer, vehicle, appointment, extra_service, customerAuth, service, payment, vehicleApi, status
 
 
 api_router = APIRouter()
@@ -30,3 +32,12 @@ api_router.include_router(product.router, prefix="/products", tags=["products"])
 api_router.include_router(notification.router, prefix="/notifications", tags=["notifications"])
 api_router.include_router(userNotification.router, prefix="", tags=["user-notifications"])
 api_router.include_router(status.router, prefix="/statuses", tags=["statuses"])
+api_router.include_router(managementAuth.router, prefix="/managementauth", tags=["managementauth"])
+api_router.include_router(role.router, prefix="/roles", tags=["roles"])
+api_router.include_router(employee.router, prefix="/employees", tags=["employees"])
+api_router.include_router(metrics.router, prefix="/metrics", tags=["metrics"])
+api_router.include_router(absence.router, prefix="/absences", tags=["absences"])
+api_router.include_router(absenceType.router, prefix="/absence-types", tags=["absence-types"])
+api_router.include_router(absenceStatus.router, prefix="/absence-statuses", tags=["absence-statuses"])
+api_router.include_router(finance.router, prefix="/finance", tags=["finance"])
+

@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { Button } from "./ui/button";
 import "../styles/OrderCard.css";
 import type { Order } from "../interfaces/Order";
 
@@ -84,13 +85,14 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
       </div>
 
       <div className="card-actions">
-        <button
-          className="btn-action"
+        <Button
+          variant="destructive"
+          size="default"
           onClick={() => navigate(`/orders/${order.id}`)}
           aria-label={`Ver detalhes da ordem ${order.id}`}
         >
-         Ver Detalhes
-        </button>
+          Ver Detalhes
+        </Button>
       </div>
     </div>
   );

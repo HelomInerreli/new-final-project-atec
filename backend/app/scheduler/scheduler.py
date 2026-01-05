@@ -33,11 +33,7 @@ class NotificationScheduler:
         db: Session = SessionLocal()
         
         try:
-            now = datetime.now()
-            # Para teste: envia para appointments nos próximos 2-5 minutos
-            #start_window = now + timedelta(minutes=2)
-            #end_window = now + timedelta(minutes=5)
-            
+            now = datetime.now()   
             # Para produção: envia 24h antes
             start_window = now + timedelta(hours=23)
             end_window = now + timedelta(hours=25)
@@ -46,7 +42,10 @@ class NotificationScheduler:
             # Corrected 'service_date' to 'appointment_date'.
             appointments = (
                 db.query(Appointment)
-                .options(joinedload(Appointment.customer), joinedload(Appointment.service))
+                .options(
+                    joinedload(Appointment.customer).joinedload(Customer.auth),
+                    joinedload(Appointment.service)
+                )
                 .filter(
                     Appointment.appointment_date >= start_window,
                     Appointment.appointment_date <= end_window,
@@ -62,8 +61,12 @@ class NotificationScheduler:
                     print(f"Skipping appointment {appointment.id} due to missing customer or service relationship.")
                     continue
                 
+                if not appointment.customer.auth or not appointment.customer.auth.email:
+                    print(f"Skipping appointment {appointment.id} - customer has no email in auth.")
+                    continue
+                
                 success = self.email_service.send_reminder_email(
-                    customer_email=appointment.customer.email,
+                    customer_email=appointment.customer.auth.email,
                     service_name=appointment.service.name,
                     service_date=appointment.appointment_date,
                 )

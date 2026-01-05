@@ -1,0 +1,80 @@
+/* Back Button Custom Styling */
+.back-button-custom {
+  border: 1px solid #dc3545;
+  color: #dc3545;
+  transition: all 0.3s ease;
+}
+
+.back-button-custom:hover {
+  background-color: #dc3545;
+  color: white;
+}
+
+/* Button Custom Styling */
+.btn-custom-outline {
+  border: 1px solid #dc3545;
+  color: #dc3545;
+  background-color: transparent;
+  transition: all 0.3s ease;
+}
+
+.btn-custom-outline:hover {
+  background-color: #dc3545;
+  color: white;
+  border-color: #dc3545;
+}
+
+.btn-custom-filled {
+  background-color: #dc3545;
+  color: white;
+  border: 1px solid #dc3545;
+  transition: all 0.3s ease;
+}
+
+.btn-custom-filled:hover {
+  background-color: #b02a37;
+  border-color: #b02a37;
+}
+
+/* Form Inputs */
+.form-control:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Card Styling */
+.card {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+.vehicle-details-card {
+  border: 1px solid #dc3545;
+  border-radius: 8px;
+}
+
+/* Badge Styling */
+.badge {
+  font-weight: 500;
+}
+
+.vehicle-status-badge {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.75rem;
+}
+
+/* Container */
+.vehicle-details-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* Icon Sizing */
+.icon-small {
+  width: 16px;
+  height: 16px;
+}
