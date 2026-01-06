@@ -1,9 +1,10 @@
-import { VehicleCard } from '../../components/VehicleCard';
-import { VehicleModal } from '../../components/VehicleModal';
-import { FaPlus, FaCar } from 'react-icons/fa';
-import { useVehicles } from '../../hooks/useVehicles';
-import '../../styles/Vehicles.css';
-import { useTranslation } from 'react-i18next';
+import { VehicleCard } from "../../components/VehicleCard";
+import { VehicleModal } from "../../components/VehicleModal";
+import ConfirmDialog from "../../components/ConfirmDialog";
+import { FaPlus, FaCar } from "react-icons/fa";
+import { useVehicles } from "../../hooks/useVehicles";
+import "../../styles/Vehicles.css";
+import { useTranslation } from "react-i18next";
 
 /**
  * Componente de página para gestão de veículos do cliente
@@ -46,6 +47,9 @@ export function Vehicles() {
     handleCloseModal,
     handleSaveVehicle,
     handleGetFromAPI,
+    confirmState,
+    handleConfirm,
+    handleCancel,
   } = useVehicles();
 
   /**
@@ -57,7 +61,7 @@ export function Vehicles() {
     return (
       <div className="vehicles-page">
         <div className="alert alert-warning">
-          {t('vehiclesPage.pleaseLogin')}
+          {t("vehiclesPage.pleaseLogin")}
         </div>
       </div>
     );
@@ -68,9 +72,9 @@ export function Vehicles() {
       <div className="vehicles-page">
         <div className="text-center py-5">
           <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">{t('loading')}</span>
+            <span className="visually-hidden">{t("loading")}</span>
           </div>
-          <p className="mt-3">{t('vehiclesPage.loading')}</p>
+          <p className="mt-3">{t("vehiclesPage.loading")}</p>
         </div>
       </div>
     );
@@ -85,20 +89,25 @@ export function Vehicles() {
   return (
     <div className="vehicles-page">
       <div className="vehicles-header">
-        <h1>{t('vehiclesPage.title')}</h1>
+        <h1>{t("vehiclesPage.title")}</h1>
         <button className="btn btn-danger" onClick={handleAddVehicle}>
-          <FaPlus /> {t('vehiclesPage.addVehicle')}
+          <FaPlus /> {t("vehiclesPage.addVehicle")}
         </button>
       </div>
 
       {error && (
         <div className="alert alert-danger" role="alert">
-          <strong>{t('vehiclesPage.errorLoading')}:</strong> {error}
+          <strong>{t("vehiclesPage.errorLoading")}:</strong> {error}
           <br />
-          <small>{t('vehiclesPage.customerIdLabel')} {loggedInCustomerId}</small>
+          <small>
+            {t("vehiclesPage.customerIdLabel")} {loggedInCustomerId}
+          </small>
           <br />
-          <button className="btn btn-sm btn-outline-danger mt-2" onClick={loadVehicles}>
-            {t('vehiclesPage.tryAgain')}
+          <button
+            className="btn btn-sm btn-outline-danger mt-2"
+            onClick={loadVehicles}
+          >
+            {t("vehiclesPage.tryAgain")}
           </button>
         </div>
       )}
@@ -106,10 +115,10 @@ export function Vehicles() {
       {!error && !hasVehicles ? (
         <div className="no-vehicles">
           <FaCar size={60} color="#ccc" />
-          <h3>{t('vehiclesPage.noVehicles')}</h3>
-          <p>{t('vehiclesPage.noVehiclesMessage')}</p>
+          <h3>{t("vehiclesPage.noVehicles")}</h3>
+          <p>{t("vehiclesPage.noVehiclesMessage")}</p>
           <button className="btn btn-primary" onClick={handleAddVehicle}>
-            <FaPlus /> {t('vehiclesPage.addVehicle')}
+            <FaPlus /> {t("vehiclesPage.addVehicle")}
           </button>
         </div>
       ) : (
@@ -132,6 +141,17 @@ export function Vehicles() {
         onClose={handleCloseModal}
         onSave={handleSaveVehicle}
         getFromAPI={handleGetFromAPI}
+      />
+
+      <ConfirmDialog
+        isOpen={confirmState.isOpen}
+        title={confirmState.title}
+        message={confirmState.message}
+        confirmText={confirmState.confirmText}
+        cancelText={confirmState.cancelText}
+        type={confirmState.type}
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
       />
     </div>
   );

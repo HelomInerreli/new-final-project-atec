@@ -11,32 +11,38 @@ import AuthCallback from "./components/AuthCallback";
 import { FutureAppointments } from "./components/FutureAppointement";
 import { ClientLayout } from "./pages/clientLayout/ClientLayout";
 import Profile from "./pages/profile/profile";
+import { ToastProvider } from "./context/ToastContext";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/clients" element={<CustomerList />} />
-          <Route path="/service-history" element={<ServiceHistory />} />
-          <Route path="/future-appointments" element={<FutureAppointments />} />
-          <Route path="/appointments" element={<AppointmentList />} />
-          <Route
-            path="/appointments/:customerId"
-            element={<AppointmentList />}
-          />
-          <Route path="/services" element={<ServicesList />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/auth/callback" element={<AuthCallback />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/my-services" element={<ClientLayout />} />
-          {/* Redirect old routes to home */}
-          <Route path="/about" element={<Navigate to="/" replace />} />
-          <Route path="/contact" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Layout>
-    </BrowserRouter>
+    <ToastProvider>
+      <BrowserRouter>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/clients" element={<CustomerList />} />
+            <Route path="/service-history" element={<ServiceHistory />} />
+            <Route
+              path="/future-appointments"
+              element={<FutureAppointments />}
+            />
+            <Route path="/appointments" element={<AppointmentList />} />
+            <Route
+              path="/appointments/:customerId"
+              element={<AppointmentList />}
+            />
+            <Route path="/services" element={<ServicesList />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/my-services" element={<ClientLayout />} />
+            {/* Redirect old routes to home */}
+            <Route path="/about" element={<Navigate to="/" replace />} />
+            <Route path="/contact" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Layout>
+      </BrowserRouter>
+    </ToastProvider>
   );
 }
 

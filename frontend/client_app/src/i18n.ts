@@ -326,7 +326,8 @@ i18next.use(initReactI18next).init({
           pastTimesUnavailable: "Past times are not available",
           noServicesFound: "No services found",
           loginRequired: "Login required:",
-          loginRequiredMessage: "You will be redirected to login before continuing.",
+          loginRequiredMessage:
+            "You will be redirected to login before continuing.",
           errorVehicle: "Select a vehicle",
           errorStep1: "Fill in all required fields from step 1",
           errorLogin: "User is not logged in",
@@ -513,7 +514,10 @@ i18next.use(initReactI18next).init({
           errorLoading: "Error loading vehicles",
           customerIdLabel: "Customer ID:",
           tryAgain: "Try again",
+          deleteTitle: "Delete Vehicle",
           deleteConfirm: "Are you sure you want to delete this vehicle?",
+          deleteButton: "Delete",
+          cancelButton: "Cancel",
           deleteSuccess: "Vehicle deleted successfully!",
           deleteError: "Error deleting vehicle",
           pleaseLogin: "Please login to view your vehicles.",
@@ -558,24 +562,25 @@ i18next.use(initReactI18next).init({
           },
         },
         myServices: "My Services",
-        noCompletedServicesMessage: "You don't have any completed services yet. When you complete a service, it will appear here.",
+        noCompletedServicesMessage:
+          "You don't have any completed services yet. When you complete a service, it will appear here.",
         myInvoices: "My Invoices",
 
         appointmentsPage: {
           title: "My Appointments",
         },
 
-        
         // Invoice translations
         invoices: {
           title: "My Invoices",
           loading: "Loading invoice...",
           errorLoading: "Error loading invoice",
-          errorMessage: "This invoice may not have been generated yet. Make sure the payment has been completed.",
+          errorMessage:
+            "This invoice may not have been generated yet. Make sure the payment has been completed.",
           backButton: "Back",
           viewInvoice: "View Invoice",
           downloadPDF: "Download PDF",
-          
+
           // Invoice details
           companyName: "MECATEC",
           companyServices: "Automotive Services",
@@ -583,14 +588,14 @@ i18next.use(initReactI18next).init({
           companyCity: "4000-000 Porto, Portugal",
           companyPhone: "Tel: +351 220 000 000",
           companyEmail: "Email: info@mecatec.pt",
-          
+
           // Client section
           clientTitle: "Client",
           invoiceNumber: "Invoice No:",
           issueDate: "Issue Date:",
           dueDate: "Due Date:",
           vehicle: "Vehicle:",
-          
+
           // Services table
           servicesTitle: "Services Provided",
           description: "Description",
@@ -598,19 +603,21 @@ i18next.use(initReactI18next).init({
           unitPrice: "Unit Price",
           total: "Total",
           noServices: "No services found",
-          
+
           // Totals
           subtotal: "Subtotal:",
           tax: "VAT (23%):",
           totalFinal: "Total:",
-          
+
           // Footer
-          footerMessage: "Thank you for your preference! For questions about this invoice, contact us via email info@mecatec.pt or phone +351 220 000 000",
-          
+          footerMessage:
+            "Thank you for your preference! For questions about this invoice, contact us via email info@mecatec.pt or phone +351 220 000 000",
+
           // Empty states
           noInvoicesFound: "No invoices found",
-          noInvoicesMessage: "You don't have any finalized services with invoices yet.",
-          
+          noInvoicesMessage:
+            "You don't have any finalized services with invoices yet.",
+
           // Month display
           invoice_singular: "invoice",
           invoice_plural: "invoices",
@@ -939,7 +946,8 @@ i18next.use(initReactI18next).init({
           pastTimesUnavailable: "Horários passados não estão disponíveis",
           noServicesFound: "Nenhum serviço encontrado",
           loginRequired: "Login necessário:",
-          loginRequiredMessage: "Você será redirecionado para fazer login antes de continuar.",
+          loginRequiredMessage:
+            "Você será redirecionado para fazer login antes de continuar.",
           errorVehicle: "Selecione um veículo",
           errorStep1: "Preencha todos os campos obrigatórios do passo 1",
           errorLogin: "Usuário não está logado",
@@ -1095,8 +1103,7 @@ i18next.use(initReactI18next).init({
           unlinkSuccess: "Conta {{provider}} desligada com sucesso!",
           unlinkError: "Erro ao desligar conta {{provider}}",
           linkSuccess: "Conta {{provider}} ligada com sucesso!",
-          linkError:
-            "Erro ao ligar conta {{provider}}. Tente novamente.",
+          linkError: "Erro ao ligar conta {{provider}}. Tente novamente.",
           alreadyLinked:
             "Esta conta {{provider}} já está ligada a outro utilizador.",
           authFailed: "Falha na autenticação. Tente novamente.",
@@ -1131,7 +1138,10 @@ i18next.use(initReactI18next).init({
           errorLoading: "Erro ao carregar veículos",
           customerIdLabel: "ID do Cliente:",
           tryAgain: "Tentar novamente",
+          deleteTitle: "Eliminar Veículo",
           deleteConfirm: "Tem certeza que deseja eliminar este veículo?",
+          deleteButton: "Eliminar",
+          cancelButton: "Cancelar",
           deleteSuccess: "Veículo eliminado com sucesso!",
           deleteError: "Erro ao eliminar veículo",
           pleaseLogin: "Por favor, faça login para ver seus veículos.",
@@ -1176,23 +1186,24 @@ i18next.use(initReactI18next).init({
           },
         },
         myServices: "Meus Serviços",
-        noCompletedServicesMessage: "Ainda não tem serviços finalizados. Quando concluir um serviço, ele aparecerá aqui.",
+        noCompletedServicesMessage:
+          "Ainda não tem serviços finalizados. Quando concluir um serviço, ele aparecerá aqui.",
         myInvoices: "Minhas Faturas",
         appointmentsPage: {
           title: "Detalhes do Agendamento",
         },
-        
-        
+
         // Invoice translations
         invoices: {
           title: "Minhas Faturas",
           loading: "A carregar fatura...",
           errorLoading: "Erro ao carregar fatura",
-          errorMessage: "Esta fatura pode ainda não ter sido gerada. Certifique-se de que o pagamento foi concluído.",
+          errorMessage:
+            "Esta fatura pode ainda não ter sido gerada. Certifique-se de que o pagamento foi concluído.",
           backButton: "Voltar",
           viewInvoice: "Ver Fatura",
           downloadPDF: "Descarregar PDF",
-          
+
           // Invoice details
           companyName: "MECATEC",
           companyServices: "Serviços Automotivos",
@@ -1200,14 +1211,14 @@ i18next.use(initReactI18next).init({
           companyCity: "4000-000 Porto, Portugal",
           companyPhone: "Tel: +351 220 000 000",
           companyEmail: "Email: info@mecatec.pt",
-          
+
           // Client section
           clientTitle: "Cliente",
           invoiceNumber: "Fatura Nº:",
           issueDate: "Data de Emissão:",
           dueDate: "Data de Vencimento:",
           vehicle: "Veículo:",
-          
+
           // Services table
           servicesTitle: "Serviços Prestados",
           description: "Descrição",
@@ -1215,19 +1226,20 @@ i18next.use(initReactI18next).init({
           unitPrice: "Preço Unit.",
           total: "Total",
           noServices: "Nenhum serviço encontrado",
-          
+
           // Totals
           subtotal: "Subtotal:",
           tax: "IVA (23%):",
           totalFinal: "Total:",
-          
+
           // Footer
-          footerMessage: "Obrigado pela sua preferência! Para questões sobre esta fatura, contacte-nos através do email info@mecatec.pt ou telefone +351 220 000 000",
-          
+          footerMessage:
+            "Obrigado pela sua preferência! Para questões sobre esta fatura, contacte-nos através do email info@mecatec.pt ou telefone +351 220 000 000",
+
           // Empty states
           noInvoicesFound: "Nenhuma fatura encontrada",
           noInvoicesMessage: "Ainda não tem serviços finalizados com faturas.",
-          
+
           // Month display
           invoice_singular: "fatura",
           invoice_plural: "faturas",
@@ -1305,7 +1317,8 @@ i18next.use(initReactI18next).init({
 
         // Service History translations
         serviceHistory: "Historial de Servicios",
-        serviceHistoryDescription: "Ver todos los servicios completados y programados",
+        serviceHistoryDescription:
+          "Ver todos los servicios completados y programados",
         errorLoadingServices: "Error al cargar servicios",
         loadingServices: "Cargando servicios",
         serviceRecords: "Registros de Servicios",
@@ -1353,8 +1366,7 @@ i18next.use(initReactI18next).init({
         scheduled: "Programado",
         errorLoadingAppointments: "Error al cargar citas",
         appointmentList: "Lista de Citas",
-        appointmentManagementDescription:
-          "Gestión integral de las citas",
+        appointmentManagementDescription: "Gestión integral de las citas",
         loadingAppointments: "Cargando citas",
         registeredAppointments: "Citas Registradas",
         service: "Servicio",
@@ -1438,8 +1450,7 @@ i18next.use(initReactI18next).init({
         },
         contactModal: {
           title: "Contáctanos",
-          subtitle:
-            "Envíanos un mensaje y responderemos lo antes posible.",
+          subtitle: "Envíanos un mensaje y responderemos lo antes posible.",
           emailLabel: "Email",
           phoneLabel: "Teléfono",
           emailValue: "projetodghhn@gmail.com",
@@ -1532,10 +1543,12 @@ i18next.use(initReactI18next).init({
           scheduledFor: "Agendado para:",
           clientLabel: "Cliente:",
           noVehiclesFound: "No se encontraron vehículos para este cliente",
-          descriptionPlaceholder: "Describe el problema o servicio requerido...",
+          descriptionPlaceholder:
+            "Describe el problema o servicio requerido...",
           selectService: "Selecciona el servicio",
           serviceSelected: "Servicio: {{service}} — haz clic en Siguiente",
-          serviceSelectedFallback: "Servicio seleccionado — haz clic en Siguiente",
+          serviceSelectedFallback:
+            "Servicio seleccionado — haz clic en Siguiente",
           chooseDateTime: "Elige fecha y hora",
           selectVehicle: "Selecciona un vehículo",
           describeProblem: "Describe el problema (mín. 4 caracteres)",
@@ -1552,7 +1565,8 @@ i18next.use(initReactI18next).init({
           pastTimesUnavailable: "Horarios pasados no están disponibles",
           noServicesFound: "No se encontraron servicios",
           loginRequired: "Login necesario:",
-          loginRequiredMessage: "Serás redirigido para hacer login antes de continuar.",
+          loginRequiredMessage:
+            "Serás redirigido para hacer login antes de continuar.",
           errorVehicle: "Selecciona un vehículo",
           errorStep1: "Completa todos los campos obligatorios del paso 1",
           errorLogin: "Usuario no está conectado",
@@ -1742,7 +1756,10 @@ i18next.use(initReactI18next).init({
           errorLoading: "Error al cargar vehículos",
           customerIdLabel: "ID del Cliente:",
           tryAgain: "Intenta de nuevo",
+          deleteTitle: "Eliminar Vehículo",
           deleteConfirm: "¿Estás seguro de que deseas eliminar este vehículo?",
+          deleteButton: "Eliminar",
+          cancelButton: "Cancelar",
           deleteSuccess: "¡Vehículo eliminado con éxito!",
           deleteError: "Error al eliminar vehículo",
           pleaseLogin: "Por favor, inicia sesión para ver tus vehículos.",
@@ -1787,18 +1804,20 @@ i18next.use(initReactI18next).init({
           },
         },
         myServices: "Mis Servicios",
-        noCompletedServicesMessage: "Aún no tienes servicios completados. Cuando completes un servicio, aparecerá aquí.",
+        noCompletedServicesMessage:
+          "Aún no tienes servicios completados. Cuando completes un servicio, aparecerá aquí.",
         myInvoices: "Mis Facturas",
         appointmentsPage: {
           title: "Mis Citas",
         },
-        
+
         // Invoice translations
         invoices: {
           title: "Mis Facturas",
           loading: "Cargando factura...",
           errorLoading: "Error al cargar factura",
-          errorMessage: "Esta factura puede no haberse generado todavía. Asegúrese de que el pago se haya completado.",
+          errorMessage:
+            "Esta factura puede no haberse generado todavía. Asegúrese de que el pago se haya completado.",
           backButton: "Volver",
           viewInvoice: "Ver Factura",
           downloadPDF: "Descargar PDF",
@@ -1822,7 +1841,8 @@ i18next.use(initReactI18next).init({
           subtotal: "Subtotal:",
           tax: "IVA (23%):",
           totalFinal: "Total:",
-          footerMessage: "¡Gracias por su preferencia! Para preguntas sobre esta factura, contáctenos por email info@mecatec.pt o teléfono +351 220 000 000",
+          footerMessage:
+            "¡Gracias por su preferencia! Para preguntas sobre esta factura, contáctenos por email info@mecatec.pt o teléfono +351 220 000 000",
           noInvoicesFound: "No se encontraron facturas",
           noInvoicesMessage: "Aún no tiene servicios finalizados con facturas.",
           invoice_singular: "factura",
@@ -2127,7 +2147,8 @@ i18next.use(initReactI18next).init({
           scheduledFor: "Programmé pour:",
           clientLabel: "Client:",
           noVehiclesFound: "Aucun véhicule trouvé pour ce client",
-          descriptionPlaceholder: "Décrivez le problème ou le service requis...",
+          descriptionPlaceholder:
+            "Décrivez le problème ou le service requis...",
           selectService: "Sélectionnez le service",
           serviceSelected: "Service: {{service}} — cliquez sur Suivant",
           serviceSelectedFallback: "Service sélectionné — cliquez sur Suivant",
@@ -2303,7 +2324,10 @@ i18next.use(initReactI18next).init({
           errorLoading: "Erreur lors du chargement des véhicules",
           customerIdLabel: "ID du Client:",
           tryAgain: "Réessayer",
+          deleteTitle: "Supprimer le Véhicule",
           deleteConfirm: "Êtes-vous sûr de vouloir supprimer ce véhicule?",
+          deleteButton: "Supprimer",
+          cancelButton: "Annuler",
           deleteSuccess: "Véhicule supprimé avec succès!",
           deleteError: "Erreur lors de la suppression du véhicule",
           pleaseLogin: "Veuillez vous connecter pour voir vos véhicules.",
@@ -2348,9 +2372,10 @@ i18next.use(initReactI18next).init({
           },
         },
         myServices: "Mes Services",
-        noCompletedServicesMessage: "Vous n'avez pas encore de services terminés. Lorsque vous terminerez un service, il apparaîtra ici.",
+        noCompletedServicesMessage:
+          "Vous n'avez pas encore de services terminés. Lorsque vous terminerez un service, il apparaîtra ici.",
         myInvoices: "Mes Factures",
-        
+
         appointmentModal: {
           title: "Créer un Rendez-vous",
           progressAria: "Progrès {{percent}} pour cent",
@@ -2364,7 +2389,8 @@ i18next.use(initReactI18next).init({
           scheduledFor: "Programmé pour:",
           clientLabel: "Client:",
           noVehiclesFound: "Aucun véhicule trouvé pour ce client",
-          descriptionPlaceholder: "Décrivez le problème ou le service requis...",
+          descriptionPlaceholder:
+            "Décrivez le problème ou le service requis...",
           selectService: "Sélectionnez le service",
           serviceSelected: "Service: {{service}} — cliquez sur Suivant",
           serviceSelectedFallback: "Service sélectionné — cliquez sur Suivant",
@@ -2384,7 +2410,8 @@ i18next.use(initReactI18next).init({
           pastTimesUnavailable: "Les horaires passés ne sont pas disponibles",
           noServicesFound: "Aucun service trouvé",
           loginRequired: "Connexion requise:",
-          loginRequiredMessage: "Vous serez redirigé pour vous connecter avant de continuer.",
+          loginRequiredMessage:
+            "Vous serez redirigé pour vous connecter avant de continuer.",
           errorVehicle: "Sélectionnez un véhicule",
           errorStep1: "Remplissez tous les champs obligatoires de l'étape 1",
           errorLogin: "L'utilisateur n'est pas connecté",
@@ -2408,46 +2435,48 @@ i18next.use(initReactI18next).init({
           estimatedPriceLabel: "Prix Estimé:",
         },
 
-       
         // Invoice translations
         invoices: {
           title: "Mes Factures",
           loading: "Chargement de la facture...",
           errorLoading: "Erreur lors du chargement de la facture",
-          errorMessage: "Cette facture n'a peut-être pas encore été générée. Assurez-vous que le paiement a été effectué.",
+          errorMessage:
+            "Cette facture n'a peut-être pas encore été générée. Assurez-vous que le paiement a été effectué.",
           backButton: "Retour",
           viewInvoice: "Voir la Facture",
           downloadPDF: "Télécharger PDF",
-          
+
           companyName: "MECATEC",
           companyServices: "Services Automobiles",
           companyAddress: "Rue de l'Atelier, 123",
           companyCity: "4000-000 Porto, Portugal",
           companyPhone: "Tél: +351 220 000 000",
           companyEmail: "Email: info@mecatec.pt",
-          
+
           clientTitle: "Client",
           invoiceNumber: "Facture Nº:",
           issueDate: "Date d'Émission:",
           dueDate: "Date d'Échéance:",
           vehicle: "Véhicule:",
-          
+
           servicesTitle: "Services Fournis",
           description: "Description",
           quantity: "Qté",
           unitPrice: "Prix Unit.",
           total: "Total",
           noServices: "Aucun service trouvé",
-          
+
           subtotal: "Sous-total:",
           tax: "TVA (23%):",
           totalFinal: "Total:",
-          
-          footerMessage: "Merci pour votre préférence ! Pour toute question concernant cette facture, contactez-nous par email info@mecatec.pt ou téléphone +351 220 000 000",
-          
+
+          footerMessage:
+            "Merci pour votre préférence ! Pour toute question concernant cette facture, contactez-nous par email info@mecatec.pt ou téléphone +351 220 000 000",
+
           noInvoicesFound: "Aucune facture trouvée",
-          noInvoicesMessage: "Vous n'avez pas encore de services finalisés avec factures.",
-          
+          noInvoicesMessage:
+            "Vous n'avez pas encore de services finalisés avec factures.",
+
           invoice_singular: "facture",
           invoice_plural: "factures",
         },
