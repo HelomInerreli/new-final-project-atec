@@ -8,6 +8,6 @@ class Status(Base):
     __tablename__ = "statuses"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, unique=True, index=True, nullable=False)
+    name = Column(String(100), unique=True, index=True, nullable=False)
 
-    appointments = relationship("Appointment", back_populates="status")
+    appointments = relationship("Appointment", back_populates="status", order_by="Appointment.id.desc()")

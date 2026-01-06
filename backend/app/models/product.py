@@ -7,11 +7,11 @@ class Product(Base):
     __tablename__ = "products"
 
     id = Column(Integer, primary_key=True, index=True)
-    part_number = Column(String, unique=True, index=True, nullable=False)
-    name = Column(String, nullable=False)
-    description = Column(String, nullable=True)
-    category = Column(String, nullable=False)
-    brand = Column(String, nullable=True)
+    part_number = Column(String(100), unique=True, index=True, nullable=False)
+    name = Column(String(200), nullable=False)
+    description = Column(String(1000), nullable=True)
+    category = Column(String(100), nullable=False)
+    brand = Column(String(100), nullable=True)
     quantity = Column(Integer, default=0)
     reserve_quantity = Column(Integer, nullable=True)
     cost_value = Column(Float, nullable=False)

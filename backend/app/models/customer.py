@@ -8,12 +8,12 @@ class Customer(Base):
     __tablename__ = "customers"
     
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, nullable=False) 
-    phone = Column(String, nullable=True)  
-    address = Column(String, nullable=True)  
-    city = Column(String, nullable=True)  
-    postal_code = Column(String, nullable=True)  
-    country = Column(String, nullable=True)
+    name = Column(String(200), nullable=False) 
+    phone = Column(String(50), nullable=True)  
+    address = Column(String(500), nullable=True)  
+    city = Column(String(100), nullable=True)  
+    postal_code = Column(String(20), nullable=True)  
+    country = Column(String(100), nullable=True)
     birth_date = Column(Date, nullable=True)  
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.now)
@@ -21,7 +21,7 @@ class Customer(Base):
     deleted_at = Column(DateTime, nullable=True, default=None) # Soft delete column
     
     # Relationships
-    vehicles = relationship("Vehicle", back_populates="customer")
-    appointments = relationship("Appointment", back_populates="customer")
+    vehicles = relationship("Vehicle", back_populates="customer", order_by="Vehicle.id")
+    appointments = relationship("Appointment", back_populates="customer", order_by="Appointment.id.desc()")
 
     auth = relationship("CustomerAuth", back_populates="customer", uselist=False)

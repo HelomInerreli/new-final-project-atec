@@ -11,8 +11,8 @@ class OrderPart(Base):
     product_id = Column(Integer, ForeignKey("products.id", ondelete="SET NULL"), nullable=True, index=True)
     
     # Snapshot dos dados no momento da adição
-    name = Column(String, nullable=False)
-    part_number = Column(String, nullable=True)
+    name = Column(String(200), nullable=False)
+    part_number = Column(String(100), nullable=True)
     quantity = Column(Integer, nullable=False)
     price = Column(Float, nullable=False)
     

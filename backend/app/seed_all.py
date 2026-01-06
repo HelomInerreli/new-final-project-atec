@@ -790,4 +790,35 @@ def run_all_seeds():
 
 
 if __name__ == "__main__":
+    import sys
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Run database seeds")
+    parser.add_argument(
+        "--force", 
+        action="store_true", 
+        help="Force reseed - drops all tables and recreates with fresh data"
+    )
+    args = parser.parse_args()
+    
+    if args.force:
+        from app.database import engine, Base
+        
+        print("\n" + "="*60)
+        print("⚠️  FORCE RESEED - ALL DATA WILL BE LOST!")
+        print("="*60)
+        
+        response = input("\n🔴 Are you sure you want to continue? (yes/no): ")
+        if response.lower() not in ['yes', 'y', 'sim', 's']:
+            print("❌ Reseed cancelled.")
+            sys.exit(0)
+        
+        print("\n🗑️  Dropping all tables...")
+        Base.metadata.drop_all(bind=engine)
+        print("   ✓ All tables dropped")
+        
+        print("\n🏗️  Creating all tables...")
+        Base.metadata.create_all(bind=engine)
+        print("   ✓ All tables created")
+    
     run_all_seeds()

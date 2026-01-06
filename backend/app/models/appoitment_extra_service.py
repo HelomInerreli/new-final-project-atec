@@ -12,12 +12,12 @@ class AppointmentExtraService(Base):
     added_at = Column(DateTime, default=datetime.now)
 
     # campos que permitem override / histórico (preço/duração no momento da seleção)
-    name = Column(String, nullable=True)
-    description = Column(String, nullable=True)
+    name = Column(String(200), nullable=True)
+    description = Column(String(1000), nullable=True)
     price = Column(Float, nullable=True)            # preço acordado / aplicado à appointment
     duration_minutes = Column(Integer, nullable=True)
 
-    status = Column(String, default="pending")     # pending, approved, rejected
+    status = Column(String(50), default="pending")     # pending, approved, rejected
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

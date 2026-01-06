@@ -43,7 +43,7 @@ def get_all_customer_profiles(
     Get all customer profiles with their complete information (admin endpoint).
     """
     try:
-        customers = db.query(CustomerModel).offset(skip).limit(limit).all()
+        customers = db.query(CustomerModel).order_by(CustomerModel.id).offset(skip).limit(limit).all()
         print(f"Found {len(customers)} customers")
         
         result = []

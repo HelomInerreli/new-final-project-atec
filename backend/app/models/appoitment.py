@@ -43,13 +43,14 @@ class Appointment(Base):
 
     # Relationships
     vehicle = relationship("Vehicle", back_populates="appointments")
-    invoices = relationship("Invoice", back_populates="appointment")
+    invoices = relationship("Invoice", back_populates="appointment", order_by="Invoice.id.desc()")
     customer = relationship("Customer", back_populates="appointments")
     service = relationship("Service", back_populates="appointments")
     extra_service_associations = relationship(
         "AppointmentExtraService",
         back_populates="appointment",
-        cascade="all, delete-orphan"
+        cascade="all, delete-orphan",
+        order_by="AppointmentExtraService.id"
     )
     status = relationship("Status", back_populates="appointments")
     

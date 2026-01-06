@@ -7,10 +7,10 @@ class Notification(Base):
     __tablename__ = "notifications"
 
     id = Column(Integer, primary_key=True, index=True)
-    component = Column(String, nullable=False)
-    text = Column(String, nullable=False)
+    component = Column(String(100), nullable=False)
+    text = Column(String(500), nullable=False)
     inserted_at = Column(DateTime, default=datetime.utcnow)
-    alert_type = Column(String, nullable=False)
+    alert_type = Column(String(50), nullable=False)
 
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

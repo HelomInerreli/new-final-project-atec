@@ -29,7 +29,7 @@ def get_customer_auth_by_email(db: Session, email: str):
     return db.query(CustomerAuth).filter(CustomerAuth.email == email).first()
 
 def get_customer_auths(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(CustomerAuth).offset(skip).limit(limit).all()
+    return db.query(CustomerAuth).order_by(CustomerAuth.id).offset(skip).limit(limit).all()
 
 
 # Google OAuth2

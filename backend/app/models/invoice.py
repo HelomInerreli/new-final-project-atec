@@ -8,8 +8,8 @@ class Invoice(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     appointment_id = Column(Integer, ForeignKey("appointments.id"), nullable=False)
-    stripe_payment_intent_id = Column(String(255), unique=True)
-    stripe_session_id = Column(String(255), unique=True)
+    stripe_payment_intent_id = Column(String(255), index=True)
+    stripe_session_id = Column(String(255), index=True)
     invoice_number = Column(String(50), unique=True, nullable=False)
     
     # Valores

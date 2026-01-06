@@ -84,12 +84,11 @@ class AppointmentRepository:
                 joinedload(Appointment.service),
                 joinedload(Appointment.status)
             )
-            .order_by(Appointment.id.desc())
         )
         # Admin e Gestor veem tudo; outros roles veem apenas serviços da sua área
         if user and user.role.lower() not in ["gestor", "admin"]:
             query = query.filter(Appointment.service.has(Service.area.like(f'%{user.role}%')))
-        return query.offset(skip).limit(limit).all()
+        return query.order_by(Appointment.id.desc()).offset(skip).limit(limit).all()
 
     # def get_all(self, skip: int = 0, limit: int = 100) -> List[Appointment]:
     #     """Listar appointments, ordenadas do mais recente para o mais antigo."""

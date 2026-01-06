@@ -95,4 +95,4 @@ class CustomerRepository:
         return None
     
 def get_customers(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(Customer).filter(Customer.deleted_at.is_(None)).offset(skip).limit(limit).all()
+    return db.query(Customer).filter(Customer.deleted_at.is_(None)).order_by(Customer.id).offset(skip).limit(limit).all()

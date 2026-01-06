@@ -13,5 +13,5 @@ def read_statuses(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
     """
     Retrieve statuses.
     """
-    statuses = db.query(Status).offset(skip).limit(limit).all()
+    statuses = db.query(Status).order_by(Status.id).offset(skip).limit(limit).all()
     return statuses

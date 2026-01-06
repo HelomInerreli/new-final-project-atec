@@ -6,10 +6,10 @@ class ExtraService(Base):
     __tablename__ = "extra_services"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, nullable=False)
-    description = Column(String, nullable=True)
+    name = Column(String(200), nullable=False)
+    description = Column(String(1000), nullable=True)
     price = Column(Float, nullable=False)            # preço padrão do catálogo
     duration_minutes = Column(Integer, nullable=True) # duração estimada em minutos
-    status = Column(String, default="pending") # pending, approved, rejected
+    status = Column(String(50), default="pending") # pending, approved, rejected
 
-    appointment_associations = relationship("AppointmentExtraService", back_populates="extra_service", cascade="all, delete-orphan")
+    appointment_associations = relationship("AppointmentExtraService", back_populates="extra_service", cascade="all, delete-orphan", order_by="AppointmentExtraService.id")
