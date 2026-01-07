@@ -62,6 +62,7 @@ export function VehicleModal({ show, vehicle, customerId, onClose, onSave, getFr
                   isInvalid={!!errors.plate}
                   maxLength={10}
                   style={{ textTransform: 'uppercase' }}
+                  disabled={isEditing}
                 />
                 <Form.Control.Feedback type="invalid">
                   {errors.plate}
@@ -84,6 +85,7 @@ export function VehicleModal({ show, vehicle, customerId, onClose, onSave, getFr
                   placeholder={t('vehicleModal.brandPlaceholder')}
                   isInvalid={!!errors.brand}
                   maxLength={50}
+                  disabled={isEditing}
                 />
                 <Form.Control.Feedback type="invalid">
                   {errors.brand}
@@ -101,6 +103,7 @@ export function VehicleModal({ show, vehicle, customerId, onClose, onSave, getFr
                   placeholder={t('vehicleModal.modelPlaceholder')}
                   isInvalid={!!errors.model}
                   maxLength={50}
+                  disabled={isEditing}
                 />
                 <Form.Control.Feedback type="invalid">
                   {errors.model}
@@ -136,6 +139,7 @@ export function VehicleModal({ show, vehicle, customerId, onClose, onSave, getFr
                   onChange={handleChange}
                   placeholder={t('vehicleModal.colorPlaceholder')}
                   maxLength={30}
+                  disabled={isEditing}
                 />
               </Form.Group>
             </div>
@@ -151,6 +155,7 @@ export function VehicleModal({ show, vehicle, customerId, onClose, onSave, getFr
                   onChange={handleChange}
                   placeholder={t('vehicleModal.engineSizePlaceholder')}
                   maxLength={10}
+                  disabled={isEditing}
                 />
               </Form.Group>
             </div>
@@ -164,6 +169,7 @@ export function VehicleModal({ show, vehicle, customerId, onClose, onSave, getFr
                   onChange={handleChange}
                   placeholder={t('vehicleModal.fuelTypePlaceholder')}
                   maxLength={30}
+                  disabled={isEditing}
                 />
               </Form.Group>
             </div>
@@ -177,6 +183,7 @@ export function VehicleModal({ show, vehicle, customerId, onClose, onSave, getFr
                   label={t('vehicleModal.imported')}
                   checked={formData.imported || false}
                   onChange={handleChange}
+                  disabled={isEditing}
                 />
               </Form.Group>
             </div>
@@ -192,6 +199,7 @@ export function VehicleModal({ show, vehicle, customerId, onClose, onSave, getFr
                   onChange={handleChange}
                   placeholder={t('vehicleModal.descriptionPlaceholder')}
                   maxLength={100}
+                  disabled={isEditing}
                 />
               </Form.Group>
             </div>

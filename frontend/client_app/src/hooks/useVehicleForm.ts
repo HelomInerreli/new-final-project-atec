@@ -80,6 +80,31 @@ export function useVehicleForm(
     }, [vehicle, customerId]);
 
     /**
+     * Função para formatar matrícula no formato XX-XX-XX
+     * Remove caracteres não alfanuméricos e adiciona hífens automaticamente
+     * @param value - Valor da matrícula sem formatação
+     * @returns Matrícula formatada no padrão XX-XX-XX
+     */
+    const formatPlate = (value: string): string => {
+        // Remove todos os caracteres que não sejam letras ou números
+        const cleaned = value.replace(/[^A-Z0-9]/gi, '').toUpperCase();
+        
+        // Limita a 6 caracteres (sem contar os hífens)
+        const limited = cleaned.substring(0, 6);
+        
+        // Adiciona hífens após cada 2 caracteres
+        let formatted = '';
+        for (let i = 0; i < limited.length; i++) {
+            if (i > 0 && i % 2 === 0) {
+                formatted += '-';
+            }
+            formatted += limited[i];
+        }
+        
+        return formatted;
+    };
+
+    /**
      * Função para manipular alterações nos campos do formulário
      * Converte valores para maiúsculas (exceto quilómetros)
      * Limpa erros do campo quando o utilizador começa a digitar
@@ -92,7 +117,7 @@ export function useVehicleForm(
             [name]:
                 type === "checkbox" ? checked : 
                 name === "kilometers" ? parseInt(value) || 0 : 
-                name === "plate" ? value.toUpperCase() : 
+                name === "plate" ? formatPlate(value) : 
                 value,
         }));
         if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
