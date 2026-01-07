@@ -38,7 +38,7 @@ export function ClientMenu({ activeSection, onSectionChange }: ClientMenuProps) 
           <li className={activeSection === "dashboard" ? "active" : ""}>
             <button onClick={() => handleClick("dashboard")}>
               <FaTachometerAlt className="menu-icon" />
-              <span>{t("dashboard")}</span>
+              <span>{t("dashboard.title")}</span>
             </button>
           </li>
 
