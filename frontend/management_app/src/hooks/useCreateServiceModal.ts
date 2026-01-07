@@ -1,7 +1,16 @@
-import { useState, useEffect } from "react";
-import { toast } from "sonner";
-import { serviceService } from "../services/serviceService";
+/**
+ * Hook personalizado para gerenciar o modal de criação de serviço.
+ * Permite validar e submeter formulário de criação de serviço.
+ */
 
+import { useState, useEffect } from "react";
+// Importa hooks do React
+import { toast } from "sonner";
+// Biblioteca para notificações
+import { serviceService } from "../services/serviceService";
+// Serviço para operações de serviço
+
+// Interface para estado do formulário de serviço
 interface ServiceFormState {
   name: string;
   description: string;
@@ -10,11 +19,19 @@ interface ServiceFormState {
   is_active: boolean;
 }
 
+/**
+ * Hook para gerenciar modal de criação de serviço.
+ * @param show - Indica se modal está visível
+ * @param onSuccess - Callback para sucesso
+ * @param onClose - Callback para fechar
+ * @returns Estado e funções para o modal
+ */
 export const useCreateServiceModal = (
   show: boolean,
   onSuccess: () => void,
   onClose: () => void
 ) => {
+  // Estado do formulário
   const [form, setForm] = useState<ServiceFormState>({
     name: "",
     description: "",
@@ -23,10 +40,12 @@ export const useCreateServiceModal = (
     is_active: true,
   });
 
+  // Estado de submissão
   const [submitting, setSubmitting] = useState(false);
+  // Estado de erro
   const [error, setError] = useState<string | null>(null);
 
-  // Reset form when modal opens
+  // Efeito para resetar formulário quando modal abre
   useEffect(() => {
     if (show) {
       setForm({
@@ -40,8 +59,9 @@ export const useCreateServiceModal = (
     }
   }, [show]);
 
+  // Função para submeter formulário
   const handleSubmit = async () => {
-    // Validation
+    // Validações
     if (!form.name.trim()) {
       toast.error("Nome é obrigatório");
       return;
@@ -55,10 +75,13 @@ export const useCreateServiceModal = (
       return;
     }
 
+    // Inicia submissão
     setSubmitting(true);
+    // Limpa erro
     setError(null);
 
     try {
+      // Prepara dados do serviço
       const serviceData = {
         name: form.name,
         description: form.description,
@@ -67,20 +90,30 @@ export const useCreateServiceModal = (
         is_active: form.is_active,
       };
 
+      // Cria serviço via serviço
       await serviceService.create(serviceData);
+      // Mostra sucesso
       toast.success("Serviço criado com sucesso");
+      // Chama callback de sucesso
       onSuccess();
+      // Fecha modal
       handleClose();
     } catch (err) {
+      // Log erro
       console.error("Erro ao criar serviço:", err);
+      // Define erro
       setError("Erro ao criar serviço");
+      // Mostra toast de erro
       toast.error("Erro ao criar serviço");
     } finally {
+      // Finaliza submissão
       setSubmitting(false);
     }
   };
 
+  // Função para fechar modal
   const handleClose = () => {
+    // Reseta formulário
     setForm({
       name: "",
       description: "",
@@ -88,10 +121,13 @@ export const useCreateServiceModal = (
       duration_minutes: 0,
       is_active: true,
     });
+    // Limpa erro
     setError(null);
+    // Fecha modal
     onClose();
   };
 
+  // Retorna estado e funções
   return {
     form,
     setForm,

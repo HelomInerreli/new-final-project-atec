@@ -1,16 +1,29 @@
-import { type FC } from "react";
-import { Calendar } from "lucide-react";
-import { useCreateCustomerModal } from "../hooks/useCreateCustomerModal";
-import "../styles/CreateServiceOrderModal.css";
-import "../components/inputs.css";
+/**
+ * Componente modal para criar novo cliente.
+ * Permite inserir dados pessoais e de contato.
+ */
 
+import { type FC } from "react";
+// Importa React
+import { Calendar } from "lucide-react";
+// Ícone de calendário
+import { useCreateCustomerModal } from "../hooks/useCreateCustomerModal";
+// Hook personalizado para modal
+import "../styles/CreateServiceOrderModal.css";
+// Estilos CSS
+import "../components/inputs.css";
+// Estilos de inputs
+
+// Interface para props do modal
 interface CreateCustomerModalProps {
   show: boolean;
   onClose: () => void;
   onSuccess: () => void;
 }
 
+// Componente funcional para modal de criar cliente
 const CreateCustomerModal: FC<CreateCustomerModalProps> = ({ show, onClose, onSuccess }) => {
+  // Usa hook personalizado
   const {
     submitting,
     error,
@@ -20,8 +33,10 @@ const CreateCustomerModal: FC<CreateCustomerModalProps> = ({ show, onClose, onSu
     handleClose,
   } = useCreateCustomerModal(show, onSuccess, onClose);
 
+  // Não renderiza se não estiver visível
   if (!show) return null;
 
+  // Renderiza modal
   return (
     <div className="service-order-modal-overlay" onClick={handleClose}>
       <div className="service-order-modal" onClick={(e) => e.stopPropagation()}>
@@ -307,4 +322,5 @@ const CreateCustomerModal: FC<CreateCustomerModalProps> = ({ show, onClose, onSu
   );
 };
 
+// Exporta componente padrão
 export default CreateCustomerModal;

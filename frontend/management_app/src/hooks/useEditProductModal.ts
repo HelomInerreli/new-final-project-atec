@@ -1,7 +1,16 @@
-import { useState, useEffect } from "react";
-import http from "../api/http";
-import { toast } from "./use-toast";
+/**
+ * Hook personalizado para gerenciar o modal de edição de produtos.
+ * Permite preencher formulário, validar e atualizar dados de produtos.
+ */
 
+import { useState, useEffect } from "react";
+// Importa hooks do React
+import http from "../api/http";
+// Cliente HTTP
+import { toast } from "./use-toast";
+// Hook para toasts
+
+// Interface para produto
 interface Produto {
   id: string;
   partNumber: string;
@@ -16,6 +25,7 @@ interface Produto {
   minimumStock: number;
 }
 
+// Interface para formulário de produto
 interface ProductForm {
   partNumber: string;
   nome: string;
@@ -29,6 +39,7 @@ interface ProductForm {
   minimumStock: number | "";
 }
 
+// Formulário inicial vazio
 const INITIAL_FORM: ProductForm = {
   partNumber: "",
   nome: "",
@@ -42,17 +53,28 @@ const INITIAL_FORM: ProductForm = {
   minimumStock: "",
 };
 
+/**
+ * Hook para gerenciar modal de edição de produto.
+ * @param show - Se o modal está visível
+ * @param produto - Produto a editar
+ * @param onSuccess - Callback de sucesso
+ * @param onClose - Callback de fechar
+ * @returns Estado e funções para o modal
+ */
 export const useEditProductModal = (
   show: boolean,
   produto: Produto | null,
   onSuccess: () => void,
   onClose: () => void
 ) => {
+  // Estado do formulário
   const [form, setForm] = useState<ProductForm>(INITIAL_FORM);
+  // Estado de submissão
   const [submitting, setSubmitting] = useState(false);
+  // Estado de erro
   const [error, setError] = useState<string | null>(null);
 
-  // Pre-fill form when produto changes
+  // Efeito para preencher formulário quando produto muda
   useEffect(() => {
     if (show && produto) {
       setForm({
@@ -74,6 +96,7 @@ export const useEditProductModal = (
     }
   }, [show, produto]);
 
+  // Função para submeter formulário
   const handleSubmit = async () => {
     if (!produto) return;
 
@@ -120,6 +143,7 @@ export const useEditProductModal = (
     setSubmitting(true);
 
     try {
+      // Prepara payload
       const payload = {
         partNumber: form.partNumber.trim(),
         name: form.nome.trim(),
@@ -133,34 +157,43 @@ export const useEditProductModal = (
         minimumStock: Number(form.minimumStock),
       };
 
+      // Faz requisição PUT
       const idNum = Number(produto.id);
       await http.put(`/products/${idNum}`, payload);
 
+      // Mostra toast de sucesso
       toast({
         title: "Sucesso!",
         description: "Produto atualizado com sucesso.",
       });
 
+      // Chama sucesso
       onSuccess();
     } catch (err: any) {
+      // Log erro
       console.error("Erro ao atualizar produto:", err);
+      // Define erro
       setError(err?.response?.data?.detail || "Erro ao atualizar produto");
+      // Mostra toast de erro
       toast({
         title: "Erro",
         description: "Erro ao atualizar produto. Tente novamente.",
         variant: "destructive",
       });
     } finally {
+      // Finaliza submissão
       setSubmitting(false);
     }
   };
 
+  // Função para fechar modal
   const handleClose = () => {
     if (!submitting) {
       onClose();
     }
   };
 
+  // Retorna estado e funções
   return {
     form,
     setForm,

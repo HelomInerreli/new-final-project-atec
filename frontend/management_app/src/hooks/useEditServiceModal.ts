@@ -1,7 +1,16 @@
-import { useState, useEffect } from "react";
-import { toast } from "sonner";
-import { serviceService, type Service } from "../services/serviceService";
+/**
+ * Hook personalizado para gerenciar o modal de edição de serviços.
+ * Permite carregar dados, validar e atualizar serviços.
+ */
 
+import { useState, useEffect } from "react";
+// Importa hooks do React
+import { toast } from "sonner";
+// Biblioteca para toasts
+import { serviceService, type Service } from "../services/serviceService";
+// Serviço e tipo para serviços
+
+// Interface para estado do formulário de serviço
 interface ServiceFormState {
   name: string;
   description: string;
@@ -10,12 +19,21 @@ interface ServiceFormState {
   is_active: boolean;
 }
 
+/**
+ * Hook para gerenciar modal de edição de serviço.
+ * @param show - Se o modal está visível
+ * @param service - Serviço a editar
+ * @param onSuccess - Callback de sucesso
+ * @param onClose - Callback de fechar
+ * @returns Estado e funções para o modal
+ */
 export const useEditServiceModal = (
   show: boolean,
   service: Service | null,
   onSuccess: () => void,
   onClose: () => void
 ) => {
+  // Estado do formulário
   const [form, setForm] = useState<ServiceFormState>({
     name: "",
     description: "",
@@ -24,10 +42,12 @@ export const useEditServiceModal = (
     is_active: true,
   });
 
+  // Estado de submissão
   const [submitting, setSubmitting] = useState(false);
+  // Estado de erro
   const [error, setError] = useState<string | null>(null);
 
-  // Load service data when modal opens
+  // Efeito para carregar dados quando modal abre
   useEffect(() => {
     if (show && service) {
       setForm({
@@ -41,10 +61,11 @@ export const useEditServiceModal = (
     }
   }, [show, service]);
 
+  // Função para submeter formulário
   const handleSubmit = async () => {
     if (!service) return;
 
-    // Validation
+    // Validação
     if (!form.name.trim()) {
       toast.error("Nome é obrigatório");
       return;
@@ -58,10 +79,12 @@ export const useEditServiceModal = (
       return;
     }
 
+    // Inicia submissão
     setSubmitting(true);
     setError(null);
 
     try {
+      // Prepara dados do serviço
       const serviceData = {
         name: form.name,
         description: form.description,
@@ -70,20 +93,30 @@ export const useEditServiceModal = (
         is_active: form.is_active,
       };
 
+      // Atualiza serviço
       await serviceService.update(service.id, serviceData);
+      // Mostra toast de sucesso
       toast.success("Serviço atualizado com sucesso");
+      // Chama sucesso
       onSuccess();
+      // Fecha modal
       handleClose();
     } catch (err) {
+      // Log erro
       console.error("Erro ao atualizar serviço:", err);
+      // Define erro
       setError("Erro ao atualizar serviço");
+      // Mostra toast de erro
       toast.error("Erro ao atualizar serviço");
     } finally {
+      // Finaliza submissão
       setSubmitting(false);
     }
   };
 
+  // Função para fechar modal
   const handleClose = () => {
+    // Reseta formulário
     setForm({
       name: "",
       description: "",
@@ -91,10 +124,13 @@ export const useEditServiceModal = (
       duration_minutes: 0,
       is_active: true,
     });
+    // Limpa erro
     setError(null);
+    // Fecha modal
     onClose();
   };
 
+  // Retorna estado e funções
   return {
     form,
     setForm,

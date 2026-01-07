@@ -1,7 +1,16 @@
-import { useState, useEffect } from "react";
-import http from "../api/http";
-import { toast } from "./use-toast";
+/**
+ * Hook personalizado para gerenciar o modal de criação de produto.
+ * Permite validar e submeter formulário de criação de produto.
+ */
 
+import { useState, useEffect } from "react";
+// Importa hooks do React
+import http from "../api/http";
+// Cliente HTTP configurado
+import { toast } from "./use-toast";
+// Hook para notificações toast
+
+// Interface para formulário de produto
 interface ProductForm {
   partNumber: string;
   nome: string;
@@ -15,6 +24,7 @@ interface ProductForm {
   minimumStock: number | "";
 }
 
+// Formulário inicial vazio
 const INITIAL_FORM: ProductForm = {
   partNumber: "",
   nome: "",
@@ -28,15 +38,26 @@ const INITIAL_FORM: ProductForm = {
   minimumStock: "",
 };
 
+/**
+ * Hook para gerenciar modal de criação de produto.
+ * @param show - Indica se modal está visível
+ * @param onSuccess - Callback para sucesso
+ * @param onClose - Callback para fechar
+ * @returns Estado e funções para o modal
+ */
 export const useCreateProductModal = (
   show: boolean,
   onSuccess: () => void,
   onClose: () => void
 ) => {
+  // Estado do formulário
   const [form, setForm] = useState<ProductForm>(INITIAL_FORM);
+  // Estado de submissão
   const [submitting, setSubmitting] = useState(false);
+  // Estado de erro
   const [error, setError] = useState<string | null>(null);
 
+  // Efeito para resetar formulário quando modal abre
   useEffect(() => {
     if (show) {
       setForm(INITIAL_FORM);
@@ -44,10 +65,12 @@ export const useCreateProductModal = (
     }
   }, [show]);
 
+  // Função para submeter formulário
   const handleSubmit = async () => {
+    // Limpa erro
     setError(null);
 
-    // Validação
+    // Validações
     if (!form.partNumber.trim()) {
       setError("Código da peça é obrigatório");
       return;
@@ -85,9 +108,11 @@ export const useCreateProductModal = (
       return;
     }
 
+    // Inicia submissão
     setSubmitting(true);
 
     try {
+      // Prepara payload
       const payload = {
         partNumber: form.partNumber.trim(),
         name: form.nome.trim(),
@@ -101,33 +126,42 @@ export const useCreateProductModal = (
         minimumStock: Number(form.minimumStock),
       };
 
+      // Faz requisição POST
       await http.post("/products/", payload);
 
+      // Mostra sucesso
       toast({
         title: "Sucesso!",
         description: "Produto criado com sucesso.",
       });
 
+      // Chama callback de sucesso
       onSuccess();
     } catch (err: any) {
+      // Log erro
       console.error("Erro ao criar produto:", err);
+      // Define erro
       setError(err?.response?.data?.detail || "Erro ao criar produto");
+      // Mostra toast de erro
       toast({
         title: "Erro",
         description: "Erro ao criar produto. Tente novamente.",
         variant: "destructive",
       });
     } finally {
+      // Finaliza submissão
       setSubmitting(false);
     }
   };
 
+  // Função para fechar modal
   const handleClose = () => {
     if (!submitting) {
       onClose();
     }
   };
 
+  // Retorna estado e funções
   return {
     form,
     setForm,

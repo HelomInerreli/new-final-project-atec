@@ -1,7 +1,16 @@
+/**
+ * Componente modal para adicionar peças a ordens de serviço.
+ * Permite pesquisar produtos, selecionar e adicionar com quantidade.
+ */
+
 import React from "react";
+// Importa React
 import { useAddPartsModal } from "../hooks/useAddPartsModal";
+// Hook personalizado para modal
 import { Button } from "./ui/button";
+// Componente botão
 import { toast } from "../hooks/use-toast";
+// Hook para toasts
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,10 +22,15 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "./ui/alert-dialog";
+// Componentes do diálogo de alerta
 import "../styles/AddPartsModal.css";
+// Estilos CSS
 import { type AddPartsModalProps } from "../interfaces/ModalParts";
+// Tipo para props do modal
 
+// Componente funcional para modal de adicionar peças
 const AddPartsModal: React.FC<AddPartsModalProps> = ({ isOpen, onClose, orderId, onSuccess }) => {
+  // Usa hook personalizado
   const {
     filteredProducts,
     search,
@@ -31,8 +45,10 @@ const AddPartsModal: React.FC<AddPartsModalProps> = ({ isOpen, onClose, orderId,
     quantityError,
   } = useAddPartsModal(isOpen, orderId, onSuccess, onClose);
 
+  // Não renderiza se não estiver aberto
   if (!isOpen) return null;
 
+  // Renderiza overlay do modal
   return (
     <div className="comment-modal-overlay" onClick={onClose}>
       <div className="comment-modal-content" onClick={(e) => e.stopPropagation()}>
@@ -170,4 +186,5 @@ const AddPartsModal: React.FC<AddPartsModalProps> = ({ isOpen, onClose, orderId,
   );
 };
 
+// Exporta componente padrão
 export default AddPartsModal;

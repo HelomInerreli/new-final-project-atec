@@ -1,13 +1,28 @@
-import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from './ui/dialog';
-import { Button } from './ui/button';
-import Select from './Select';
-import Input from './Input';
-import TextArea from './TextArea';
-import { toast } from '../hooks/use-toast';
-import http from '../api/http';
-import '../styles/AddExtraServiceModal.css';
+/**
+ * Componente modal para adicionar serviços extras a agendamentos.
+ * Permite escolher do catálogo ou criar serviço personalizado.
+ */
 
+import { useState, useEffect } from 'react';
+// Importa hooks do React
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from './ui/dialog';
+// Componentes do diálogo
+import { Button } from './ui/button';
+// Componente botão
+import Select from './Select';
+// Componente select
+import Input from './Input';
+// Componente input
+import TextArea from './TextArea';
+// Componente textarea
+import { toast } from '../hooks/use-toast';
+// Hook para toasts
+import http from '../api/http';
+// Cliente HTTP
+import '../styles/AddExtraServiceModal.css';
+// Estilos CSS
+
+// Interface para serviço extra
 interface ExtraService {
   id: number;
   name: string;
@@ -16,6 +31,7 @@ interface ExtraService {
   duration_minutes?: number;
 }
 
+// Interface para props do modal
 interface AddExtraServiceModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -23,55 +39,67 @@ interface AddExtraServiceModalProps {
   onSuccess: () => void;
 }
 
+// Componente padrão para modal de adicionar serviço extra
 export default function AddExtraServiceModal({
   isOpen,
   onClose,
   orderId,
   onSuccess,
 }: AddExtraServiceModalProps) {
+  // Estado para catálogo
   const [catalog, setCatalog] = useState<ExtraService[]>([]);
+  // Estado de carregamento do catálogo
   const [loadingCatalog, setLoadingCatalog] = useState(false);
+  // Estado de submissão
   const [submitting, setSubmitting] = useState(false);
-  
-  // Modo: 'catalog' para escolher do catálogo, 'custom' para criar personalizado
+
+  // Estado para modo (catálogo ou personalizado)
   const [mode, setMode] = useState<'catalog' | 'custom'>('catalog');
-  
-  // Para modo catálogo
+
+  // Estados para modo catálogo
   const [selectedServiceId, setSelectedServiceId] = useState<string>('');
-  
-  // Para modo personalizado
+
+  // Estados para modo personalizado
   const [customName, setCustomName] = useState('');
   const [customDescription, setCustomDescription] = useState('');
   const [customPrice, setCustomPrice] = useState('');
   const [customDuration, setCustomDuration] = useState('');
 
-  // Buscar catálogo de serviços extras
+  // Efeito para buscar catálogo quando modal abre
   useEffect(() => {
     if (isOpen) {
       fetchCatalog();
     }
   }, [isOpen]);
 
+  // Função para buscar catálogo
   const fetchCatalog = async () => {
     try {
+      // Inicia carregamento
       setLoadingCatalog(true);
+      // Busca catálogo
       const response = await http.get('/extra_services/catalog');
       setCatalog(response.data);
     } catch (error) {
+      // Log erro
       console.error('Erro ao buscar catálogo de serviços extras:', error);
+      // Mostra toast de erro
       toast({
         title: 'Erro',
         description: 'Não foi possível carregar o catálogo de serviços.',
         variant: 'destructive',
       });
     } finally {
+      // Finaliza carregamento
       setLoadingCatalog(false);
     }
   };
 
+  // Função para submeter formulário
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
+    // Validação para modo catálogo
     if (mode === 'catalog' && !selectedServiceId) {
       toast({
         title: 'Atenção',
@@ -80,7 +108,8 @@ export default function AddExtraServiceModal({
       });
       return;
     }
-    
+
+    // Validação para modo personalizado
     if (mode === 'custom') {
       if (!customName || !customPrice) {
         toast({
@@ -93,8 +122,10 @@ export default function AddExtraServiceModal({
     }
 
     try {
+      // Inicia submissão
       setSubmitting(true);
-      
+
+      // Prepara payload baseado no modo
       const payload = mode === 'catalog'
         ? {
             extra_service_id: parseInt(selectedServiceId),
@@ -106,28 +137,37 @@ export default function AddExtraServiceModal({
             duration_minutes: customDuration ? parseInt(customDuration) : undefined,
           };
 
+      // Faz requisição POST
       await http.post(`/appointments/${orderId}/extra_services`, payload);
-      
+
+      // Mostra toast de sucesso
       toast({
         title: 'Sucesso!',
         description: 'Proposta de serviço extra enviada ao cliente.',
       });
-      
+
+      // Reseta formulário
       resetForm();
+      // Chama sucesso
       onSuccess();
+      // Fecha modal
       onClose();
     } catch (error: any) {
+      // Log erro
       console.error('Erro ao adicionar serviço extra:', error);
+      // Mostra toast de erro
       toast({
         title: 'Erro',
         description: error.response?.data?.detail || 'Não foi possível adicionar o serviço extra.',
         variant: 'destructive',
       });
     } finally {
+      // Finaliza submissão
       setSubmitting(false);
     }
   };
 
+  // Função para resetar formulário
   const resetForm = () => {
     setMode('catalog');
     setSelectedServiceId('');
@@ -137,13 +177,16 @@ export default function AddExtraServiceModal({
     setCustomDuration('');
   };
 
+  // Função para fechar modal
   const handleClose = () => {
     resetForm();
     onClose();
   };
 
+  // Serviço selecionado
   const selectedService = catalog.find(s => s.id.toString() === selectedServiceId);
 
+  // Renderiza modal
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="add-extra-service-modal">

@@ -1,7 +1,16 @@
+/**
+ * Componente modal para adicionar comentários a ordens de serviço.
+ * Permite inserir texto e confirmar adição com diálogo de confirmação.
+ */
+
 import React from "react";
+// Importa React
 import { useAddCommentModal } from "../hooks/useAddCommentModal";
+// Hook personalizado para modal
 import { Button } from "./ui/button";
+// Componente botão
 import { toast } from "../hooks/use-toast";
+// Hook para toasts
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,15 +22,20 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "./ui/alert-dialog";
+// Componentes do diálogo de alerta
 import { type AddCommentModalProps } from "../interfaces/ModalComment";
+// Tipo para props do modal
 import "../styles/AddCommentModal.css";
+// Estilos CSS
 
+// Componente funcional para modal de adicionar comentário
 const AddCommentModal: React.FC<AddCommentModalProps> = ({
   isOpen,
   onClose,
   orderId,
   onSuccess,
 }) => {
+  // Usa hook personalizado
   const { comment, setComment, commentError, loading, handleSubmit } = useAddCommentModal(
     isOpen,
     orderId,
@@ -29,8 +43,10 @@ const AddCommentModal: React.FC<AddCommentModalProps> = ({
     onClose
   );
 
+  // Não renderiza se não estiver aberto
   if (!isOpen) return null;
 
+  // Renderiza overlay do modal
   return (
     <div className="comment-modal-overlay" onClick={onClose}>
       <div className="comment-modal-content" onClick={(e) => e.stopPropagation()}>
@@ -104,4 +120,5 @@ const AddCommentModal: React.FC<AddCommentModalProps> = ({
   );
 };
 
+// Exporta componente padrão
 export default AddCommentModal;
