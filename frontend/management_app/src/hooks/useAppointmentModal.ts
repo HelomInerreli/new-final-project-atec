@@ -1,15 +1,32 @@
-import { useState, useEffect } from "react";
-import { customerService } from "../services/customerService";
-import { vehicleService } from "../services/vehicleService";
-import { serviceService } from "../services/serviceService";
-import { statusService } from "../services/statusService";
-import { appointmentService } from "../services/appointmentService";
-import type { Customer } from "../interfaces/Customer";
-import type { Service } from "../services/serviceService";
-import type { Vehicle } from "../interfaces/Vehicle";
-import type { Status } from "../services/statusService";
-import type { AppointmentCreate } from "../services/appointmentService";
+/**
+ * Hook personalizado para gerenciar o modal de criação de agendamentos.
+ * Permite carregar dados, validar formulário e submeter agendamentos.
+ */
 
+import { useState, useEffect } from "react";
+// Importa hooks do React para estado e efeitos
+import { customerService } from "../services/customerService";
+// Serviço para clientes
+import { vehicleService } from "../services/vehicleService";
+// Serviço para veículos
+import { serviceService } from "../services/serviceService";
+// Serviço para serviços
+import { statusService } from "../services/statusService";
+// Serviço para status
+import { appointmentService } from "../services/appointmentService";
+// Serviço para agendamentos
+import type { Customer } from "../interfaces/Customer";
+// Tipo para cliente
+import type { Service } from "../services/serviceService";
+// Tipo para serviço
+import type { Vehicle } from "../interfaces/Vehicle";
+// Tipo para veículo
+import type { Status } from "../services/statusService";
+// Tipo para status
+import type { AppointmentCreate } from "../services/appointmentService";
+// Tipo para criação de agendamento
+
+// Interface para o formulário de agendamento
 interface AppointmentForm {
   customer_id: number;
   vehicle_id: number;
@@ -21,6 +38,7 @@ interface AppointmentForm {
   status_id?: number;
 }
 
+// Formulário inicial vazio
 const INITIAL_FORM: AppointmentForm = {
   customer_id: 0,
   vehicle_id: 0,
@@ -32,6 +50,7 @@ const INITIAL_FORM: AppointmentForm = {
   status_id: undefined,
 };
 
+// Horários disponíveis para agendamento
 const AVAILABLE_TIMES = [
   "09:00", "09:15", "09:30", "09:45",
   "10:00", "10:15", "10:30", "10:45",
@@ -44,23 +63,39 @@ const AVAILABLE_TIMES = [
   "17:00"
 ];
 
+// Função para verificar se a data é fim de semana
 const isWeekend = (dateString: string): boolean => {
   const date = new Date(dateString + 'T00:00:00');
   const day = date.getDay();
   return day === 0 || day === 6;
 };
 
+/**
+ * Hook para gerenciar o modal de agendamento.
+ * @param show - Indica se o modal está visível
+ * @param onSuccess - Callback para sucesso
+ * @param onClose - Callback para fechar
+ * @returns Objeto com estado, dados e funções
+ */
 export const useAppointmentModal = (show: boolean, onSuccess: () => void, onClose: () => void) => {
   const [loadingData, setLoadingData] = useState(false);
+  // Estado de carregamento de dados
   const [submitting, setSubmitting] = useState(false);
+  // Estado de submissão
   const [customers, setCustomers] = useState<Customer[]>([]);
+  // Estado para lista de clientes
   const [services, setServices] = useState<Service[]>([]);
+  // Estado para lista de serviços
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  // Estado para lista de veículos
   const [statuses, setStatuses] = useState<Status[]>([]);
+  // Estado para lista de status
   const [error, setError] = useState<string | null>(null);
+  // Estado de erro
   const [form, setForm] = useState<AppointmentForm>(INITIAL_FORM);
+  // Estado do formulário
 
-  // Carregar dados iniciais
+  // Efeito para carregar dados iniciais quando o modal abre
   useEffect(() => {
     if (!show) {
       setForm(INITIAL_FORM);
@@ -80,7 +115,7 @@ export const useAppointmentModal = (show: boolean, onSuccess: () => void, onClos
       .finally(() => setLoadingData(false));
   }, [show]);
 
-  // Carregar veículos quando seleciona cliente
+  // Efeito para carregar veículos do cliente selecionado
   useEffect(() => {
     if (!form.customer_id) {
       setVehicles([]);
@@ -94,7 +129,7 @@ export const useAppointmentModal = (show: boolean, onSuccess: () => void, onClos
       .finally(() => setLoadingData(false));
   }, [form.customer_id]);
 
-  // Validar data (fins de semana)
+  // Função para alterar data e validar fim de semana
   const handleDateChange = (value: string) => {
     if (value && isWeekend(value)) {
       setError("Por favor, selecione um dia de semana (segunda a sexta-feira).");
@@ -104,17 +139,17 @@ export const useAppointmentModal = (show: boolean, onSuccess: () => void, onClos
     setError(null);
   };
 
-  // Atualizar serviço e orçamento
+  // Função para alterar serviço e atualizar orçamento
   const handleServiceChange = (serviceId: number) => {
     const service = services.find((s) => s.id === serviceId);
-    setForm((f) => ({ 
-      ...f, 
-      service_id: serviceId, 
-      estimated_budget: service?.price ?? 0 
+    setForm((f) => ({
+      ...f,
+      service_id: serviceId,
+      estimated_budget: service?.price ?? 0
     }));
   };
 
-  // Submeter formulário
+  // Função para submeter o formulário
   const handleSubmit = async () => {
     setError(null);
 
@@ -144,41 +179,41 @@ export const useAppointmentModal = (show: boolean, onSuccess: () => void, onClos
     }
   };
 
-  // Fechar modal
+  // Função para fechar o modal
   const handleClose = () => {
     setError(null);
     onClose();
   };
 
-  // Dados derivados
+  // Dados derivados: itens selecionados
   const selectedCustomer = customers.find((c) => c.id === form.customer_id);
   const selectedVehicle = vehicles.find((v) => v.id === form.vehicle_id);
   const selectedService = services.find((s) => s.id === form.service_id);
   const selectedStatus = statuses.find((s) => s.id === form.status_id);
 
   return {
-    // State
-    loadingData,
-    submitting,
-    customers,
-    services,
-    vehicles,
-    statuses,
-    error,
-    form,
-    availableTimes: AVAILABLE_TIMES,
-    
+    // Estado
+    loadingData, // Carregamento de dados
+    submitting, // Submissão em progresso
+    customers, // Lista de clientes
+    services, // Lista de serviços
+    vehicles, // Lista de veículos
+    statuses, // Lista de status
+    error, // Mensagem de erro
+    form, // Dados do formulário
+    availableTimes: AVAILABLE_TIMES, // Horários disponíveis
+
     // Dados derivados
-    selectedCustomer,
-    selectedVehicle,
-    selectedService,
-    selectedStatus,
-    
-    // Actions
-    setForm,
-    handleDateChange,
-    handleServiceChange,
-    handleSubmit,
-    handleClose,
+    selectedCustomer, // Cliente selecionado
+    selectedVehicle, // Veículo selecionado
+    selectedService, // Serviço selecionado
+    selectedStatus, // Status selecionado
+
+    // Ações
+    setForm, // Função para alterar formulário
+    handleDateChange, // Função para alterar data
+    handleServiceChange, // Função para alterar serviço
+    handleSubmit, // Função para submeter
+    handleClose, // Função para fechar
   };
 };
