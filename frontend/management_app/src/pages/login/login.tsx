@@ -4,16 +4,21 @@ import "../../components/login/sign.css";
 import Button from "react-bootstrap/Button";
 import { ArrowLeft } from "lucide-react";
 
+// Componente de página de login
 export default function Login() {
-  // "login" | "twofactor"
+  // Estado para modo de autenticação
   const [mode, setMode] = useState<"login">("login");
 
+  // Handler para voltar ao modo login
   const handleBack = () => setMode("login");
+
+  // Handler para quando usuário faz login
   const handleLoggedIn = (accessToken: string) => {
     // redirect to app or show toast
     window.location.href = "/";
   };
 
+  // Renderizar página de login
   return (
     <div className="login-page-wrapper">
       <div className="login-overlay" />

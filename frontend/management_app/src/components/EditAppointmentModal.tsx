@@ -1,10 +1,22 @@
-import { type FC, useState, useEffect, useRef } from "react";
-import { Calendar } from "lucide-react";
-import { useEditAppointmentModal } from "../hooks/useEditAppointmentModal";
-import type { Appointment } from "../services/appointmentService";
-import "../styles/CreateServiceOrderModal.css";
-import "../components/inputs.css";
+/**
+ * Componente modal para editar agendamento existente.
+ * Permite alterar cliente, veículo, serviço, data, hora, status, etc.
+ */
 
+import { type FC, useState, useEffect, useRef } from "react";
+// Importa React e hooks
+import { Calendar } from "lucide-react";
+// Ícone de calendário
+import { useEditAppointmentModal } from "../hooks/useEditAppointmentModal";
+// Hook personalizado para modal
+import type { Appointment } from "../services/appointmentService";
+// Tipo Appointment
+import "../styles/CreateServiceOrderModal.css";
+// Estilos CSS
+import "../components/inputs.css";
+// Estilos de inputs
+
+// Interface de props do modal
 interface EditAppointmentModalProps {
   show: boolean;
   appointment: Appointment | null;
@@ -12,19 +24,23 @@ interface EditAppointmentModalProps {
   onSuccess: () => void;
 }
 
+// Componente funcional para modal de editar agendamento
 const EditAppointmentModal: FC<EditAppointmentModalProps> = ({ show, appointment, onClose, onSuccess }) => {
+  // Estados para dropdowns
   const [customerDropdownOpen, setCustomerDropdownOpen] = useState(false);
   const [vehicleDropdownOpen, setVehicleDropdownOpen] = useState(false);
   const [serviceDropdownOpen, setServiceDropdownOpen] = useState(false);
   const [timeDropdownOpen, setTimeDropdownOpen] = useState(false);
   const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
-  
+
+  // Refs para dropdowns
   const customerDropdownRef = useRef<HTMLDivElement>(null);
   const vehicleDropdownRef = useRef<HTMLDivElement>(null);
   const serviceDropdownRef = useRef<HTMLDivElement>(null);
   const timeDropdownRef = useRef<HTMLDivElement>(null);
   const statusDropdownRef = useRef<HTMLDivElement>(null);
-  
+
+  // Usa hook personalizado
   const {
     loadingData,
     submitting,
@@ -46,6 +62,7 @@ const EditAppointmentModal: FC<EditAppointmentModalProps> = ({ show, appointment
     handleClose,
   } = useEditAppointmentModal(show, appointment, onSuccess, onClose);
 
+  // Efeito para fechar dropdowns ao clicar fora
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (customerDropdownRef.current && !customerDropdownRef.current.contains(event.target as Node)) {
@@ -69,8 +86,10 @@ const EditAppointmentModal: FC<EditAppointmentModalProps> = ({ show, appointment
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Não renderiza se não estiver visível
   if (!show) return null;
 
+  // Renderiza modal
   return (
     <div className="service-order-modal-overlay" onClick={handleClose}>
       <div className="service-order-modal" onClick={(e) => e.stopPropagation()}>
@@ -416,4 +435,5 @@ const EditAppointmentModal: FC<EditAppointmentModalProps> = ({ show, appointment
   );
 };
 
+// Exporta componente padrão
 export default EditAppointmentModal;

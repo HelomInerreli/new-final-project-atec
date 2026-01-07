@@ -34,6 +34,7 @@ import type { ProductCategory, StockStatus } from "../../interfaces/Product";
 import CreateProductModal from "../../components/CreateProductModal";
 import EditProductModal from "../../components/EditProductModal";
 
+// Categorias de produtos
 const categorias: ProductCategory[] = [
   "Peças",
   "Acessórios",
@@ -44,6 +45,7 @@ const categorias: ProductCategory[] = [
   "Outros",
 ];
 
+// Mapeamento de status de stock
 const statusMap: Record<StockStatus, { bg: string; text: string }> = {
   Normal: { bg: "secondary", text: "Normal" },
   Baixo: { bg: "warning", text: "Baixo" },
@@ -51,6 +53,7 @@ const statusMap: Record<StockStatus, { bg: string; text: string }> = {
   Esgotado: { bg: "danger", text: "Esgotado" },
 };
 
+// Interface para produto
 interface Produto {
   id: string;
   partNumber: string;
@@ -65,18 +68,23 @@ interface Produto {
   minimumStock: number;
 }
 
+// Componente de gestão de stock
 export default function Stock() {
+  // Estados para produtos e filtros
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [categoriaFiltro, setCategoriaFiltro] = useState("todos");
+  // Estados para modais
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedProduto, setSelectedProduto] = useState<Produto | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [produtoToDelete, setProdutoToDelete] = useState<string | null>(null);
+  // Estado para paginação
   const [page, setPage] = useState<number>(1);
   const pageSize = 5;
 
+  // Filtrar produtos
   const filteredProdutos = produtos.filter((produto) => {
     const matchesSearch =
       produto.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -86,17 +94,19 @@ export default function Stock() {
     return matchesSearch && matchesCategoria;
   });
 
-  // reset page when filters/search change
+  // Resetar página quando filtros mudam
   useEffect(() => {
     setPage(1);
   }, [searchTerm, categoriaFiltro, produtos]);
 
+  // Calcular páginas totais e produtos paginados
   const totalPages = Math.max(1, Math.ceil(filteredProdutos.length / pageSize));
   const paginatedProdutos = filteredProdutos.slice(
     (page - 1) * pageSize,
     page * pageSize
   );
 
+  // Buscar produtos da API
   const fetchProducts = async () => {
     try {
       const res = await http.get("/products/");
@@ -121,16 +131,19 @@ export default function Stock() {
     }
   };
 
+  // Handler para deletar
   const handleDelete = (id: string) => {
     setProdutoToDelete(id);
     setDeleteDialogOpen(true);
   };
 
+  // Handler para editar
   const handleEdit = (produto: Produto) => {
     setSelectedProduto(produto);
     setEditModalOpen(true);
   };
 
+  // Confirmar delete
   const confirmDelete = () => {
     (async () => {
       try {
@@ -153,6 +166,7 @@ export default function Stock() {
     })();
   };
 
+  // Calcular status da quantidade
   const getQuantidadeStatus = (
     quantidade: number,
     reserveQuantity: number = 0,
@@ -183,10 +197,12 @@ export default function Stock() {
     return statusMap.Normal;
   };
 
+  // Buscar produtos ao montar componente
   useEffect(() => {
     fetchProducts();
   }, []);
 
+  // Renderizar página de stock
   return (
     <div className="flex-1 space-y-6 p-8">
       <div className="flex justify-between items-center">
@@ -341,7 +357,7 @@ export default function Stock() {
         </Table>
       </div>
 
-      {/* Pagination controls */}
+      {/* Controles de paginação */}
       <div className="flex justify-between items-center mt-4">
         <div className="text-sm text-gray-600">
           {filteredProdutos.length === 0
@@ -401,7 +417,7 @@ export default function Stock() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Create Product Modal */}
+      {/* Modal de criar produto */}
       <CreateProductModal
         show={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
@@ -411,7 +427,7 @@ export default function Stock() {
         }}
       />
 
-      {/* Edit Product Modal */}
+      {/* Modal de editar produto */}
       <EditProductModal
         show={editModalOpen}
         produto={selectedProduto}

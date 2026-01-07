@@ -12,16 +12,24 @@ import { useAbsences, useAbsenceTypes } from "../../hooks/useAbsences";
 import { absenceService } from "../../services/absenceService";
 import "../../styles/ServiceOrderDetail.css";
 
+// Componente de gestão de férias
 export default function Ferias() {
+	// Hook de navegação
 	const navigate = useNavigate();
+	// Buscar funcionários
 	const { employees } = useEmployees();
+	// Buscar tipos de ausência
 	const { types } = useAbsenceTypes();
+	// ID do tipo férias
 	const feriasTypeId = useMemo(() => types.find((t) => t.name.toLowerCase() === "férias")?.id, [types]);
 
+	// Buscar ausências
 	const { absences, refetch } = useAbsences(); // carrega todas e filtramos aqui
 
+	// Tipo extendido para férias
 	type VacationRowWithIds = VacationRow & { ids: number[] };
 
+	// Agrupar férias por período
 	const rows: VacationRowWithIds[] = useMemo(() => {
 		if (!feriasTypeId) return [];
 
@@ -82,6 +90,7 @@ export default function Ferias() {
 		return grouped;
 	}, [absences, feriasTypeId]);
 
+	// Handler para confirmar criação de férias
 	const onConfirm = async ({
 		employeeId,
 		startDate,
@@ -116,6 +125,7 @@ export default function Ferias() {
 		}
 	};
 
+	// Handler para aprovar férias
 	const handleApprove = async (id: string) => {
 		const row = rows.find(r => r.id === id);
 		if (!row) return;
@@ -128,6 +138,7 @@ export default function Ferias() {
 		}
 	};
 
+	// Handler para rejeitar férias
 	const handleReject = async (id: string) => {
 		const row = rows.find(r => r.id === id);
 		if (!row) return;
@@ -140,6 +151,7 @@ export default function Ferias() {
 		}
 	};
 
+	// Renderizar página de férias
 	return (
 		<div className="container mx-auto p-6">
 			<div className="flex items-center gap-4 mb-6">

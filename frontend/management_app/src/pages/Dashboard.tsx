@@ -18,6 +18,7 @@ import type {
   StatusMetric,
 } from "../types/metrics";
 
+// Componente principal do dashboard
 export default function Dashboard() {
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
@@ -25,7 +26,7 @@ export default function Dashboard() {
   const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1;
   const lastMonthYear = currentMonth === 1 ? currentYear - 1 : currentYear;
 
-  // Estados para os dados
+  // Estados para os dados das métricas
   const [dailyMetrics, setDailyMetrics] = useState<DailyMetrics | null>(null);
   const [currentMonthMetrics, setCurrentMonthMetrics] =
     useState<MonthlyMetrics | null>(null);
@@ -39,7 +40,7 @@ export default function Dashboard() {
   const [serviceMetrics, setServiceMetrics] = useState<ServiceMetric[]>([]);
   const [statusMetrics, setStatusMetrics] = useState<StatusMetric[]>([]);
 
-  // Estados de loading
+  // Estado de carregamento
   const [loading, setLoading] = useState<boolean>(true);
 
   // Carregar dados iniciais
@@ -47,6 +48,7 @@ export default function Dashboard() {
     loadAllMetrics();
   }, []);
 
+  // Função para carregar todas as métricas
   const loadAllMetrics = async () => {
     setLoading(true);
     try {
@@ -119,6 +121,7 @@ export default function Dashboard() {
     }
   };
 
+  // Verificação de estado de carregamento
   if (loading) {
     return (
       <div
@@ -135,6 +138,7 @@ export default function Dashboard() {
     );
   }
 
+  // Função para obter nome do mês
   const getMonthName = (month: number) => {
     const months = [
       "Janeiro",
@@ -153,6 +157,7 @@ export default function Dashboard() {
     return months[month - 1];
   };
 
+  // Renderização do componente
   return (
     <div
       className="d-flex flex-column p-4"
@@ -185,7 +190,7 @@ export default function Dashboard() {
           <TabsTrigger value="yearly">Visão Anual</TabsTrigger>
         </TabsList>
 
-        {/* ABA 1: DIA ATUAL */}
+        {/* Aba do dia atual */}
         <TabsContent
           value="daily"
           className="mt-4"
@@ -238,7 +243,7 @@ export default function Dashboard() {
           </div>
         </TabsContent>
 
-        {/* ABA 2: VISÃO MENSAL */}
+        {/* Aba da visão mensal */}
         <TabsContent
           value="monthly"
           className="mt-4"
@@ -345,7 +350,7 @@ export default function Dashboard() {
           </div>
         </TabsContent>
 
-        {/* ABA 3: VISÃO ANUAL */}
+        {/* Aba da visão anual */}
         <TabsContent
           value="yearly"
           className="mt-4"

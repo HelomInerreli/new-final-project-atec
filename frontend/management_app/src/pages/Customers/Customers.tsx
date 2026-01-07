@@ -1,3 +1,8 @@
+/**
+ * Página de gestão de clientes.
+ * Permite listar, filtrar, criar, editar e excluir clientes.
+ */
+
 import { useState, useMemo } from "react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
@@ -18,16 +23,19 @@ import { CustomerAppointmentsModal } from '../../components/CustomerAppointments
 import NewCustomerModal from '../../components/NewCustomerModal';
 import CreateCustomerModal from '../../components/CreateCustomerModal';
 import "../../components/inputs.css";
+// Estilos de inputs
 
-
+// Componente funcional para página de clientes
 export default function Customers() {
-  // Hook call to fetch customers from backend
+  // Hook para buscar clientes
   const { customers: rawCustomers, loading, error } = useFetchCustomers();
   
+  // Estados para filtros e paginação
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFiltro, setStatusFiltro] = useState("todos");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+  // Estados para modais
   const [newCustomerModalOpen, setNewCustomerModalOpen] = useState(false);
   const [creatingCustomer, setCreatingCustomer] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -37,24 +45,24 @@ export default function Customers() {
   const [appointmentsDialogOpen, setAppointmentsDialogOpen] = useState(false);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
 
-  // Extract customer IDs for vehicle count fetching
+  // IDs dos clientes para contar veículos
   const customerIds = useMemo(() => {
     return rawCustomers.map(profile => profile.customer.id);
   }, [rawCustomers]);
 
-  // Fetch vehicle counts for all customers
+  // Buscar contagem de veículos
   const { vehicleCounts } = useFetchVehicleCounts(customerIds);
 
-  // Fetch appointments for selected customer
+  // Buscar agendamentos do cliente selecionado
   const { appointments: customerAppointments, loading: appointmentsLoading } = useFetchCustomerAppointments(selectedCustomerId);
 
-  // Handler to open appointments modal
+  // Handler para abrir modal de agendamentos
   const handleViewAppointments = (customerId: string) => {
     setSelectedCustomerId(customerId);
     setAppointmentsDialogOpen(true);
   };
 
-  // Map backend data to Cliente type with vehicle counts
+  // Mapear dados para tipo Cliente
   const clientes = useMemo(() => {
     return rawCustomers.map(profile => ({
       id: profile.customer.id.toString(),
@@ -70,7 +78,7 @@ export default function Customers() {
     }));
   }, [rawCustomers, vehicleCounts]);
 
-  // Filter customers based on search and status
+  // Filtrar clientes
   const filteredClientes = useMemo(() => {
     return clientes.filter((cliente) => {
       const matchesSearch =
@@ -83,18 +91,20 @@ export default function Customers() {
     });
   }, [clientes, searchTerm, statusFiltro]);
 
-  // Pagination
+  // Paginação
   const totalPages = Math.ceil(filteredClientes.length / itemsPerPage);
   const paginatedClientes = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     return filteredClientes.slice(startIndex, startIndex + itemsPerPage);
   }, [filteredClientes, currentPage, itemsPerPage]);
 
+  // Handler para deletar
   const handleDelete = (id: string) => {
     setClienteToDelete(id);
     setDeleteDialogOpen(true);
   };
 
+  // Confirmar delete
   const confirmDelete = () => {
     // TODO: Implement API call for delete
     if (clienteToDelete) {
@@ -107,6 +117,7 @@ export default function Customers() {
     setClienteToDelete(null);
   };
 
+  // Handler para criar cliente
   const handleCreateCustomer = async (customerData: any) => {
     setCreatingCustomer(true);
     try {
@@ -141,11 +152,13 @@ export default function Customers() {
     }
   };
 
+  // Handler para resetar password
   const handleResetPassword = (id: string) => {
     setClienteToResetPassword(id);
     setResetPasswordDialogOpen(true);
   };
 
+  // Confirmar reset de password
   const confirmResetPassword = async () => {
     if (!clienteToResetPassword) return;
     
@@ -181,11 +194,12 @@ export default function Customers() {
     }
   };
 
+  // Formatar data
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('pt-PT');
   };
 
-  // Loading state
+  // Estado de carregamento
   if (loading) {
     return (
       <div className="d-flex justify-content-center align-items-center vh-100">
@@ -195,11 +209,12 @@ export default function Customers() {
     );
   }
 
-  // Error state
+  // Estado de erro
   if (error) {
     return <Alert variant="danger" className="m-4">{error}</Alert>;
   }
 
+  // Renderizar página
   return (
     <div className="container my-2">
       <div className="d-flex align-items-center justify-content-between mb-3">

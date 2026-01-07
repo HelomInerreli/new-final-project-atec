@@ -4,7 +4,9 @@ import { FinanceKPICards } from "../components/finance/FinanceKPICards";
 import { PartsTable } from "../components/finance/PartsTable";
 import { ServicesTable } from "../components/finance/ServicesTable";
 
+// Componente principal de finanças
 export default function Finance() {
+    // Uso do hook de finanças
     const {
         startDate,
         setStartDate,
@@ -17,6 +19,7 @@ export default function Finance() {
         handleFilter,
     } = useFinance();
 
+    // Renderização do componente
     return (
         <div className="space-y-6">
             <FinanceHeader

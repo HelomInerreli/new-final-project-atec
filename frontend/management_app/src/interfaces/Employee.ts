@@ -1,5 +1,7 @@
+// Importa tipo Role
 import type { Role } from './Role';
 
+// Interface para funcionário
 export interface Employee {
     id: number;
     name: string;
@@ -15,6 +17,7 @@ export interface Employee {
     role: Role;
 }
 
+// Interface para criar funcionário
 export interface EmployeeCreate {
     name: string;
     last_name: string;
@@ -28,6 +31,7 @@ export interface EmployeeCreate {
     is_manager?: boolean;
 }
 
+// Interface para atualizar funcionário
 export interface EmployeeUpdate {
     name?: string;
     last_name?: string;

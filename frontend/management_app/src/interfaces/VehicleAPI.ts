@@ -1,3 +1,4 @@
+// Interface para veículo da API
 export interface VehicleAPI {
   id: number;
   plate: string;
@@ -22,6 +23,7 @@ export interface VehicleAPI {
   deleted_at?: string;
 }
 
+// Interface para criar veículo na API
 export interface VehicleAPICreate {
   plate: string;
   abiCode?: string;
@@ -42,6 +44,7 @@ export interface VehicleAPICreate {
   kilometers?: number;
 }
 
+// Interface para atualizar veículo na API
 export interface VehicleAPIUpdate {
   plate?: string;
   abiCode?: string;

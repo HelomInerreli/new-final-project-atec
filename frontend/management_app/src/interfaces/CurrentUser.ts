@@ -1,3 +1,4 @@
+// Interface para usuário atual
 export interface CurrentUser {
   id: number;
   name: string;

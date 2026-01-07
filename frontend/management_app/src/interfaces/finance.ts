@@ -1,3 +1,4 @@
+// Interface para visão geral financeira
 export interface FinanceOverview {
     total_revenue: number;
     total_expenses: number;
@@ -5,6 +6,7 @@ export interface FinanceOverview {
     total_invoices: number;
 }
 
+// Interface para item financeiro de peça
 export interface PartFinanceItem {
     part_number: string;
     name: string;
@@ -14,6 +16,7 @@ export interface PartFinanceItem {
     total_profit: number;
 }
 
+// Interface para item financeiro de serviço
 export interface ServiceFinanceItem {
     service_id: number;
     service_name: string;
@@ -21,6 +24,7 @@ export interface ServiceFinanceItem {
     total_revenue: number;
 }
 
+// Interface para dados financeiros
 export interface FinanceData {
     overview: FinanceOverview;
     parts: PartFinanceItem[];

@@ -1,6 +1,14 @@
+/**
+ * Componente modal para exibir agendamentos de um cliente.
+ * Mostra lista de agendamentos com detalhes como serviço, data, veículo, etc.
+ */
+
 import { Calendar } from "lucide-react";
+// Ícone de calendário
 import { Spinner } from "react-bootstrap";
+// Spinner de carregamento
 import Badge from "react-bootstrap/Badge";
+// Badge do Bootstrap
 import {
   Dialog,
   DialogContent,
@@ -8,8 +16,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "./ui/dialog";
+// Componentes de dialog
 import type { Appointment } from "../interfaces/Appointment";
+// Tipo Appointment
 
+// Interface de props do modal
 interface CustomerAppointmentsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -17,12 +28,14 @@ interface CustomerAppointmentsModalProps {
   loading: boolean;
 }
 
+// Componente funcional para modal de agendamentos do cliente
 export function CustomerAppointmentsModal({
   open,
   onOpenChange,
   appointments,
   loading,
 }: CustomerAppointmentsModalProps) {
+  // Renderiza modal
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 

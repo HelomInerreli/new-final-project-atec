@@ -39,6 +39,7 @@ import EditEmployeeModal from "../../components/EditEmployeeModal";
 import type { EmployeeFormData } from "../../hooks/useEditEmployeeModal";
 import "../../components/inputs.css";
 
+// Variantes de cores para funções
 const roleVariants: { [key: string]: "destructive" | "default" | "secondary" | "outline" } = {
     Gestor: "destructive",
     Mecanico: "default",
@@ -46,22 +47,30 @@ const roleVariants: { [key: string]: "destructive" | "default" | "secondary" | "
     Borracheiro: "outline",
 } as const;
 
+// Componente de gestão de funcionários
 export default function Users() {
+    // Hook de navegação
     const navigate = useNavigate();
+    // Buscar funcionários
     const { employees, loading, error, updateEmployee, removeEmployee, refetch } = useEmployees();
+    // Buscar funções
     const { roles } = useRoles();
 
+    // Estados para filtros e paginação
     const [searchTerm, setSearchTerm] = useState("");
     const [roleFilter, setRoleFilter] = useState<string>("all");
+    // Estados para modais
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editFormData, setEditFormData] = useState<EmployeeFormData | null>(null);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
     const [deletingEmployeeId, setDeletingEmployeeId] = useState<number | null>(null);
+    // Estado para paginação
     const [page, setPage] = useState<number>(1);
     const pageSize = 5;
 
+    // Filtrar funcionários
     const filteredEmployees = employees.filter((employee) => {
         const matchesSearch =
             `${employee.name} ${employee.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -70,17 +79,19 @@ export default function Users() {
         return matchesSearch && matchesRole;
     });
 
-    // reset page when filters/search change
+    // Resetar página quando filtros mudam
     useEffect(() => {
         setPage(1);
     }, [searchTerm, roleFilter]);
 
+    // Calcular páginas totais e funcionários paginados
     const totalPages = Math.max(1, Math.ceil(filteredEmployees.length / pageSize));
     const paginatedEmployees = filteredEmployees.slice(
         (page - 1) * pageSize,
         page * pageSize
     );
 
+    // Handler para editar
     const handleEdit = (employee: Employee) => {
         setEditingEmployee(employee);
         setEditFormData({
@@ -97,11 +108,13 @@ export default function Users() {
         setIsEditModalOpen(true);
     };
 
+    // Handler para deletar
     const handleDeleteClick = (id: number) => {
         setDeletingEmployeeId(id);
         setIsDeleteDialogOpen(true);
     };
 
+    // Confirmar delete
     const handleDeleteConfirm = async () => {
         if (deletingEmployeeId) {
             toast.promise(removeEmployee(deletingEmployeeId), {
@@ -114,6 +127,7 @@ export default function Users() {
         setDeletingEmployeeId(null);
     };
 
+    // Renderizar página de funcionários
     return (
         <div className="flex-1 space-y-6 p-8">
             <div className="flex justify-between items-center">
@@ -289,7 +303,7 @@ export default function Users() {
                 </Table>
             </div>
 
-            {/* Pagination controls */}
+            {/* Controles de paginação */}
             <div className="flex justify-between items-center mt-4">
                 <div className="text-sm text-gray-600">
                     {filteredEmployees.length === 0

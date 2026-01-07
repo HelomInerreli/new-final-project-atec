@@ -1,3 +1,4 @@
+// Interface para ausência
 export interface Absence {
   id: number;
   day: string;
@@ -6,6 +7,7 @@ export interface Absence {
   employee: { id: number; name: string; email: string };
 }
 
+// Interface para criar pedido de ausência
 export interface AbsenceRequestCreate {
   employee_id: number;
   absence_type_id: number;
@@ -13,11 +15,13 @@ export interface AbsenceRequestCreate {
   days: string[];
 }
 
+// Interface para tipo de ausência
 export interface AbsenceType {
   id: number;
   name: string;
 }
 
+// Interface para status de ausência
 export interface AbsenceStatus {
   id: number;
   name: string;

@@ -4,6 +4,7 @@ import type { Customer } from "../interfaces/Customer";
 import type { CreateAppointmentPayload } from "../interfaces/Payload"; 
 
 
+// Função para obter agendamentos
 export const getAppointments = async (params?: {
   status?: string;
   q?: string;
@@ -22,11 +23,13 @@ export const getAppointments = async (params?: {
   }
 };
 
+// Função para obter clientes
 export const getCustomers = async (): Promise<Customer[]> => {
   const { data } = await http.get<Customer[]>("/customers");
   return data;
 };
 
+// Função para obter serviços
 export const getServices = async () => {
   try {
     console.log("Buscando serviços disponíveis...");
@@ -52,6 +55,7 @@ export const getCustomerVehicles = async (customerId: number) => {
   }
 };
 
+// Função para obter agendamentos do cliente
 export const getCustomerAppointments = async (customerId: number) => {
   if (!customerId) throw new Error("customerId is required");
   try {
@@ -67,6 +71,7 @@ export const getCustomerAppointments = async (customerId: number) => {
 
 
 export const getAppointmentById = async (id: number): Promise<Appointment> => {
+  // Função para obter agendamento por ID
   try {
     const res = await http.get<Appointment>(`/appointments/${id}`, { withCredentials: true });
     return res.data;
@@ -78,6 +83,7 @@ export const getAppointmentById = async (id: number): Promise<Appointment> => {
 
 
 export const updateAppointment = async (id: number, appointment: Appointment): Promise<Appointment> => {
+  // Função para atualizar agendamento
   try {
     const res = await http.put<Appointment>(`/appointments/${id}`, appointment, { withCredentials: true });
     return res.data;
@@ -87,6 +93,7 @@ export const updateAppointment = async (id: number, appointment: Appointment): P
   }
 };
 
+// Função para deletar agendamento
 export const deleteAppointment = async (id: number): Promise<void> => {
   try {
     await http.delete(`/appointments/${id}`, { withCredentials: true });
@@ -96,6 +103,7 @@ export const deleteAppointment = async (id: number): Promise<void> => {
   }
 };
 
+// Função para criar agendamento
 export const createAppointment = async (appointment: CreateAppointmentPayload): Promise<Appointment> => { // ✅ ALTERAR: appointment: Appointment → appointment: CreateAppointmentPayload
   try {
     const res = await http.post<Appointment>("/appointments", appointment, { withCredentials: true });
@@ -106,6 +114,7 @@ export const createAppointment = async (appointment: CreateAppointmentPayload): 
   }
 };
 
+// Exportação padrão com funções principais
 export default {
   getAppointments,
   getAppointmentById,

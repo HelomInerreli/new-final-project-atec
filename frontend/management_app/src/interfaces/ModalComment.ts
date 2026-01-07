@@ -1,3 +1,4 @@
+// Interface para props do modal de adicionar comentário
 export interface AddCommentModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -5,6 +6,7 @@ export interface AddCommentModalProps {
   onSuccess: () => void;
 }
 
+// Interface para retorno do hook useAddCommentModal
 export interface UseAddCommentModalReturn {
   comment: string;
   setComment: (comment: string) => void;
@@ -13,6 +15,7 @@ export interface UseAddCommentModalReturn {
   handleSubmit: () => Promise<void>;
 }
 
+// Função para validar comentário
 export const validateComment = (comment: string): string | null => {
   if (!comment.trim()) {
     return "O comentário não pode estar vazio";

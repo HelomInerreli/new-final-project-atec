@@ -5,6 +5,7 @@ import type {
     ServiceFinanceItem,
 } from '../interfaces/finance';
 
+// Serviço para gerenciar finanças
 export const financeService = {
     // Visão geral financeira
     getOverview: async (startDate?: string, endDate?: string): Promise<FinanceOverview> => {

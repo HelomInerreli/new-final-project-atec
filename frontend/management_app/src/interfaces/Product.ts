@@ -1,4 +1,6 @@
+// Tipo para status do stock
 export type StockStatus = "Normal" | "Baixo" | "Crítico" | "Esgotado";
+// Tipo para categoria do produto
 export type ProductCategory =
   | "Peças"
   | "Acessórios"
@@ -8,6 +10,7 @@ export type ProductCategory =
   | "Equipamentos"
   | "Outros";
 
+// Interface para produto
 export interface Product {
   id: string;
   partNumber: string;

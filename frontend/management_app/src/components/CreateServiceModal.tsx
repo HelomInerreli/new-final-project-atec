@@ -1,15 +1,27 @@
-import { type FC, useState, useRef, useEffect } from "react";
-import { useCreateServiceModal } from "../hooks/useCreateServiceModal";
-import "../styles/CreateServiceOrderModal.css";
-import "./inputs.css";
+/**
+ * Componente modal para criar novo serviço.
+ * Inclui campos para nome, descrição, preço e duração.
+ */
 
+import { type FC, useState, useRef, useEffect } from "react";
+// Importa React e hooks
+import { useCreateServiceModal } from "../hooks/useCreateServiceModal";
+// Hook personalizado para modal
+import "../styles/CreateServiceOrderModal.css";
+// Estilos CSS
+import "./inputs.css";
+// Estilos de inputs
+
+// Interface para props do modal
 interface CreateServiceModalProps {
   show: boolean;
   onClose: () => void;
   onSuccess: () => void;
 }
 
+// Componente funcional para modal de criar serviço
 const CreateServiceModal: FC<CreateServiceModalProps> = ({ show, onClose, onSuccess }) => {
+  // Usa hook personalizado
   const {
     form,
     setForm,
@@ -19,8 +31,10 @@ const CreateServiceModal: FC<CreateServiceModalProps> = ({ show, onClose, onSucc
     handleClose,
   } = useCreateServiceModal(show, onSuccess, onClose);
 
+  // Não renderiza se não estiver visível
   if (!show) return null;
 
+  // Renderiza modal
   return (
     <div className="service-order-modal-overlay" onClick={handleClose}>
       <div className="service-order-modal" onClick={(e) => e.stopPropagation()}>
@@ -150,8 +164,10 @@ const CreateServiceModal: FC<CreateServiceModalProps> = ({ show, onClose, onSucc
 
 // Componente separado para o campo de Preço
 const PriceInput: FC<{ value: number | ""; onChange: (value: number | "") => void }> = ({ value, onChange }) => {
+  // Estado para foco
   const [isFocused, setIsFocused] = useState(false);
 
+  // Renderiza input de preço com botões de incremento
   return (
     <div className="mb-input-wrapper" style={{ position: 'relative' }}>
       <input
@@ -239,15 +255,20 @@ const PriceInput: FC<{ value: number | ""; onChange: (value: number | "") => voi
 
 // Componente separado para o campo de Duração
 const DurationSelect: FC<{ value: number; onChange: (value: number) => void }> = ({ value, onChange }) => {
+  // Estados para menu e foco
   const [isOpen, setIsOpen] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
+  // Ref para menu
   const menuRef = useRef<HTMLDivElement>(null);
+  // Lista de durações disponíveis
   const durations = [15, 30, 45, 60, 75, 90, 105, 120, 135, 150, 165, 180, 195, 210, 225, 240];
 
+  // Função para formatar duração
   const formatDuration = (minutes: number) => {
     return minutes < 60 ? `${minutes} min` : `${Math.floor(minutes / 60)}h ${minutes % 60 > 0 ? `${minutes % 60}min` : ''}`.trim();
   };
 
+  // Efeito para fechar menu ao clicar fora
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -260,6 +281,7 @@ const DurationSelect: FC<{ value: number; onChange: (value: number) => void }> =
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isOpen]);
 
+  // Renderiza select de duração
   return (
     <div className="mb-input-wrapper" ref={menuRef} style={{ position: 'relative' }}>
       <button
@@ -297,4 +319,5 @@ const DurationSelect: FC<{ value: number; onChange: (value: number) => void }> =
   );
 };
 
+// Exporta componente padrão
 export default CreateServiceModal;

@@ -1,3 +1,4 @@
+// Interface para agendamento
 export interface Appointment {
   id: number;
   appointment_date: string;
@@ -10,7 +11,7 @@ export interface Appointment {
   service_id: number;
   status_id: number;
   
-  // Related objects from API response
+  // Objetos relacionados da resposta da API
   status?: {
     id: number;
     name: string;
@@ -25,7 +26,7 @@ export interface Appointment {
     is_active: boolean;
   };
   
-  // Optional flat fields that might come from API
+  // Campos opcionais que podem vir da API
   service_name?: string;
   service_price?: number;
   customer_name?: string;

@@ -1,8 +1,18 @@
-import { type FC, useState, useRef, useEffect } from "react";
-import { useEditProductModal } from "../hooks/useEditProductModal";
-import "../styles/CreateServiceOrderModal.css";
-import "./inputs.css";
+/**
+ * Componente modal para editar produto existente.
+ * Permite alterar dados do produto como nome, categoria, quantidade, preços, etc.
+ */
 
+import { type FC, useState, useRef, useEffect } from "react";
+// Importa React e hooks
+import { useEditProductModal } from "../hooks/useEditProductModal";
+// Hook personalizado
+import "../styles/CreateServiceOrderModal.css";
+// Estilos CSS
+import "./inputs.css";
+// Estilos de inputs
+
+// Interface para produto
 interface Produto {
   id: string;
   partNumber: string;
@@ -17,6 +27,7 @@ interface Produto {
   minimumStock: number;
 }
 
+// Interface de props do modal
 interface EditProductModalProps {
   show: boolean;
   produto: Produto | null;
@@ -24,6 +35,7 @@ interface EditProductModalProps {
   onSuccess: () => void;
 }
 
+// Lista de categorias disponíveis
 const categorias = [
   "Peças",
   "Acessórios",
@@ -34,10 +46,14 @@ const categorias = [
   "Outros",
 ];
 
+// Componente funcional para modal de editar produto
 const EditProductModal: FC<EditProductModalProps> = ({ show, produto, onClose, onSuccess }) => {
+  // Estado para dropdown de categoria
   const [categoriaDropdownOpen, setCategoriaDropdownOpen] = useState(false);
+  // Ref para dropdown
   const categoriaDropdownRef = useRef<HTMLDivElement>(null);
 
+  // Usa hook personalizado
   const {
     form,
     setForm,
@@ -47,6 +63,7 @@ const EditProductModal: FC<EditProductModalProps> = ({ show, produto, onClose, o
     handleClose,
   } = useEditProductModal(show, produto, onSuccess, onClose);
 
+  // Efeito para fechar dropdown ao clicar fora
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (categoriaDropdownRef.current && !categoriaDropdownRef.current.contains(event.target as Node)) {
@@ -58,8 +75,10 @@ const EditProductModal: FC<EditProductModalProps> = ({ show, produto, onClose, o
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Não renderiza se não estiver visível
   if (!show) return null;
 
+  // Renderiza modal
   return (
     <div className="service-order-modal-overlay" onClick={handleClose}>
       <div className="service-order-modal" onClick={(e) => e.stopPropagation()}>
@@ -334,4 +353,5 @@ const EditProductModal: FC<EditProductModalProps> = ({ show, produto, onClose, o
   );
 };
 
+// Exporta componente padrão
 export default EditProductModal;

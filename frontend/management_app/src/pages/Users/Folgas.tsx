@@ -12,20 +12,28 @@ import { useAbsences, useAbsenceTypes } from "../../hooks/useAbsences";
 import { absenceService } from "../../services/absenceService";
 import "../../styles/ServiceOrderDetail.css";
 
+// Mapeamento de status
 const STATUS_MAP: Record<string, "pendente" | "aprovada" | "rejeitada"> = {
   Pendente: "pendente",
   Aprovado: "aprovada",
   Recusado: "rejeitada",
 };
 
+// Componente de gestão de folgas
 export default function Folgas() {
+  // Hook de navegação
   const navigate = useNavigate();
+  // Buscar funcionários
   const { employees } = useEmployees();
+  // Buscar tipos de ausência
   const { types } = useAbsenceTypes();
+  // ID do tipo folga
   const folgaTypeId = useMemo(() => types.find(t => t.name.toLowerCase() === "folga")?.id, [types]);
 
+  // Buscar ausências
   const { absences, refetch } = useAbsences();
 
+  // Mapear ausências para folgas
   const rows: DayOffRow[] = useMemo(() => {
     if (!folgaTypeId) return [];
     return absences
@@ -39,6 +47,7 @@ export default function Folgas() {
       }));
   }, [absences, folgaTypeId]);
 
+  // Handler para confirmar criação de folga
   const onConfirm = async ({ employeeId, date, reason }: { employeeId: string; date: Date; reason: string }) => {
     if (!folgaTypeId) {
       toast.error("Tipo Folga não encontrado");
@@ -58,6 +67,7 @@ export default function Folgas() {
     }
   };
 
+  // Handler para aprovar folga
   const handleApprove = async (id: string) => {
     try {
       await absenceService.updateStatus(Number(id), 1);
@@ -68,6 +78,7 @@ export default function Folgas() {
     }
   };
 
+  // Handler para rejeitar folga
   const handleReject = async (id: string) => {
     try {
       await absenceService.updateStatus(Number(id), 3);
@@ -78,6 +89,7 @@ export default function Folgas() {
     }
   };
 
+  // Renderizar página de folgas
   return (
     <div className="container mx-auto p-6">
       <div className="flex items-center gap-4 mb-6">

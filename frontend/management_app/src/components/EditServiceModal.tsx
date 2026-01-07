@@ -1,9 +1,20 @@
-import { type FC, useState, useRef, useEffect } from "react";
-import { useEditServiceModal } from "../hooks/useEditServiceModal";
-import { type Service } from "../services/serviceService";
-import "../styles/CreateServiceOrderModal.css";
-import "./inputs.css";
+/**
+ * Componente modal para editar serviço existente.
+ * Permite alterar nome, descrição, preço, duração e estado ativo.
+ */
 
+import { type FC, useState, useRef, useEffect } from "react";
+// Importa React e hooks
+import { useEditServiceModal } from "../hooks/useEditServiceModal";
+// Hook personalizado
+import { type Service } from "../services/serviceService";
+// Tipo de serviço
+import "../styles/CreateServiceOrderModal.css";
+// Estilos CSS
+import "./inputs.css";
+// Estilos de inputs
+
+// Interface de props do modal
 interface EditServiceModalProps {
   show: boolean;
   service: Service | null;
@@ -11,7 +22,9 @@ interface EditServiceModalProps {
   onSuccess: () => void;
 }
 
+// Componente funcional para modal de editar serviço
 const EditServiceModal: FC<EditServiceModalProps> = ({ show, service, onClose, onSuccess }) => {
+  // Usa hook personalizado
   const {
     form,
     setForm,
@@ -21,8 +34,10 @@ const EditServiceModal: FC<EditServiceModalProps> = ({ show, service, onClose, o
     handleClose,
   } = useEditServiceModal(show, service, onSuccess, onClose);
 
+  // Não renderiza se não estiver visível ou sem serviço
   if (!show || !service) return null;
 
+  // Renderiza modal
   return (
     <div className="service-order-modal-overlay" onClick={handleClose}>
       <div className="service-order-modal" onClick={(e) => e.stopPropagation()}>
@@ -168,8 +183,10 @@ const EditServiceModal: FC<EditServiceModalProps> = ({ show, service, onClose, o
 
 // Componente separado para o campo de Preço
 const PriceInput: FC<{ value: number | ""; onChange: (value: number | "") => void }> = ({ value, onChange }) => {
+  // Estado para foco
   const [isFocused, setIsFocused] = useState(false);
 
+  // Renderiza input de preço com botões de incremento
   return (
     <div className="mb-input-wrapper" style={{ position: 'relative' }}>
       <input
@@ -257,15 +274,20 @@ const PriceInput: FC<{ value: number | ""; onChange: (value: number | "") => voi
 
 // Componente separado para o campo de Duração
 const DurationSelect: FC<{ value: number; onChange: (value: number) => void }> = ({ value, onChange }) => {
+  // Estados para dropdown
   const [isOpen, setIsOpen] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
+  // Ref para menu
   const menuRef = useRef<HTMLDivElement>(null);
+  // Lista de durações disponíveis
   const durations = [15, 30, 45, 60, 75, 90, 105, 120, 135, 150, 165, 180, 195, 210, 225, 240];
 
+  // Função para formatar duração
   const formatDuration = (minutes: number) => {
     return minutes < 60 ? `${minutes} min` : `${Math.floor(minutes / 60)}h ${minutes % 60 > 0 ? `${minutes % 60}min` : ''}`.trim();
   };
 
+  // Efeito para fechar dropdown ao clicar fora
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -278,6 +300,7 @@ const DurationSelect: FC<{ value: number; onChange: (value: number) => void }> =
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isOpen]);
 
+  // Renderiza select de duração
   return (
     <div className="mb-input-wrapper" ref={menuRef} style={{ position: 'relative' }}>
       <button
@@ -315,4 +338,5 @@ const DurationSelect: FC<{ value: number; onChange: (value: number) => void }> =
   );
 };
 
+// Exporta componente padrão
 export default EditServiceModal;

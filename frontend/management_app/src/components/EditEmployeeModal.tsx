@@ -1,9 +1,20 @@
-import { type FC, useState, useEffect, useRef } from "react";
-import { Calendar } from "lucide-react";
-import { useEditEmployeeModal, type EmployeeFormData } from "../hooks/useEditEmployeeModal";
-import "../styles/CreateServiceOrderModal.css";
-import "./inputs.css";
+/**
+ * Componente modal para editar funcionário existente.
+ * Permite alterar dados pessoais, contato, salário, função, etc.
+ */
 
+import { type FC, useState, useEffect, useRef } from "react";
+// Importa React e hooks
+import { Calendar } from "lucide-react";
+// Ícone de calendário
+import { useEditEmployeeModal, type EmployeeFormData } from "../hooks/useEditEmployeeModal";
+// Hook personalizado e tipo
+import "../styles/CreateServiceOrderModal.css";
+// Estilos CSS
+import "./inputs.css";
+// Estilos de inputs
+
+// Interface de props do modal
 interface EditEmployeeModalProps {
   show: boolean;
   employeeId: number;
@@ -12,10 +23,14 @@ interface EditEmployeeModalProps {
   onSuccess: () => void;
 }
 
+// Componente funcional para modal de editar funcionário
 const EditEmployeeModal: FC<EditEmployeeModalProps> = ({ show, employeeId, initialData, onClose, onSuccess }) => {
+  // Estado para dropdown de função
   const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
+  // Ref para dropdown
   const roleDropdownRef = useRef<HTMLDivElement>(null);
 
+  // Usa hook personalizado
   const {
     form,
     setForm,
@@ -27,8 +42,10 @@ const EditEmployeeModal: FC<EditEmployeeModalProps> = ({ show, employeeId, initi
     handleClose,
   } = useEditEmployeeModal({ employeeId, initialData, onSuccess, onClose });
 
+  // Função selecionada
   const selectedRole = roles.find((r) => r.id.toString() === form.role_id);
 
+  // Efeito para fechar dropdown ao clicar fora
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (roleDropdownRef.current && !roleDropdownRef.current.contains(event.target as Node)) {
@@ -40,8 +57,10 @@ const EditEmployeeModal: FC<EditEmployeeModalProps> = ({ show, employeeId, initi
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Não renderiza se não estiver visível
   if (!show) return null;
 
+  // Renderiza modal
   return (
     <div className="service-order-modal-overlay" onClick={handleClose}>
       <div className="service-order-modal" onClick={(e) => e.stopPropagation()}>
@@ -403,5 +422,6 @@ const EditEmployeeModal: FC<EditEmployeeModalProps> = ({ show, employeeId, initi
   );
 };
 
+// Exporta componente padrão
 export default EditEmployeeModal;
 

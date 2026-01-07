@@ -1,5 +1,7 @@
+// Importa tipo Vehicle
 import type { Vehicle } from "./Vehicle";
 
+// Interface para cliente
 export interface Customer {
   id: number;
   name: string;
@@ -11,6 +13,8 @@ export interface Customer {
   country?: string;
   birth_date?: string;
 }
+
+// Interface para criar cliente
 export interface CustomerCreate {
   name: string;
   email: string;
@@ -21,6 +25,8 @@ export interface CustomerCreate {
   country?: string;
   birth_date?: string;
 }
+
+// Interface para registrar cliente
 export interface CustomerRegister {
   email: string;
   password: string;
@@ -32,6 +38,8 @@ export interface CustomerRegister {
   country?: string;
   birth_date?: string;
 }
+
+// Interface para atualizar cliente
 export interface CustomerUpdate {
   email?: string;
   name?: string;
@@ -42,6 +50,8 @@ export interface CustomerUpdate {
   country?: string;
   birth_date?: string;
 }
+
+// Interface para autenticação do cliente
 export interface CustomerAuth {
   id: string;
   email: string;
@@ -49,6 +59,8 @@ export interface CustomerAuth {
   created_at: string;
   updated_at: string;
 }
+
+// Interface para informações do perfil do cliente
 export interface CustomerProfileInfo {
   id: number;
   name: string;
@@ -62,11 +74,13 @@ export interface CustomerProfileInfo {
   updated_at: string;
 }
 
+// Interface para perfil do cliente
 export interface CustomerProfile {
   auth: CustomerAuth;
   customer: CustomerProfileInfo;
 }
 
+// Interface para perfil completo do cliente
 export interface CompleteCustomerProfile {
   auth: {
     id: string;

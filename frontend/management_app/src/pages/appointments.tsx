@@ -67,6 +67,7 @@ import CreateAppointmentModal from "../components/CreateAppointmentModal";
 import EditAppointmentModal from "../components/EditAppointmentModal";
 import "../components/inputs.css";
 
+// Interface para os dados do formulário
 interface FormData {
   customer_id: string;
   vehicle_id: string;
@@ -89,7 +90,9 @@ const initialFormData: FormData = {
   status_id: "",
 };
 
+// Componente principal para gestão de agendamentos
 export default function Agendamentos() {
+  // Estados para armazenar dados dos agendamentos e filtros
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]); // Kept for potential future use or if needed by other logic
@@ -107,20 +110,21 @@ export default function Agendamentos() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Dropdown states
+  // Estados para dropdowns
   const [customerDropdownOpen, setCustomerDropdownOpen] = useState(false);
   const [vehicleDropdownOpen, setVehicleDropdownOpen] = useState(false);
   const [serviceDropdownOpen, setServiceDropdownOpen] = useState(false);
   const [timeDropdownOpen, setTimeDropdownOpen] = useState(false);
   const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
 
-  // Refs for dropdowns
+  // Refs para dropdowns
   const customerDropdownRef = useRef<HTMLDivElement>(null);
   const vehicleDropdownRef = useRef<HTMLDivElement>(null);
   const serviceDropdownRef = useRef<HTMLDivElement>(null);
   const timeDropdownRef = useRef<HTMLDivElement>(null);
   const statusDropdownRef = useRef<HTMLDivElement>(null);
 
+  // Efeito para carregar dados iniciais
   useEffect(() => {
     loadAppointments();
     loadCustomers();
@@ -128,7 +132,7 @@ export default function Agendamentos() {
     loadStatuses();
   }, []);
 
-  // Handle click outside for dropdowns
+  // Efeito para fechar dropdowns ao clicar fora
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -167,6 +171,7 @@ export default function Agendamentos() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Função para carregar agendamentos
   const loadAppointments = async () => {
     try {
       console.log("🔄 Iniciando carregamento de agendamentos...");
@@ -194,6 +199,7 @@ export default function Agendamentos() {
     }
   };
 
+  // Função para carregar clientes
   const loadCustomers = async () => {
     try {
       console.log("🔄 Carregando clientes...");
@@ -205,6 +211,7 @@ export default function Agendamentos() {
     }
   };
 
+  // Função para carregar serviços
   const loadServices = async () => {
     try {
       console.log("🔄 Carregando serviços...");
@@ -216,6 +223,7 @@ export default function Agendamentos() {
     }
   };
 
+  // Função para carregar status
   const loadStatuses = async () => {
     try {
       console.log("🔄 Carregando status...");
@@ -228,6 +236,7 @@ export default function Agendamentos() {
     }
   };
 
+  // Função para carregar veículos de um cliente
   const loadVehiclesByCustomer = async (customerId: number) => {
     try {
       console.log("🔄 Carregando veículos para o cliente:", customerId);
@@ -252,6 +261,7 @@ export default function Agendamentos() {
     }
   };
 
+  // Função para lidar com mudanças nos inputs
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -276,6 +286,7 @@ export default function Agendamentos() {
     setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
+  // Função para lidar com mudanças nos selects
   const handleSelectChange = (field: keyof FormData, value: string) => {
     console.log("🔄 handleSelectChange:", field, value);
     // When customer changes, load their vehicles and reset vehicle_id
@@ -298,6 +309,7 @@ export default function Agendamentos() {
     }
   };
 
+  // Função para traduzir status
   const translateStatus = (statusName?: string): string => {
     if (!statusName) return "Pendente";
     const lower = statusName.toLowerCase();
@@ -312,6 +324,7 @@ export default function Agendamentos() {
     return statusName;
   };
 
+  // Função para obter cor do status
   const getStatusColor = (statusName?: string) => {
     if (!statusName) return "bg-yellow-100 text-yellow-800"; // Default to Pendente color
     const lower = statusName.toLowerCase();
@@ -324,6 +337,7 @@ export default function Agendamentos() {
     return "bg-yellow-100 text-yellow-800"; // Pendente
   };
 
+  // Filtragem dos agendamentos
   const filteredAppointments = appointments.filter((appointment) => {
     const customerName = appointment.customer?.name || "";
     const vehicleInfo = appointment.vehicle
@@ -383,6 +397,7 @@ export default function Agendamentos() {
   console.log("  - Search term:", searchTerm);
   console.log("  - Status filter:", statusFilter);
 
+  // Função para abrir diálogo de edição
   const handleOpenDialog = (appointment: Appointment | null) => {
     if (appointment) {
       setEditingId(appointment.id);
@@ -412,6 +427,7 @@ export default function Agendamentos() {
     setIsFormOpen(true);
   };
 
+  // Função para submeter formulário
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -472,6 +488,7 @@ export default function Agendamentos() {
     }
   };
 
+  // Função para eliminar agendamento
   const handleDelete = async (id: number) => {
     try {
       setLoading(true);
@@ -494,6 +511,7 @@ export default function Agendamentos() {
     }
   };
 
+  // Renderização do componente
   return (
     <div className="flex-1 space-y-6 p-8">
       <div className="flex justify-between items-center">

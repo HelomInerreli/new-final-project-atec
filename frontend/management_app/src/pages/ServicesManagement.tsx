@@ -11,6 +11,7 @@ import EditServiceModal from "../components/EditServiceModal";
 import "../components/inputs.css";
 
 export default function ServicesManagement() {
+  // Estados do componente
   const [servicos, setServicos] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -22,11 +23,12 @@ export default function ServicesManagement() {
   const [page, setPage] = useState<number>(1);
   const pageSize = 5;
 
-  // Load services from API
+  // Carregar serviços da API
   useEffect(() => {
     loadServices();
   }, []);
 
+  // Função para carregar serviços
   const loadServices = async () => {
     try {
       console.log("🔄 Tentando carregar serviços...");
@@ -47,6 +49,7 @@ export default function ServicesManagement() {
     }
   };
 
+  // Filtrar serviços baseado no termo de pesquisa
   const filteredServicos = servicos.filter((servico) => {
     const matchesSearch =
       servico.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -54,7 +57,7 @@ export default function ServicesManagement() {
     return matchesSearch;
   });
 
-  // Reset page when filters/search change
+  // Resetar página quando filtros/pesquisa mudam
   useEffect(() => {
     setPage(1);
   }, [searchTerm, servicos]);
@@ -65,24 +68,29 @@ export default function ServicesManagement() {
     page * pageSize
   );
 
+  // Abrir modal de criação
   const handleOpenCreateModal = () => {
     setCreateModalOpen(true);
   };
 
+  // Abrir modal de edição
   const handleOpenEditModal = (servico: Service) => {
     setEditingServico(servico);
     setEditModalOpen(true);
   };
 
+  // Manipular sucesso dos modais
   const handleModalSuccess = () => {
     loadServices();
   };
 
+  // Manipular clique para deletar
   const handleDeleteClick = (id: number) => {
     setServicoToDelete(id);
     setDeleteDialogOpen(true);
   };
 
+  // Confirmar exclusão do serviço
   const handleDeleteConfirm = async () => {
     if (servicoToDelete) {
       try {
@@ -105,6 +113,7 @@ export default function ServicesManagement() {
     setServicoToDelete(null);
   };
 
+  // Formatar preço
   const formatPreco = (preco: number) => {
     return new Intl.NumberFormat("pt-PT", {
       style: "currency",
@@ -112,6 +121,7 @@ export default function ServicesManagement() {
     }).format(preco);
   };
 
+  // Formatar duração
   const formatDuracao = (minutos: number | null) => {
     if (!minutos) return "N/A";
     if (minutos < 60) return `${minutos} min`;
@@ -120,6 +130,7 @@ export default function ServicesManagement() {
     return mins > 0 ? `${horas}h ${mins}min` : `${horas}h`;
   };
 
+  // Renderização do componente
   return (
     <div className="flex-1 space-y-6 p-8">
       <div className="flex justify-between items-center">

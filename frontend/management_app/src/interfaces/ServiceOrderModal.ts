@@ -1,9 +1,11 @@
+// Interface para props do modal de criar ordem de serviço
 export interface CreateServiceOrderModalProps {
   show: boolean;
   onClose: () => void;
   onSuccess: () => void; 
 }
 
+// Interface para formulário de ordem de serviço
 export interface ServiceOrderForm {
   customer_id: number;
   vehicle_id: number;

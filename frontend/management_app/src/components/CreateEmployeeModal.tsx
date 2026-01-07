@@ -1,19 +1,34 @@
-import { type FC, useState, useEffect, useRef } from "react";
-import { Calendar } from "lucide-react";
-import { useCreateEmployeeModal } from "../hooks/useCreateEmployeeModal";
-import "../styles/CreateServiceOrderModal.css";
-import "./inputs.css";
+/**
+ * Componente modal para criar novo funcionário.
+ * Permite inserir dados pessoais, profissionais e selecionar função.
+ */
 
+import { type FC, useState, useEffect, useRef } from "react";
+// Importa React e hooks
+import { Calendar } from "lucide-react";
+// Ícone de calendário
+import { useCreateEmployeeModal } from "../hooks/useCreateEmployeeModal";
+// Hook personalizado para modal
+import "../styles/CreateServiceOrderModal.css";
+// Estilos CSS
+import "./inputs.css";
+// Estilos de inputs
+
+// Interface para props do modal
 interface CreateEmployeeModalProps {
   show: boolean;
   onClose: () => void;
   onSuccess: () => void;
 }
 
+// Componente funcional para modal de criar funcionário
 const CreateEmployeeModal: FC<CreateEmployeeModalProps> = ({ show, onClose, onSuccess }) => {
+  // Estado para dropdown de função
   const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
+  // Ref para dropdown
   const roleDropdownRef = useRef<HTMLDivElement>(null);
 
+  // Usa hook personalizado
   const {
     form,
     setForm,
@@ -26,6 +41,7 @@ const CreateEmployeeModal: FC<CreateEmployeeModalProps> = ({ show, onClose, onSu
     handleClose,
   } = useCreateEmployeeModal(show, onSuccess, onClose);
 
+  // Efeito para fechar dropdown ao clicar fora
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (roleDropdownRef.current && !roleDropdownRef.current.contains(event.target as Node)) {
@@ -37,8 +53,10 @@ const CreateEmployeeModal: FC<CreateEmployeeModalProps> = ({ show, onClose, onSu
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Não renderiza se não estiver visível
   if (!show) return null;
 
+  // Renderiza modal
   return (
     <div className="service-order-modal-overlay" onClick={handleClose}>
       <div className="service-order-modal" onClick={(e) => e.stopPropagation()}>
@@ -400,5 +418,6 @@ const CreateEmployeeModal: FC<CreateEmployeeModalProps> = ({ show, onClose, onSu
   );
 };
 
+// Exporta componente padrão
 export default CreateEmployeeModal;
 

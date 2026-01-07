@@ -1,21 +1,38 @@
-import React, { useState, useEffect, useRef } from "react";
-import type { FC } from "react";
-import type { CreateServiceOrderModalProps } from "../interfaces/ServiceOrderModal";
-import { useServiceOrderModal } from "../hooks/useServiceOrderModal";
-import { Calendar } from "lucide-react";
-import "../styles/CreateServiceOrderModal.css";
-import "../components/inputs.css";
+/**
+ * Componente modal para criar nova ordem de serviço.
+ * Processo em 3 passos: seleção de cliente/serviço, veículo/descrição, confirmação.
+ */
 
+import React, { useState, useEffect, useRef } from "react";
+// Importa React e hooks
+import type { FC } from "react";
+// Tipo FC
+import type { CreateServiceOrderModalProps } from "../interfaces/ServiceOrderModal";
+// Interface de props
+import { useServiceOrderModal } from "../hooks/useServiceOrderModal";
+// Hook personalizado para modal
+import { Calendar } from "lucide-react";
+// Ícone de calendário
+import "../styles/CreateServiceOrderModal.css";
+// Estilos CSS
+import "../components/inputs.css";
+// Estilos de inputs
+
+// Componente funcional para modal de criar ordem de serviço
 const CreateServiceOrderModal: FC<CreateServiceOrderModalProps> = ({ show, onClose, onSuccess }) => {
+  // Estados para dropdowns
   const [customerDropdownOpen, setCustomerDropdownOpen] = useState(false);
   const [vehicleDropdownOpen, setVehicleDropdownOpen] = useState(false);
   const [serviceDropdownOpen, setServiceDropdownOpen] = useState(false);
   const [timeDropdownOpen, setTimeDropdownOpen] = useState(false);
-  
+
+  // Refs para dropdowns
   const customerDropdownRef = useRef<HTMLDivElement>(null);
   const vehicleDropdownRef = useRef<HTMLDivElement>(null);
   const serviceDropdownRef = useRef<HTMLDivElement>(null);
   const timeDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Usa hook personalizado
   const {
     currentStep,
     loadingData,
@@ -38,6 +55,7 @@ const CreateServiceOrderModal: FC<CreateServiceOrderModalProps> = ({ show, onClo
     handleClose,
   } = useServiceOrderModal(show, onSuccess, onClose);
 
+  // Efeito para fechar dropdowns ao clicar fora
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (customerDropdownRef.current && !customerDropdownRef.current.contains(event.target as Node)) {
@@ -58,8 +76,10 @@ const CreateServiceOrderModal: FC<CreateServiceOrderModalProps> = ({ show, onClo
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Não renderiza se não estiver visível
   if (!show) return null;
 
+  // Renderiza modal
   return (
     <div className="service-order-modal-overlay" onClick={handleClose}>
       <div className="service-order-modal" onClick={(e) => e.stopPropagation()}>
@@ -454,4 +474,5 @@ const CreateServiceOrderModal: FC<CreateServiceOrderModalProps> = ({ show, onClo
   );
 };
 
+// Exporta componente padrão
 export default CreateServiceOrderModal;

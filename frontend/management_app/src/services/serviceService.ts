@@ -2,6 +2,7 @@ import http from "../api/http";
 
 const API_URL = "/services/";
 
+// Interface para Serviço
 export interface Service {
   id: number;
   name: string;
@@ -11,6 +12,7 @@ export interface Service {
   is_active: boolean;
 }
 
+// Interface para criação de serviço
 export interface ServiceCreate {
   name: string;
   description?: string;
@@ -19,6 +21,7 @@ export interface ServiceCreate {
   is_active?: boolean;
 }
 
+// Interface para atualização de serviço
 export interface ServiceUpdate {
   name?: string;
   description?: string;
@@ -27,30 +30,33 @@ export interface ServiceUpdate {
   is_active?: boolean;
 }
 
+// Serviço para gerenciar serviços
 export const serviceService = {
+  // Obter todos os serviços
   getAll: async (): Promise<Service[]> => {
     const response = await http.get(API_URL);
     return response.data;
   },
 
+  // Obter serviço por ID
   getById: async (id: number): Promise<Service> => {
     const response = await http.get(`${API_URL}${id}`);
     return response.data;
   },
 
-  // Create new service
+  // Criar novo serviço
   create: async (service: ServiceCreate): Promise<Service> => {
     const response = await http.post(API_URL, service);
     return response.data;
   },
 
-  // Update service
+  // Atualizar serviço
   update: async (id: number, service: ServiceUpdate): Promise<Service> => {
     const response = await http.put(`${API_URL}${id}`, service);
     return response.data;
   },
 
-  // Delete service
+  // Deletar serviço
   delete: async (id: number): Promise<void> => {
     await http.delete(`${API_URL}${id}`);
   },

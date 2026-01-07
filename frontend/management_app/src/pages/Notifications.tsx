@@ -4,6 +4,7 @@ import http from "../api/http";
 import { Card, Container, Button, Spinner, Alert } from "react-bootstrap";
 import "./Notifications.css";
 
+// Interface para notificação
 interface Notification {
   id: number;
   component: string;
@@ -12,11 +13,14 @@ interface Notification {
   alertType: "info" | "warning" | "danger" | "success";
 }
 
+// Componente principal de notificações
 export default function Notifications() {
+  // Estados para notificações e controle
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Função para buscar notificações
   const fetchNotifications = async () => {
     try {
       setLoading(true);
@@ -32,10 +36,12 @@ export default function Notifications() {
     }
   };
 
+  // Carregar notificações ao montar componente
   useEffect(() => {
     fetchNotifications();
   }, []);
 
+  // Função para deletar notificação
   const handleDelete = async (id: number) => {
     try {
       await http.delete(`/notifications/${id}`);
@@ -46,6 +52,7 @@ export default function Notifications() {
     }
   };
 
+  // Função para obter variante do alerta
   const getAlertVariant = (alertType: string) => {
     switch (alertType) {
       case "danger":
@@ -60,6 +67,7 @@ export default function Notifications() {
     }
   };
 
+  // Função para formatar data
   const formatDate = (dateString: string) => {
     try {
       return new Date(dateString).toLocaleString("pt-BR");
@@ -68,6 +76,7 @@ export default function Notifications() {
     }
   };
 
+  // Renderização do componente
   return (
     <Layout>
       <Container className="py-4">

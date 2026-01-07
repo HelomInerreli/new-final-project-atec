@@ -1,6 +1,7 @@
 import http from "../api/http";
 import type { Appointment } from "../interfaces/Appointment";
 
+// Função para obter pedido
 export async function getOrder(id: string | number): Promise<Appointment> {
   try {
     const res = await http.get<Appointment>(`/appointments/${id}`, { withCredentials: true });
@@ -11,6 +12,7 @@ export async function getOrder(id: string | number): Promise<Appointment> {
   }
 }
 
+// Função para atualizar pedido
 export async function updateOrder(id: string | number, payload: any): Promise<Appointment> {
   try {
     const res = await http.patch<Appointment>(`/appointments/${id}`, payload, { withCredentials: true });
@@ -21,10 +23,12 @@ export async function updateOrder(id: string | number, payload: any): Promise<Ap
   }
 }
 
+// Função para atualizar status do pedido
 export async function updateOrderStatus(id: string | number, status: string): Promise<Appointment> {
   return updateOrder(id, { status });
 }
 
+// Função para obter tempo de trabalho atual
 export async function getCurrentWorkTime(id: string | number): Promise<number> {
   try {
     const res = await http.get<{ total_worked_time: number }>(`/appointments/${id}/current_work_time`, { withCredentials: true });
@@ -35,6 +39,7 @@ export async function getCurrentWorkTime(id: string | number): Promise<number> {
   }
 }
 
+// Função para iniciar trabalho
 export async function startWork(id: string | number): Promise<void> {
   try {
     await http.patch(`/appointments/${id}/start_work`, {}, { withCredentials: true });
@@ -44,6 +49,7 @@ export async function startWork(id: string | number): Promise<void> {
   }
 }
 
+// Função para pausar trabalho
 export async function pauseWork(id: string | number): Promise<void> {
   try {
     await http.patch(`/appointments/${id}/pause_work`, {}, { withCredentials: true });
@@ -53,6 +59,7 @@ export async function pauseWork(id: string | number): Promise<void> {
   }
 }
 
+// Função para retomar trabalho
 export async function resumeWork(id: string | number): Promise<void> {
   try {
     await http.patch(`/appointments/${id}/resume_work`, {}, { withCredentials: true });
@@ -62,6 +69,7 @@ export async function resumeWork(id: string | number): Promise<void> {
   }
 }
 
+// Função para finalizar trabalho
 export async function finalizeWork(id: string | number): Promise<void> {
   try {
     await http.patch(`/appointments/${id}/finalize_work`, {}, { withCredentials: true });
@@ -71,6 +79,7 @@ export async function finalizeWork(id: string | number): Promise<void> {
   }
 }
 
+// Função para deletar comentário
 export async function deleteComment(orderId: string | number, commentId: number): Promise<void> {
   try {
     await http.delete(`/appointments/${orderId}/comments/${commentId}`, { withCredentials: true });
@@ -80,6 +89,7 @@ export async function deleteComment(orderId: string | number, commentId: number)
   }
 }
 
+// Função para deletar peça
 export async function deletePart(orderId: string | number, partId: number): Promise<void> {
   try {
     await http.delete(`/appointments/${orderId}/parts/${partId}`, { withCredentials: true });
@@ -89,6 +99,7 @@ export async function deletePart(orderId: string | number, partId: number): Prom
   }
 }
 
+// Exportação padrão com todas as funções
 export default {
   getOrder,
   updateOrder,

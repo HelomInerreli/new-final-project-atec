@@ -1,14 +1,25 @@
-import { type FC, useState, useRef, useEffect } from "react";
-import { useCreateProductModal } from "../hooks/useCreateProductModal";
-import "../styles/CreateServiceOrderModal.css";
-import "./inputs.css";
+/**
+ * Componente modal para criar novo produto.
+ * Permite inserir dados de produto, categoria e estoque.
+ */
 
+import { type FC, useState, useRef, useEffect } from "react";
+// Importa React e hooks
+import { useCreateProductModal } from "../hooks/useCreateProductModal";
+// Hook personalizado para modal
+import "../styles/CreateServiceOrderModal.css";
+// Estilos CSS
+import "./inputs.css";
+// Estilos de inputs
+
+// Interface para props do modal
 interface CreateProductModalProps {
   show: boolean;
   onClose: () => void;
   onSuccess: () => void;
 }
 
+// Lista de categorias disponíveis
 const categorias = [
   "Peças",
   "Acessórios",
@@ -19,10 +30,14 @@ const categorias = [
   "Outros",
 ];
 
+// Componente funcional para modal de criar produto
 const CreateProductModal: FC<CreateProductModalProps> = ({ show, onClose, onSuccess }) => {
+  // Estado para dropdown de categoria
   const [categoriaDropdownOpen, setCategoriaDropdownOpen] = useState(false);
+  // Ref para dropdown
   const categoriaDropdownRef = useRef<HTMLDivElement>(null);
 
+  // Usa hook personalizado
   const {
     form,
     setForm,
@@ -32,6 +47,7 @@ const CreateProductModal: FC<CreateProductModalProps> = ({ show, onClose, onSucc
     handleClose,
   } = useCreateProductModal(show, onSuccess, onClose);
 
+  // Efeito para fechar dropdown ao clicar fora
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (categoriaDropdownRef.current && !categoriaDropdownRef.current.contains(event.target as Node)) {
@@ -43,8 +59,10 @@ const CreateProductModal: FC<CreateProductModalProps> = ({ show, onClose, onSucc
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Não renderiza se não estiver visível
   if (!show) return null;
 
+  // Renderiza modal
   return (
     <div className="service-order-modal-overlay" onClick={handleClose}>
       <div className="service-order-modal" onClick={(e) => e.stopPropagation()}>
@@ -344,4 +362,5 @@ const CreateProductModal: FC<CreateProductModalProps> = ({ show, onClose, onSucc
   );
 };
 
+// Exporta componente padrão
 export default CreateProductModal;

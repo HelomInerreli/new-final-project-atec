@@ -15,7 +15,9 @@ import { useFetchCustomers } from "../../hooks/useCustomers";
 import { toast } from "../../hooks/use-toast";
 import "../../styles/Vehicles.css";
 
+// Componente de gestão de veículos
 export default function Vehicles() {
+  // Hook para gerenciar veículos
   const {
     paginatedVehicles,
     filteredVehicles,
@@ -45,10 +47,13 @@ export default function Vehicles() {
     getFromAPI,
   } = useVehiclesPage();
 
+  // Hook para buscar clientes
   const { customers } = useFetchCustomers();
+
+  // Estado para cliente selecionado
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>("");
 
-  // Loading state
+  // Estado de carregamento
   if (loading) {
     return (
       <div className="d-flex justify-content-center align-items-center vh-100">
@@ -58,13 +63,15 @@ export default function Vehicles() {
     );
   }
 
-  // Error state
+  // Estado de erro
   if (error) {
     return <Alert variant="danger" className="m-4">{error}</Alert>;
   }
 
+  // Renderizar página de veículos
   return (
     <div className="flex-1 space-y-6 p-8">
+      {/* Header */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-4xl font-bold text-gray-900 leading-tight">Gestão de Veículos</h1>
@@ -74,6 +81,7 @@ export default function Vehicles() {
         </Button>
       </div>
 
+      {/* Filtros de pesquisa e status */}
       <div className="flex flex-col sm:flex-row gap-4 mb-4">
         <div className="mb-input-wrapper flex-1">
           <div style={{ position: "relative" }}>
@@ -126,6 +134,7 @@ export default function Vehicles() {
         </Select>
       </div>
 
+      {/* Tabela de veículos */}
       <div 
         className="rounded-md border-2 border-red-600"
         style={{
@@ -211,7 +220,7 @@ export default function Vehicles() {
         </Table>
       </div>
 
-      {/* Pagination controls */}
+      {/* Controles de paginação */}
       <div className="flex justify-between items-center mt-4">
         <div className="text-sm text-gray-600">
           {filteredVehicles.length === 0
@@ -243,7 +252,7 @@ export default function Vehicles() {
         </div>
       </div>
 
-      {/* Delete Confirmation Dialog */}
+      {/* Diálogo de confirmação de eliminação */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent className="sm:max-w-md">
           <AlertDialogHeader className="space-y-4">
@@ -272,7 +281,7 @@ export default function Vehicles() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Assign Customer Dialog */}
+      {/* Diálogo de associação de cliente */}
       <Dialog open={assignCustomerDialogOpen} onOpenChange={setAssignCustomerDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -315,7 +324,7 @@ export default function Vehicles() {
         </DialogContent>
       </Dialog>
 
-      {/* Create Vehicle Modal */}
+      {/* Modal de criação de veículo */}
       <CreateVehicleModal
         show={newVehicleModalOpen}
         onClose={() => setNewVehicleModalOpen(false)}

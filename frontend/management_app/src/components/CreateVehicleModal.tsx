@@ -1,21 +1,35 @@
-import { type FC, useState, useEffect, useRef } from "react";
-import { useCreateVehicleModal } from "../hooks/useCreateVehicleModal";
-import "../styles/CreateServiceOrderModal.css";
-import "../components/inputs.css";
+/**
+ * Componente modal para criar novo veículo.
+ * Formulário com campos para cliente, matrícula, marca, modelo, etc.
+ */
 
+import { type FC, useState, useEffect, useRef } from "react";
+// Importa React e hooks
+import { useCreateVehicleModal } from "../hooks/useCreateVehicleModal";
+// Hook personalizado para modal
+import "../styles/CreateServiceOrderModal.css";
+// Estilos CSS
+import "../components/inputs.css";
+// Estilos de inputs
+
+// Interface de props do modal
 interface CreateVehicleModalProps {
   show: boolean;
   onClose: () => void;
   onSuccess: () => void;
 }
 
+// Componente funcional para modal de criar veículo
 const CreateVehicleModal: FC<CreateVehicleModalProps> = ({ show, onClose, onSuccess }) => {
+  // Estados para dropdowns
   const [customerDropdownOpen, setCustomerDropdownOpen] = useState(false);
   const [fuelTypeDropdownOpen, setFuelTypeDropdownOpen] = useState(false);
-  
+
+  // Refs para dropdowns
   const customerDropdownRef = useRef<HTMLDivElement>(null);
   const fuelTypeDropdownRef = useRef<HTMLDivElement>(null);
-  
+
+  // Usa hook personalizado
   const {
     loadingData,
     submitting,
@@ -28,8 +42,10 @@ const CreateVehicleModal: FC<CreateVehicleModalProps> = ({ show, onClose, onSucc
     handleClose,
   } = useCreateVehicleModal(show, onSuccess, onClose);
 
+  // Tipos de combustível disponíveis
   const fuelTypes = ["Gasolina", "Gasóleo", "Elétrico", "Híbrido", "GPL"];
 
+  // Efeito para fechar dropdowns ao clicar fora
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (customerDropdownRef.current && !customerDropdownRef.current.contains(event.target as Node)) {
@@ -44,8 +60,10 @@ const CreateVehicleModal: FC<CreateVehicleModalProps> = ({ show, onClose, onSucc
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Não renderiza se não estiver visível
   if (!show) return null;
 
+  // Renderiza modal
   return (
     <div className="service-order-modal-overlay" onClick={handleClose}>
       <div className="service-order-modal" onClick={(e) => e.stopPropagation()}>
@@ -374,4 +392,5 @@ const CreateVehicleModal: FC<CreateVehicleModalProps> = ({ show, onClose, onSucc
   );
 };
 
+// Exporta componente padrão
 export default CreateVehicleModal;

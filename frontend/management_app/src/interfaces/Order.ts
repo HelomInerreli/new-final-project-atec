@@ -1,5 +1,7 @@
+// Tipo para status da ordem
 export type OrderStatus = 'Em Andamento' | 'Pendente' | 'Concluída' | 'Cancelada';
 
+// Interface para ordem
 export interface Order {
   id: string;
   client: string;

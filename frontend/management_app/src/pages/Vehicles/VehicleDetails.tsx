@@ -10,9 +10,12 @@ import "../../styles/VehicleDetails.css";
 import { X } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
 
+// Componente de detalhes do veículo
 export default function VehicleDetails() {
+  // Obter ID do veículo da URL
   const { id } = useParams<{ id: string }>();
   
+  // Hook para gerenciar detalhes do veículo
   const {
     vehicleData,
     loading,
@@ -25,7 +28,7 @@ export default function VehicleDetails() {
     handleInputChange,
   } = useVehicleDetailsPage(id);
 
-  // Loading state
+  // Estado de carregamento
   if (loading) {
     return (
       <div className="d-flex justify-content-center align-items-center vh-100">
@@ -35,7 +38,7 @@ export default function VehicleDetails() {
     );
   }
 
-  // Error state
+  // Estado de erro
   if (error || !vehicleData) {
     return (
       <div className="container my-4">
@@ -52,12 +55,14 @@ export default function VehicleDetails() {
     );
   }
 
+  // Calcular status do veículo
   const status = vehicleData.vehicle.deleted_at 
     ? "Inativo" 
     : vehicleData.vehicle.customer_id === 0 
     ? "Sem Cliente" 
     : "Ativo";
 
+  // Renderizar página de detalhes
   return (
     <div className="container" style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
       {/* Header */}
@@ -74,7 +79,7 @@ export default function VehicleDetails() {
         <h1 className="h3 fw-bold mb-0">Detalhes do Veículo</h1>
       </div>
 
-      {/* Vehicle Information Card */}
+      {/* Card de informações do veículo */}
       <div className="card mb-4" style={{ border: '1px solid #dc3545', borderRadius: '8px' }}>
         <div className="card-body p-4">
           <div className="d-flex justify-content-between align-items-center mb-4">
@@ -273,7 +278,7 @@ export default function VehicleDetails() {
         </div>
       </div>
 
-      {/* Customer Card */}
+      {/* Card do proprietário */}
       <div className="card" style={{ border: '1px solid #dc3545', borderRadius: '8px' }}>
         <div className="card-body p-4">
           <div className="d-flex justify-content-between align-items-center mb-4">

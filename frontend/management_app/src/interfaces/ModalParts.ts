@@ -1,5 +1,7 @@
+// Importa tipo Product
 import { type Product } from "../services/productService";
 
+// Interface para props do modal de adicionar peças
 export interface AddPartsModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -7,6 +9,7 @@ export interface AddPartsModalProps {
   onSuccess: () => void;
 }
 
+// Interface para retorno do hook useAddPartsModal
 export interface UseAddPartsModalReturn {
   products: Product[];
   filteredProducts: Product[];
@@ -22,6 +25,7 @@ export interface UseAddPartsModalReturn {
   handleAddPart: () => Promise<void>;
 }
 
+// Função para validar quantidade
 export const validateQuantity = (
   quantity: number,
   product: Product | null

@@ -1,19 +1,37 @@
+/**
+ * Página de detalhes do cliente.
+ * Permite visualizar, editar e excluir informações do cliente e seus veículos.
+ */
+
 import { useParams, Link } from "react-router-dom";
+// Importa hooks de roteamento
 import { Button } from "./../../components/ui/button";
+// Botão UI
 import { Input } from "./../../components/ui/input";
+// Input UI
 import { Label } from "./../../components/ui/label";
+// Label UI
 import { Badge } from "./../../components/ui/badge";
+// Badge UI
 import { ArrowLeft, Edit, Trash2, Save, X, Calendar as CalendarIcon } from "lucide-react";
+// Ícones
 import { useCustomerDetailsPage } from "./../../hooks/useCustomerDetails";
+// Hook personalizado
 import { Spinner, Alert} from "react-bootstrap";
+// Componentes Bootstrap
 import "./../../styles/CustomerDetails.css";
+// Estilos CSS
 import DatePicker from "react-datepicker";
+// DatePicker
 import type { Vehicle } from "../../interfaces/Vehicle";
+// Tipo Vehicle
 
-
+// Componente funcional para página de detalhes do cliente
 export default function CustomerDetails() {
+  // Obtém ID do cliente da URL
   const { id } = useParams<{ id: string }>();
 
+  // Usa hook personalizado
   const {
     customerData,
     loading,
@@ -27,7 +45,7 @@ export default function CustomerDetails() {
     handleInputChange,
   } = useCustomerDetailsPage(id);
 
-  // Loading state
+  // Estado de carregamento
   if (loading) {
     return (
       <div className="d-flex justify-content-center align-items-center vh-100">
@@ -37,7 +55,7 @@ export default function CustomerDetails() {
     );
   }
 
-  // Error state
+  // Estado de erro
   if (error || !customerData) {
     return (
       <div className="container my-4">
@@ -54,8 +72,12 @@ export default function CustomerDetails() {
     );
   }
 
+  // Status do cliente
   const status = customerData.auth.is_active ? "Ativo" : "Inativo";
+  // Veículos ativos
   const vehicles = customerData.vehicles.filter((v: Vehicle) => !v.deleted_at);
+
+  // Renderiza página
   return (
     <div className="container" style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
       {/* Header */}
