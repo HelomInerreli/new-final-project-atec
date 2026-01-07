@@ -4,23 +4,15 @@
  */
 
 import { useState, useEffect } from 'react';
-// Importa hooks do React
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from './ui/dialog';
-// Componentes do diálogo
 import { Button } from './ui/button';
-// Componente botão
 import Select from './Select';
-// Componente select
 import Input from './Input';
-// Componente input
 import TextArea from './TextArea';
-// Componente textarea
 import { toast } from '../hooks/use-toast';
-// Hook para toasts
 import http from '../api/http';
-// Cliente HTTP
 import '../styles/AddExtraServiceModal.css';
-// Estilos CSS
+
 
 // Interface para serviço extra
 interface ExtraService {
