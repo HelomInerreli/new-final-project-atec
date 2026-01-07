@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Modal, Button, Alert, Spinner } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
+// Interface para as propriedades do modal de relink de conta
 interface AccountRelinkModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -18,6 +19,7 @@ interface AccountRelinkModalProps {
   loading: boolean;
 }
 
+// Componente do modal para relink de conta
 const AccountRelinkModal: React.FC<AccountRelinkModalProps> = ({
   isOpen,
   onClose,
@@ -27,8 +29,10 @@ const AccountRelinkModal: React.FC<AccountRelinkModalProps> = ({
   loading
 }) => {
   const { t } = useTranslation();
+  // Estado para erro
   const [error, setError] = useState('');
 
+  // Função para confirmar o relink
   const handleConfirm = async () => {
     try {
       setError('');
@@ -41,6 +45,7 @@ const AccountRelinkModal: React.FC<AccountRelinkModalProps> = ({
   const providerName = provider === 'google' ? 'Google' : 'Facebook';
   const buttonColor = provider === 'google' ? '#595959ff' : '#307bddff';
 
+  // Função para obter iniciais do nome
   const getInitials = (name: string) => {
     if (!name) return "?";
     const names = name.split(" ");
@@ -49,6 +54,7 @@ const AccountRelinkModal: React.FC<AccountRelinkModalProps> = ({
     return (firstInitial + lastInitial).toUpperCase();
   };
 
+  // Renderiza o modal
   return (
     <Modal show={isOpen} onHide={onClose} centered>
       <Modal.Header closeButton>

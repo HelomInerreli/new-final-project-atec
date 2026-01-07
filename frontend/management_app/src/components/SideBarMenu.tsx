@@ -220,7 +220,7 @@ export default function SideBarMenu() {
     );
   };
 
-  // Keep a CSS variable updated so the layout can adapt to the sidebar width
+  // Mantém variável CSS atualizada para que o layout se adapte à largura da barra lateral
   useEffect(() => {
     const width = collapsed ? "90px" : "260px";
     document.documentElement.style.setProperty("--sidebar-width", width);

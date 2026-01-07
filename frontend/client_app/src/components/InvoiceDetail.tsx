@@ -3,15 +3,16 @@ import { formatCurrency, formatDate } from '../utils/formatters';
 import { generateInvoicePDF } from '../services/pdfService';
 import '../styles/invoiceDetail.css';
 
+// Interface para as propriedades do componente InvoiceDetail
 interface InvoiceDetailProps {
     appointmentId: number;
 }
 
-
-
+// Componente para exibir detalhes da fatura
 export function InvoiceDetail({ appointmentId }: InvoiceDetailProps) {
     const { invoice, loading, error } = useInvoice(appointmentId);
 
+    // Função para descarregar PDF da fatura
     const handleDownloadPDF = async () => {
         if (!invoice) return;
         
@@ -23,6 +24,7 @@ export function InvoiceDetail({ appointmentId }: InvoiceDetailProps) {
         }
     };
 
+    // Renderiza estado de carregamento
     if (loading) {
         return (
             <div className="invoice-loading">
@@ -34,6 +36,7 @@ export function InvoiceDetail({ appointmentId }: InvoiceDetailProps) {
         );
     }
 
+    // Renderiza estado de erro
     if (error || !invoice) {
         return (
             <div className="invoice-error">
@@ -45,6 +48,7 @@ export function InvoiceDetail({ appointmentId }: InvoiceDetailProps) {
         );
     }
 
+    // Renderiza detalhes da fatura
     return (
         <div className="invoice-detail-container">
             <div className="invoice-content" id="invoice-content">

@@ -4,17 +4,20 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { loginWithCredentials, useAuth } from '../api/auth';
 
+// Interface para as propriedades do modal de login
 interface LoginModalProps {
   show: boolean;
   onClose: () => void;
   onSwitchToRegister?: () => void;
 }
 
+// Componente do modal de login
 const LoginModal: React.FC<LoginModalProps> = ({
   show,
   onClose,
   onSwitchToRegister
 }) => {
+  // Estados do componente
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -24,6 +27,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
   const { login } = useAuth();
   const { t } = useTranslation();
 
+  // Função para login com email e senha
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -64,6 +68,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
     }
   };
 
+  // Função para login com Google
   const handleGoogleLogin = async () => {
     try {
       setLoading(true);
@@ -75,6 +80,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
     }
   };
 
+  // Função para login com Facebook
   const handleFacebookLogin = async () => {
     try {
       setLoading(true);
@@ -86,6 +92,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
     }
   };
 
+  // Função para alternar para registro
   const handleSwitchToRegister = () => {
     onClose();
     if (onSwitchToRegister) {
@@ -95,6 +102,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
     }
   };
 
+  // Função para fechar o modal e limpar estados
   const handleClose = () => {
     setEmail('');
     setPassword('');
@@ -103,6 +111,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
     onClose();
   };
 
+  // Renderiza o modal de login
   return (
     <Modal show={show} onHide={handleClose} centered>
       <Modal.Header closeButton>
