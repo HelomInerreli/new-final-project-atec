@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+// Interface para as propriedades do componente Button
 interface ButtonProps {
   children: ReactNode;
   onClick?: () => void;
@@ -7,12 +8,14 @@ interface ButtonProps {
   className?: string;
 }
 
+// Componente Button reutilizável
 export function Button({
   children,
   onClick,
   type = "button",
   className,
 }: ButtonProps) {
+  // Renderiza o botão
   return (
     <button
       type={type}

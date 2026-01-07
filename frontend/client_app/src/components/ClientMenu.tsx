@@ -11,6 +11,7 @@ import {
   FaUser, 
 } from 'react-icons/fa';
 
+// Tipo para as seções do menu do cliente
 export type ClientSection = 
   | "dashboard" 
   | "appointments" 
@@ -19,18 +20,22 @@ export type ClientSection =
   | "invoices" 
 
 
+// Interface para as propriedades do componente ClientMenu
 interface ClientMenuProps {
   activeSection: ClientSection;
   onSectionChange: (section: ClientSection) => void;
 }
 
+// Componente do menu lateral do cliente
 export function ClientMenu({ activeSection, onSectionChange }: ClientMenuProps) {
   const { t } = useTranslation();
 
+  // Função para lidar com clique em uma seção do menu
   const handleClick = (section: ClientSection) => {
     onSectionChange(section);
   };
 
+  // Renderiza o menu lateral
   return (
     <div className="modern-sidebar">
       <nav className="sidebar-nav">
