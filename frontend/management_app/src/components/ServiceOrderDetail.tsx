@@ -20,11 +20,14 @@ import {
 } from "./ui/alert-dialog";
 import "../styles/ServiceOrderDetail.css";
 
+// Componente para detalhes da ordem de serviço
 const ServiceOrderDetail: FC = () => {
   const { id } = useParams<{ id?: string }>();
   const navigate = useNavigate();
+  // Estado para modal de serviço extra
   const [isExtraServiceModalOpen, setIsExtraServiceModalOpen] = useState(false);
 
+  // Usa hook personalizado para gerenciar detalhes da ordem
   const {
     order,
     loading,
@@ -49,9 +52,11 @@ const ServiceOrderDetail: FC = () => {
     handleDeletePart,
   } = useServiceOrderDetails(id);
 
+  // Estados de carregamento e erro
   if (loading) return <div className="so-loading">Carregando...</div>;
   if (!order) return <div className="so-loading">Ordem não encontrada</div>;
 
+  // Renderização do componente
   return (
     <div className="so-page-wrapper">
       <div className="so-card">

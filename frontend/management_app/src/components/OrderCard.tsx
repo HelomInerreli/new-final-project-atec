@@ -4,13 +4,16 @@ import { Button } from "./ui/button";
 import "../styles/OrderCard.css";
 import type { Order } from "../interfaces/Order";
 
+// Interface para props do componente
 interface OrderCardProps {
   order: Order;
 }
 
+// Componente para exibir cartão de ordem
 const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
   const navigate = useNavigate();
 
+  // Função para obter classe CSS do status
   const getStatusClass = (status: string) => {
     switch (status) {
       case "Em Andamento":
@@ -26,6 +29,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
     }
   };
 
+  // Função para obter label do status
   const statusLabel = (() => {
     if ((order as any).status && typeof (order as any).status === "string") return (order as any).status;
     if ((order as any).status_text) return (order as any).status_text;
@@ -58,6 +62,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
     return "-";
   })();
 
+  // Renderização do componente
   return (
     <div className="order-card">
       <div className="card-main">

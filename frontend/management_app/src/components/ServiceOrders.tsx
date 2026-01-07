@@ -10,6 +10,7 @@ import { Plus, Search } from "lucide-react";
 import "../styles/ServiceOrders.css";
 import type { Order } from "../interfaces/Order";
 
+// Componente para listagem de ordens de serviço
 const ServiceOrders: FC = () => {
   const { orders, loading, error, refresh } = useServiceOrder();
   const { user } = useCurrentUser();
@@ -44,6 +45,7 @@ const ServiceOrders: FC = () => {
     }
   }, [isManager]);
 
+  // Filtra ordens baseado nos critérios
   const filtered = orders.filter((o: Order) => {
     // Filtrar por papel do usuário - mecânicos só veem ordens "Em Andamento", "Pendente", "Concluída"
     if (!isManager) {
@@ -66,6 +68,7 @@ const ServiceOrders: FC = () => {
     return matchesSearch && matchesStatus;
   });
 
+  // Renderização do componente
   return (
     <div className="so-container">
       <div className="so-content-wrapper">

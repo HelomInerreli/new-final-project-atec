@@ -1,6 +1,7 @@
 import React, { useId, type ChangeEvent } from "react";
 import "./inputs.css";
 
+// Interface para props do componente Radio
 interface RadioProps {
   label: string;
   name: string;
@@ -10,6 +11,7 @@ interface RadioProps {
   className?: string;
 }
 
+// Componente Radio
 export default function Radio({
   label,
   name,
@@ -20,6 +22,7 @@ export default function Radio({
 }: RadioProps) {
   const id = useId();
 
+  // Renderização do componente
   return (
     <div className={`mb-input-wrapper ${className} mb-radio`}>
       <input

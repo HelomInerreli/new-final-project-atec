@@ -26,8 +26,7 @@ import "./SideBarMenu.css";
 import logoMecatec from "../assets/LOGO_MECATEC_fundo.png";
 import logoMaCollapsed from "../assets/LOGO_MA_Vermelho_SFundo.png";
 
-// User state comes from /managementauth/me using saved JWT
-
+// Interface para dados de notificação
 interface NotificationData {
   id: number;
   notification_id: number;
@@ -40,7 +39,9 @@ interface NotificationData {
   alertType: string;
 }
 
+// Componente do menu lateral
 export default function SideBarMenu() {
+  // Estados do componente
   const [collapsed, setCollapsed] = useState(false);
   const [showNotificationModal, setShowNotificationModal] = useState(false);
   const [notifications, setNotifications] = useState<NotificationData[]>([]);
@@ -52,7 +53,7 @@ export default function SideBarMenu() {
   const [userName, setUserName] = useState<string>("...");
   const [userId, setUserId] = useState<number | null>(null);
 
-  // Fetch notification counts - per component and total
+  // Busca contagens de notificações
   const fetchNotificationCounts = async () => {
     try {
       if (!userId) return;
@@ -98,7 +99,7 @@ export default function SideBarMenu() {
     }
   };
 
-  // Fetch detailed notifications for modal
+  // Busca notificações detalhadas para o modal
   const fetchNotifications = async () => {
     try {
       setLoadingNotifications(true);
@@ -113,7 +114,7 @@ export default function SideBarMenu() {
     }
   };
 
-  // Load user info from backend using token
+  // Carrega informações do usuário do backend usando token
   useEffect(() => {
     const token = localStorage.getItem("access_token");
     if (!token) return;
@@ -131,17 +132,20 @@ export default function SideBarMenu() {
       });
   }, []);
 
+  // Busca contagens de notificações periodicamente
   useEffect(() => {
     fetchNotificationCounts();
     const interval = setInterval(fetchNotificationCounts, 30000);
     return () => clearInterval(interval);
   }, [userId]);
 
+  // Abre o modal de notificações
   const handleOpenModal = () => {
     fetchNotifications();
     setShowNotificationModal(true);
   };
 
+  // Marca notificação como lida
   const handleMarkAsRead = async (userNotificationId: number) => {
     try {
       await http.put(`/user-notifications/${userNotificationId}/read`);
@@ -155,6 +159,7 @@ export default function SideBarMenu() {
     }
   };
 
+  // Marca todas as notificações como lidas
   const handleMarkAllAsRead = async () => {
     try {
       await http.put(`/users/${USER_ID}/notifications/read-all`);
@@ -166,7 +171,7 @@ export default function SideBarMenu() {
     }
   };
 
-  // small helper to render an icon with an optional overlay badge and configurable size
+  // Componente auxiliar para renderizar ícone com badge opcional e tamanho configurável
   const IconWithBadgeSized = ({
     icon,
     count,

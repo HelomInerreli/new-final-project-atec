@@ -11,6 +11,7 @@ import { useFetchCustomers } from '../hooks/useCustomers';
 import { useNewVehicleModal } from '../hooks/useNewVehicleModal';
 import type { VehicleAPI } from '../interfaces/VehicleAPI';
 
+// Interface para props do modal
 interface NewVehicleModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -19,6 +20,7 @@ interface NewVehicleModalProps {
   loading: boolean;
 }
 
+// Componente modal para novo veículo
 const NewVehicleModal: React.FC<NewVehicleModalProps> = ({ 
   isOpen, 
   onClose,
@@ -26,9 +28,12 @@ const NewVehicleModal: React.FC<NewVehicleModalProps> = ({
   onSubmit, 
   loading 
 }) => {
+  // Busca lista de clientes
   const { customers } = useFetchCustomers();
+  // Usa hook personalizado para gerenciar estado do formulário
   const { formData, handleChange, validateForm, handleGetFromAPI } = useNewVehicleModal(isOpen);
 
+  // Manipula submissão do formulário
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (validateForm()) {
@@ -36,8 +41,10 @@ const NewVehicleModal: React.FC<NewVehicleModalProps> = ({
     }
   };
 
+  // Não renderiza se modal não estiver aberto
   if (!isOpen) return null;
 
+  // Renderização do modal
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content-container" onClick={(e) => e.stopPropagation()}>

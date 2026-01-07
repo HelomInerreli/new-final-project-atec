@@ -10,6 +10,7 @@ import { ptBR } from "date-fns/locale";
 import type { CustomerRegister } from '../interfaces/Customer';
 import { useNewCustomerModal } from '../hooks/useNewCustomerModal';
 
+// Interface para props do modal
 interface NewCustomerModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -17,12 +18,14 @@ interface NewCustomerModalProps {
   loading: boolean;
 }
 
+// Componente modal para novo cliente
 const NewCustomerModal: React.FC<NewCustomerModalProps> = ({
   isOpen,
   onClose,
   onSubmit,
   loading
 }) => {
+  // Usa hook personalizado para gerenciar estado do formulário
   const {
     formData,
     error,
@@ -31,6 +34,7 @@ const NewCustomerModal: React.FC<NewCustomerModalProps> = ({
     validateForm,
   } = useNewCustomerModal(isOpen);
 
+  // Manipula submissão do formulário
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (validateForm()) {
@@ -38,8 +42,10 @@ const NewCustomerModal: React.FC<NewCustomerModalProps> = ({
     }
   };
 
+  // Não renderiza se modal não estiver aberto
   if (!isOpen) return null;
 
+  // Renderização do modal
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content-container" onClick={(e) => e.stopPropagation()}>

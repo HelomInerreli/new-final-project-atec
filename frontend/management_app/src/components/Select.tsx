@@ -1,11 +1,13 @@
 import React, { useId, useState, useRef, useEffect } from "react";
 import "./inputs.css";
 
+// Interface para opção do select
 interface Option {
   value: string;
   label: string;
 }
 
+// Interface para props do componente Select
 interface SelectProps {
   label: string;
   options: Option[];
@@ -15,6 +17,7 @@ interface SelectProps {
   className?: string;
 }
 
+// Componente Select personalizado
 export default function Select({
   label,
   options,
@@ -24,6 +27,7 @@ export default function Select({
   className = "",
 }: SelectProps) {
   const id = useId();
+  // Estados do componente
   const [value, setValue] = useState<string>(controlledValue ?? "");
   const isControlled = typeof controlledValue !== "undefined";
   const finalValue = isControlled ? (controlledValue as string) : value;
@@ -31,11 +35,12 @@ export default function Select({
   const [focused, setFocused] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
 
+  // Sincroniza valor controlado
   useEffect(() => {
     if (isControlled) setValue(controlledValue as string);
   }, [controlledValue, isControlled]);
 
-  // close when clicking outside
+  // Fecha dropdown ao clicar fora
   useEffect(() => {
     function onDoc(e: MouseEvent) {
       if (!ref.current) return;
@@ -47,16 +52,19 @@ export default function Select({
 
   const hasValue = finalValue !== undefined && finalValue !== "";
 
+  // Manipula seleção de opção
   function handleSelect(val: string) {
     if (!isControlled) setValue(val);
     onChange?.(val);
     setOpen(false);
   }
 
+  // Alterna abertura do dropdown
   function toggleOpen() {
     setOpen((s) => !s);
   }
 
+  // Renderização do componente
   return (
     <div
       ref={ref}
