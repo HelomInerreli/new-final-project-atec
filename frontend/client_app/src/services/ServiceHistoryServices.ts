@@ -1,5 +1,6 @@
 import http from '../api/http';
 import type { Appointment } from '../interfaces/appointment';
+import { getCustomerIdFromToken, getStoredToken } from '../api/auth';
 
 /**
  * Busca todos os agendamentos (histórico de serviços)
@@ -9,6 +10,14 @@ import type { Appointment } from '../interfaces/appointment';
  * @throws Erro HTTP se falhar a requisição
  */
 export const getServices = async (): Promise<Appointment[]> => {
-  const response = await http.get('/appointments'); 
+    const token = await getStoredToken();
+    if (!token) {
+        throw new Error('No stored token found');
+    }
+    const customerId = getCustomerIdFromToken(token);
+    if (!customerId) {
+        throw new Error('Invalid token: customer ID not found');
+    }
+    const response = await http.get(`/customers/${customerId}/appointments`);
   return response.data;
 };
