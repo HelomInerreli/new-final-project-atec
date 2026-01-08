@@ -66,7 +66,8 @@ const AuthCallback: React.FC = () => {
     if (type === 'login' && token) {
       console.log('Login flow');
       setAuthToken(token);
-      navigate('/dashboard');
+      //Login route after login with OAuth(Google/Facebook)
+      navigate('/my-services');
     } else if (type === 'register') {
       console.log('Register flow');
       const provider = searchParams.get('provider') || 'google';
