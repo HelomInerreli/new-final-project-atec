@@ -95,6 +95,8 @@ class EmailService:
         </html>
         """
         
+        return self.send_email(customer_email, subject, html_content)
+        
     
     def send_extra_service_cancellation_email(self, customer_email: str, customer_name: str, vehicle_plate: str, extra_service_name: str):
         """Envia email quando um serviço extra proposto é cancelado"""
