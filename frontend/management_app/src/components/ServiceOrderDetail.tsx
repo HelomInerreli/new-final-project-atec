@@ -212,7 +212,7 @@ const ServiceOrderDetail: FC = () => {
                 <Button
                   variant="outline"
                   className="so-action-btn btn-success"
-                  disabled={saving || currentNormalized === "Concluída" || order?.is_paused}
+                  disabled={saving || currentNormalized === "Concluída" || currentNormalized === "Pendente" || order?.is_paused}
                 >
                   Finalizar
                 </Button>

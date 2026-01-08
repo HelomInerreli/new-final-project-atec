@@ -328,10 +328,17 @@ class AppointmentRepository:
             duration_minutes=duration_minutes,
             status="pending",
         )
+        
         self.db.add(db_request)
         self.db.commit()
         self.db.refresh(db_request)
 
+        comment = OrderComment(
+            service_order_id=appointment_id,
+            comment=f"Serviço extra proposto: {name or 'Serviço Extra'}",
+        )
+        self.db.add(comment)
+        self.db.commit()
         # Enviar email se o serviço for fornecido
         if email_service:
             try:
