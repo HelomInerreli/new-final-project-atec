@@ -256,7 +256,7 @@ const Register: React.FC = () => {
         setTimeout(() => {
           window.location.reload();
         }, 100);
-        navigate('/dashboard');
+        navigate('/my-services');
       }
     } catch (err: any) {
       setError(err.response?.data?.detail || err.response?.data?.message || `${t('registration')} ${t('failed')}`);

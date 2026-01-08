@@ -46,8 +46,8 @@ const LoginModal: React.FC<LoginModalProps> = ({
         setEmail('');
         setPassword('');
         
-        // Navigate to home or dashboard
-        navigate('/');
+        // Navigate after login
+        navigate('/my-services');
 
         // Reload page after successful login
         setTimeout(() => {
