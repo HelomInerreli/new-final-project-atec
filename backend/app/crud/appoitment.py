@@ -388,6 +388,13 @@ class AppointmentRepository:
             appointment.actual_budget = (appointment.actual_budget or 0.0) + (applied_price or 0.0)
 
         req.status = "approved"
+        
+        # Comentario de aprovação
+        comment = OrderComment(
+            service_order_id=req.appointment_id,
+            comment=f"Serviço extra aprovado: {req.name or 'Serviço Extra'}",
+        )
+        self.db.add(comment)
         self.db.commit()
         self.db.refresh(req)
         return req
@@ -402,6 +409,12 @@ class AppointmentRepository:
             return None
 
         req.status = "rejected"
+        # Comentario de rejeição
+        comment = OrderComment(
+            service_order_id=req.appointment_id,
+            comment=f"Serviço extra rejeitado: {req.name or 'Serviço Extra'}",
+        )
+        self.db.add(comment)
         self.db.commit()
         self.db.refresh(req)
         return req
