@@ -12,4 +12,3 @@ class ExtraService(Base):
     duration_minutes = Column(Integer, nullable=True) # duração estimada em minutos
     status = Column(String(50), default="pending") # pending, approved, rejected
 
-    appointment_associations = relationship("AppointmentExtraService", back_populates="extra_service", cascade="all, delete-orphan", order_by="AppointmentExtraService.id")

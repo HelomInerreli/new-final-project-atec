@@ -130,7 +130,13 @@ const hasPendingExtraServices = order?.extra_service_associations?.some(
                 <Button
                   variant="outline"
                   className="so-action-btn btn-start"
-                  disabled={saving || currentNormalized === "Concluída" ||(order?.start_time && !order?.is_paused)}
+                  disabled={
+                    saving || 
+                    currentNormalized === "Concluída" ||
+                    order?.status?.name === "Waitting Payment" ||
+                    order?.status?.name === "Finalized" ||
+                    (order?.start_time && !order?.is_paused)
+                  }
                 >
                   {order?.is_paused ? "Retomar" : "Iniciar"}
                 </Button>
@@ -178,6 +184,8 @@ const hasPendingExtraServices = order?.extra_service_associations?.some(
                   disabled={
                     saving ||
                     ["Pendente", "Concluída"].includes(currentNormalized) ||
+                    order?.status?.name === "Waitting Payment" ||
+                    order?.status?.name === "Finalized" ||
                     order?.is_paused
                   }
                 >
@@ -223,6 +231,8 @@ const hasPendingExtraServices = order?.extra_service_associations?.some(
                     saving ||
                    currentNormalized === "Concluída" || 
                    currentNormalized === "Pendente" || 
+                   order?.status?.name === "Waitting Payment" ||
+                   order?.status?.name === "Finalized" ||
                    order?.is_paused ||
                    hasPendingExtraServices}
                 >
@@ -503,70 +513,70 @@ const hasPendingExtraServices = order?.extra_service_associations?.some(
                           : "Pendente";
 
                       return (
-                          <div key={i} className={`extra-item ${statusClass}`}>
-                            <div className="extra-header">
-                              <h6 className="extra-name">
-                                {extra.name || "Serviço Extra"}
-                              </h6>
-                              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                                <span className={`extra-status badge ${statusClass}`}>
-                                  {statusLabel}
-                                </span>
-                                {extra.status === "pending" && (
-                                  <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                      <button
-                                        className="delete-icon-btn"
-                                        title="Cancelar serviço extra"
-                                      >
-                                        <Trash2 size={16} />
-                                      </button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent className="sm:max-w-md">
-                                      <AlertDialogHeader className="space-y-4">
-                                        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
-                                          <AlertTriangle className="h-6 w-6 text-red-600" />
-                                        </div>
-                                        <AlertDialogTitle className="text-center text-xl">
-                                          Cancelar Serviço Extra
-                                        </AlertDialogTitle>
-                                        <AlertDialogDescription className="text-center text-base">
-                                          Tem a certeza que deseja cancelar este serviço extra? Esta ação não pode ser desfeita.
-                                        </AlertDialogDescription>
-                                      </AlertDialogHeader>
-                                      <AlertDialogFooter className="flex flex-row gap-3 justify-center sm:justify-center mt-2">
-                                        <AlertDialogCancel className="mt-0 flex-1 sm:flex-none px-6 hover:bg-gray-100 focus-visible:ring-0 focus-visible:ring-offset-0">
-                                          Cancelar
-                                        </AlertDialogCancel>
-                                        <AlertDialogAction
-                                          onClick={() => handleDeleteExtraService(extra.id)}
-                                          className="flex-1 sm:flex-none px-6 bg-red-600 hover:bg-red-700 focus-visible:ring-0 focus-visible:ring-offset-0"
-                                        >
-                                          Confirmar
-                                        </AlertDialogAction>
-                                      </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                  </AlertDialog>
-                                )}
-                              </div>
-                            </div>
-                            {extra.description && (
-                              <p className="extra-description">
-                                {extra.description}
-                              </p>
-                            )}
-                            <div className="extra-footer">
-                              <span className="extra-price">
-                                €{Number(extra.price ?? 0).toFixed(2)}
+                        <div key={i} className={`extra-item ${statusClass}`}>
+                          <div className="extra-header">
+                            <h6 className="extra-name">
+                              {extra.name || "Serviço Extra"}
+                            </h6>
+                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                              <span className={`extra-status badge ${statusClass}`}>
+                                {statusLabel}
                               </span>
-                              {extra.duration_minutes && (
-                                <span className="extra-duration">
-                                  <i className="bi bi-clock me-1"></i>
-                                  {extra.duration_minutes} min
-                                </span>
+                              {extra.status === "pending" && (
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <button
+                                      className="delete-icon-btn"
+                                      title="Cancelar serviço extra"
+                                    >
+                                      <Trash2 size={16} />
+                                    </button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent className="sm:max-w-md">
+                                    <AlertDialogHeader className="space-y-4">
+                                      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+                                        <AlertTriangle className="h-6 w-6 text-red-600" />
+                                      </div>
+                                      <AlertDialogTitle className="text-center text-xl">
+                                        Cancelar Serviço Extra
+                                      </AlertDialogTitle>
+                                      <AlertDialogDescription className="text-center text-base">
+                                        Tem a certeza que deseja cancelar este serviço extra? Esta ação não pode ser desfeita.
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter className="flex flex-row gap-3 justify-center sm:justify-center mt-2">
+                                      <AlertDialogCancel className="mt-0 flex-1 sm:flex-none px-6 hover:bg-gray-100 focus-visible:ring-0 focus-visible:ring-offset-0">
+                                        Cancelar
+                                      </AlertDialogCancel>
+                                      <AlertDialogAction
+                                        onClick={() => handleDeleteExtraService(extra.id)}
+                                        className="flex-1 sm:flex-none px-6 bg-red-600 hover:bg-red-700 focus-visible:ring-0 focus-visible:ring-offset-0"
+                                      >
+                                        Confirmar
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
                               )}
                             </div>
                           </div>
+                          {extra.description && (
+                            <p className="extra-description">
+                              {extra.description}
+                            </p>
+                          )}
+                          <div className="extra-footer">
+                            <span className="extra-price">
+                              €{Number(extra.price ?? 0).toFixed(2)}
+                            </span>
+                            {extra.duration_minutes && (
+                              <span className="extra-duration">
+                                <i className="bi bi-clock me-1"></i>
+                                {extra.duration_minutes} min
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       );
                     }
                   )}

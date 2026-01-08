@@ -8,8 +8,6 @@ class AppointmentExtraService(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     appointment_id = Column(Integer, ForeignKey("appointments.id"), nullable=False)
-    extra_service_id = Column(Integer, ForeignKey("extra_services.id"), nullable=False)
-    added_at = Column(DateTime, default=datetime.now)
 
     # campos que permitem override / histórico (preço/duração no momento da seleção)
     name = Column(String(200), nullable=True)
@@ -23,4 +21,3 @@ class AppointmentExtraService(Base):
 
     # relações
     appointment = relationship("Appointment", back_populates="extra_service_associations")
-    extra_service = relationship("ExtraService", back_populates="appointment_associations")

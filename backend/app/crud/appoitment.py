@@ -6,7 +6,7 @@ from fastapi import HTTPException
 
 from app.models.appoitment import Appointment
 from app.models.appoitment_extra_service import AppointmentExtraService
-from app.models.extra_service import ExtraService
+# from app.models.extra_service import ExtraService
 from app.models.status import Status
 from app.models.customer import Customer
 from app.models.customerAuth import CustomerAuth
@@ -302,27 +302,14 @@ class AppointmentRepository:
 
         data = request_data.model_dump()
         
-        # Se vier extra_service_id mas sem nome/preço, buscar ao catálogo
-        extra_service_id = data.get("extra_service_id")
+        # Agora sempre vem do frontend: name, description, price, duration_minutes
         name = data.get("name")
         description = data.get("description")
         price = data.get("price")
         duration_minutes = data.get("duration_minutes")
 
-        if extra_service_id and (not name or price is None):
-            catalog_item = self.db.query(ExtraService).filter(ExtraService.id == extra_service_id).first()
-            if catalog_item:
-                if not name:
-                    name = catalog_item.name
-                if price is None:
-                    price = catalog_item.price
-                if not description: # Opcional: preencher descrição se não vier no request
-                    description = catalog_item.description
-                # duration_minutes pode não existir no catálogo ou ser diferente, manter lógica se existir
-
         db_request = AppointmentExtraService(
             appointment_id=appointment_id,
-            extra_service_id=extra_service_id,
             name=name,
             description=description,
             price=price,
@@ -378,10 +365,8 @@ class AppointmentRepository:
             return req  # já aprovado
 
         # Determinar preço aplicado
-        applied_price = req.price
-        if applied_price is None and req.extra_service_id:
-            catalog = self.db.query(ExtraService).filter(ExtraService.id == req.extra_service_id).first()
-            applied_price = getattr(catalog, "price", 0.0) if catalog else 0.0
+        applied_price = req.price or 0.0
+      
 
         # Atualizar appointment.actual_budget
         appointment = self.db.query(Appointment).filter(Appointment.id == req.appointment_id).first()
