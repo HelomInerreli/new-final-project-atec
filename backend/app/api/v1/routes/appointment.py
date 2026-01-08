@@ -168,6 +168,24 @@ def list_extra_service_requests(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Appointment not found")
     return getattr(appointment, "extra_service_associations", [])
 
+@router.delete("/extra_services/{request_id}", status_code=status.HTTP_204_NO_CONTENT)
+def cancel_extra_service_request(
+    request_id: int,
+    repo: AppointmentRepository = Depends(get_appointment_repo)
+):
+    """
+    Cancela/elimina um pedido de serviço extra que esteja pendente.
+    Apenas permite cancelar se o status for 'pending'.
+    """
+    email_service = EmailService()
+    try:
+        success = repo.cancel_extra_service_request(request_id=request_id, email_service=email_service)
+        if not success:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Extra service request not found")
+        return None
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    
 @router.post("/{appointment_id}/parts")
 def add_part_to_appointment(
     appointment_id: int,

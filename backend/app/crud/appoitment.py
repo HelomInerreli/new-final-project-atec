@@ -26,6 +26,7 @@ from app.models.order_part import OrderPart
 from app.schemas import user
 
 
+
 # Define status constants locally to avoid magic strings
 APPOINTMENT_STATUS_PENDING = "Pendente"
 APPOINTMENT_STATUS_CANCELED = "Canceled"
@@ -419,6 +420,57 @@ class AppointmentRepository:
         self.db.refresh(req)
         return req
     
+    def cancel_extra_service_request(self, request_id: int, email_service: Optional[EmailService] = None) -> bool:
+        """
+        Cancela/elimina um pedido de extra service que esteja pendente.
+        Apenas permite cancelar se o status for 'pending'.
+        Retorna True se cancelado com sucesso, False caso contrário.
+        """
+        req = self.db.query(AppointmentExtraService).filter(AppointmentExtraService.id == request_id).first()
+        if not req:
+            return False
+        
+        # Só permite cancelar se ainda estiver pendente
+        if req.status != "pending":
+            raise ValueError("Apenas serviços extras pendentes podem ser cancelados")
+        
+        # Carregar appointment com relações para dados do email ANTES de eliminar
+        db_appointment = self.get_by_id_with_relations(appointment_id=req.appointment_id)
+        
+        # Guardar dados antes de eliminar
+        service_name = req.name or 'Serviço Extra'
+        
+        # Adicionar comentário antes de eliminar
+        comment = OrderComment(
+            service_order_id=req.appointment_id,
+            comment=f"Serviço extra cancelado: {service_name}",
+        )
+        self.db.add(comment)
+        
+        # Elimina o pedido
+        self.db.delete(req)
+        self.db.commit()
+        
+        # Enviar email se o serviço for fornecido
+        if email_service and db_appointment:
+            try:
+                customer_email = self._get_customer_email(db_appointment.customer_id)
+                if customer_email:
+                    customer_name = db_appointment.customer.name if db_appointment.customer else "Cliente"
+                    vehicle_plate = db_appointment.vehicle.plate if db_appointment.vehicle else "N/A"
+                    
+                    email_service.send_extra_service_cancellation_email(
+                        customer_email=customer_email,
+                        customer_name=customer_name,
+                        vehicle_plate=vehicle_plate,
+                        extra_service_name=service_name
+                    )
+                    print(f"✅ Email de cancelamento de serviço extra enviado para {customer_email}.")
+            except Exception as e:
+                print(f"❌ ERRO ao enviar email de cancelamento de serviço extra: {e}")
+        
+        return True
+
     def add_part(self, appointment_id: int, product_id: int, quantity: int):
         """Adiciona uma peça à ordem de serviço"""
         appointment = self.db.query(Appointment).filter(Appointment.id == appointment_id).first()

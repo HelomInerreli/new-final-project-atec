@@ -95,7 +95,31 @@ class EmailService:
         </html>
         """
         
-        return self.send_email(customer_email, subject, html_content)
+    
+    def send_extra_service_cancellation_email(self, customer_email: str, customer_name: str, vehicle_plate: str, extra_service_name: str):
+        """Envia email quando um serviço extra proposto é cancelado"""
+        subject = f"Serviço Extra Cancelado - Veículo {vehicle_plate}"
+        
+        html_content = f"""
+        <html>
+            <body>
+                <h2>Serviço Extra Cancelado</h2>
+                <p>Caro(a) {customer_name},</p>
+                <p>Informamos que o serviço extra proposto para o seu veículo ({vehicle_plate}) foi cancelado:</p>
+                <div style="background-color: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 20px 0;">
+                    <h3>{extra_service_name}</h3>
+                    <p>Este serviço já não é necessário ou foi proposto por engano.</p>
+                </div>
+                <p>Não precisa de tomar nenhuma ação relativamente a este serviço.</p>
+                <br>
+                <p>Atenciosamente,</p>
+                <p>A Equipa da Oficina</p>
+            </body>
+        </html>
+        """
+        
+        return self.send_email(customer_email, subject, html_content)   
+        
     
     def send_work_started_email(self, customer_email: str, customer_name: str, service_name: str, vehicle_plate: str):
         """Envia email quando o trabalho é iniciado"""
@@ -133,7 +157,7 @@ class EmailService:
                 <p>Temos o prazer de informar que o trabalho no seu veículo <strong>{vehicle_plate}</strong> foi concluído com sucesso!</p>
                 <p><strong>Serviço:</strong> {service_name}</p>
                 <div style="background-color: #e8f5e9; padding: 15px; border-left: 4px solid #4caf50; margin: 20px 0;">
-                    <p>✓ O seu veículo está pronto para levantamento.</p>
+                    <p>✓ O seu veículo está pronto para pagamento e consequente levantamento.</p>
                     <p>✓ Por favor, entre em contacto connosco para agendar o levantamento.</p>
                 </div>
                 <br>

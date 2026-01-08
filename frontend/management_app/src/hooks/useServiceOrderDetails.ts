@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { getOrder, updateOrder, getCurrentWorkTime, startWork, pauseWork, resumeWork, finalizeWork } from "../services/OrderDetails";
+import { getOrder, updateOrder, cancelExtraService, getCurrentWorkTime, startWork, pauseWork, resumeWork, finalizeWork } from "../services/OrderDetails";
 import { normalizeStatus } from "./useServiceOrder";
 import { STATUS_LABEL_TO_ID } from "../interfaces/ServiceOrderDetail";
 import { format } from "date-fns";
@@ -426,6 +426,15 @@ export const useServiceOrderDetails = (id: string | undefined) => {
     }
   }, [id, fetchOrder]);
 
+  const handleDeleteExtraService = useCallback(async (requestId: number) => {
+    if (!id) return;
+    try {
+      await cancelExtraService(requestId);
+      await fetchOrder();
+    } catch (e) {
+      alert("Erro ao cancelar serviço extra: " + e);
+    }
+  }, [id, fetchOrder]);
   /**
    * Nome bruto do status atual da ordem
    */
@@ -551,5 +560,6 @@ export const useServiceOrderDetails = (id: string | undefined) => {
      * Função auxiliar para formatar veículo
      */
     formatVehicle,
+    handleDeleteExtraService,
   };
 };
