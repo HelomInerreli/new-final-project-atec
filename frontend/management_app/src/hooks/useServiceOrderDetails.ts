@@ -242,16 +242,23 @@ export const useServiceOrderDetails = (id: string | undefined) => {
    * @returns Data formatada no formato pt-PT ou "-" se inválida
    */
   const formatDate = useCallback((d: any): string => {
-    if (!d) return "-";
+  if (!d) return "-";
     try {
       const dt = new Date(d);
-      return isNaN(dt.getTime()) ? String(d) : dt.toLocaleString("pt-PT", {
+      if (isNaN(dt.getTime())) return String(d);
+      
+      const datePart = dt.toLocaleDateString("pt-PT", {
         day: "2-digit",
         month: "2-digit",
-        year: "numeric",
+        year: "numeric"
+      });
+      
+      const timePart = dt.toLocaleTimeString("pt-PT", {
         hour: "2-digit",
         minute: "2-digit"
       });
+      
+      return `${datePart} ${timePart}`;
     } catch {
       return String(d);
     }
