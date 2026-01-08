@@ -566,6 +566,15 @@ class AppointmentRepository:
         if not db_appointment:
             return None
 
+        # verificar se tem serviços extra pendentes
+        pending_extras = self.db.query(AppointmentExtraService).filter(
+            AppointmentExtraService.appointment_id == appointment_id,
+            AppointmentExtraService.status == "pending"
+        ).first()
+        
+        if pending_extras:
+            raise ValueError("Existem serviços extra pendentes. Aprove ou rejeite-os antes de finalizar o trabalho.")
+            
         if not db_appointment.is_paused and db_appointment.start_time:
             now = datetime.utcnow()
             worked_seconds = int((now - db_appointment.start_time).total_seconds())

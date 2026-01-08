@@ -56,6 +56,12 @@ const ServiceOrderDetail: FC = () => {
   if (loading) return <div className="so-loading">Carregando...</div>;
   if (!order) return <div className="so-loading">Ordem não encontrada</div>;
 
+  // Verificar se há serviços extras pendentes
+const hasPendingExtraServices = order?.extra_service_associations?.some(
+    (extra: any) => extra.status === "pending"
+  ) || false;
+
+
   // Renderização do componente
   return (
     <div className="so-page-wrapper">
@@ -212,7 +218,12 @@ const ServiceOrderDetail: FC = () => {
                 <Button
                   variant="outline"
                   className="so-action-btn btn-success"
-                  disabled={saving || currentNormalized === "Concluída" || currentNormalized === "Pendente" || order?.is_paused}
+                  disabled={
+                    saving ||
+                   currentNormalized === "Concluída" || 
+                   currentNormalized === "Pendente" || 
+                   order?.is_paused ||
+                   hasPendingExtraServices}
                 >
                   Finalizar
                 </Button>
