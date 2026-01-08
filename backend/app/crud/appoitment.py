@@ -127,7 +127,7 @@ class AppointmentRepository:
         
         comment = OrderComment(
             service_order_id=db_appointment.id,
-            comment=f"Ordem de serviço :{db_appointment.id} criada",
+            comment=f"OS criada",
         )
         self.db.add(comment)
         self.db.commit()
@@ -461,7 +461,7 @@ class AppointmentRepository:
         #  Comentário SEMPRE que inicia
         comment = OrderComment(
             service_order_id=appointment_id,
-            comment=f"Ordem de serviço :{appointment_id} iniciada.",
+            comment=f"OS iniciada.",
         )
         self.db.add(comment)
             #Enviar Email ao cliente
@@ -499,13 +499,22 @@ class AppointmentRepository:
         db_appointment.is_paused = True
         db_appointment.pause_time = now
         
-        # Mantém status "In Repair" mesmo quando pausado
+        # Mantém status "In Repair" mesmo quando pausado em cliente
         # O status só deve mudar para Pendente se o trabalho for cancelado/resetado
         # Quando pausado, continua "Em Reparação" mas com flag is_paused = True
             
+        # Muda status para "Pendente" quando pausado
+        pending_status = self.db.query(Status).filter(Status.name == "Pendente").first()
+        if not pending_status:
+            pending_status = Status(name="Pendente")
+            self.db.add(pending_status)
+            self.db.commit()
+            self.db.refresh(pending_status)
+        db_appointment.status_id = pending_status.id
+                
         comment = OrderComment(
             service_order_id=appointment_id,
-            comment=f"Ordem de serviço :{appointment_id} pausada (continua em reparação)",
+            comment=f"OS pausada (continua em reparação)",
         )
         self.db.add(comment)    
 
@@ -535,7 +544,7 @@ class AppointmentRepository:
             
         comment = OrderComment(
             service_order_id=appointment_id,
-            comment=f"Ordem de serviço :{appointment_id} retomada",
+            comment=f"OS retomada",
         )
         self.db.add(comment)    
 
@@ -569,7 +578,7 @@ class AppointmentRepository:
             
         comment = OrderComment(
             service_order_id=appointment_id,
-            comment=f"Ordem de serviço :{appointment_id} finalizada e aguardando pagamento",
+            comment=f"OS finalizada e aguardando pagamento",
         )
         self.db.add(comment)    
         
