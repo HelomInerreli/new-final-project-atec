@@ -44,10 +44,22 @@ const mapAppointmentToOrder = (
   customerVehicleMap?: Map<string, string>
 ): Order => {
   // Formata data
-  const dt = raw?.appointment_date ? new Date(raw.appointment_date) : null;
-  const formattedDate = dt
-    ? dt.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })
-    : "";
+
+  // Formata data
+const dt = raw?.appointment_date ? new Date(raw.appointment_date) : null;
+let formattedDate = "";
+  if (dt) {
+    const datePart = dt.toLocaleDateString("pt-BR", { 
+      day: "2-digit", 
+      month: "2-digit", 
+      year: "numeric" 
+    });
+    const timePart = dt.toLocaleTimeString("pt-BR", { 
+      hour: "2-digit", 
+      minute: "2-digit" 
+    });
+    formattedDate = `${datePart} ${timePart}`;
+}
 
   // Define cliente
   const client = raw?.customer?.name ?? `Cliente #${raw?.customer_id ?? "-"}`;

@@ -99,6 +99,16 @@ export async function deletePart(orderId: string | number, partId: number): Prom
   }
 }
 
+// Função para cancelar serviço extra
+export async function cancelExtraService(requestId: number): Promise<void> {
+  try {
+    await http.delete(`/appointments/extra_services/${requestId}`, { withCredentials: true });
+  } catch (err) {
+    console.error("cancelExtraService error:", err);
+    throw err;
+  }
+}
+
 // Exportação padrão com todas as funções
 export default {
   getOrder,
@@ -111,6 +121,7 @@ export default {
   finalizeWork,
   deleteComment,
   deletePart,
+  cancelExtraService,
 }
 
 
