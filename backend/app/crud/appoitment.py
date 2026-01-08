@@ -488,7 +488,7 @@ class AppointmentRepository:
         return db_appointment
 
     def pause_work(self, appointment_id: int) -> Optional[Appointment]:
-        """Pausa o trabalho: calcula tempo trabalhado até agora e adiciona ao total."""
+        """Pausa o trabalho: calcula tempo trabalhado até agora e adiciona ao total. Mantém status 'In Repair'."""
         db_appointment = self.get_by_id(appointment_id=appointment_id)
         if not db_appointment or not db_appointment.start_time or db_appointment.is_paused:
             return None
@@ -499,18 +499,13 @@ class AppointmentRepository:
         db_appointment.is_paused = True
         db_appointment.pause_time = now
         
-        # Muda status para "Pending"
-        pending_status = self.db.query(Status).filter(Status.name == "Pendente").first()
-        if not pending_status:
-            pending_status = Status(name="Pendente")
-            self.db.add(pending_status)
-            self.db.commit()
-            self.db.refresh(pending_status)
-        db_appointment.status_id = pending_status.id
+        # Mantém status "In Repair" mesmo quando pausado
+        # O status só deve mudar para Pendente se o trabalho for cancelado/resetado
+        # Quando pausado, continua "Em Reparação" mas com flag is_paused = True
             
         comment = OrderComment(
             service_order_id=appointment_id,
-            comment=f"Ordem de serviço :{appointment_id} pausada",
+            comment=f"Ordem de serviço :{appointment_id} pausada (continua em reparação)",
         )
         self.db.add(comment)    
 
@@ -563,18 +558,18 @@ class AppointmentRepository:
         db_appointment.is_paused = False
         db_appointment.start_time = None
 
-        # Muda status para "Finalized"
-        finalized_status = self.db.query(Status).filter(Status.name == "Finalized").first()
-        if not finalized_status:
-            finalized_status = Status(name="Finalized")
-            self.db.add(finalized_status)
+        # Muda status para "Waitting Payment" (aguardando pagamento do cliente)
+        waitting_payment_status = self.db.query(Status).filter(Status.name == "Waitting Payment").first()
+        if not waitting_payment_status:
+            waitting_payment_status = Status(name="Waitting Payment")
+            self.db.add(waitting_payment_status)
             self.db.commit()
-            self.db.refresh(finalized_status)
-        db_appointment.status_id = finalized_status.id
+            self.db.refresh(waitting_payment_status)
+        db_appointment.status_id = waitting_payment_status.id
             
         comment = OrderComment(
             service_order_id=appointment_id,
-            comment=f"Ordem de serviço :{appointment_id} finalizada",
+            comment=f"Ordem de serviço :{appointment_id} finalizada e aguardando pagamento",
         )
         self.db.add(comment)    
         
@@ -594,10 +589,6 @@ class AppointmentRepository:
                 print(f"Email de trabalho finalizado enviado para {db_appointment.customer.auth.email}")
         except Exception as e:
             print(f"Erro ao enviar email de trabalho finalizado: {e}")
-        # Muda status para "Waitting Payment" (aguardando pagamento do cliente)
-        waitting_payment_status = self.db.query(Status).filter(Status.name == "Waitting Payment").first()
-        if waitting_payment_status:
-            db_appointment.status_id = waitting_payment_status.id
 
         self.db.commit()
         self.db.refresh(db_appointment)

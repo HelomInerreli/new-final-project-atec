@@ -164,10 +164,15 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
             
             print(f"✅ Found appointment {appointment_id}, current status: {appointment.status_id}")
             
-            # Update appointment status to "Finalized" (id=3)
+            # Update appointment status to "Finalized"
+            finalized_status = db.query(Status).filter(Status.name == "Finalized").first()
+            if not finalized_status:
+                print(f"❌ Status 'Finalized' not found in database!")
+                return {"status": "error", "message": "Status 'Finalized' not found"}
+            
             old_status = appointment.status_id
-            appointment.status_id = 3
-            print(f"🔄 Changing status from {old_status} to 3 (Finalized)")
+            appointment.status_id = finalized_status.id
+            print(f"🔄 Changing status from {old_status} to {finalized_status.id} (Finalized)")
             
             db.flush()
             print(f"✅ Status após flush: {appointment.status_id}")

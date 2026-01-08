@@ -69,9 +69,38 @@ i18next.use(initReactI18next).init({
         password: "Password",
         confirmPassword: "Confirm Password",
         submit: "Submit",
-        dashboard: "Dashboard",
+        dashboard: {
+          title: "Dashboard",
+          subtitle: "Quick summary of your activity",
+          pleaseLogin: "Please login to view the dashboard",
+          loading: "Loading dashboard...",
+          vehicles: "Registered Vehicles",
+          vehicleDescriptionSingular: "active vehicle",
+          vehicleDescriptionPlural: "active vehicles",
+          futureAppointments: "Future Appointments",
+          appointmentDescriptionSingular: "pending appointment",
+          appointmentDescriptionPlural: "pending appointments",
+          completedServices: "Completed Services",
+          completedServicesDescription: "complete history",
+          nextAppointment: "Next Appointment",
+          noUpcomingAppointments: "No upcoming appointments",
+          recentActivity: "Recent Activity",
+          noRecentActivity: "No recent activity",
+          noRecentActivityMessage: "You don't have any completed services yet. Schedule your first service!",
+          scheduleService: "Schedule Service",
+          table: {
+            date: "Date",
+            vehicle: "Vehicle",
+            services: "Services",
+            status: "Status"
+          },
+          status: {
+            completed: "Completed"
+          }
+        },
         profile: "Profile",
         settings: "Settings",
+        createAppointment: "Create Appointment",
 
         // Contact Page translations
 
@@ -568,6 +597,10 @@ i18next.use(initReactI18next).init({
 
         appointmentsPage: {
           title: "My Appointments",
+          goToPayment: "Go to Payment",
+          redirectingPayment: "Redirecting…",
+          paymentInitFailed: "Unable to start payment.",
+          noAppointmentsDescription: "You don't have any scheduled appointments yet.",
         },
 
         // Invoice translations
@@ -683,10 +716,39 @@ i18next.use(initReactI18next).init({
         password: "Senha",
         confirmPassword: "Confirmar Senha",
         submit: "Enviar",
-        dashboard: "Painel",
+        dashboard: {
+          title: "Dashboard",
+          subtitle: "Resumo rápido da sua atividade",
+          pleaseLogin: "Por favor, faça login para ver o dashboard",
+          loading: "A carregar dashboard...",
+          vehicles: "Veículos Registrados",
+          vehicleDescriptionSingular: "veículo ativo",
+          vehicleDescriptionPlural: "veículos ativos",
+          futureAppointments: "Agendamentos Futuros",
+          appointmentDescriptionSingular: "agendamento pendente",
+          appointmentDescriptionPlural: "agendamentos pendentes",
+          completedServices: "Serviços Realizados",
+          completedServicesDescription: "histórico completo",
+          nextAppointment: "Próximo Agendamento",
+          noUpcomingAppointments: "Nenhum agendamento",
+          recentActivity: "Atividade Recente",
+          noRecentActivity: "Sem atividade recente",
+          noRecentActivityMessage: "Você ainda não tem serviços concluídos. Agende seu primeiro serviço!",
+          scheduleService: "Agendar Serviço",
+          table: {
+            date: "Data",
+            vehicle: "Veículo",
+            services: "Serviços",
+            status: "Estado"
+          },
+          status: {
+            completed: "Concluído"
+          }
+        },
         profile: "Perfil",
         settings: "Configurações",
         details: "Detalhes",
+        createAppointment: "Criar Agendamento",
 
         // Contact Page translations
 
@@ -1191,6 +1253,10 @@ i18next.use(initReactI18next).init({
         myInvoices: "Minhas Faturas",
         appointmentsPage: {
           title: "Detalhes do Agendamento",
+          goToPayment: "Ir para pagamento",
+          redirectingPayment: "A redirecionar…",
+          paymentInitFailed: "Não foi possível iniciar o pagamento.",
+          noAppointmentsDescription: "Você ainda não tem agendamentos marcados.",
         },
 
         // Invoice translations
@@ -1305,9 +1371,38 @@ i18next.use(initReactI18next).init({
         password: "Contraseña",
         confirmPassword: "Confirmar Contraseña",
         submit: "Enviar",
-        dashboard: "Tablero",
+        dashboard: {
+          title: "Panel de Control",
+          subtitle: "Resumen rápido de tu actividad",
+          pleaseLogin: "Por favor, inicia sesión para ver el panel",
+          loading: "Cargando panel...",
+          vehicles: "Vehículos Registrados",
+          vehicleDescriptionSingular: "vehículo activo",
+          vehicleDescriptionPlural: "vehículos activos",
+          futureAppointments: "Citas Futuras",
+          appointmentDescriptionSingular: "cita pendiente",
+          appointmentDescriptionPlural: "citas pendientes",
+          completedServices: "Servicios Completados",
+          completedServicesDescription: "historial completo",
+          nextAppointment: "Próxima Cita",
+          noUpcomingAppointments: "Ninguna cita",
+          recentActivity: "Actividad Reciente",
+          noRecentActivity: "Sin actividad reciente",
+          noRecentActivityMessage: "Aún no tienes servicios completados. ¡Agenda tu primer servicio!",
+          scheduleService: "Agendar Servicio",
+          table: {
+            date: "Fecha",
+            vehicle: "Vehículo",
+            services: "Servicios",
+            status: "Estado"
+          },
+          status: {
+            completed: "Completado"
+          }
+        },
         profile: "Perfil",
         settings: "Configuraciones",
+        createAppointment: "Crear Cita",
 
         // Contact Page translations
 
@@ -1809,6 +1904,10 @@ i18next.use(initReactI18next).init({
         myInvoices: "Mis Facturas",
         appointmentsPage: {
           title: "Mis Citas",
+          goToPayment: "Ir al Pago",
+          redirectingPayment: "Redirigiendo…",
+          paymentInitFailed: "No se pudo iniciar el pago.",
+          noAppointmentsDescription: "Aún no tienes citas programadas.",
         },
 
         // Invoice translations
@@ -1909,10 +2008,39 @@ i18next.use(initReactI18next).init({
         password: "Mot de passe",
         confirmPassword: "Confirmer le Mot de Passe",
         submit: "Soumettre",
-        dashboard: "Tableau de Bord",
+        dashboard: {
+          title: "Tableau de Bord",
+          subtitle: "Résumé rapide de votre activité",
+          pleaseLogin: "Veuillez vous connecter pour voir le tableau de bord",
+          loading: "Chargement du tableau de bord...",
+          vehicles: "Véhicules Enregistrés",
+          vehicleDescriptionSingular: "véhicule actif",
+          vehicleDescriptionPlural: "véhicules actifs",
+          futureAppointments: "Rendez-vous Futurs",
+          appointmentDescriptionSingular: "rendez-vous en attente",
+          appointmentDescriptionPlural: "rendez-vous en attente",
+          completedServices: "Services Terminés",
+          completedServicesDescription: "historique complet",
+          nextAppointment: "Prochain Rendez-vous",
+          noUpcomingAppointments: "Aucun rendez-vous",
+          recentActivity: "Activité Récente",
+          noRecentActivity: "Aucune activité récente",
+          noRecentActivityMessage: "Vous n'avez pas encore de services terminés. Planifiez votre premier service!",
+          scheduleService: "Planifier un Service",
+          table: {
+            date: "Date",
+            vehicle: "Véhicule",
+            services: "Services",
+            status: "Statut"
+          },
+          status: {
+            completed: "Terminé"
+          }
+        },
         profile: "Profil",
         settings: "Paramètres",
         details: "Détails",
+        createAppointment: "Créer un Rendez-vous",
 
         contactSubtitle: "Contactez-nous pour toute question ou information.",
         contactUs: "Contactez-nous",
@@ -1937,6 +2065,10 @@ i18next.use(initReactI18next).init({
         completedServicesHistory: "Historique des Services Terminés",
         appointmentsPage: {
           title: "Mes Rendez-vous",
+          goToPayment: "Aller au Paiement",
+          redirectingPayment: "Redirection…",
+          paymentInitFailed: "Impossible de démarrer le paiement.",
+          noAppointmentsDescription: "Vous n'avez pas encore de rendez-vous programmés.",
         },
         completedServicesDescription:
           "Voir l'historique complet de vos services terminés",
