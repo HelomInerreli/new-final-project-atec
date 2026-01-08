@@ -6,7 +6,7 @@ from fastapi import HTTPException
 
 from app.models.appoitment import Appointment
 from app.models.appoitment_extra_service import AppointmentExtraService
-from app.models.extra_service import ExtraService
+# from app.models.extra_service import ExtraService
 from app.models.status import Status
 from app.models.customer import Customer
 from app.models.customerAuth import CustomerAuth
@@ -24,6 +24,7 @@ from sqlalchemy.orm.attributes import flag_modified
 from datetime import datetime
 from app.models.order_part import OrderPart
 from app.schemas import user
+
 
 
 # Define status constants locally to avoid magic strings
@@ -127,7 +128,7 @@ class AppointmentRepository:
         
         comment = OrderComment(
             service_order_id=db_appointment.id,
-            comment=f"Ordem de serviço :{db_appointment.id} criada",
+            comment=f"OS criada",
         )
         self.db.add(comment)
         self.db.commit()
@@ -301,37 +302,31 @@ class AppointmentRepository:
 
         data = request_data.model_dump()
         
-        # Se vier extra_service_id mas sem nome/preço, buscar ao catálogo
-        extra_service_id = data.get("extra_service_id")
+        # Agora sempre vem do frontend: name, description, price, duration_minutes
         name = data.get("name")
         description = data.get("description")
         price = data.get("price")
         duration_minutes = data.get("duration_minutes")
 
-        if extra_service_id and (not name or price is None):
-            catalog_item = self.db.query(ExtraService).filter(ExtraService.id == extra_service_id).first()
-            if catalog_item:
-                if not name:
-                    name = catalog_item.name
-                if price is None:
-                    price = catalog_item.price
-                if not description: # Opcional: preencher descrição se não vier no request
-                    description = catalog_item.description
-                # duration_minutes pode não existir no catálogo ou ser diferente, manter lógica se existir
-
         db_request = AppointmentExtraService(
             appointment_id=appointment_id,
-            extra_service_id=extra_service_id,
             name=name,
             description=description,
             price=price,
             duration_minutes=duration_minutes,
             status="pending",
         )
+        
         self.db.add(db_request)
         self.db.commit()
         self.db.refresh(db_request)
 
+        comment = OrderComment(
+            service_order_id=appointment_id,
+            comment=f"Serviço extra proposto: {name or 'Serviço Extra'}",
+        )
+        self.db.add(comment)
+        self.db.commit()
         # Enviar email se o serviço for fornecido
         if email_service:
             try:
@@ -370,10 +365,8 @@ class AppointmentRepository:
             return req  # já aprovado
 
         # Determinar preço aplicado
-        applied_price = req.price
-        if applied_price is None and req.extra_service_id:
-            catalog = self.db.query(ExtraService).filter(ExtraService.id == req.extra_service_id).first()
-            applied_price = getattr(catalog, "price", 0.0) if catalog else 0.0
+        applied_price = req.price or 0.0
+      
 
         # Atualizar appointment.actual_budget
         appointment = self.db.query(Appointment).filter(Appointment.id == req.appointment_id).first()
@@ -381,6 +374,13 @@ class AppointmentRepository:
             appointment.actual_budget = (appointment.actual_budget or 0.0) + (applied_price or 0.0)
 
         req.status = "approved"
+        
+        # Comentario de aprovação
+        comment = OrderComment(
+            service_order_id=req.appointment_id,
+            comment=f"Serviço extra aprovado: {req.name or 'Serviço Extra'}",
+        )
+        self.db.add(comment)
         self.db.commit()
         self.db.refresh(req)
         return req
@@ -395,10 +395,67 @@ class AppointmentRepository:
             return None
 
         req.status = "rejected"
+        # Comentario de rejeição
+        comment = OrderComment(
+            service_order_id=req.appointment_id,
+            comment=f"Serviço extra rejeitado: {req.name or 'Serviço Extra'}",
+        )
+        self.db.add(comment)
         self.db.commit()
         self.db.refresh(req)
         return req
     
+    def cancel_extra_service_request(self, request_id: int, email_service: Optional[EmailService] = None) -> bool:
+        """
+        Cancela/elimina um pedido de extra service que esteja pendente.
+        Apenas permite cancelar se o status for 'pending'.
+        Retorna True se cancelado com sucesso, False caso contrário.
+        """
+        req = self.db.query(AppointmentExtraService).filter(AppointmentExtraService.id == request_id).first()
+        if not req:
+            return False
+        
+        # Só permite cancelar se ainda estiver pendente
+        if req.status != "pending":
+            raise ValueError("Apenas serviços extras pendentes podem ser cancelados")
+        
+        # Carregar appointment com relações para dados do email ANTES de eliminar
+        db_appointment = self.get_by_id_with_relations(appointment_id=req.appointment_id)
+        
+        # Guardar dados antes de eliminar
+        service_name = req.name or 'Serviço Extra'
+        
+        # Adicionar comentário antes de eliminar
+        comment = OrderComment(
+            service_order_id=req.appointment_id,
+            comment=f"Serviço extra cancelado: {service_name}",
+        )
+        self.db.add(comment)
+        
+        # Elimina o pedido
+        self.db.delete(req)
+        self.db.commit()
+        
+        # Enviar email se o serviço for fornecido
+        if email_service and db_appointment:
+            try:
+                customer_email = self._get_customer_email(db_appointment.customer_id)
+                if customer_email:
+                    customer_name = db_appointment.customer.name if db_appointment.customer else "Cliente"
+                    vehicle_plate = db_appointment.vehicle.plate if db_appointment.vehicle else "N/A"
+                    
+                    email_service.send_extra_service_cancellation_email(
+                        customer_email=customer_email,
+                        customer_name=customer_name,
+                        vehicle_plate=vehicle_plate,
+                        extra_service_name=service_name
+                    )
+                    print(f"✅ Email de cancelamento de serviço extra enviado para {customer_email}.")
+            except Exception as e:
+                print(f"❌ ERRO ao enviar email de cancelamento de serviço extra: {e}")
+        
+        return True
+
     def add_part(self, appointment_id: int, product_id: int, quantity: int):
         """Adiciona uma peça à ordem de serviço"""
         appointment = self.db.query(Appointment).filter(Appointment.id == appointment_id).first()
@@ -461,7 +518,7 @@ class AppointmentRepository:
         #  Comentário SEMPRE que inicia
         comment = OrderComment(
             service_order_id=appointment_id,
-            comment=f"Ordem de serviço :{appointment_id} iniciada.",
+            comment=f"OS iniciada.",
         )
         self.db.add(comment)
             #Enviar Email ao cliente
@@ -499,13 +556,22 @@ class AppointmentRepository:
         db_appointment.is_paused = True
         db_appointment.pause_time = now
         
-        # Mantém status "In Repair" mesmo quando pausado
+        # Mantém status "In Repair" mesmo quando pausado em cliente
         # O status só deve mudar para Pendente se o trabalho for cancelado/resetado
         # Quando pausado, continua "Em Reparação" mas com flag is_paused = True
             
+        # Muda status para "Pendente" quando pausado
+        pending_status = self.db.query(Status).filter(Status.name == "Pendente").first()
+        if not pending_status:
+            pending_status = Status(name="Pendente")
+            self.db.add(pending_status)
+            self.db.commit()
+            self.db.refresh(pending_status)
+        db_appointment.status_id = pending_status.id
+                
         comment = OrderComment(
             service_order_id=appointment_id,
-            comment=f"Ordem de serviço :{appointment_id} pausada (continua em reparação)",
+            comment=f"OS pausada (continua em reparação)",
         )
         self.db.add(comment)    
 
@@ -535,7 +601,7 @@ class AppointmentRepository:
             
         comment = OrderComment(
             service_order_id=appointment_id,
-            comment=f"Ordem de serviço :{appointment_id} retomada",
+            comment=f"OS retomada",
         )
         self.db.add(comment)    
 
@@ -550,6 +616,15 @@ class AppointmentRepository:
         if not db_appointment:
             return None
 
+        # verificar se tem serviços extra pendentes
+        pending_extras = self.db.query(AppointmentExtraService).filter(
+            AppointmentExtraService.appointment_id == appointment_id,
+            AppointmentExtraService.status == "pending"
+        ).first()
+        
+        if pending_extras:
+            raise ValueError("Existem serviços extra pendentes. Aprove ou rejeite-os antes de finalizar o trabalho.")
+            
         if not db_appointment.is_paused and db_appointment.start_time:
             now = datetime.utcnow()
             worked_seconds = int((now - db_appointment.start_time).total_seconds())
@@ -569,7 +644,7 @@ class AppointmentRepository:
             
         comment = OrderComment(
             service_order_id=appointment_id,
-            comment=f"Ordem de serviço :{appointment_id} finalizada e aguardando pagamento",
+            comment=f"OS finalizada e aguardando pagamento",
         )
         self.db.add(comment)    
         

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { getOrder, updateOrder, getCurrentWorkTime, startWork, pauseWork, resumeWork, finalizeWork } from "../services/OrderDetails";
+import { getOrder, updateOrder, cancelExtraService, getCurrentWorkTime, startWork, pauseWork, resumeWork, finalizeWork } from "../services/OrderDetails";
 import { normalizeStatus } from "./useServiceOrder";
 import { STATUS_LABEL_TO_ID } from "../interfaces/ServiceOrderDetail";
 import { format } from "date-fns";
@@ -242,16 +242,23 @@ export const useServiceOrderDetails = (id: string | undefined) => {
    * @returns Data formatada no formato pt-PT ou "-" se inválida
    */
   const formatDate = useCallback((d: any): string => {
-    if (!d) return "-";
+  if (!d) return "-";
     try {
       const dt = new Date(d);
-      return isNaN(dt.getTime()) ? String(d) : dt.toLocaleString("pt-PT", {
+      if (isNaN(dt.getTime())) return String(d);
+      
+      const datePart = dt.toLocaleDateString("pt-PT", {
         day: "2-digit",
         month: "2-digit",
-        year: "numeric",
+        year: "numeric"
+      });
+      
+      const timePart = dt.toLocaleTimeString("pt-PT", {
         hour: "2-digit",
         minute: "2-digit"
       });
+      
+      return `${datePart} ${timePart}`;
     } catch {
       return String(d);
     }
@@ -419,6 +426,15 @@ export const useServiceOrderDetails = (id: string | undefined) => {
     }
   }, [id, fetchOrder]);
 
+  const handleDeleteExtraService = useCallback(async (requestId: number) => {
+    if (!id) return;
+    try {
+      await cancelExtraService(requestId);
+      await fetchOrder();
+    } catch (e) {
+      alert("Erro ao cancelar serviço extra: " + e);
+    }
+  }, [id, fetchOrder]);
   /**
    * Nome bruto do status atual da ordem
    */
@@ -544,5 +560,6 @@ export const useServiceOrderDetails = (id: string | undefined) => {
      * Função auxiliar para formatar veículo
      */
     formatVehicle,
+    handleDeleteExtraService,
   };
 };

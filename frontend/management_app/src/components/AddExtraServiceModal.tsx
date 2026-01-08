@@ -70,7 +70,7 @@ export default function AddExtraServiceModal({
       // Inicia carregamento
       setLoadingCatalog(true);
       // Busca catálogo
-      const response = await http.get('/extra_services/catalog');
+      const response = await http.get('/services');
       setCatalog(response.data);
     } catch (error) {
       // Log erro
@@ -118,17 +118,33 @@ export default function AddExtraServiceModal({
       setSubmitting(true);
 
       // Prepara payload baseado no modo
-      const payload = mode === 'catalog'
-        ? {
-            extra_service_id: parseInt(selectedServiceId),
+      let payload;
+
+        if (mode === 'catalog') {
+          const service = catalog.find(s => s.id.toString() === selectedServiceId);
+          if (!service) {
+            toast({
+              title: 'Erro',
+              description: 'Serviço selecionado não encontrado.',
+              variant: 'destructive',
+            });
+            setSubmitting(false);
+            return;
           }
-        : {
+          payload = {
+            name: service.name,
+            description: service.description || undefined,
+            price: service.price,
+            duration_minutes: service.duration_minutes || undefined,
+          };
+        } else {
+          payload = {
             name: customName,
             description: customDescription || undefined,
             price: parseFloat(customPrice),
             duration_minutes: customDuration ? parseInt(customDuration) : undefined,
           };
-
+        }
       // Faz requisição POST
       await http.post(`/appointments/${orderId}/extra_services`, payload);
 
