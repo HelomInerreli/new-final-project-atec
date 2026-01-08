@@ -40,6 +40,7 @@ class AppointmentRepository:
     - leitura (get_by_id, get_all),
     - update/cancel/finalize,
     - gestão de pedidos de extra services (criar pedido, aprovar, rejeitar).
+    - cálculo de totais discriminados (labor + parts + extras).
     """
     def __init__(self, db: Session):
         self.db = db
@@ -47,6 +48,90 @@ class AppointmentRepository:
     def get_by_id(self, appointment_id: int) -> Optional[Appointment]:
         """Obter uma appointment por id (sem joins extras)."""
         return self.db.query(Appointment).filter(Appointment.id == appointment_id).first()
+    
+    def calculate_order_total(self, appointment_id: int) -> dict:
+        """
+        Calcula o total discriminado de uma ordem de serviço:
+        - Mão de obra do serviço base
+        - Peças do serviço base
+        - Serviços extras aprovados (mão de obra + peças)
+        
+        Returns:
+            {
+                'base_service': {
+                    'name': str,
+                    'labor_cost': float,
+                    'parts': [{'name': str, 'quantity': int, 'price': float, 'total': float}],
+                    'subtotal': float
+                },
+                'extra_services': [{...}],
+                'total': float
+            }
+        """
+        appointment = self.get_by_id_with_relations(appointment_id)
+        if not appointment:
+            return None
+        
+        result = {
+            'base_service': {
+                'name': appointment.service.name if appointment.service else 'Serviço',
+                'labor_cost': appointment.service.labor_cost or 0.0 if appointment.service else 0.0,
+                'parts': [],
+                'subtotal': 0.0
+            },
+            'extra_services': [],
+            'total': 0.0
+        }
+        
+        # Mão de obra do serviço base
+        base_labor = result['base_service']['labor_cost']
+        
+        # Peças do serviço base (extra_service_id = NULL)
+        base_parts = [p for p in appointment.parts if p.extra_service_id is None]
+        base_parts_total = 0.0
+        for part in base_parts:
+            part_total = part.price * part.quantity
+            result['base_service']['parts'].append({
+                'name': part.name,
+                'part_number': part.part_number,
+                'quantity': part.quantity,
+                'unit_price': part.price,
+                'total': part_total
+            })
+            base_parts_total += part_total
+        
+        result['base_service']['subtotal'] = base_labor + base_parts_total
+        
+        # Serviços extras aprovados
+        approved_extras = [e for e in appointment.extra_service_associations if e.status == 'approved']
+        for extra in approved_extras:
+            extra_labor = extra.extra_service.labor_cost or 0.0 if extra.extra_service else 0.0
+            extra_parts = [p for p in appointment.parts if p.extra_service_id == extra.id]
+            extra_parts_total = 0.0
+            extra_parts_list = []
+            
+            for part in extra_parts:
+                part_total = part.price * part.quantity
+                extra_parts_list.append({
+                    'name': part.name,
+                    'part_number': part.part_number,
+                    'quantity': part.quantity,
+                    'unit_price': part.price,
+                    'total': part_total
+                })
+                extra_parts_total += part_total
+            
+            result['extra_services'].append({
+                'name': extra.name or (extra.extra_service.name if extra.extra_service else 'Serviço Extra'),
+                'labor_cost': extra_labor,
+                'parts': extra_parts_list,
+                'subtotal': extra_labor + extra_parts_total
+            })
+        
+        # Total geral
+        result['total'] = result['base_service']['subtotal'] + sum(e['subtotal'] for e in result['extra_services'])
+        
+        return result
 
     # def get_by_id_with_relations(self, appointment_id: int) -> Optional[Appointment]:
     #     """Obter appointment com relações úteis carregadas (customer, extra requests, service)."""
@@ -426,8 +511,12 @@ class AppointmentRepository:
         self.db.refresh(req)
         return req
     
-    def add_part(self, appointment_id: int, product_id: int, quantity: int):
-        """Adiciona uma peça à ordem de serviço"""
+    def add_part(self, appointment_id: int, product_id: int, quantity: int, extra_service_id: Optional[int] = None):
+        """
+        Adiciona uma peça à ordem de serviço.
+        Se extra_service_id for fornecido, a peça é associada ao serviço extra.
+        Caso contrário, é uma peça do serviço base.
+        """
         appointment = self.db.query(Appointment).filter(Appointment.id == appointment_id).first()
         if not appointment:
             return None
@@ -449,6 +538,7 @@ class AppointmentRepository:
         new_part = OrderPart( 
             appointment_id=appointment_id,
             product_id=product.id,
+            extra_service_id=extra_service_id,  # NULL para serviço base
             name=product.name,
             part_number=product.part_number,
             quantity=quantity,

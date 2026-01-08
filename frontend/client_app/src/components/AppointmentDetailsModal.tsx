@@ -9,6 +9,7 @@ import {
   rejectExtraService,
 } from "../services/extraServices";
 import { useAppointmentAutoRefresh } from "../hooks/useAppointmentAutoRefresh";
+import { useCostBreakdown } from "../hooks/useCostBreakdown";
 import "../styles/modal.css";
 
 /**
@@ -95,6 +96,11 @@ export function AppointmentStatusModal({
     appointment?.id ?? null,
     open,
     5000 // atualiza a cada 5 segundos
+  );
+
+  // Buscar breakdown de custos discriminado
+  const { breakdown, loading: breakdownLoading } = useCostBreakdown(
+    open ? (appointment?.id ?? null) : null
   );
 
   // Usa o appointment atualizado automaticamente se disponível, senão usa o prop
@@ -272,49 +278,70 @@ export function AppointmentStatusModal({
 
                 <div className="d-flex align-items-start">
                   <i className="bi bi-currency-euro me-3 mt-1 text-primary"></i>
-                  <div>
+                  <div className="flex-grow-1">
                     <p className="text-muted text-uppercase small mb-1">
-                      Orçamento Estimado
+                      Orçamento
                     </p>
-                    <p className="fw-semibold">
-                      €
-                      {(() => {
-                        // Calcular preço base do serviço
-                        const basePrice =
-                          currentAppointment.service?.price || 0;
-
-                        // Somar preços dos serviços extras aprovados
-                        const approvedExtrasTotal = extraServices
-                          .filter((service) => service.status === "approved")
-                          .reduce(
-                            (sum, service) => sum + (service.price || 0),
-                            0
-                          );
-
-                        const totalEstimated = basePrice + approvedExtrasTotal;
-                        return totalEstimated.toFixed(2);
-                      })()}
-                    </p>
-                    {(() => {
-                      const approvedExtras = extraServices.filter(
-                        (s) => s.status === "approved"
-                      );
-                      if (approvedExtras.length > 0) {
-                        const basePrice =
-                          currentAppointment.service?.price || 0;
-                        const extrasTotal = approvedExtras.reduce(
-                          (sum, s) => sum + (s.price || 0),
-                          0
-                        );
-                        return (
-                          <small className="text-muted">
-                            Base: €{basePrice.toFixed(2)} + Extras: €
-                            {extrasTotal.toFixed(2)}
-                          </small>
-                        );
-                      }
-                      return null;
-                    })()}
+                    
+                    {breakdownLoading ? (
+                      <p className="fw-semibold">A carregar...</p>
+                    ) : breakdown ? (
+                      <>
+                        <p className="fw-semibold mb-2">
+                          €{breakdown.total.toFixed(2)}
+                        </p>
+                        
+                        {/* Breakdown discriminado */}
+                        <div className="small text-muted">
+                          <div className="mb-2">
+                            <strong>{breakdown.base_service.name}</strong>
+                            {breakdown.base_service.labor_cost > 0 && (
+                              <div className="ms-2">
+                                • Mão de Obra: €{breakdown.base_service.labor_cost.toFixed(2)}
+                              </div>
+                            )}
+                            {breakdown.base_service.parts.length > 0 && (
+                              <div className="ms-2">
+                                • Peças ({breakdown.base_service.parts.length}): €
+                                {breakdown.base_service.parts.reduce((sum, p) => sum + p.total, 0).toFixed(2)}
+                              </div>
+                            )}
+                            <div className="ms-2">
+                              <strong>Subtotal: €{breakdown.base_service.subtotal.toFixed(2)}</strong>
+                            </div>
+                          </div>
+                          
+                          {breakdown.extra_services.length > 0 && (
+                            <div>
+                              <strong>Serviços Extras Aprovados:</strong>
+                              {breakdown.extra_services.map((extra, idx) => (
+                                <div key={idx} className="ms-2 mt-1">
+                                  <div>{extra.name}</div>
+                                  {extra.labor_cost > 0 && (
+                                    <div className="ms-2">
+                                      • Mão de Obra: €{extra.labor_cost.toFixed(2)}
+                                    </div>
+                                  )}
+                                  {extra.parts.length > 0 && (
+                                    <div className="ms-2">
+                                      • Peças ({extra.parts.length}): €
+                                      {extra.parts.reduce((sum, p) => sum + p.total, 0).toFixed(2)}
+                                    </div>
+                                  )}
+                                  <div className="ms-2">
+                                    <strong>Subtotal: €{extra.subtotal.toFixed(2)}</strong>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    ) : (
+                      <p className="fw-semibold">
+                        €{(currentAppointment.service?.price || 0).toFixed(2)}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

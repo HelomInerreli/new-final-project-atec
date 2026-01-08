@@ -14,6 +14,7 @@ class OrderPartOut(BaseModel):
     id: int
     appointment_id: int
     product_id: Optional[int] = None
+    extra_service_id: Optional[int] = None
     name: str
     part_number: Optional[str] = None
     quantity: int

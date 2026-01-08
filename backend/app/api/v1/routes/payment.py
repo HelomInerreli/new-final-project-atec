@@ -24,82 +24,139 @@ class CheckoutRequest(BaseModel):
 @router.get("/appointment/{appointment_id}/preview")
 async def preview_appointment_checkout(appointment_id: int, db: Session = Depends(get_db)):
     """Preview what services will be charged for an appointment"""
+    from app.crud.appoitment import AppointmentRepository
+    
     appointment = db.query(Appointment).filter(Appointment.id == appointment_id).first()
     if not appointment:
         raise HTTPException(status_code=404, detail="Appointment not found")
     
+    # Usar o novo sistema de cálculo discriminado
+    repo = AppointmentRepository(db)
+    breakdown = repo.calculate_order_total(appointment_id)
+    
+    if not breakdown:
+        raise HTTPException(status_code=500, detail="Could not calculate breakdown")
+    
     items = []
-    total = 0
     
-    # Main service
-    if appointment.service:
+    # Serviço base - Mão de obra
+    base_service = breakdown['base_service']
+    if base_service['labor_cost'] > 0:
         items.append({
-            "name": appointment.service.name,
-            "description": appointment.service.description,
-            "price": appointment.service.price,
+            "name": f"{base_service['name']} - Mão de Obra",
+            "description": "Custo de mão de obra",
+            "price": base_service['labor_cost'],
         })
-        total += appointment.service.price
     
-    # Extra services
-    for assoc in appointment.extra_service_associations:
-        extra_service = assoc.extra_service
-        price = assoc.price if assoc.price else (extra_service.price if extra_service else 0)
-        name = assoc.name if assoc.name else (extra_service.name if extra_service else "Extra service")
-        description = assoc.description if assoc.description else (extra_service.description if extra_service else None)
+    # Serviço base - Peças
+    for part in base_service['parts']:
         items.append({
-            "name": name,
-            "description": description,
-            "price": price,
+            "name": f"{part['name']} ({part['part_number'] or 'N/A'})",
+            "description": f"Peça (x{part['quantity']})",
+            "price": part['total'],
         })
-        total += price
+    
+    # Serviços extras
+    for extra in breakdown['extra_services']:
+        # Mão de obra do extra
+        if extra['labor_cost'] > 0:
+            items.append({
+                "name": f"{extra['name']} - Mão de Obra",
+                "description": "Custo de mão de obra (serviço extra)",
+                "price": extra['labor_cost'],
+            })
+        
+        # Peças do extra
+        for part in extra['parts']:
+            items.append({
+                "name": f"{part['name']} ({part['part_number'] or 'N/A'})",
+                "description": f"Peça - {extra['name']} (x{part['quantity']})",
+                "price": part['total'],
+            })
     
     return {
         "appointment_id": appointment.id,
         "items": items, 
-        "total": total,
+        "total": breakdown['total'],
         "currency": "EUR",
     }
 
 @router.post("/create-checkout-session")
 async def create_checkout_session(request: CheckoutRequest, db: Session = Depends(get_db)):
     try:
+        from app.crud.appoitment import AppointmentRepository
+        
         appointment = db.query(Appointment).filter(Appointment.id == request.appointment_id).first()
         if not appointment:
             raise HTTPException(status_code=404, detail="Appointment not found")
         
+        # Usar o novo sistema de cálculo discriminado
+        repo = AppointmentRepository(db)
+        breakdown = repo.calculate_order_total(request.appointment_id)
+        
+        if not breakdown:
+            raise HTTPException(status_code=500, detail="Could not calculate breakdown")
+        
         line_items = []
-
-        # Main service
-        if appointment.service:
+        
+        # Serviço base - Mão de obra
+        base_service = breakdown['base_service']
+        if base_service['labor_cost'] > 0:
             line_items.append({
                 "price_data": {
                     "currency": "eur",
                     "product_data": {
-                        "name": appointment.service.name,
-                        "description": appointment.service.description if appointment.service.description else None,
+                        "name": f"{base_service['name']} - Mão de Obra",
+                        "description": "Custo de mão de obra",
                     },
-                    "unit_amount": int(appointment.service.price * 100),
+                    "unit_amount": int(base_service['labor_cost'] * 100),
                 },
                 "quantity": 1,
             })
-
-        # Extra services
-        for assoc in appointment.extra_service_associations:
-            extra_service = assoc.extra_service
-            price = assoc.price if assoc.price else (extra_service.price if extra_service else 0)
-            name = assoc.name if assoc.name else (extra_service.name if extra_service else "Extra service")
-            description = assoc.description if assoc.description else (extra_service.description if extra_service else None)
+        
+        # Serviço base - Peças
+        for part in base_service['parts']:
             line_items.append({
                 "price_data": {
                     "currency": "eur",
                     "product_data": {
-                        "name": name,
-                        "description": description,
+                        "name": f"{part['name']} ({part['part_number'] or 'N/A'})",
+                        "description": f"Peça - {base_service['name']}",
                     },
-                    "unit_amount": int(price * 100),
+                    "unit_amount": int(part['unit_price'] * 100),
                 },
-                "quantity": 1,
+                "quantity": part['quantity'],
             })
+        
+        # Serviços extras
+        for extra in breakdown['extra_services']:
+            # Mão de obra do extra
+            if extra['labor_cost'] > 0:
+                line_items.append({
+                    "price_data": {
+                        "currency": "eur",
+                        "product_data": {
+                            "name": f"{extra['name']} - Mão de Obra",
+                            "description": "Custo de mão de obra (serviço extra)",
+                        },
+                        "unit_amount": int(extra['labor_cost'] * 100),
+                    },
+                    "quantity": 1,
+                })
+            
+            # Peças do extra
+            for part in extra['parts']:
+                line_items.append({
+                    "price_data": {
+                        "currency": "eur",
+                        "product_data": {
+                            "name": f"{part['name']} ({part['part_number'] or 'N/A'})",
+                            "description": f"Peça - {extra['name']}",
+                        },
+                        "unit_amount": int(part['unit_price'] * 100),
+                    },
+                    "quantity": part['quantity'],
+                })
         
         if not line_items:
             raise HTTPException(status_code=400, detail="No services found for this appointment")
@@ -211,36 +268,66 @@ def create_invoice_from_session(db: Session, appointment: Appointment, session):
     """
     Create an invoice from a successful Stripe checkout session.
     Stores a snapshot of the payment at the time it was made.
+    Agora com discriminação de mão de obra e peças.
     """
-    subtotal = 0
+    from app.crud.appoitment import AppointmentRepository
+    
+    # Usar o novo sistema de cálculo discriminado
+    repo = AppointmentRepository(db)
+    breakdown = repo.calculate_order_total(appointment.id)
+    
+    if not breakdown:
+        raise Exception("Could not calculate order breakdown")
+    
     line_items_data = []
+    subtotal = 0
     
-    # Main service
-    if appointment.service:
-        subtotal += appointment.service.price
+    # Serviço base - Mão de obra
+    base_service = breakdown['base_service']
+    if base_service['labor_cost'] > 0:
         line_items_data.append({
-            "name": appointment.service.name,
-            "description": appointment.service.description,
+            "name": f"{base_service['name']} - Mão de Obra",
+            "description": "Custo de mão de obra",
             "quantity": 1,
-            "unit_price": float(appointment.service.price),
-            "total": float(appointment.service.price)
+            "unit_price": float(base_service['labor_cost']),
+            "total": float(base_service['labor_cost'])
         })
+        subtotal += base_service['labor_cost']
     
-    # Extra services
-    for assoc in appointment.extra_service_associations:
-        extra_service = assoc.extra_service
-        price = assoc.price if assoc.price else (extra_service.price if extra_service else 0)
-        name = assoc.name if assoc.name else (extra_service.name if extra_service else "Extra service")
-        description = assoc.description if assoc.description else (extra_service.description if extra_service else None)
+    # Serviço base - Peças
+    for part in base_service['parts']:
+        line_items_data.append({
+            "name": f"{part['name']} ({part['part_number'] or 'N/A'})",
+            "description": f"Peça - {base_service['name']}",
+            "quantity": part['quantity'],
+            "unit_price": float(part['unit_price']),
+            "total": float(part['total'])
+        })
+        subtotal += part['total']
+    
+    # Serviços extras
+    for extra in breakdown['extra_services']:
+        # Mão de obra do extra
+        if extra['labor_cost'] > 0:
+            line_items_data.append({
+                "name": f"{extra['name']} - Mão de Obra",
+                "description": "Custo de mão de obra (serviço extra)",
+                "quantity": 1,
+                "unit_price": float(extra['labor_cost']),
+                "total": float(extra['labor_cost'])
+            })
+            subtotal += extra['labor_cost']
         
-        subtotal += price
-        line_items_data.append({
-            "name": name,
-            "description": description,
-            "quantity": 1,
-            "unit_price": float(price),
-            "total": float(price)
-        })
+        # Peças do extra
+        for part in extra['parts']:
+            line_items_data.append({
+                "name": f"{part['name']} ({part['part_number'] or 'N/A'})",
+                "description": f"Peça - {extra['name']}",
+                "quantity": part['quantity'],
+                "unit_price": float(part['unit_price']),
+                "total": float(part['total'])
+            })
+            subtotal += part['total']
     
     # Generate unique invoice number
     last_invoice = db.query(Invoice).order_by(Invoice.id.desc()).first()
@@ -346,6 +433,11 @@ async def get_invoice_by_appointment(appointment_id: int, db: Session = Depends(
         
         print(f"📋 Parsed {len(items)} line items")
         
+        # Buscar breakdown discriminado de custos
+        from app.crud.appoitment import AppointmentRepository
+        repo = AppointmentRepository(db)
+        breakdown = repo.calculate_order_total(appointment_id)
+        
         # Build response - REMOVIDO updated_at
         response = {
             "id": invoice.id,
@@ -359,6 +451,7 @@ async def get_invoice_by_appointment(appointment_id: int, db: Session = Depends(
             "clientAddress": f"{customer.address}, {customer.postal_code} {customer.city}" if customer else "",
             "vehicle": vehicle_info,
             "items": items,
+            "breakdown": breakdown,  # Adicionar breakdown discriminado
             "subtotal": float(invoice.subtotal) if invoice.subtotal else 0.0,
             "tax": float(invoice.tax) if invoice.tax else 0.0,
             "total": float(invoice.total) if invoice.total else 0.0,
