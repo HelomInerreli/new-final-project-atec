@@ -332,6 +332,15 @@ class AppointmentRepository:
         self.db.commit()
         self.db.refresh(db_request)
 
+        # Criar comentário sobre o pedido de serviço extra
+        service_name = name or "Serviço Extra"
+        comment = OrderComment(
+            service_order_id=appointment_id,
+            comment=f"Pedido de serviço extra '{service_name}' enviado ao cliente para aprovação (Preço: €{price or 0:.2f})",
+        )
+        self.db.add(comment)
+        self.db.commit()
+
         # Enviar email se o serviço for fornecido
         if email_service:
             try:
@@ -381,6 +390,15 @@ class AppointmentRepository:
             appointment.actual_budget = (appointment.actual_budget or 0.0) + (applied_price or 0.0)
 
         req.status = "approved"
+        
+        # Criar comentário sobre a aprovação do serviço extra
+        service_name = req.name or "Serviço Extra"
+        comment = OrderComment(
+            service_order_id=req.appointment_id,
+            comment=f"Serviço extra '{service_name}' ACEITE pelo cliente (Preço: €{applied_price or 0:.2f})",
+        )
+        self.db.add(comment)
+        
         self.db.commit()
         self.db.refresh(req)
         return req
@@ -395,6 +413,15 @@ class AppointmentRepository:
             return None
 
         req.status = "rejected"
+        
+        # Criar comentário sobre a rejeição do serviço extra
+        service_name = req.name or "Serviço Extra"
+        comment = OrderComment(
+            service_order_id=req.appointment_id,
+            comment=f"Serviço extra '{service_name}' REJEITADO pelo cliente",
+        )
+        self.db.add(comment)
+        
         self.db.commit()
         self.db.refresh(req)
         return req
