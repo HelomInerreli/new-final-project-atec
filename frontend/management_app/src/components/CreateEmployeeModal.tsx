@@ -337,6 +337,70 @@ const CreateEmployeeModal: FC<CreateEmployeeModalProps> = ({ show, onClose, onSu
                     </div>
                   </div>
 
+                  {/* Checkbox: Acesso ao Sistema */}
+                  <div className="grid gap-2">
+                    <div className="flex items-center gap-3 px-2">
+                      <input
+                        type="checkbox"
+                        id="has_system_access"
+                        checked={form.has_system_access}
+                        onChange={(e) => setForm({ ...form, has_system_access: e.target.checked })}
+                        className="w-4 h-4 text-red-500 bg-gray-100 border-gray-300 rounded focus:ring-red-500"
+                      />
+                      <label htmlFor="has_system_access" className="text-sm font-medium text-gray-700 cursor-pointer">
+                        Tem acesso ao sistema
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Senha (apenas se has_system_access estiver ativo) */}
+                  {form.has_system_access && (
+                    <div className="grid gap-2">
+                      <div className="mb-input-wrapper">
+                        <input
+                          id="password"
+                          type="password"
+                          className="mb-input"
+                          value={form.password}
+                          onChange={(e) => setForm({ ...form, password: e.target.value })}
+                          onFocus={(e) => {
+                            const label = e.target.nextElementSibling;
+                            if (label) label.classList.add("shrunken");
+                          }}
+                          onBlur={(e) => {
+                            const label = e.target.nextElementSibling;
+                            if (!e.target.value && label) {
+                              label.classList.remove("shrunken");
+                            }
+                          }}
+                          style={{ minHeight: "56px" }}
+                        />
+                        <label className={`mb-input-label ${form.password ? "shrunken" : ""}`}>
+                          Senha de Acesso *
+                        </label>
+                      </div>
+                      <p className="text-xs text-gray-500 px-2">
+                        Mínimo de 6 caracteres. Esta senha será usada para acesso ao sistema.
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Checkbox: É Gestor */}
+                  <div className="grid gap-2">
+                    <div className="flex items-center gap-3 px-2">
+                      <input
+                        type="checkbox"
+                        id="is_manager"
+                        checked={form.is_manager}
+                        onChange={(e) => setForm({ ...form, is_manager: e.target.checked })}
+                        className="w-4 h-4 text-red-500 bg-gray-100 border-gray-300 rounded focus:ring-red-500"
+                      />
+                      <label htmlFor="is_manager" className="text-sm font-medium text-gray-700 cursor-pointer">
+                        É Gestor
+                      </label>
+                    </div>
+                  </div>
+
                   {/* Função */}
                   <div className="grid gap-2">
                     <div className="mb-input-wrapper">
@@ -407,7 +471,8 @@ const CreateEmployeeModal: FC<CreateEmployeeModalProps> = ({ show, onClose, onSu
               !form.date_of_birth ||
               form.salary === "" ||
               !form.hired_at ||
-              !form.role_id
+              !form.role_id ||
+              (form.has_system_access && !form.password)
             }
           >
             {submitting ? "A criar..." : "Criar Funcionário"}

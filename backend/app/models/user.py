@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, Boolean
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
+from sqlalchemy.orm import relationship
 from app.database import Base
 
 class User(Base):
@@ -11,3 +12,6 @@ class User(Base):
     role = Column(String(50), nullable=False, default="user")
     twofactor_enabled = Column(Boolean, nullable=False, default=False)
     twofactor_secret = Column(String(255), nullable=True)
+    employee_id = Column(Integer, ForeignKey("employees.id"), nullable=True, unique=True)
+    
+    employee = relationship("Employee", back_populates="user", uselist=False)

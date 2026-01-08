@@ -21,6 +21,9 @@ interface EmployeeFormState {
   salary: number | "";
   hired_at: string;
   role_id: number | null;
+  is_manager: boolean;
+  has_system_access: boolean;
+  password: string;
 }
 
 // Interface para função
@@ -52,6 +55,9 @@ export const useCreateEmployeeModal = (
     salary: "",
     hired_at: "",
     role_id: null,
+    is_manager: false,
+    has_system_access: false,
+    password: "",
   });
 
   // Estado para lista de funções
@@ -133,6 +139,14 @@ export const useCreateEmployeeModal = (
       toast.error("Data de contratação é obrigatória");
       return;
     }
+    if (form.has_system_access && !form.password.trim()) {
+      toast.error("Senha é obrigatória para acesso ao sistema");
+      return;
+    }
+    if (form.has_system_access && form.password.length < 6) {
+      toast.error("Senha deve ter no mínimo 6 caracteres");
+      return;
+    }
     if (!form.role_id) {
       toast.error("Função é obrigatória");
       return;
@@ -146,13 +160,24 @@ export const useCreateEmployeeModal = (
     try {
       // Obtém token
       const token = localStorage.getItem("access_token");
+      
+      // Prepara dados para envio
+      const employeeData: any = {
+        ...form,
+        salary: Number(form.salary),
+        is_manager: form.is_manager,
+        has_system_access: form.has_system_access,
+      };
+      
+      // Adiciona password apenas se has_system_access estiver ativo
+      if (form.has_system_access && form.password) {
+        employeeData.password = form.password;
+      }
+      
       // Faz requisição POST
       await axios.post(
         "http://localhost:8000/api/v1/employees",
-        {
-          ...form,
-          salary: Number(form.salary),
-        },
+        employeeData,
         {
           headers: {
             Authorization: `Bearer ${token}`,

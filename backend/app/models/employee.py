@@ -18,7 +18,9 @@ class Employee(Base):
     salary = Column(Integer, nullable=False)
     hired_at = Column(DateTime, nullable=False)
     deleted_at = Column(DateTime, nullable=True, default=None)
+    has_system_access = Column(Boolean, default=False, nullable=False)
 
     role = relationship("Role", back_populates="employees")
     absences = relationship("Absence", back_populates="employee", order_by="Absence.day.desc()")
+    user = relationship("User", back_populates="employee", uselist=False)
     

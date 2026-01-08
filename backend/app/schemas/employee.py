@@ -17,11 +17,11 @@ class EmployeeBase(BaseModel):
     hired_at: datetime
     role_id: int
     is_manager: bool = False
+    has_system_access: bool = False
 
 # Schema para criar um novo funcionário
 class EmployeeCreate(EmployeeBase):
-    # Poderíamos adicionar um campo 'password' aqui se fosse necessário
-    pass
+    password: Optional[str] = None  # Senha para acesso ao sistema, se has_system_access=True
 
 # Schema para atualizar um funcionário (todos os campos são opcionais)
 class EmployeeUpdate(BaseModel):
@@ -35,6 +35,8 @@ class EmployeeUpdate(BaseModel):
     hired_at: Optional[datetime] = None
     role_id: Optional[int] = None
     is_manager: Optional[bool] = None
+    has_system_access: Optional[bool] = None
+    password: Optional[str] = None
 
 # Schema para ler/retornar um funcionário da API
 class Employee(EmployeeBase):

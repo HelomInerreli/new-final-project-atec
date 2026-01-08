@@ -14,6 +14,7 @@ export interface Employee {
     hired_at: string; // ISO 8601 date string
     role_id: number;
     is_manager: boolean;
+    has_system_access: boolean;
     role: Role;
 }
 
@@ -29,6 +30,8 @@ export interface EmployeeCreate {
     hired_at: string; // Formato ISO
     role_id: number;
     is_manager?: boolean;
+    has_system_access?: boolean;
+    password?: string; // Senha para acesso ao sistema
 }
 
 // Interface para atualizar funcionário
@@ -43,4 +46,6 @@ export interface EmployeeUpdate {
     hired_at?: string;
     role_id?: number;
     is_manager?: boolean;
+    has_system_access?: boolean;
+    password?: string;
 }

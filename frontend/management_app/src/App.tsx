@@ -18,6 +18,7 @@ import Users from "./pages/Users/Users";
 import Folgas from "./pages/Users/Folgas";
 import Ferias from "./pages/Users/Ferias";
 import Finance from "./pages/Finance";
+import Settings from "./pages/Settings";
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
             <Route path="/finance" element={<Finance />} />
             <Route path="/vehicles" element={<Vehicles />} />
             <Route path="/vehicles/:id" element={<VehicleDetails />} />
+            <Route path="/settings" element={<Settings />} />
           </Routes>
         </Layout>
         <Toaster />
