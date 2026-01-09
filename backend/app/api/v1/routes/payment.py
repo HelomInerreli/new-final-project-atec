@@ -166,7 +166,7 @@ async def create_checkout_session(request: CheckoutRequest, db: Session = Depend
             mode="payment",
             line_items=line_items,
             success_url=f"{settings.CLIENT_URL}/client/service-history?payment=success&appointment={appointment.id}",
-            cancel_url=f"{settings.CLIENT_URL}/client/service-history?payment=cancelled",
+            cancel_url=f"{settings.CLIENT_URL}/client/my-services?section=appointments",
             metadata={"appointment_id": str(appointment.id)}
         )
         return {"url": session.url}
@@ -232,10 +232,9 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
                 # Create invoice
                 invoice = create_invoice_from_session(db, appointment, session)
                 
-                # Update appointment status to "Paid" or "Completed"
-                paid_status = db.query(Status).filter(Status.name == "Pago").first()
-                if paid_status:
-                    appointment.id_status = paid_status.id
+                # Update appointment status to Concluido (ID=2)
+                appointment.status_id = 3
+                print(f"✅ Status updated to Concluido (id=3)")
                 
                 db.commit()
                 print(f"✅ Invoice created successfully: {invoice.invoice_number}")

@@ -9,7 +9,7 @@ class OrderPart(Base):
     id = Column(Integer, primary_key=True, index=True)
     appointment_id = Column(Integer, ForeignKey("appointments.id", ondelete="CASCADE"), nullable=False, index=True)
     product_id = Column(Integer, ForeignKey("products.id", ondelete="SET NULL"), nullable=True, index=True)
-    extra_service_id = Column(Integer, ForeignKey("appointment_extra_services.id", ondelete="CASCADE"), nullable=True, index=True)  # NULL = peça do serviço base
+    extra_service_id = Column(Integer, ForeignKey("appointment_extra_services.id", ondelete="SET NULL"), nullable=True, index=True)  # NULL = peça do serviço base
     
     # Snapshot dos dados no momento da adição
     name = Column(String(200), nullable=False)

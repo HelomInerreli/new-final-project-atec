@@ -3,7 +3,7 @@ import type { Appointment } from '../interfaces/appointment';
 
 /**
  * Busca e agrupa agendamentos futuros de um cliente por mês
- * Filtra apenas agendamentos com status "Pendente" (1) ou "Waitting Payment" (6)
+ * Filtra appointments excluindo apenas "Concluído" (3) e "Cancelado" (2)
  * Agrupa por mês no formato "mês ano" (ex: "outubro 2023")
  * Ordena grupos cronologicamente (mais próximos primeiro) e agendamentos dentro de cada grupo por data
  * @param customerId - ID numérico do cliente
@@ -14,10 +14,10 @@ export async function getGroupedAppointments(customerId: number): Promise<Record
     try {
         const data = await getServices();
 
-        // Status permitidos: Pendente, In Repair, Awaiting Approval, Waitting Payment
-        // Excluir apenas: Finalized e Canceled
-        const allowedStatusIds = new Set([1, 2, 4, 6]); // 1=Pendente, 2=Awaiting Approval, 4=In Repair, 6=Waitting Payment
-        const allowedStatusNames = new Set(['pendente', 'awaiting approval', 'in repair', 'waitting payment']);
+        // Status EXCLUÍDOS: Concluído (3) e Cancelado (2)
+        // Mostra: Pendente (1), Em Reparação (4), Aguardando Aprovação (5), Aguardando Pagamento (6)
+        const excludedStatusIds = new Set([2, 3]); // 2=Cancelado, 3=Concluído
+        const excludedStatusNames = new Set(['cancelado', 'concluído', 'canceled', 'finalized']);
 
         // Filtrar agendamentos do cliente com status ativo
         // IMPORTANTE: Appointments com status ativo aparecem aqui INDEPENDENTE da data
@@ -27,12 +27,12 @@ export async function getGroupedAppointments(customerId: number): Promise<Record
             const statusName = appointment.status?.name?.toLowerCase();
 
             const matchCustomer = appointment.customer_id === customerId;
-            const matchStatus =
-                (typeof statusId === 'number' && allowedStatusIds.has(statusId)) ||
-                (statusName && allowedStatusNames.has(statusName));
+            const statusNotExcluded =
+                (typeof statusId === 'number' && !excludedStatusIds.has(statusId)) &&
+                (!statusName || !excludedStatusNames.has(statusName));
 
             // Appointments com status ativo aparecem aqui, independente da data
-            return matchCustomer && matchStatus;
+            return matchCustomer && statusNotExcluded;
         });
 
         // Agrupar por mês (formato: 'Mês Ano')

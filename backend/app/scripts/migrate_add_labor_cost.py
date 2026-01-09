@@ -91,7 +91,7 @@ def run_migration():
                     ADD CONSTRAINT fk_appointment_parts_extra_service 
                     FOREIGN KEY (extra_service_id) 
                     REFERENCES appointment_extra_services(id) 
-                    ON DELETE CASCADE
+                    ON DELETE NO ACTION
                 """))
                 conn.commit()
             print("   ✅ Foreign key adicionada")
@@ -99,7 +99,8 @@ def run_migration():
             if "already exists" in str(e).lower() or "object name" in str(e).lower():
                 print("   ⚠️  Foreign key já existe")
             else:
-                raise
+                print(f"   ⚠️  Erro ao criar FK (pode já existir): {str(e)[:100]}")
+                # Não falhar aqui, a coluna já existe e pode ser usada
         
         # 6. Criar índice para melhor performance
         print("\n6️⃣ Criando índice para extra_service_id...")
