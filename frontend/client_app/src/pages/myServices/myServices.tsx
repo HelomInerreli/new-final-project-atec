@@ -2,6 +2,10 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../../api/auth";
 import { useTranslation } from "react-i18next";
 import "../../styles/MyServices.css";
+import PaymentSuccessModal from '../../components/PaymentSuccessModal';
+import PaymentCancelledModal from '../../components/PaymentCancelledModal';
+import { usePaymentStatus } from '../../hooks/usePaymentStatus';
+import '../../styles/paymentModal.css';
 
 /**
  * Componente de página para dashboard de serviços do cliente
@@ -28,6 +32,7 @@ export function MyServices() {
      * Inicial: true (exibe spinner durante verificação de autenticação)
      */
     const [loading, setLoading] = useState(true);
+    const { showSuccess, showCancelled, appointmentId, clearStatus } = usePaymentStatus();
 
     /**
      * Efeito para controlar estado de loading após verificação de autenticação
@@ -118,6 +123,17 @@ export function MyServices() {
                     </div>
                 </div>
             </div>
+
+            <PaymentSuccessModal
+                isOpen={showSuccess}
+                onClose={clearStatus}
+                appointmentId={appointmentId || 0}
+            />
+            
+            <PaymentCancelledModal
+                isOpen={showCancelled}
+                onClose={clearStatus}
+            />
         </div>
     );
 }

@@ -1,0 +1,96 @@
+.payment-modal {
+  max-width: 500px;
+  padding: 2rem;
+  text-align: center;
+}
+
+.payment-success-icon,
+.payment-cancelled-icon {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  animation: scaleIn 0.3s ease-out;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.payment-modal-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #1f2937;
+}
+
+.payment-modal-description {
+  font-size: 1rem;
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.payment-modal-help {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.payment-invoice-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.payment-invoice-info .label {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.payment-invoice-info .value {
+  font-size: 1.125rem;
+  color: #1f2937;
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+}
+
+.payment-modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.payment-modal-actions button {
+  min-width: 140px;
+}
+
+/* Responsivo */
+@media (max-width: 640px) {
+  .payment-modal {
+    padding: 1.5rem;
+  }
+
+  .payment-modal-title {
+    font-size: 1.5rem;
+  }
+
+  .payment-modal-actions {
+    flex-direction: column;
+  }
+
+  .payment-modal-actions button {
+    width: 100%;
+  }
+}
