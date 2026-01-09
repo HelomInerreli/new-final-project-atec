@@ -26,6 +26,30 @@ export default function Dashboard() {
   const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1;
   const lastMonthYear = currentMonth === 1 ? currentYear - 1 : currentYear;
 
+  // Estilos para o select de ano
+  useEffect(() => {
+    const style = document.createElement("style");
+    style.innerHTML = `
+      .year-select option:hover,
+      .year-select option:focus,
+      .year-select option:checked {
+        background-color: #ef4444 !important;
+        color: white !important;
+      }
+      .year-select option {
+        background-color: #dc2626;
+        color: white;
+      }
+      .year-select option:not(:checked):hover {
+        background-color: #f87171 !important;
+      }
+    `;
+    document.head.appendChild(style);
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
+
   // Estados para os dados das métricas
   const [dailyMetrics, setDailyMetrics] = useState<DailyMetrics | null>(null);
   const [currentMonthMetrics, setCurrentMonthMetrics] =
@@ -39,6 +63,9 @@ export default function Dashboard() {
   );
   const [serviceMetrics, setServiceMetrics] = useState<ServiceMetric[]>([]);
   const [statusMetrics, setStatusMetrics] = useState<StatusMetric[]>([]);
+  const [dailyStatusMetrics, setDailyStatusMetrics] = useState<StatusMetric[]>(
+    []
+  );
   const [yearlyServiceMetrics, setYearlyServiceMetrics] = useState<
     ServiceMetric[]
   >([]);
@@ -58,9 +85,7 @@ export default function Dashboard() {
 
   // Recarregar métricas anuais quando o ano selecionado muda
   useEffect(() => {
-    if (selectedYear !== currentYear) {
-      loadYearlyMetrics();
-    }
+    loadYearlyMetrics();
   }, [selectedYear]);
 
   // Função para carregar apenas métricas anuais
@@ -91,8 +116,13 @@ export default function Dashboard() {
     try {
       console.log("🔄 Carregando métricas...");
 
+      // Data de hoje para filtros
+      const today = new Date();
+      const todayStr = today.toISOString().split("T")[0];
+
       const [
         dailyData,
+        dailyStatusData,
         currentMonthData,
         lastMonthData,
         currentYearData,
@@ -103,6 +133,10 @@ export default function Dashboard() {
         metricsService.getDailyMetrics().catch((e) => {
           console.error("❌ Erro daily:", e);
           return null;
+        }),
+        metricsService.getMetricsByStatus(todayStr, todayStr).catch((e) => {
+          console.error("❌ Erro daily status:", e);
+          return [];
         }),
         metricsService
           .getMonthlyMetrics(currentYear, currentMonth)
@@ -136,6 +170,7 @@ export default function Dashboard() {
 
       console.log("✅ Dados carregados:", {
         dailyData,
+        dailyStatusData,
         currentMonthData,
         lastMonthData,
         currentYearData,
@@ -144,16 +179,21 @@ export default function Dashboard() {
         statuses: statusesData?.length,
       });
 
+      console.log("🔍 dailyStatusData recebido:", dailyStatusData);
+      console.log(
+        "🔍 dailyStatusData filtrado (total > 0):",
+        dailyStatusData?.filter((s) => s.total > 0)
+      );
+
       setDailyMetrics(dailyData);
+      setDailyStatusMetrics(dailyStatusData || []);
       setCurrentMonthMetrics(currentMonthData);
       setLastMonthMetrics(lastMonthData);
       setCurrentYearMetrics(currentYearData);
       setLastYearMetrics(lastYearData);
       setServiceMetrics(servicesData || []);
       setStatusMetrics(statusesData || []);
-      // Inicializar métricas anuais com dados do ano atual
-      setYearlyServiceMetrics(servicesData || []);
-      setYearlyStatusMetrics(statusesData || []);
+      // NÃO inicializar métricas anuais aqui - serão carregadas por loadYearlyMetrics
 
       // Buscar anos disponíveis
       try {
@@ -298,13 +338,21 @@ export default function Dashboard() {
               icon="⏱️"
               color="blue"
             />
-            <PieChartComponent
-              data={statusMetrics.filter((s) => s.total > 0)}
-              dataKey="total"
-              nameKey="status_name"
-              title="Distribuição por Status (Hoje)"
-              height={300}
-            />
+            {dailyStatusMetrics && dailyStatusMetrics.length > 0 ? (
+              <PieChartComponent
+                data={dailyStatusMetrics.filter((s) => s.total > 0)}
+                dataKey="total"
+                nameKey="status_name"
+                title="Distribuição por Status (Hoje)"
+                height={300}
+              />
+            ) : (
+              <div className="p-4 bg-white shadow-sm border border-gray-200 rounded-lg flex items-center justify-center">
+                <p className="text-gray-500">
+                  Nenhum dado de status disponível para hoje
+                </p>
+              </div>
+            )}
           </div>
         </TabsContent>
 
@@ -426,7 +474,7 @@ export default function Dashboard() {
             <select
               value={selectedYear}
               onChange={(e) => setSelectedYear(Number(e.target.value))}
-              className="px-3 py-2 border-0 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-600"
+              className="year-select px-3 py-2 border-0 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-600"
               style={{
                 backgroundColor: "#dc2626",
                 color: "white",
@@ -435,21 +483,12 @@ export default function Dashboard() {
             >
               {availableYears.length > 0 ? (
                 availableYears.map((year) => (
-                  <option
-                    key={year}
-                    value={year}
-                    style={{ backgroundColor: "#dc2626", color: "white" }}
-                  >
+                  <option key={year} value={year}>
                     {year}
                   </option>
                 ))
               ) : (
-                <option
-                  value={currentYear}
-                  style={{ backgroundColor: "#dc2626", color: "white" }}
-                >
-                  {currentYear}
-                </option>
+                <option value={currentYear}>{currentYear}</option>
               )}
             </select>
           </div>

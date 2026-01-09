@@ -132,10 +132,14 @@ def finalize_appointment(
     return db_appointment
 
 @router.patch("/{appointment_id}/start", status_code=200)
-def start_appointment(appointment_id: int, db: Session = Depends(get_db)):
+def start_appointment(
+    appointment_id: int, 
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     """Inicia a appointment (PATCH /api/v1/appointments/{id}/start)."""
     repo = AppointmentRepository(db)
-    appt = repo.start(appointment_id=appointment_id)
+    appt = repo.start(appointment_id=appointment_id, current_user=current_user)
     if not appt:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Appointment not found")
     return appt

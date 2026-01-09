@@ -217,15 +217,22 @@ def get_yearly_metrics(
     if year is None:
         year = datetime.now().year
     
+    # Primeiro, pegar o ID do status "Concluído"
+    completed_status = db.query(Status).filter(
+        Status.name.ilike("%concluído%")
+    ).first()
+    completed_status_id = completed_status.id if completed_status else None
+    
+    # Definir a expressão do mês
+    month_expr = extract('month', Appointment.appointment_date)
+    
     # Query base para o ano
     base_query = db.query(
-        extract('month', Appointment.appointment_date).label('month'),
+        month_expr.label('month'),
         func.count(Appointment.id).label('total'),
         func.sum(
             case(
-                (Appointment.status_id == db.query(Status.id).filter(
-                    Status.name.ilike("%concluído%")
-                ).scalar_subquery(), 1),
+                (Appointment.status_id == completed_status_id, 1),
                 else_=0
             )
         ).label('completed')
@@ -249,7 +256,7 @@ def get_yearly_metrics(
                 elif "pintura" in role_name:
                     base_query = base_query.filter(Service.area.ilike("%pintura%"))
     
-    results = base_query.group_by('month').order_by('month').all()
+    results = base_query.group_by(month_expr).order_by(month_expr).all()
     
     # Formatar resultados
     monthly_data = []
@@ -367,6 +374,10 @@ def get_metrics_by_status(
     results = query.group_by(Status.id, Status.name).all()
     
     total_all = sum(r.total for r in results)
+    
+    print(f"🔍 [BY-STATUS] start_date={start_date}, end_date={end_date}")
+    print(f"🔍 [BY-STATUS] results={results}")
+    print(f"🔍 [BY-STATUS] total_all={total_all}")
     
     return [{
         "status_id": r.id,

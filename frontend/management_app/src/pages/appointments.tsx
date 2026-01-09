@@ -106,6 +106,7 @@ export default function Agendamentos() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("todos");
   const [monthFilter, setMonthFilter] = useState<string>("todos");
+  const [yearFilter, setYearFilter] = useState<string>("todos");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -419,26 +420,8 @@ export default function Agendamentos() {
         if (isCancelled || isCompleted) {
           return false;
         }
-      } else {
-        // Gestores veem cancelados apenas se filtro explícito
-        if (
-          isCancelled &&
-          statusFilter !== "cancelado" &&
-          statusFilter !== "cancelada"
-        ) {
-          return false;
-        }
-
-        // Gestores veem concluídos apenas se filtro explícito
-        if (
-          isCompleted &&
-          statusFilter !== "concluído" &&
-          statusFilter !== "concluída" &&
-          statusFilter !== "completo"
-        ) {
-          return false;
-        }
       }
+      // Gestores veem tudo quando filtro = "todos", ou apenas o status selecionado
 
       const matchesSearch =
         customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -451,13 +434,14 @@ export default function Agendamentos() {
         translatedStatus.includes(statusFilter.toLowerCase()) ||
         statusName.toLowerCase().includes(statusFilter.toLowerCase());
 
+      // Filtro de mês e ano
       const matchesMonth =
-        monthFilter === "todos" ||
-        (monthFilter !== "todos" &&
-          appointmentMonth === parseInt(monthFilter) &&
-          appointmentYear === 2025);
+        monthFilter === "todos" || appointmentMonth === parseInt(monthFilter);
 
-      return matchesSearch && matchesStatus && matchesMonth;
+      const matchesYear =
+        yearFilter === "todos" || appointmentYear === parseInt(yearFilter);
+
+      return matchesSearch && matchesStatus && matchesMonth && matchesYear;
     })
     .sort((a, b) => {
       // Ordenar do mais antigo para o mais recente
@@ -472,6 +456,8 @@ export default function Agendamentos() {
   console.log("  - Filtered appointments:", filteredAppointments.length);
   console.log("  - Search term:", searchTerm);
   console.log("  - Status filter:", statusFilter);
+  console.log("  - Month filter:", monthFilter);
+  console.log("  - Year filter:", yearFilter);
 
   // Função para abrir diálogo de edição
   const handleOpenDialog = (appointment: Appointment | null) => {
@@ -655,10 +641,24 @@ export default function Agendamentos() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="todos">Todos os status</SelectItem>
-            <SelectItem value="pendente">Pendente</SelectItem>
-            <SelectItem value="em andamento">Em Andamento</SelectItem>
-            <SelectItem value="concluída">Concluída</SelectItem>
-            <SelectItem value="cancelada">Cancelada</SelectItem>
+            {statuses.map((status) => (
+              <SelectItem key={status.id} value={status.name.toLowerCase()}>
+                {translateStatus(status.name)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={yearFilter} onValueChange={setYearFilter}>
+          <SelectTrigger
+            className="w-full sm:w-[140px] border-2 border-red-600 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+            style={{ height: "56px" }}
+          >
+            <SelectValue placeholder="Ano" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todos">Todos os anos</SelectItem>
+            <SelectItem value="2026">2026</SelectItem>
+            <SelectItem value="2025">2025</SelectItem>
           </SelectContent>
         </Select>
         <Select value={monthFilter} onValueChange={setMonthFilter}>

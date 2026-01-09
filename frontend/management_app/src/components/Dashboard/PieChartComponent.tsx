@@ -24,6 +24,8 @@ export const PieChartComponent: React.FC<PieChartComponentProps> = ({
   title,
   height = 300,
 }) => {
+  console.log(`📊 [PieChart] ${title}:`, data);
+
   const COLORS = [
     "#3b82f6",
     "#10b981",
@@ -32,6 +34,18 @@ export const PieChartComponent: React.FC<PieChartComponentProps> = ({
     "#8b5cf6",
     "#06b6d4",
   ];
+
+  // Se não há dados, mostrar mensagem
+  if (!data || data.length === 0) {
+    return (
+      <Card className="p-4 bg-white shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+        <h3 className="text-lg font-semibold mb-4 text-gray-800">{title}</h3>
+        <div className="flex items-center justify-center" style={{ height }}>
+          <p className="text-gray-500">Nenhum dado disponível</p>
+        </div>
+      </Card>
+    );
+  }
 
   // Mapeamento de labels para português
   const labelMap: Record<string, string> = {

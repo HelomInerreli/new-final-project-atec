@@ -249,10 +249,11 @@ class AppointmentRepository:
         return self.update(appointment_id=appointment_id, appointment_data=update_data)
   
 
-    def start(self, appointment_id: int) -> Optional[Appointment]:
+    def start(self, appointment_id: int, current_user: Optional[User] = None) -> Optional[Appointment]:
         """
         Inicia uma appointment: define start_time e altera o status para um estado existente.
         Procura por vários nomes (prioridade) presentes no seeder e aplica status_id.
+        Associa o funcionário que iniciou a OS.
         """
         db_appointment = self.get_by_id(appointment_id=appointment_id)
         if not db_appointment:
@@ -260,8 +261,15 @@ class AppointmentRepository:
 
         # define hora de início
         db_appointment.start_time = datetime.utcnow()
+        
+        # Associar o funcionário que está iniciando a OS
+        if current_user:
+            from app.models.employee import Employee
+            employee = self.db.query(Employee).filter(Employee.email == current_user.email).first()
+            if employee:
+                db_appointment.assigned_employee_id = employee.id
 
-        # persiste start_time antes de procurar status
+        # persiste start_time e assigned_employee_id antes de procurar status
         self.db.add(db_appointment)
         self.db.commit()
         self.db.refresh(db_appointment)
