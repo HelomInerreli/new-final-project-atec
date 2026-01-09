@@ -115,8 +115,8 @@ export const handleTokenExpiration = (
   navigate: (path: string) => void
 ) => {
   removeToken();
-  window.location.reload();
   navigate('/');
+  window.location.reload();
 };
 
 export const checkEmailExists = async (email: string) => {
