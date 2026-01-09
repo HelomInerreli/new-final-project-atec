@@ -5,6 +5,7 @@ import React, {
   useRef,
   useMemo,
 } from "react";
+import { useTranslation } from "react-i18next";
 import { reducer } from "../reducer";
 import { WhatsappSVG, CloseSVG, CheckSVG, SendSVG } from "./icons.tsx";
 import css from "../styles.module.css";
@@ -90,9 +91,9 @@ export function FloatingWhatsApp({
   phoneNumber = "1234567890",
   accountName = "Mecatec",
   avatar = dummyAvatar,
-  statusMessage = "Geralmente responde em 1 hora",
-  chatMessage = "Olá! 🤝 \nComo podemos ajudar?",
-  placeholder = "Digite uma mensagem..",
+  statusMessage,
+  chatMessage,
+  placeholder,
 
   allowClickAway = false,
   allowEsc = false,
@@ -116,6 +117,38 @@ export function FloatingWhatsApp({
   style,
   className = "floating-whatsapp",
 }: FloatingWhatsAppProps) {
+  const { i18n } = useTranslation();
+
+  // Mensagens traduzidas baseadas na linguagem atual
+  const translatedMessages = {
+    pt: {
+      statusMessage: "Geralmente responde em 1 hora",
+      chatMessage: "Olá! 🤝 \nComo podemos ajudar?",
+      placeholder: "Digite uma mensagem..",
+    },
+    en: {
+      statusMessage: "Usually responds in 1 hour",
+      chatMessage: "Hello! 🤝 \nHow can we help you?",
+      placeholder: "Type a message..",
+    },
+    es: {
+      statusMessage: "Generalmente responde en 1 hora",
+      chatMessage: "¡Hola! 🤝 \n¿Cómo podemos ayudarte?",
+      placeholder: "Escribe un mensaje..",
+    },
+    fr: {
+      statusMessage: "Répond généralement en 1 heure",
+      chatMessage: "Bonjour! 🤝 \nComment pouvons-nous vous aider?",
+      placeholder: "Tapez un message..",
+    },
+  };
+
+  // Obter linguagem atual e fallback para português
+  const currentLang = i18n.language || "pt";
+  const messages =
+    translatedMessages[currentLang as keyof typeof translatedMessages] ||
+    translatedMessages.pt;
+
   const [{ isOpen, isDelay, isNotification }, dispatch] = useReducer(reducer, {
     isOpen: false,
     isDelay: true,
@@ -267,7 +300,7 @@ export function FloatingWhatsApp({
           </div>
           <div className={css.status}>
             <span className={css.statusTitle}>{accountName}</span>
-            <span className={css.statusSubtitle}>{statusMessage}</span>
+            <span className={css.statusSubtitle}>{messages.statusMessage}</span>
           </div>
           <div className={css.close} onClick={handleClose} aria-hidden="true">
             <CloseSVG />
@@ -290,7 +323,7 @@ export function FloatingWhatsApp({
             <div className={css.message}>
               <span className={css.triangle} />
               <span className={css.accountName}>{accountName}</span>
-              <p className={css.messageBody}>{chatMessage}</p>
+              <p className={css.messageBody}>{messages.chatMessage}</p>
               <span className={css.messageTime}>
                 {timeNow}
                 <span style={{ marginLeft: 5 }}>
@@ -305,7 +338,7 @@ export function FloatingWhatsApp({
           <form onSubmit={handleSubmit}>
             <input
               className={css.input}
-              placeholder={placeholder}
+              placeholder={messages.placeholder}
               ref={inputRef}
               dir="auto"
             />
