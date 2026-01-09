@@ -17,6 +17,8 @@ export function AppRoutes() {
         <Route path="service-history" element={<PastAppointments />} />
         <Route path="invoices" element={<Invoices />} />
         <Route path="profile" element={<Profile />} />
+        
+
         <Route path="*" element={<Navigate to="dashboard" replace />} />
       </Route>
     </Routes>
