@@ -257,8 +257,8 @@ export function AppointmentStatusModal({
                       Data do Agendamento
                     </p>
                     <p className="fw-semibold">
-                      {currentAppointment.appointment_date ||
-                        currentAppointment.date}
+                      {(currentAppointment.appointment_date ||
+                        currentAppointment.date)?.replace('T', ' ')}
                     </p>
                   </div>
                 </div>

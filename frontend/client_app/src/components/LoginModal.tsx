@@ -73,7 +73,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
     try {
       setLoading(true);
       window.location.href = 'http://localhost:8000/api/v1/customersauth/google';
-    } catch (err) {
+    } catch (err: any) {
       setError(`${t('failed')} ${t('to')} initiate ${t('google')} ${t('authentication')}`);
     } finally {
       setLoading(false);
@@ -85,7 +85,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
     try {
       setLoading(true);
       window.location.href = 'http://localhost:8000/api/v1/customersauth/facebook';
-    } catch (err) {
+    } catch (err: any) {
       setError(`${t('failed')} ${t('to')} initiate ${t('facebook')} ${t('authentication')}`);
     } finally {
       setLoading(false);
