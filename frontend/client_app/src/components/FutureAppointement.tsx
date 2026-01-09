@@ -3,6 +3,7 @@ import { FaCalendarAlt, FaCheckCircle, FaTools } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import { useFutureAppointments } from '../hooks/useFutureAppointments';
 import { formatDate } from '../utils/dateUtils';
+import { formatMonthYear } from '../utils/monthUtils';
 import '../styles/FutureAppointments.css';
 import { createAppointmentCheckoutSession } from '../services/payment';
 import { AppointmentStatusModal } from './AppointmentDetailsModal';
@@ -164,7 +165,7 @@ export function FutureAppointments() {
                             >
                                 <div className="month-header-content">
                                     <h2 className="month-title">
-                                        {monthYear.charAt(0).toUpperCase() + monthYear.slice(1)}
+                                        {formatMonthYear(monthYear)}
                                     </h2>
                                     <span className="appointment-count">
                                         {appointments.length} {appointments.length === 1 ? t('appointment') : t('appointments')}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { usePastAppointments } from "../hooks/usePastAppointments";
 import { useTranslation } from "react-i18next";
+import { formatMonthYear } from "../utils/monthUtils";
 import { InvoiceDetail } from "./InvoiceDetail";
 import "../styles/PastAppointments.css";
 import { getCostBreakdown } from "../services/costBreakdownService";
@@ -171,7 +172,7 @@ export function PastAppointments() {
                 >
                   <div className="past-month-header-content">
                     <h2 className="past-month-title">
-                      {monthYear.charAt(0).toUpperCase() + monthYear.slice(1)}
+                      {formatMonthYear(monthYear)}
                     </h2>
                     <span className="past-appointment-count">
                       {appointments.length}{" "}
