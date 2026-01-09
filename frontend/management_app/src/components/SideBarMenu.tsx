@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Sidebar, Menu, MenuItem } from "react-pro-sidebar";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import {
+  Home,
   LayoutDashboard,
   FileText,
   Calendar,
@@ -42,6 +43,7 @@ interface NotificationData {
 // Componente do menu lateral
 export default function SideBarMenu() {
   // Estados do componente
+  const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   const [showNotificationModal, setShowNotificationModal] = useState(false);
   const [notifications, setNotifications] = useState<NotificationData[]>([]);
@@ -52,6 +54,8 @@ export default function SideBarMenu() {
   const [totalUnread, setTotalUnread] = useState(0);
   const [userName, setUserName] = useState<string>("...");
   const [userId, setUserId] = useState<number | null>(null);
+  const [userRole, setUserRole] = useState<string>("");
+  const [isManager, setIsManager] = useState<boolean>(false);
 
   // Busca contagens de notificações
   const fetchNotificationCounts = async () => {
@@ -123,9 +127,11 @@ export default function SideBarMenu() {
     http
       .get(`/managementauth/me`)
       .then((res) => {
-        const { id, name } = res.data;
+        const { id, name, role, is_manager } = res.data;
         setUserId(id);
         setUserName(name);
+        setUserRole(role || "");
+        setIsManager(is_manager || false);
       })
       .catch((err) => {
         console.error("Failed to load user info", err);
@@ -252,6 +258,31 @@ export default function SideBarMenu() {
     };
   }, []);
 
+  // Função para verificar se usuário tem permissão para acessar item do menu
+  const hasMenuAccess = (menuItem: string): boolean => {
+    // Admin e Gestor têm acesso a tudo
+    if (
+      userRole.toLowerCase() === "admin" ||
+      userRole.toLowerCase() === "management" ||
+      isManager
+    ) {
+      return true;
+    }
+
+    // Itens permitidos para todos os usuários autenticados
+    const allowedForAll = [
+      "home",
+      "servicesOrders",
+      "appointments",
+      "vehicles",
+      "stock",
+      "settings",
+      "logout",
+    ];
+
+    return allowedForAll.includes(menuItem);
+  };
+
   const sidebarStyle: React.CSSProperties = {
     position: "fixed",
     left: 0,
@@ -338,14 +369,14 @@ export default function SideBarMenu() {
       `}</style>
       <div style={headerStyle}>
         {collapsed ? (
-          <div 
+          <div
             onClick={() => setCollapsed(false)}
-            style={{ 
-              display: "flex", 
-              justifyContent: "center", 
+            style={{
+              display: "flex",
+              justifyContent: "center",
               alignItems: "center",
               flex: 1,
-              cursor: "pointer"
+              cursor: "pointer",
             }}
           >
             <img
@@ -370,15 +401,15 @@ export default function SideBarMenu() {
             >
               <FiChevronLeft />
             </button>
-            <div 
+            <div
               onClick={() => setCollapsed(true)}
-              style={{ 
-                display: "flex", 
-                justifyContent: "center", 
+              style={{
+                display: "flex",
+                justifyContent: "center",
                 alignItems: "center",
                 flex: 1,
                 paddingRight: "2rem",
-                cursor: "pointer"
+                cursor: "pointer",
               }}
             >
               <img
@@ -395,7 +426,12 @@ export default function SideBarMenu() {
       <div
         style={
           collapsed
-            ? { display: "flex", justifyContent: "center", alignItems: "center", padding: "0.5rem" }
+            ? {
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                padding: "0.5rem",
+              }
             : userHeaderStyle
         }
       >
@@ -475,20 +511,38 @@ export default function SideBarMenu() {
               },
             }}
           >
-            <MenuItem
-              icon={
-                <IconWithBadgeSized
-                  icon={<LayoutDashboard />}
-                  count={notificationCounts["Dashboard"]}
-                  size={collapsed ? 25 : 27}
-                />
-              }
-              component={<NavLink to="/dashboard" />}
-            >
-              {!collapsed && "Dashboard"}
-            </MenuItem>
+            {hasMenuAccess("home") && (
+              <MenuItem
+                icon={
+                  <IconWithBadgeSized
+                    icon={<Home />}
+                    count={0}
+                    size={collapsed ? 25 : 27}
+                  />
+                }
+                component={<NavLink to="/" />}
+              >
+                {!collapsed && "Início"}
+              </MenuItem>
+            )}
+
+            {hasMenuAccess("dashboard") && (
+              <MenuItem
+                icon={
+                  <IconWithBadgeSized
+                    icon={<LayoutDashboard />}
+                    count={notificationCounts["Dashboard"]}
+                    size={collapsed ? 25 : 27}
+                  />
+                }
+                component={<NavLink to="/dashboard" />}
+              >
+                {!collapsed && "Dashboard"}
+              </MenuItem>
+            )}
 
             <MenuItem
+              active={location.pathname.startsWith("/servicesOrders")}
               icon={
                 <IconWithBadgeSized
                   icon={<FileText />}
@@ -514,18 +568,20 @@ export default function SideBarMenu() {
               {!collapsed && "Agendamentos"}
             </MenuItem>
 
-            <MenuItem
-              icon={
-                <IconWithBadgeSized
-                  icon={<Users />}
-                  count={notificationCounts["Customer"]}
-                  size={collapsed ? 25 : 27}
-                />
-              }
-              component={<NavLink to="/customers" />}
-            >
-              {!collapsed && "Clientes"}
-            </MenuItem>
+            {hasMenuAccess("customers") && (
+              <MenuItem
+                icon={
+                  <IconWithBadgeSized
+                    icon={<Users />}
+                    count={notificationCounts["Customer"]}
+                    size={collapsed ? 25 : 27}
+                  />
+                }
+                component={<NavLink to="/customers" />}
+              >
+                {!collapsed && "Clientes"}
+              </MenuItem>
+            )}
 
             <MenuItem
               icon={
@@ -570,44 +626,50 @@ export default function SideBarMenu() {
               {!collapsed && "Stock"}
             </MenuItem>
 
-            <MenuItem
-              icon={
-                <IconWithBadgeSized
-                  icon={<CreditCard />}
-                  count={notificationCounts["Payment"]}
-                  size={collapsed ? 25 : 27}
-                />
-              }
-              component={<NavLink to="/finance" />}
-            >
-              {!collapsed && "Financeiro"}
-            </MenuItem>
+            {hasMenuAccess("finance") && (
+              <MenuItem
+                icon={
+                  <IconWithBadgeSized
+                    icon={<CreditCard />}
+                    count={notificationCounts["Payment"]}
+                    size={collapsed ? 25 : 27}
+                  />
+                }
+                component={<NavLink to="/finance" />}
+              >
+                {!collapsed && "Financeiro"}
+              </MenuItem>
+            )}
 
-            <MenuItem
-              icon={
-                <IconWithBadgeSized
-                  icon={<UserCog />}
-                  count={notificationCounts["User"]}
-                  size={collapsed ? 25 : 27}
-                />
-              }
-              component={<NavLink to="/users" />}
-            >
-              {!collapsed && "Funcionários"}
-            </MenuItem>
+            {hasMenuAccess("users") && (
+              <MenuItem
+                icon={
+                  <IconWithBadgeSized
+                    icon={<UserCog />}
+                    count={notificationCounts["User"]}
+                    size={collapsed ? 25 : 27}
+                  />
+                }
+                component={<NavLink to="/users" />}
+              >
+                {!collapsed && "Funcionários"}
+              </MenuItem>
+            )}
 
-            <MenuItem
-              icon={
-                <IconWithBadgeSized
-                  icon={<Wrench />}
-                  count={notificationCounts["Service"]}
-                  size={collapsed ? 25 : 27}
-                />
-              }
-              component={<NavLink to="/servicesManagement" />}
-            >
-              {!collapsed && "Gestão de Serviços"}
-            </MenuItem>
+            {hasMenuAccess("services") && (
+              <MenuItem
+                icon={
+                  <IconWithBadgeSized
+                    icon={<Wrench />}
+                    count={notificationCounts["Service"]}
+                    size={collapsed ? 25 : 27}
+                  />
+                }
+                component={<NavLink to="/servicesManagement" />}
+              >
+                {!collapsed && "Gestão de Serviços"}
+              </MenuItem>
+            )}
 
             <MenuItem
               icon={

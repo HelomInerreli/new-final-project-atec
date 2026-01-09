@@ -1,11 +1,40 @@
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../../components/ui/alert-dialog";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../../components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../../components/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../../components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../../components/ui/dialog";
 import { Plus, Search, Trash2, Eye } from "lucide-react";
 import Badge from "react-bootstrap/Badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../components/ui/select";
 import { Link } from "react-router-dom";
 import { Spinner, Alert } from "react-bootstrap";
 import { useState } from "react";
@@ -13,10 +42,14 @@ import CreateVehicleModal from "../../components/CreateVehicleModal";
 import { useVehiclesPage } from "../../hooks/useVehicles";
 import { useFetchCustomers } from "../../hooks/useCustomers";
 import { toast } from "../../hooks/use-toast";
+import { useAuth } from "../../contexts/AuthContext";
 import "../../styles/Vehicles.css";
 
 // Componente de gestão de veículos
 export default function Vehicles() {
+  // Hook de autenticação para verificar permissões
+  const { canEdit } = useAuth();
+
   // Hook para gerenciar veículos
   const {
     paginatedVehicles,
@@ -53,20 +86,7 @@ export default function Vehicles() {
   // Estado para cliente selecionado
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>("");
 
-  // Estado de carregamento
-  if (loading) {
-    return (
-      <div className="d-flex justify-content-center align-items-center vh-100">
-        <Spinner animation="border" variant="danger" />
-        <span className="ms-3 fs-5">A Carregar Veículos...</span>
-      </div>
-    );
-  }
-
-  // Estado de erro
-  if (error) {
-    return <Alert variant="danger" className="m-4">{error}</Alert>;
-  }
+  // Estado de carregamento e erro movidos para renderização condicional abaixo
 
   // Renderizar página de veículos
   return (
@@ -74,11 +94,18 @@ export default function Vehicles() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-4xl font-bold text-gray-900 leading-tight">Gestão de Veículos</h1>
+          <h1 className="text-4xl font-bold text-gray-900 leading-tight">
+            Gestão de Veículos
+          </h1>
         </div>
-        <Button variant="destructive" onClick={() => setNewVehicleModalOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" /> Novo Veículo
-        </Button>
+        {canEdit && (
+          <Button
+            variant="destructive"
+            onClick={() => setNewVehicleModalOpen(true)}
+          >
+            <Plus className="mr-2 h-4 w-4" /> Novo Veículo
+          </Button>
+        )}
       </div>
 
       {/* Filtros de pesquisa e status */}
@@ -122,7 +149,10 @@ export default function Vehicles() {
           </div>
         </div>
         <Select value={statusFiltro} onValueChange={setStatusFiltro}>
-          <SelectTrigger className="w-full sm:w-[200px] border-2 border-red-600 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0" style={{ height: "56px" }}>
+          <SelectTrigger
+            className="w-full sm:w-[200px] border-2 border-red-600 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+            style={{ height: "56px" }}
+          >
             <SelectValue placeholder="Filtrar por status" />
           </SelectTrigger>
           <SelectContent>
@@ -134,123 +164,200 @@ export default function Vehicles() {
         </Select>
       </div>
 
-      {/* Tabela de veículos */}
-      <div 
-        className="rounded-md border-2 border-red-600"
-        style={{
-          overflowY: "auto",
-          backgroundColor: "#fff",
-          borderRadius: "0.375rem",
-          boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-          minHeight: 0,
-        }}
-      >
-        <Table>
-          <TableHeader
+      {/* Loading State */}
+      {loading && (
+        <div
+          style={{
+            padding: "3rem",
+            textAlign: "center",
+            backgroundColor: "white",
+            borderRadius: "8px",
+            border: "2px solid #dc2626",
+          }}
+        >
+          <div
+            className="spinner-border text-danger"
+            role="status"
+            style={{ width: "3rem", height: "3rem", marginBottom: "1rem" }}
+          >
+            <span className="visually-hidden">A carregar...</span>
+          </div>
+          <h3
             style={{
-              position: "sticky",
-              top: 0,
-              zIndex: 2,
-              background: "#fff",
+              fontSize: "1.25rem",
+              fontWeight: "600",
+              marginBottom: "0.5rem",
             }}
           >
-            <TableRow>
-              <TableHead className="text-left font-semibold text-base text-black">Marca</TableHead>
-              <TableHead className="text-left font-semibold text-base text-black">Modelo</TableHead>
-              <TableHead className="text-left font-semibold text-base text-black">Matrícula</TableHead>
-              <TableHead className="text-left font-semibold text-base text-black">Cliente</TableHead>
-              <TableHead className="text-left font-semibold text-base text-black">Quilometragem</TableHead>
-              <TableHead className="text-center font-semibold text-base text-black">Ações</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredVehicles.length === 0 ? (
+            A carregar veículos...
+          </h3>
+          <p style={{ color: "#6b7280", fontSize: "0.875rem" }}>
+            Por favor, aguarde enquanto buscamos os dados
+          </p>
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && <Alert variant="danger">{error}</Alert>}
+
+      {/* Tabela de veículos */}
+      {!loading && !error && (
+        <div
+          className="rounded-md border-2 border-red-600"
+          style={{
+            overflowY: "auto",
+            backgroundColor: "#fff",
+            borderRadius: "0.375rem",
+            boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+            minHeight: 0,
+          }}
+        >
+          <Table>
+            <TableHeader
+              style={{
+                position: "sticky",
+                top: 0,
+                zIndex: 2,
+                background: "#fff",
+              }}
+            >
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                  Nenhum veículo encontrado
-                </TableCell>
+                <TableHead className="text-left font-semibold text-base text-black">
+                  Marca
+                </TableHead>
+                <TableHead className="text-left font-semibold text-base text-black">
+                  Modelo
+                </TableHead>
+                <TableHead className="text-left font-semibold text-base text-black">
+                  Matrícula
+                </TableHead>
+                <TableHead className="text-left font-semibold text-base text-black">
+                  Cliente
+                </TableHead>
+                <TableHead className="text-left font-semibold text-base text-black">
+                  Quilometragem
+                </TableHead>
+                <TableHead className="text-center font-semibold text-base text-black">
+                  Ações
+                </TableHead>
               </TableRow>
-            ) : (
-              paginatedVehicles.map(vehicle => (
-                <TableRow key={vehicle.id}>
-                  <TableCell className="text-left font-medium">{vehicle.brand}</TableCell>
-                  <TableCell className="text-left">{vehicle.model}</TableCell>
-                  <TableCell className="text-left">
-                    <Badge bg="danger">{vehicle.plate}</Badge>
-                  </TableCell>
-                  {vehicle.customerId === 0 ? (
-                    <TableCell className="text-left">
-                      <Button
-                        variant="destructive"
-                        onClick={() => handleAssignCustomer(vehicle.id)}
-                        title="Associar Cliente"
-                      >
-                        Associar Cliente
-                      </Button>
-                    </TableCell>
-                  ) : ( 
-                  <TableCell className="text-left">
-                    <Link to={`/customers/${vehicle.customerId}`} className="text-decoration-none">
-                      {vehicle.customerName}
-                    </Link>
-                  </TableCell>
-                  )}
-                  <TableCell className="text-left">{formatKilometers(vehicle.kilometers)}</TableCell>
-                  <TableCell className="text-center">
-                    <div className="flex justify-center gap-2">
-                      <Link to={`/vehicles/${vehicle.id}`}>
-                        <Button variant="outline" size="icon" title="Ver Detalhes">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      </Link>
-                      <Button
-                        variant="destructive"
-                        size="icon"
-                        onClick={() => handleDelete(vehicle.id)}
-                        title="Eliminar"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+            </TableHeader>
+            <TableBody>
+              {filteredVehicles.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={6}
+                    className="text-center py-8 text-muted-foreground"
+                  >
+                    Nenhum veículo encontrado
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+              ) : (
+                paginatedVehicles.map((vehicle) => (
+                  <TableRow key={vehicle.id}>
+                    <TableCell className="text-left font-medium">
+                      {vehicle.brand}
+                    </TableCell>
+                    <TableCell className="text-left">{vehicle.model}</TableCell>
+                    <TableCell className="text-left">
+                      <Badge bg="danger">{vehicle.plate}</Badge>
+                    </TableCell>
+                    {vehicle.customerId === 0 ? (
+                      <TableCell className="text-left">
+                        {canEdit ? (
+                          <Button
+                            variant="destructive"
+                            onClick={() => handleAssignCustomer(vehicle.id)}
+                            title="Associar Cliente"
+                          >
+                            Associar Cliente
+                          </Button>
+                        ) : (
+                          <span className="text-sm text-gray-500">
+                            Sem cliente
+                          </span>
+                        )}
+                      </TableCell>
+                    ) : (
+                      <TableCell className="text-left">
+                        <Link
+                          to={`/customers/${vehicle.customerId}`}
+                          className="text-decoration-none"
+                        >
+                          {vehicle.customerName}
+                        </Link>
+                      </TableCell>
+                    )}
+                    <TableCell className="text-left">
+                      {formatKilometers(vehicle.kilometers)}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex justify-center gap-2">
+                        <Link to={`/vehicles/${vehicle.id}`}>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            title="Ver Detalhes"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </Link>
+                        {canEdit && (
+                          <Button
+                            variant="destructive"
+                            size="icon"
+                            onClick={() => handleDelete(vehicle.id)}
+                            title="Eliminar"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      )}
 
       {/* Controles de paginação */}
-      <div className="flex justify-between items-center mt-4">
-        <div className="text-sm text-gray-600">
-          {filteredVehicles.length === 0
-            ? ""
-            : (() => {
-              const start = (page - 1) * pageSize + 1;
-              const end = Math.min(page * pageSize, filteredVehicles.length);
-              return `Mostrando ${start}–${end} de ${filteredVehicles.length}`;
-            })()}
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            disabled={page <= 1}
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-          >
-            Anterior
-          </Button>
-          <div className="flex items-center px-4 text-sm font-medium">
-            {page} / {totalPages}
+      {!loading && !error && (
+        <div className="flex justify-between items-center mt-4">
+          <div className="text-sm text-gray-600">
+            {filteredVehicles.length === 0
+              ? ""
+              : (() => {
+                  const start = (page - 1) * pageSize + 1;
+                  const end = Math.min(
+                    page * pageSize,
+                    filteredVehicles.length
+                  );
+                  return `Mostrando ${start}–${end} de ${filteredVehicles.length}`;
+                })()}
           </div>
-          <Button
-            variant="outline"
-            disabled={page >= totalPages}
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-          >
-            Próxima
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              disabled={page <= 1}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+            >
+              Anterior
+            </Button>
+            <div className="flex items-center px-4 text-sm font-medium">
+              {page} / {totalPages}
+            </div>
+            <Button
+              variant="outline"
+              disabled={page >= totalPages}
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            >
+              Próxima
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Diálogo de confirmação de eliminação */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
@@ -263,8 +370,8 @@ export default function Vehicles() {
               Eliminar Veículo
             </AlertDialogTitle>
             <AlertDialogDescription className="text-center text-base">
-              Esta ação não pode ser desfeita. Tem a certeza que
-              deseja eliminar permanentemente este veículo?
+              Esta ação não pode ser desfeita. Tem a certeza que deseja eliminar
+              permanentemente este veículo?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex flex-row gap-3 justify-center sm:justify-center mt-2">
@@ -282,7 +389,10 @@ export default function Vehicles() {
       </AlertDialog>
 
       {/* Diálogo de associação de cliente */}
-      <Dialog open={assignCustomerDialogOpen} onOpenChange={setAssignCustomerDialogOpen}>
+      <Dialog
+        open={assignCustomerDialogOpen}
+        onOpenChange={setAssignCustomerDialogOpen}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Associar Cliente ao Veículo</DialogTitle>
@@ -291,13 +401,19 @@ export default function Vehicles() {
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
-            <Select value={selectedCustomerId} onValueChange={setSelectedCustomerId}>
+            <Select
+              value={selectedCustomerId}
+              onValueChange={setSelectedCustomerId}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Selecione um cliente" />
               </SelectTrigger>
               <SelectContent>
                 {customers.map((customer) => (
-                  <SelectItem key={customer.customer.id} value={customer.customer.id.toString()}>
+                  <SelectItem
+                    key={customer.customer.id}
+                    value={customer.customer.id.toString()}
+                  >
                     {customer.customer.name}
                   </SelectItem>
                 ))}
@@ -305,11 +421,14 @@ export default function Vehicles() {
             </Select>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setAssignCustomerDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setAssignCustomerDialogOpen(false)}
+            >
               Cancelar
             </Button>
-            <Button 
-              variant="destructive" 
+            <Button
+              variant="destructive"
               onClick={() => {
                 if (selectedCustomerId) {
                   confirmAssignCustomer(parseInt(selectedCustomerId));
@@ -340,4 +459,3 @@ export default function Vehicles() {
     </div>
   );
 }
-

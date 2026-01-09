@@ -5,10 +5,12 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./index.css";
 import "react-datepicker/dist/react-datepicker.css";
 import "./styles/DatePicker.css";
-import Login from "./pages/login/login.tsx";
+import { isAuthenticated } from "./utils/auth";
 
-const hasToken = !!localStorage.getItem("access_token");
-
+// Always render App component
+// App.tsx will handle authentication and redirect to login if needed
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>{hasToken ? <App /> : <Login />}</React.StrictMode>
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
 );

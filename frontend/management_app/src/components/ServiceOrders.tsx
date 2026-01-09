@@ -5,7 +5,13 @@ import OrderCard from "../components/OrderCard";
 import CreateServiceOrderModal from "../components/CreateServiceOrderModal";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 import { Plus, Search } from "lucide-react";
 import "../styles/ServiceOrders.css";
 import type { Order } from "../interfaces/Order";
@@ -22,7 +28,12 @@ const ServiceOrders: FC = () => {
   const isManager = useMemo(() => {
     if (!user) return false;
     const role = user.role.toLowerCase();
-    return role === 'admin' || role === 'administrador' || role === 'gerente' || role === 'gestor';
+    return (
+      role === "admin" ||
+      role === "administrador" ||
+      role === "gerente" ||
+      role === "gestor"
+    );
   }, [user]);
 
   // Opções de status disponíveis baseado no papel do usuário
@@ -33,24 +44,23 @@ const ServiceOrders: FC = () => {
         { value: "Em Andamento", label: "Em Andamento" },
         { value: "Pendente", label: "Pendente" },
         { value: "Concluída", label: "Concluída" },
-        { value: "Cancelada", label: "Cancelada" }
+        { value: "Cancelada", label: "Cancelada" },
       ];
     } else {
       return [
         { value: "all", label: "Todos os status" },
         { value: "Em Andamento", label: "Em Andamento" },
         { value: "Pendente", label: "Pendente" },
-        { value : "Concluída", label: "Concluída"}
       ];
     }
   }, [isManager]);
 
   // Filtra ordens baseado nos critérios
   const filtered = orders.filter((o: Order) => {
-    // Filtrar por papel do usuário - mecânicos só veem ordens "Em Andamento", "Pendente", "Concluída"
+    // Filtrar por papel do usuário - não-gestores só veem ordens "Em Andamento" e "Pendente" (excluir Concluída e Cancelada)
     if (!isManager) {
       const status = (o.status || "").toLowerCase();
-      if (status !== "em andamento" && status !== "pendente" && status !== "concluída") {
+      if (status !== "em andamento" && status !== "pendente") {
         return false;
       }
     }
@@ -60,8 +70,9 @@ const ServiceOrders: FC = () => {
     const client = String(o.client ?? "").toLowerCase();
     const vehicle = String(o.vehicle ?? "").toLowerCase();
     const id = String(o.id ?? "").toLowerCase();
-    const matchesSearch = q === "" || client.includes(q) || vehicle.includes(q) || id.includes(q);
-    
+    const matchesSearch =
+      q === "" || client.includes(q) || vehicle.includes(q) || id.includes(q);
+
     // Aplicar filtro de status
     if (filterStatus === "all") return matchesSearch;
     const matchesStatus = o.status === filterStatus;
@@ -74,9 +85,9 @@ const ServiceOrders: FC = () => {
       <div className="so-content-wrapper">
         <header className="so-header">
           <h1 className="so-title">Ordens de Serviço</h1>
-          
-          <Button 
-            variant="destructive" 
+
+          <Button
+            variant="destructive"
             size="default"
             onClick={() => setShowNewModal(true)}
           >
@@ -86,7 +97,10 @@ const ServiceOrders: FC = () => {
         </header>
 
         <div className="so-actions">
-          <div className="mb-input-wrapper" style={{ position: "relative", flex: 1 }}>
+          <div
+            className="mb-input-wrapper"
+            style={{ position: "relative", flex: 1 }}
+          >
             <Search
               className="lucide lucide-search"
               style={{
@@ -108,7 +122,9 @@ const ServiceOrders: FC = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="mb-input"
               style={{ paddingLeft: "46px", borderColor: "#dc3545" }}
-              onFocus={(e) => e.target.nextElementSibling?.classList.add("shrunken")}
+              onFocus={(e) =>
+                e.target.nextElementSibling?.classList.add("shrunken")
+              }
               onBlur={(e) => {
                 if (!e.target.value) {
                   e.target.nextElementSibling?.classList.remove("shrunken");
@@ -122,13 +138,16 @@ const ServiceOrders: FC = () => {
               Buscar por cliente, veículo ou número...
             </label>
           </div>
-          
+
           <Select value={filterStatus} onValueChange={setFilterStatus}>
-            <SelectTrigger className="w-full sm:w-[200px] border-2 border-red-600 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0" style={{ height: "56px" }}>
+            <SelectTrigger
+              className="w-full sm:w-[200px] border-2 border-red-600 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+              style={{ height: "56px" }}
+            >
               <SelectValue placeholder="Filtrar por status" />
             </SelectTrigger>
             <SelectContent>
-              {availableStatuses.map(status => (
+              {availableStatuses.map((status) => (
                 <SelectItem key={status.value} value={status.value}>
                   {status.label}
                 </SelectItem>
@@ -137,15 +156,51 @@ const ServiceOrders: FC = () => {
           </Select>
         </div>
 
-        {loading && <div className="loading-message">Carregando ordens...</div>}
+        {loading && (
+          <div
+            className="so-loading-container"
+            style={{
+              padding: "3rem",
+              textAlign: "center",
+              backgroundColor: "white",
+              borderRadius: "8px",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+            }}
+          >
+            <div
+              className="spinner-border text-danger"
+              role="status"
+              style={{ width: "3rem", height: "3rem", marginBottom: "1rem" }}
+            >
+              <span className="visually-hidden">A carregar...</span>
+            </div>
+            <h3
+              style={{
+                fontSize: "1.25rem",
+                fontWeight: "600",
+                marginBottom: "0.5rem",
+              }}
+            >
+              A carregar ordens de serviço...
+            </h3>
+            <p style={{ color: "#6b7280", fontSize: "0.875rem" }}>
+              Por favor, aguarde enquanto buscamos os dados
+            </p>
+          </div>
+        )}
+
         {error && <div className="alert alert-danger">{error}</div>}
 
         {!loading && !error && (
           <main className="orders-list">
             {filtered.length > 0 ? (
-              filtered.map((order) => <OrderCard key={order.id} order={order} />)
+              filtered.map((order) => (
+                <OrderCard key={order.id} order={order} />
+              ))
             ) : (
-              <div className="alert alert-info">Nenhuma Ordem de Serviço encontrada com os filtros atuais.</div>
+              <div className="alert alert-info">
+                Nenhuma Ordem de Serviço encontrada com os filtros atuais.
+              </div>
             )}
           </main>
         )}

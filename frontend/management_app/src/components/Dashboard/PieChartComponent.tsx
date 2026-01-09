@@ -33,6 +33,38 @@ export const PieChartComponent: React.FC<PieChartComponentProps> = ({
     "#06b6d4",
   ];
 
+  // Mapeamento de labels para português
+  const labelMap: Record<string, string> = {
+    total: "Total",
+    status_name: "Status",
+    service_name: "Serviço",
+  };
+
+  // Tooltip customizado
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0];
+      return (
+        <div
+          style={{
+            backgroundColor: "#fff",
+            border: "1px solid #e5e7eb",
+            borderRadius: "6px",
+            padding: "10px",
+          }}
+        >
+          <p style={{ margin: 0, fontWeight: "bold", marginBottom: "5px" }}>
+            {data.name}
+          </p>
+          <p style={{ margin: 0, color: data.payload.fill }}>
+            {labelMap[dataKey] || "Total"}: {data.value}
+          </p>
+        </div>
+      );
+    }
+    return null;
+  };
+
   const renderCustomLabel = ({
     cx,
     cy,
@@ -82,13 +114,7 @@ export const PieChartComponent: React.FC<PieChartComponentProps> = ({
               />
             ))}
           </Pie>
-          <Tooltip
-            contentStyle={{
-              backgroundColor: "#fff",
-              border: "1px solid #e5e7eb",
-              borderRadius: "6px",
-            }}
-          />
+          <Tooltip content={<CustomTooltip />} />
           <Legend />
         </PieChart>
       </ResponsiveContainer>

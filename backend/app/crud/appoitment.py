@@ -86,9 +86,27 @@ class AppointmentRepository:
                 joinedload(Appointment.status)
             )
         )
-        # Admin e Gestor veem tudo; outros roles veem apenas serviços da sua área
-        if user and user.role.lower() not in ["gestor", "admin"]:
-            query = query.filter(Appointment.service.has(Service.area.like(f'%{user.role}%')))
+        # Admin e Gestor veem tudo; outros roles veem apenas serviços da sua área e não concluídas
+        if user and user.role.lower() not in ["gestor", "admin", "administrador", "gerente"]:
+            role_name = user.role.lower()
+            
+            # Mapear roles para áreas de serviço
+            if "mecanico" in role_name or "mecânico" in role_name:
+                query = query.join(Service).filter(Service.area.ilike("%mecânica%"))
+            elif "eletric" in role_name or "elétric" in role_name:
+                query = query.join(Service).filter(Service.area.ilike("%elétrica%"))
+            elif "borracheiro" in role_name or "pneu" in role_name:
+                query = query.join(Service).filter(Service.area.ilike("%pneu%"))
+            else:
+                # Para outras roles, filtrar genericamente pela role
+                query = query.join(Service).filter(Service.area.ilike(f"%{user.role}%"))
+            
+            # Filtrar apenas appointments não concluídas (excluir "Concluída" e "Cancelada")
+            query = query.filter(
+                ~Appointment.status.has(
+                    Status.name.in_(["Concluída", "Cancelada"])
+                )
+            )
         return query.order_by(Appointment.id.desc()).offset(skip).limit(limit).all()
 
     # def get_all(self, skip: int = 0, limit: int = 100) -> List[Appointment]:

@@ -106,4 +106,13 @@ export const metricsService = {
     );
     return response.data;
   },
+
+  // Anos disponíveis
+  getAvailableYears: async (): Promise<{ available_years: number[] }> => {
+    const response = await axios.get<{ available_years: number[] }>(
+      `${API_BASE_URL}/metrics/available-years`,
+      getConfig()
+    );
+    return response.data;
+  },
 };

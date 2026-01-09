@@ -415,3 +415,25 @@ def get_summary_metrics(
         "pending_rate": round((pending / total_appointments * 100), 2) if total_appointments > 0 else 0,
         "top_services": [{"name": s.name, "count": s.count} for s in top_services]
     }
+
+
+@router.get("/available-years")
+def get_available_years(
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user_optional)
+):
+    """
+    Retorna a lista de anos que têm dados de agendamentos disponíveis.
+    """
+    # Query base filtrada por role
+    base_query = db.query(
+        func.distinct(extract('year', Appointment.appointment_date)).label('year')
+    )
+    base_query = filter_by_user_role(base_query, current_user, db)
+    
+    years = base_query.order_by(func.extract('year', Appointment.appointment_date).desc()).all()
+    
+    # Converter para lista de inteiros
+    available_years = [int(year[0]) for year in years if year[0] is not None]
+    
+    return {"available_years": available_years}

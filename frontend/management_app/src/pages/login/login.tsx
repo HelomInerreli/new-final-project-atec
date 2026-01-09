@@ -24,27 +24,29 @@ export default function Login() {
       <div className="login-overlay" />
       <div className="container">
         <div className="row justify-content-center align-items-center min-vh-100">
-          <div className="login-card">
-            <header className="login-card-header">
-              <h2 className="login-title">MECATEC OFICINA</h2>
-              <p className="login-subtitle">
-                {mode === "login"
-                  ? "Autentique-se para continuar"
-                  : "Confirme a verificação em duas etapas"}
-              </p>
-            </header>
+          <div className="col-auto">
+            <div className="login-card">
+              <header className="login-card-header">
+                <h2 className="login-title">MECATEC OFICINA</h2>
+                <p className="login-subtitle">
+                  {mode === "login"
+                    ? "Autentique-se para continuar"
+                    : "Confirme a verificação em duas etapas"}
+                </p>
+              </header>
 
-            <div className="login-card-body">
-              <div className="login-form-wrapper">
-                <SignIn onLoggedIn={handleLoggedIn} />
+              <div className="login-card-body">
+                <div className="login-form-wrapper">
+                  <SignIn onLoggedIn={handleLoggedIn} />
+                </div>
               </div>
-            </div>
 
-            <footer className="login-footer">
-              <small className="text-light-50">
-                © {new Date().getFullYear()} Mecatec • Segurança & Performance
-              </small>
-            </footer>
+              <footer className="login-footer">
+                <small className="text-light-50">
+                  © {new Date().getFullYear()} Mecatec • Segurança & Performance
+                </small>
+              </footer>
+            </div>
           </div>
         </div>
       </div>
