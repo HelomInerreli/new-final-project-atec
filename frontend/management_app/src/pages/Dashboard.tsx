@@ -39,8 +39,12 @@ export default function Dashboard() {
   );
   const [serviceMetrics, setServiceMetrics] = useState<ServiceMetric[]>([]);
   const [statusMetrics, setStatusMetrics] = useState<StatusMetric[]>([]);
-  const [yearlyServiceMetrics, setYearlyServiceMetrics] = useState<ServiceMetric[]>([]);
-  const [yearlyStatusMetrics, setYearlyStatusMetrics] = useState<StatusMetric[]>([]);
+  const [yearlyServiceMetrics, setYearlyServiceMetrics] = useState<
+    ServiceMetric[]
+  >([]);
+  const [yearlyStatusMetrics, setYearlyStatusMetrics] = useState<
+    StatusMetric[]
+  >([]);
   const [selectedYear, setSelectedYear] = useState<number>(currentYear);
   const [availableYears, setAvailableYears] = useState<number[]>([]);
 
@@ -64,13 +68,14 @@ export default function Dashboard() {
     try {
       const startDate = `${selectedYear}-01-01`;
       const endDate = `${selectedYear}-12-31`;
-      
-      const [yearData, lastYearData, servicesData, statusesData] = await Promise.all([
-        metricsService.getYearlyMetrics(selectedYear),
-        metricsService.getYearlyMetrics(selectedYear - 1),
-        metricsService.getMetricsByService(startDate, endDate),
-        metricsService.getMetricsByStatus(startDate, endDate),
-      ]);
+
+      const [yearData, lastYearData, servicesData, statusesData] =
+        await Promise.all([
+          metricsService.getYearlyMetrics(selectedYear),
+          metricsService.getYearlyMetrics(selectedYear - 1),
+          metricsService.getMetricsByService(startDate, endDate),
+          metricsService.getMetricsByStatus(startDate, endDate),
+        ]);
       setCurrentYearMetrics(yearData);
       setLastYearMetrics(lastYearData);
       setYearlyServiceMetrics(servicesData || []);
@@ -480,7 +485,6 @@ export default function Dashboard() {
                 100
               ).toFixed(1)}%`}
               subtitle={`${selectedYear}`}
-
               icon="✅"
               color="orange"
             />

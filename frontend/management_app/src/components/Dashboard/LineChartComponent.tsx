@@ -56,10 +56,7 @@ export const LineChartComponent: React.FC<LineChartComponentProps> = ({
             {label}
           </p>
           {payload.map((entry: any, index: number) => (
-            <p
-              key={index}
-              style={{ margin: 0, color: entry.color }}
-            >
+            <p key={index} style={{ margin: 0, color: entry.color }}>
               {entry.name}: {entry.value}
             </p>
           ))}

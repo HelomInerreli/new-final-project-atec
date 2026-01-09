@@ -65,10 +65,7 @@ export const BarChartComponent: React.FC<BarChartComponentProps> = ({
             {label}
           </p>
           {payload.map((entry: any, index: number) => (
-            <p
-              key={index}
-              style={{ margin: 0, color: entry.color }}
-            >
+            <p key={index} style={{ margin: 0, color: entry.color }}>
               {labelMap[entry.dataKey] || entry.dataKey}: {entry.value}
             </p>
           ))}
