@@ -379,6 +379,7 @@ const hasPendingExtraServices = order?.extra_service_associations?.some(
                 className="so-add-icon-btn so-add-icon-btn-parts"
                 onClick={() => setIsPartsModalOpen(true)}
                 title="Adicionar peça"
+                disabled={currentNormalized === "Concluída" || order?.status?.name === "Waitting Payment" || order?.status?.name === "Finalized"}
               >
                 +
               </button>
@@ -483,6 +484,8 @@ const hasPendingExtraServices = order?.extra_service_associations?.some(
                 className="so-add-icon-btn so-add-icon-btn-parts"
                 onClick={() => setIsExtraServiceModalOpen(true)}
                 title="Propor serviço extra"
+                disabled={currentNormalized === "Concluída" || order?.status?.name === "Waitting Payment" || order?.status?.name === "Finalized"}
+
               >
                 +
               </button>

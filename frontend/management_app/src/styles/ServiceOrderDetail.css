@@ -235,7 +235,7 @@
   background-color: #dc3545;
   color: #ffffff;
   border: none;
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   font-weight: 400;
   cursor: pointer;
   display: flex;
@@ -244,7 +244,7 @@
   transition: all 0.3s ease;
   line-height: 1;
   padding: 0;
-  padding-bottom: 2px;
+  padding-bottom: 3px;
   flex-shrink: 0;
 }
 
