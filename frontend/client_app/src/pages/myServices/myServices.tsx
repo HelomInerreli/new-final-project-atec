@@ -32,7 +32,7 @@ export function MyServices() {
      * Inicial: true (exibe spinner durante verificação de autenticação)
      */
     const [loading, setLoading] = useState(true);
-    const { showSuccess, showCancelled, appointmentId, clearStatus } = usePaymentStatus();
+    const { showSuccess, showCancelled, appointmentId, invoiceNumber, clearStatus } = usePaymentStatus();
 
     /**
      * Efeito para controlar estado de loading após verificação de autenticação
@@ -128,6 +128,7 @@ export function MyServices() {
                 isOpen={showSuccess}
                 onClose={clearStatus}
                 appointmentId={appointmentId || 0}
+                invoiceNumber={invoiceNumber || undefined}
             />
             
             <PaymentCancelledModal

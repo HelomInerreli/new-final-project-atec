@@ -1,5 +1,6 @@
 import React from 'react';
-import { XCircle } from 'lucide-react';
+import { XCircle, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface PaymentCancelledModalProps {
   isOpen: boolean;
@@ -10,16 +11,25 @@ const PaymentCancelledModal: React.FC<PaymentCancelledModalProps> = ({
   isOpen,
   onClose,
 }) => {
+  const navigate = useNavigate();
+
   if (!isOpen) return null;
 
   const handleRetry = () => {
-    // Volta para a página de appointments para tentar novamente
-    window.location.href = '/my-services?section=appointments';
+    onClose();
+    // Volta para a página de agendamentos futuros
+    setTimeout(() => {
+      navigate('/future-appointments');
+    }, 200);
   };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content payment-modal" onClick={(e) => e.stopPropagation()}>
+        <button className="modal-close-btn" onClick={onClose} aria-label="Fechar">
+          <X size={24} />
+        </button>
+
         <div className="payment-cancelled-icon">
           <XCircle size={64} color="#ef4444" />
         </div>
