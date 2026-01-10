@@ -111,6 +111,14 @@ export const removeToken = () => {
   delete http.defaults.headers.common['Authorization'];
 };
 
+export const handleTokenExpiration = (
+  navigate: (path: string) => void
+) => {
+  removeToken();
+  navigate('/');
+  window.location.reload();
+};
+
 export const checkEmailExists = async (email: string) => {
   const response = await http.get(`/customersauth/check-email?email=${encodeURIComponent(email)}`);
   return response.data;
