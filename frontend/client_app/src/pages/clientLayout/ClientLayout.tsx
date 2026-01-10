@@ -6,7 +6,7 @@ import { Appointments } from "../future_appointments/FutureAppointments";
 import { PastAppointmentsPage } from "../pastAppointments/PastAppointmentsPage";
 import { Invoices } from "../invoices/invoices";
 import Dashboard from "../dashboard/Dashboard";
-import { useAuth } from "../../api/auth";
+import { useAuth, handleTokenExpiration, getStoredToken, isTokenValid } from "../../api/auth";
 import { useTranslation } from "react-i18next";
 import { getActiveSectionFromURL } from "../../utils/navigationHelpers";
 import "../../styles/ClientLayout.css";
@@ -64,6 +64,12 @@ export function ClientLayout() {
 
   // Função para mudar de seção e atualizar a URL
   const handleSectionChange = (section: ClientSection) => {
+    // Verifica se está logado e se o token ainda é válido
+    const token = getStoredToken();
+    if (!token || !isTokenValid(token)) {
+      handleTokenExpiration(navigate);
+      return;
+    }
     setActiveSection(section);
     navigate(`/my-services?section=${section}`, { replace: true });
   };
