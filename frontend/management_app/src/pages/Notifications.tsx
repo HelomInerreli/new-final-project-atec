@@ -67,6 +67,38 @@ export default function Notifications() {
     }
   };
 
+  // Função para obter cor de fundo baseada no alertType
+  const getBackgroundColor = (alertType: string) => {
+    switch (alertType) {
+      case "danger":
+        return "rgba(220, 53, 69, 0.08)"; // vermelho fraco
+      case "warning":
+        return "rgba(255, 193, 7, 0.08)"; // amarelo fraco
+      case "success":
+        return "rgba(25, 135, 84, 0.08)"; // verde fraco
+      case "info":
+      default:
+        return "rgba(13, 110, 253, 0.08)"; // azul fraco
+    }
+  };
+
+  // Função para traduzir o nome do componente
+  const translateComponent = (component: string): string => {
+    const componentMap: Record<string, string> = {
+      Dashboard: "Dashboard",
+      ServiceOrder: "Ordens de Serviço",
+      Appointment: "Agendamentos",
+      Customer: "Clientes",
+      Vehicle: "Veículos",
+      Stock: "Stock",
+      Payment: "Pagamentos",
+      User: "Usuários",
+      Service: "Gestão de Serviços",
+      Settings: "Configurações",
+    };
+    return componentMap[component] || component;
+  };
+
   // Função para formatar data
   const formatDate = (dateString: string) => {
     try {
@@ -121,18 +153,16 @@ export default function Notifications() {
                 className={`notification-card mb-3 border-start border-${getAlertVariant(
                   notif.alertType
                 )}`}
+                style={{
+                  backgroundColor: getBackgroundColor(notif.alertType),
+                }}
               >
                 <Card.Body className="d-flex justify-content-between align-items-start">
                   <div className="flex-grow-1">
                     <div className="d-flex align-items-center mb-2">
-                      <h5 className="mb-0">{notif.component}</h5>
-                      <span
-                        className={`badge bg-${getAlertVariant(
-                          notif.alertType
-                        )} ms-2`}
-                      >
-                        {notif.alertType}
-                      </span>
+                      <h5 className="mb-0">
+                        {translateComponent(notif.component)}
+                      </h5>
                     </div>
                     <p className="card-text text-muted mb-1">{notif.text}</p>
                     <small className="text-muted">

@@ -502,6 +502,19 @@ class AppointmentRepository:
         # Desconta do stock
         product.quantity -= quantity
         
+        # Verificar se ficou abaixo do estoque mínimo e enviar notificação
+        if product.quantity <= product.minimum_stock:
+            try:
+                from app.services.notification_service import NotificationService
+                NotificationService.notify_low_stock(
+                    db=self.db,
+                    product_name=product.name,
+                    current_quantity=product.quantity,
+                    min_quantity=product.minimum_stock
+                )
+            except Exception as e:
+                print(f"Erro ao enviar notificação de estoque baixo: {e}")
+        
         new_part = OrderPart( 
             appointment_id=appointment_id,
             product_id=product.id,
@@ -518,15 +531,18 @@ class AppointmentRepository:
         
         return appointment
 
-    def start_work(self, appointment_id: int) -> Optional[Appointment]:
-        """Inicia o trabalho na appointment: define start_time e status para 'In Repair'."""
+    def start_work(self, appointment_id: int, employee_id: Optional[int] = None) -> Optional[Appointment]:
+        """Inicia o trabalho na appointment: define start_time, employee responsável e status para 'In Repair'."""
         db_appointment = self.get_by_id(appointment_id=appointment_id)
         if not db_appointment:
             return None
 
-        #  Apenas na primeira vez: guarda que foi iniciado
+        #  Apenas na primeira vez: guarda que foi iniciado e atribui o employee
         if not db_appointment.start_time:
             db_appointment.start_time = datetime.utcnow()
+            # Atribuir employee responsável (só na primeira vez)
+            if employee_id and not db_appointment.assigned_employee_id:
+                db_appointment.assigned_employee_id = employee_id
         
         #  SEMPRE que inicia (mesmo depois de pausar):
         db_appointment.is_paused = False

@@ -69,6 +69,23 @@ class VehicleRepository:
         self.db.add(db_vehicle)
         self.db.commit()
         self.db.refresh(db_vehicle)
+        
+        # Enviar notificação sobre novo veículo
+        try:
+            from app.services.notification_service import NotificationService
+            
+            customer = self.db.query(Customer).filter(Customer.id == db_vehicle.customer_id).first()
+            customer_name = customer.name if customer else "N/A"
+            vehicle_info = f"{db_vehicle.brand} {db_vehicle.model} - {db_vehicle.plate}"
+            
+            NotificationService.notify_new_vehicle(
+                db=self.db,
+                vehicle_info=vehicle_info,
+                customer_name=customer_name
+            )
+        except Exception as e:
+            print(f"Erro ao enviar notificação de novo veículo: {e}")
+        
         return db_vehicle
 
     def update(self, vehicle_id: int, vehicle_data: Dict[str, Any]) -> Optional[Vehicle]:

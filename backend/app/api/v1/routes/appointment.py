@@ -12,6 +12,7 @@ from app.models.order_comment import OrderComment
 from app.models.appoitment import Appointment as AppointmentModel
 from app.models.user import User
 from app.core.security import get_current_user
+from app.services.notification_service import NotificationService
 
 router = APIRouter()
 
@@ -32,11 +33,32 @@ def list_appointments(
 @router.post("/", response_model=Appointment, status_code=status.HTTP_201_CREATED)
 def create_appointment(
     appointment_in: AppointmentCreate,
-    repo: AppointmentRepository = Depends(get_appointment_repo)
+    repo: AppointmentRepository = Depends(get_appointment_repo),
+    db: Session = Depends(get_db)
 ):
     """Create a new appointment."""
     email_service = EmailService()
     new_appointment = repo.create(appointment=appointment_in, email_service=email_service)
+    
+    # Enviar notificação sobre novo agendamento
+    try:
+        from app.models.service import Service
+        from app.models.customer import Customer
+        
+        service = db.query(Service).filter(Service.id == new_appointment.service_id).first()
+        customer = db.query(Customer).filter(Customer.id == new_appointment.customer_id).first()
+        
+        if service and customer:
+            NotificationService.notify_new_appointment(
+                db=db,
+                appointment_id=new_appointment.id,
+                service_area=service.area,
+                customer_name=customer.name,
+                appointment_date=new_appointment.appointment_date.strftime("%d/%m/%Y %H:%M")
+            )
+    except Exception as e:
+        print(f"Erro ao enviar notificação de novo agendamento: {e}")
+    
     return new_appointment
 
 @router.post("/{appointment_id}/parts")
@@ -70,11 +92,39 @@ def get_appointment_details(
 
 
 @router.patch("/{appointment_id}/start_work", status_code=200)
-def start_work(appointment_id: int, db: Session = Depends(get_db)):
+def start_work(
+    appointment_id: int, 
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     repo = AppointmentRepository(db)
-    appt = repo.start_work(appointment_id=appointment_id)
+    
+    # Obter employee_id do usuário atual
+    employee_id = current_user.employee_id if current_user.employee_id else None
+    
+    appt = repo.start_work(appointment_id=appointment_id, employee_id=employee_id)
     if not appt:
         raise HTTPException(status_code=404, detail="Appointment not found")
+    
+    # Enviar notificação
+    try:
+        from app.models.service import Service
+        from app.models.customer import Customer
+        
+        service = db.query(Service).filter(Service.id == appt.service_id).first()
+        customer = db.query(Customer).filter(Customer.id == appt.customer_id).first()
+        
+        if service and customer:
+            NotificationService.notify_appointment_work_status(
+                db=db,
+                appointment_id=appt.id,
+                status_action="iniciada",
+                customer_name=customer.name,
+                service_name=service.name
+            )
+    except Exception as e:
+        print(f"Erro ao enviar notificação de início de trabalho: {e}")
+    
     return appt
 
 @router.patch("/{appointment_id}/pause_work", status_code=200)
@@ -85,6 +135,26 @@ def pause_work(appointment_id: int, db: Session = Depends(get_db)):
     appt = repo.pause_work(appointment_id=appointment_id)
     if not appt:
         raise HTTPException(status_code=404, detail="Appointment not found or not in progress")
+    
+    # Enviar notificação
+    try:
+        from app.models.service import Service
+        from app.models.customer import Customer
+        
+        service = db.query(Service).filter(Service.id == appt.service_id).first()
+        customer = db.query(Customer).filter(Customer.id == appt.customer_id).first()
+        
+        if service and customer:
+            NotificationService.notify_appointment_work_status(
+                db=db,
+                appointment_id=appt.id,
+                status_action="pausada",
+                customer_name=customer.name,
+                service_name=service.name
+            )
+    except Exception as e:
+        print(f"Erro ao enviar notificação de pausa de trabalho: {e}")
+    
     return appt
 
 @router.patch("/{appointment_id}/resume_work", status_code=200)
@@ -93,6 +163,26 @@ def resume_work(appointment_id: int, db: Session = Depends(get_db)):
     appt = repo.resume_work(appointment_id=appointment_id)
     if not appt:
         raise HTTPException(status_code=404, detail="Appointment not found or not paused")
+    
+    # Enviar notificação
+    try:
+        from app.models.service import Service
+        from app.models.customer import Customer
+        
+        service = db.query(Service).filter(Service.id == appt.service_id).first()
+        customer = db.query(Customer).filter(Customer.id == appt.customer_id).first()
+        
+        if service and customer:
+            NotificationService.notify_appointment_work_status(
+                db=db,
+                appointment_id=appt.id,
+                status_action="retomada",
+                customer_name=customer.name,
+                service_name=service.name
+            )
+    except Exception as e:
+        print(f"Erro ao enviar notificação de retomada de trabalho: {e}")
+    
     return appt
 
 @router.patch("/{appointment_id}/finalize_work", status_code=200)
@@ -101,6 +191,26 @@ def finalize_work(appointment_id: int, db: Session = Depends(get_db)):
     appt = repo.finalize_work(appointment_id=appointment_id)
     if not appt:
         raise HTTPException(status_code=404, detail="Appointment not found")
+    
+    # Enviar notificação
+    try:
+        from app.models.service import Service
+        from app.models.customer import Customer
+        
+        service = db.query(Service).filter(Service.id == appt.service_id).first()
+        customer = db.query(Customer).filter(Customer.id == appt.customer_id).first()
+        
+        if service and customer:
+            NotificationService.notify_appointment_work_status(
+                db=db,
+                appointment_id=appt.id,
+                status_action="finalizada",
+                customer_name=customer.name,
+                service_name=service.name
+            )
+    except Exception as e:
+        print(f"Erro ao enviar notificação de finalização de trabalho: {e}")
+    
     return appt
 
 @router.get("/{appointment_id}/current_work_time", status_code=200)
@@ -148,7 +258,9 @@ def start_appointment(
 def add_extra_service_request(
     appointment_id: int,
     extra_service_request_in: AppointmentExtraServiceCreate,
-    repo: AppointmentRepository = Depends(get_appointment_repo)
+    repo: AppointmentRepository = Depends(get_appointment_repo),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     """Create a pending extra-service request."""
     email_service = EmailService()
@@ -159,6 +271,22 @@ def add_extra_service_request(
     )
     if not db_request:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Appointment not found")
+    
+    # Enviar notificação sobre solicitação de serviço extra
+    try:
+        from app.models.extra_service import ExtraService
+        extra_service = db.query(ExtraService).filter(ExtraService.id == extra_service_request_in.extra_service_id).first()
+        
+        if extra_service:
+            NotificationService.notify_extra_service_requested(
+                db=db,
+                appointment_id=appointment_id,
+                service_name=extra_service.name,
+                requested_by=current_user.name
+            )
+    except Exception as e:
+        print(f"Erro ao enviar notificação de serviço extra solicitado: {e}")
+    
     return db_request
 
 @router.get("/{appointment_id}/extra_service_requests", response_model=List[AppointmentExtraServiceSchema])
