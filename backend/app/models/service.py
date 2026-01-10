@@ -10,7 +10,8 @@ class Service(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), unique=True, index=True, nullable=False)
     description = Column(String(1000), nullable=True)
-    price = Column(Float, nullable=False)
+    price = Column(Float, nullable=False)  # Valor estimado total (labor_cost + peças previstas)
+    labor_cost = Column(Float, nullable=True)  # Custo de mão de obra
     duration_minutes = Column(Integer, nullable=False)
     is_active = Column(Boolean, default=True)
     area = Column(String(100), nullable=True) 

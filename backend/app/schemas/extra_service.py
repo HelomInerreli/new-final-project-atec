@@ -5,6 +5,7 @@ class ExtraServiceBase(BaseModel):
     name: str
     description: Optional[str] = None
     price: float
+    labor_cost: Optional[float] = None
     duration_minutes: Optional[int] = None
 
     model_config = ConfigDict(extra='ignore')

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Body, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 
 from app.database import get_db
 from app.crud.appoitment import AppointmentRepository
@@ -12,6 +12,7 @@ from app.models.order_comment import OrderComment
 from app.models.appoitment import Appointment as AppointmentModel
 from app.models.user import User
 from app.core.security import get_current_user
+from app.schemas.invoice import InvoiceBreakdown
 
 router = APIRouter()
 
@@ -44,13 +45,20 @@ def add_part_to_appointment(
     appointment_id: int,
     product_id: int = Body(...),
     quantity: int = Body(...),
+    extra_service_id: Optional[int] = Body(None),
     db: Session = Depends(get_db)
 ):
     """
     Adiciona uma peça a uma ordem de serviço.
+    Se extra_service_id for fornecido, a peça é associada ao serviço extra.
     """
     repo = AppointmentRepository(db)
-    appointment = repo.add_part(appointment_id=appointment_id, product_id=product_id, quantity=quantity)
+    appointment = repo.add_part(
+        appointment_id=appointment_id, 
+        product_id=product_id, 
+        quantity=quantity,
+        extra_service_id=extra_service_id
+    )
     if not appointment:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Appointment not found")
     return appointment
@@ -239,6 +247,17 @@ def list_comments(
         .order_by(OrderComment.created_at.desc())
         .all()
     )
+
+@router.get("/{appointment_id}/cost-breakdown", response_model=InvoiceBreakdown)
+def get_cost_breakdown(
+    appointment_id: int,
+    repo: AppointmentRepository = Depends(get_appointment_repo)
+):
+    """Retorna o breakdown discriminado de custos da ordem (mão de obra + peças + extras)"""
+    breakdown = repo.calculate_order_total(appointment_id)
+    if not breakdown:
+        raise HTTPException(status_code=404, detail="Appointment not found")
+    return breakdown
 
 
 

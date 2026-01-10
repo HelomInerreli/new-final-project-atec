@@ -105,36 +105,129 @@ export function InvoiceDetail({ appointmentId }: InvoiceDetailProps) {
                 {/* Services Table */}
                 <div className="services-table">
                     <h3>Serviços Prestados</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Descrição</th>
-                                <th>Qtd</th>
-                                <th>Preço Unit.</th>
-                                <th>Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {invoice.items && invoice.items.length > 0 ? (
-                                invoice.items.map((item, index) => (
-                                    <tr key={index}>
-                                        <td>
-                                            <div className="item-description">
-                                                <strong>{item.description || 'Serviço'}</strong>
-                                            </div>
-                                        </td>
-                                        <td className="text-center">{item.quantity || 1}</td>
-                                        <td className="text-right">{formatCurrency(item.unitPrice || 0)}</td>
-                                        <td className="text-right">{formatCurrency(item.total || 0)}</td>
-                                    </tr>
-                                ))
-                            ) : (
+                    
+                    {invoice.breakdown ? (
+                        /* Novo formato discriminado */
+                        <div>
+                            {/* Serviço Base */}
+                            <div className="mb-4">
+                                <h5 className="text-primary mb-3">{invoice.breakdown.base_service.name}</h5>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Descrição</th>
+                                            <th>Qtd</th>
+                                            <th>Preço Unit.</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {invoice.breakdown.base_service.labor_cost > 0 && (
+                                            <tr>
+                                                <td><strong>Mão de Obra</strong></td>
+                                                <td className="text-center">1</td>
+                                                <td className="text-right">{formatCurrency(invoice.breakdown.base_service.labor_cost)}</td>
+                                                <td className="text-right">{formatCurrency(invoice.breakdown.base_service.labor_cost)}</td>
+                                            </tr>
+                                        )}
+                                        {invoice.breakdown.base_service.parts.map((part, idx) => (
+                                            <tr key={idx}>
+                                                <td>
+                                                    <div>{part.name}</div>
+                                                    {part.part_number && (
+                                                        <small className="text-muted">Ref: {part.part_number}</small>
+                                                    )}
+                                                </td>
+                                                <td className="text-center">{part.quantity}</td>
+                                                <td className="text-right">{formatCurrency(part.unit_price)}</td>
+                                                <td className="text-right">{formatCurrency(part.total)}</td>
+                                            </tr>
+                                        ))}
+                                        <tr className="subtotal-row">
+                                            <td colSpan={3} className="text-right"><strong>Subtotal:</strong></td>
+                                            <td className="text-right"><strong>{formatCurrency(invoice.breakdown.base_service.subtotal)}</strong></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {/* Serviços Extras */}
+                            {invoice.breakdown.extra_services.map((extra, extraIdx) => (
+                                <div key={extraIdx} className="mb-4">
+                                    <h5 className="text-primary mb-3">{extra.name} (Serviço Extra)</h5>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Descrição</th>
+                                                <th>Qtd</th>
+                                                <th>Preço Unit.</th>
+                                                <th>Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {extra.labor_cost > 0 && (
+                                                <tr>
+                                                    <td><strong>Mão de Obra</strong></td>
+                                                    <td className="text-center">1</td>
+                                                    <td className="text-right">{formatCurrency(extra.labor_cost)}</td>
+                                                    <td className="text-right">{formatCurrency(extra.labor_cost)}</td>
+                                                </tr>
+                                            )}
+                                            {extra.parts.map((part, idx) => (
+                                                <tr key={idx}>
+                                                    <td>
+                                                        <div>{part.name}</div>
+                                                        {part.part_number && (
+                                                            <small className="text-muted">Ref: {part.part_number}</small>
+                                                        )}
+                                                    </td>
+                                                    <td className="text-center">{part.quantity}</td>
+                                                    <td className="text-right">{formatCurrency(part.unit_price)}</td>
+                                                    <td className="text-right">{formatCurrency(part.total)}</td>
+                                                </tr>
+                                            ))}
+                                            <tr className="subtotal-row">
+                                                <td colSpan={3} className="text-right"><strong>Subtotal:</strong></td>
+                                                <td className="text-right"><strong>{formatCurrency(extra.subtotal)}</strong></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        /* Formato antigo (fallback) */
+                        <table>
+                            <thead>
                                 <tr>
-                                    <td colSpan={4} className="text-center">Nenhum serviço encontrado</td>
+                                    <th>Descrição</th>
+                                    <th>Qtd</th>
+                                    <th>Preço Unit.</th>
+                                    <th>Total</th>
                                 </tr>
-                            )}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {invoice.items && invoice.items.length > 0 ? (
+                                    invoice.items.map((item, index) => (
+                                        <tr key={index}>
+                                            <td>
+                                                <div className="item-description">
+                                                    <strong>{item.description || 'Serviço'}</strong>
+                                                </div>
+                                            </td>
+                                            <td className="text-center">{item.quantity || 1}</td>
+                                            <td className="text-right">{formatCurrency(item.unitPrice || 0)}</td>
+                                            <td className="text-right">{formatCurrency(item.total || 0)}</td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan={4} className="text-center">Nenhum serviço encontrado</td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    )}
                 </div>
 
                 {/* Totals */}

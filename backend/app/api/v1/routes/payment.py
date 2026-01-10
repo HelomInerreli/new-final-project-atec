@@ -1,4 +1,5 @@
 import stripe
+import json
 from fastapi import APIRouter, HTTPException, Depends, Request
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
@@ -10,7 +11,6 @@ from app.models.customer import Customer
 from app.models.vehicle import Vehicle
 from app.models.invoice import Invoice
 from app.models.status import Status
-import json
 from datetime import datetime
 
 # Configure Stripe
@@ -24,82 +24,139 @@ class CheckoutRequest(BaseModel):
 @router.get("/appointment/{appointment_id}/preview")
 async def preview_appointment_checkout(appointment_id: int, db: Session = Depends(get_db)):
     """Preview what services will be charged for an appointment"""
+    from app.crud.appoitment import AppointmentRepository
+    
     appointment = db.query(Appointment).filter(Appointment.id == appointment_id).first()
     if not appointment:
         raise HTTPException(status_code=404, detail="Appointment not found")
     
+    # Usar o novo sistema de cálculo discriminado
+    repo = AppointmentRepository(db)
+    breakdown = repo.calculate_order_total(appointment_id)
+    
+    if not breakdown:
+        raise HTTPException(status_code=500, detail="Could not calculate breakdown")
+    
     items = []
-    total = 0
     
-    # Main service
-    if appointment.service:
+    # Serviço base - Mão de obra
+    base_service = breakdown['base_service']
+    if base_service['labor_cost'] > 0:
         items.append({
-            "name": appointment.service.name,
-            "description": appointment.service.description,
-            "price": appointment.service.price,
+            "name": f"{base_service['name']} - Mão de Obra",
+            "description": "Custo de mão de obra",
+            "price": base_service['labor_cost'],
         })
-        total += appointment.service.price
     
-    # Extra services
-    for assoc in appointment.extra_service_associations:
-        extra_service = assoc.extra_service
-        price = assoc.price if assoc.price else (extra_service.price if extra_service else 0)
-        name = assoc.name if assoc.name else (extra_service.name if extra_service else "Extra service")
-        description = assoc.description if assoc.description else (extra_service.description if extra_service else None)
+    # Serviço base - Peças
+    for part in base_service['parts']:
         items.append({
-            "name": name,
-            "description": description,
-            "price": price,
+            "name": f"{part['name']} ({part['part_number'] or 'N/A'})",
+            "description": f"Peça (x{part['quantity']})",
+            "price": part['total'],
         })
-        total += price
+    
+    # Serviços extras
+    for extra in breakdown['extra_services']:
+        # Mão de obra do extra
+        if extra['labor_cost'] > 0:
+            items.append({
+                "name": f"{extra['name']} - Mão de Obra",
+                "description": "Custo de mão de obra (serviço extra)",
+                "price": extra['labor_cost'],
+            })
+        
+        # Peças do extra
+        for part in extra['parts']:
+            items.append({
+                "name": f"{part['name']} ({part['part_number'] or 'N/A'})",
+                "description": f"Peça - {extra['name']} (x{part['quantity']})",
+                "price": part['total'],
+            })
     
     return {
         "appointment_id": appointment.id,
         "items": items, 
-        "total": total,
+        "total": breakdown['total'],
         "currency": "EUR",
     }
 
 @router.post("/create-checkout-session")
 async def create_checkout_session(request: CheckoutRequest, db: Session = Depends(get_db)):
     try:
+        from app.crud.appoitment import AppointmentRepository
+        
         appointment = db.query(Appointment).filter(Appointment.id == request.appointment_id).first()
         if not appointment:
             raise HTTPException(status_code=404, detail="Appointment not found")
         
+        # Usar o novo sistema de cálculo discriminado
+        repo = AppointmentRepository(db)
+        breakdown = repo.calculate_order_total(request.appointment_id)
+        
+        if not breakdown:
+            raise HTTPException(status_code=500, detail="Could not calculate breakdown")
+        
         line_items = []
-
-        # Main service
-        if appointment.service:
+        
+        # Serviço base - Mão de obra
+        base_service = breakdown['base_service']
+        if base_service['labor_cost'] > 0:
             line_items.append({
                 "price_data": {
                     "currency": "eur",
                     "product_data": {
-                        "name": appointment.service.name,
-                        "description": appointment.service.description if appointment.service.description else None,
+                        "name": f"{base_service['name']} - Mão de Obra",
+                        "description": "Custo de mão de obra",
                     },
-                    "unit_amount": int(appointment.service.price * 100),
+                    "unit_amount": int(base_service['labor_cost'] * 100),
                 },
                 "quantity": 1,
             })
-
-        # Extra services
-        for assoc in appointment.extra_service_associations:
-            extra_service = assoc.extra_service
-            price = assoc.price if assoc.price else (extra_service.price if extra_service else 0)
-            name = assoc.name if assoc.name else (extra_service.name if extra_service else "Extra service")
-            description = assoc.description if assoc.description else (extra_service.description if extra_service else None)
+        
+        # Serviço base - Peças
+        for part in base_service['parts']:
             line_items.append({
                 "price_data": {
                     "currency": "eur",
                     "product_data": {
-                        "name": name,
-                        "description": description,
+                        "name": f"{part['name']} ({part['part_number'] or 'N/A'})",
+                        "description": f"Peça - {base_service['name']}",
                     },
-                    "unit_amount": int(price * 100),
+                    "unit_amount": int(part['unit_price'] * 100),
                 },
-                "quantity": 1,
+                "quantity": part['quantity'],
             })
+        
+        # Serviços extras
+        for extra in breakdown['extra_services']:
+            # Mão de obra do extra
+            if extra['labor_cost'] > 0:
+                line_items.append({
+                    "price_data": {
+                        "currency": "eur",
+                        "product_data": {
+                            "name": f"{extra['name']} - Mão de Obra",
+                            "description": "Custo de mão de obra (serviço extra)",
+                        },
+                        "unit_amount": int(extra['labor_cost'] * 100),
+                    },
+                    "quantity": 1,
+                })
+            
+            # Peças do extra
+            for part in extra['parts']:
+                line_items.append({
+                    "price_data": {
+                        "currency": "eur",
+                        "product_data": {
+                            "name": f"{part['name']} ({part['part_number'] or 'N/A'})",
+                            "description": f"Peça - {extra['name']}",
+                        },
+                        "unit_amount": int(part['unit_price'] * 100),
+                    },
+                    "quantity": part['quantity'],
+                })
         
         if not line_items:
             raise HTTPException(status_code=400, detail="No services found for this appointment")
@@ -108,7 +165,7 @@ async def create_checkout_session(request: CheckoutRequest, db: Session = Depend
             payment_method_types=["card", "klarna", "mb_way"],
             mode="payment",
             line_items=line_items,
-            success_url=f"{settings.CLIENT_URL}/my-services?section=invoices&appointment={appointment.id}",
+            success_url=f"{settings.CLIENT_URL}/my-services?section=service-history&payment=success&appointment={appointment.id}",
             cancel_url=f"{settings.CLIENT_URL}/my-services?section=appointments",
             metadata={"appointment_id": str(appointment.id)}
         )
@@ -126,84 +183,80 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
     This endpoint is called by Stripe when payment events occur.
     CRITICAL: This ensures payments are confirmed even if user closes browser!
     """
+    payload = await request.body()
+    sig_header = request.headers.get('stripe-signature')
+    
     try:
-        payload = await request.body()
-        print(f"📥 Received webhook payload: {payload[:200]}")
+        # Verify webhook signature (PRODUCTION: use webhook secret)
+        # event = stripe.Webhook.construct_event(
+        #     payload, sig_header, settings.STRIPE_WEBHOOK_SECRET
+        # )
         
-        # Parse event WITHOUT signature validation for testing
-        try:
-            event = stripe.Event.construct_from(
-                json.loads(payload), stripe.api_key
-            )
-            print(f"✅ Event parsed successfully: {event.type}")
-        except Exception as e:
-            print(f"❌ Failed to parse event: {str(e)}")
-            raise HTTPException(status_code=400, detail=f"Failed to parse event: {str(e)}")
+        # For development without signature verification:
+        event = json.loads(payload)
         
-        # Handle successful payment
-        if event.type == "checkout.session.completed":
-            print(f"🎉 Received checkout.session.completed event!")
-            session = event.data.object
-            print(f"📋 Session ID: {session.id}")
-            print(f"📋 Session metadata: {session.metadata}")
+        print(f"🔔 Webhook received: {event['type']}")
+        
+        # Handle checkout.session.completed event
+        if event['type'] == 'checkout.session.completed':
+            session = event['data']['object']
+            print(f"✅ Payment successful for session: {session['id']}")
             
-            appointment_id = session.metadata.get("appointment_id")
-            print(f"🔍 Looking for appointment_id: {appointment_id}")
-            
+            # Get appointment ID from metadata
+            appointment_id = session['metadata'].get('appointment_id')
             if not appointment_id:
-                print(f"❌ No appointment_id in metadata!")
-                return {"status": "success", "message": "No appointment_id in metadata"}
+                print("❌ No appointment_id in session metadata")
+                return {"status": "error", "message": "No appointment_id"}
             
+            print(f"📋 Creating invoice for appointment {appointment_id}")
+            
+            # Get appointment
             appointment = db.query(Appointment).filter(
                 Appointment.id == int(appointment_id)
             ).first()
             
             if not appointment:
-                print(f"❌ Appointment {appointment_id} not found in database!")
-                return {"status": "success", "message": f"Appointment {appointment_id} not found"}
+                print(f"❌ Appointment {appointment_id} not found")
+                return {"status": "error", "message": "Appointment not found"}
             
-            print(f"✅ Found appointment {appointment_id}, current status: {appointment.status_id}")
+            # Check if invoice already exists
+            existing_invoice = db.query(Invoice).filter(
+                Invoice.appointment_id == appointment.id
+            ).first()
             
-            # Update appointment status to "Finalized"
-            finalized_status = db.query(Status).filter(Status.name == "Finalized").first()
-            if not finalized_status:
-                print(f"❌ Status 'Finalized' not found in database!")
-                return {"status": "error", "message": "Status 'Finalized' not found"}
+            if existing_invoice:
+                print(f"⚠️ Invoice already exists for appointment {appointment_id}")
+                return {"status": "success", "message": "Invoice already exists"}
             
-            old_status = appointment.status_id
-            appointment.status_id = finalized_status.id
-            print(f"🔄 Changing status from {old_status} to {finalized_status.id} (Finalized)")
-            
-            db.flush()
-            print(f"✅ Status após flush: {appointment.status_id}")
-            
-            # Create invoice
             try:
+                # Create invoice
                 invoice = create_invoice_from_session(db, appointment, session)
-                print(f"📄 Invoice created: {invoice.invoice_number}")
-            except Exception as e:
-                print(f"❌ Failed to create invoice: {str(e)}")
-                db.rollback()
-                raise
-            
-            # Commit changes
-            try:
+                
+                # Update appointment status to Concluido (ID=2)
+                appointment.status_id = 3
+                print(f"✅ Status updated to Concluido (id=3)")
+                
                 db.commit()
-                print(f"✅ Payment confirmed for appointment {appointment_id}")
-                print(f"✅ New status confirmed: {appointment.status_id}")
+                print(f"✅ Invoice created successfully: {invoice.invoice_number}")
+                
+                return {
+                    "status": "success",
+                    "invoice_number": invoice.invoice_number,
+                    "appointment_id": appointment.id
+                }
+                
             except Exception as e:
-                print(f"❌ Failed to commit changes: {str(e)}")
                 db.rollback()
+                print(f"❌ Error creating invoice: {str(e)}")
                 raise
-        else:
-            print(f"ℹ️ Received event type: {event.type} (not handled)")
-                    
+        
         return {"status": "success"}
         
+    except json.JSONDecodeError as e:
+        print(f"❌ Invalid JSON payload: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Invalid payload: {str(e)}")
     except Exception as e:
         print(f"❌ Webhook error: {str(e)}")
-        import traceback
-        traceback.print_exc()
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -211,40 +264,77 @@ def create_invoice_from_session(db: Session, appointment: Appointment, session):
     """
     Create an invoice from a successful Stripe checkout session.
     Stores a snapshot of the payment at the time it was made.
+    Agora com discriminação de mão de obra e peças.
     """
-    subtotal = 0
+    from app.crud.appoitment import AppointmentRepository
+    
+    print(f"📝 Starting invoice creation for appointment {appointment.id}")
+    
+    # Usar o novo sistema de cálculo discriminado
+    repo = AppointmentRepository(db)
+    breakdown = repo.calculate_order_total(appointment.id)
+    
+    if not breakdown:
+        raise Exception("Could not calculate order breakdown")
+    
+    print(f"💰 Breakdown calculated: {breakdown['total']} EUR")
+    
     line_items_data = []
+    subtotal = 0
     
-    # Main service
-    if appointment.service:
-        subtotal += appointment.service.price
+    # Serviço base - Mão de obra
+    base_service = breakdown['base_service']
+    if base_service['labor_cost'] > 0:
         line_items_data.append({
-            "name": appointment.service.name,
-            "description": appointment.service.description,
+            "name": f"{base_service['name']} - Mão de Obra",
+            "description": "Custo de mão de obra",
             "quantity": 1,
-            "unit_price": float(appointment.service.price),
-            "total": float(appointment.service.price)
+            "unit_price": float(base_service['labor_cost']),
+            "total": float(base_service['labor_cost'])
         })
+        subtotal += base_service['labor_cost']
     
-    # Extra services
-    for assoc in appointment.extra_service_associations:
-        extra_service = assoc.extra_service
-        price = assoc.price if assoc.price else (extra_service.price if extra_service else 0)
-        name = assoc.name if assoc.name else (extra_service.name if extra_service else "Extra service")
-        description = assoc.description if assoc.description else (extra_service.description if extra_service else None)
+    # Serviço base - Peças
+    for part in base_service['parts']:
+        line_items_data.append({
+            "name": f"{part['name']} ({part['part_number'] or 'N/A'})",
+            "description": f"Peça - {base_service['name']}",
+            "quantity": part['quantity'],
+            "unit_price": float(part['unit_price']),
+            "total": float(part['total'])
+        })
+        subtotal += part['total']
+    
+    # Serviços extras
+    for extra in breakdown['extra_services']:
+        # Mão de obra do extra
+        if extra['labor_cost'] > 0:
+            line_items_data.append({
+                "name": f"{extra['name']} - Mão de Obra",
+                "description": "Custo de mão de obra (extra)",
+                "quantity": 1,
+                "unit_price": float(extra['labor_cost']),
+                "total": float(extra['labor_cost'])
+            })
+            subtotal += extra['labor_cost']
         
-        subtotal += price
-        line_items_data.append({
-            "name": name,
-            "description": description,
-            "quantity": 1,
-            "unit_price": float(price),
-            "total": float(price)
-        })
+        # Peças do extra
+        for part in extra['parts']:
+            line_items_data.append({
+                "name": f"{part['name']} ({part['part_number'] or 'N/A'})",
+                "description": f"Peça - {extra['name']}",
+                "quantity": part['quantity'],
+                "unit_price": float(part['unit_price']),
+                "total": float(part['total'])
+            })
+            subtotal += part['total']
     
     # Generate unique invoice number
     last_invoice = db.query(Invoice).order_by(Invoice.id.desc()).first()
-    invoice_number = f"INV-{datetime.now().year}-{(last_invoice.id + 1) if last_invoice else 1:06d}"
+    next_number = (last_invoice.id + 1) if last_invoice else 1
+    invoice_number = f"INV-{next_number:06d}"
+    
+    print(f"🔢 Generated invoice number: {invoice_number}")
     
     # Get customer email from CustomerAuth
     customer_email = None
@@ -262,18 +352,20 @@ def create_invoice_from_session(db: Session, appointment: Appointment, session):
             customer_email = customer_auth.email
     
     # Fallback to Stripe session data if customer not found
-    if not customer_name and hasattr(session, 'customer_details'):
-        customer_name = session.customer_details.name
-    if not customer_email and hasattr(session, 'customer_details'):
-        customer_email = session.customer_details.email
-    if not customer_phone and hasattr(session, 'customer_details') and hasattr(session.customer_details, 'phone'):
-        customer_phone = session.customer_details.phone
+    if not customer_name and 'customer_details' in session:
+        customer_name = session['customer_details'].get('name')
+    if not customer_email and 'customer_details' in session:
+        customer_email = session['customer_details'].get('email')
+    if not customer_phone and 'customer_details' in session:
+        customer_phone = session['customer_details'].get('phone')
+    
+    print(f"👤 Customer: {customer_name} ({customer_email})")
     
     # Create invoice
     invoice = Invoice(
         appointment_id=appointment.id,
-        stripe_session_id=session.id,
-        stripe_payment_intent_id=session.payment_intent if hasattr(session, 'payment_intent') else None,
+        stripe_session_id=session['id'],
+        stripe_payment_intent_id=session.get('payment_intent'),
         invoice_number=invoice_number,
         subtotal=float(subtotal),
         tax=0.0,
@@ -288,6 +380,10 @@ def create_invoice_from_session(db: Session, appointment: Appointment, session):
     )
     
     db.add(invoice)
+    db.flush()  # Get the ID without committing
+    
+    print(f"✅ Invoice object created with ID: {invoice.id}")
+    
     return invoice
 
 
@@ -346,6 +442,11 @@ async def get_invoice_by_appointment(appointment_id: int, db: Session = Depends(
         
         print(f"📋 Parsed {len(items)} line items")
         
+        # Buscar breakdown discriminado de custos
+        from app.crud.appoitment import AppointmentRepository
+        repo = AppointmentRepository(db)
+        breakdown = repo.calculate_order_total(appointment_id)
+        
         # Build response - REMOVIDO updated_at
         response = {
             "id": invoice.id,
@@ -359,6 +460,7 @@ async def get_invoice_by_appointment(appointment_id: int, db: Session = Depends(
             "clientAddress": f"{customer.address}, {customer.postal_code} {customer.city}" if customer else "",
             "vehicle": vehicle_info,
             "items": items,
+            "breakdown": breakdown,  # Adicionar breakdown discriminado
             "subtotal": float(invoice.subtotal) if invoice.subtotal else 0.0,
             "tax": float(invoice.tax) if invoice.tax else 0.0,
             "total": float(invoice.total) if invoice.total else 0.0,

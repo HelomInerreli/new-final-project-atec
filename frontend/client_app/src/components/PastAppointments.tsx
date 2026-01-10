@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePastAppointments } from "../hooks/usePastAppointments";
 import { useTranslation } from "react-i18next";
+import { formatMonthYear } from "../utils/monthUtils";
 import { InvoiceDetail } from "./InvoiceDetail";
 import "../styles/PastAppointments.css";
+import { getCostBreakdown } from "../services/costBreakdownService";
 
 /**
  * Componente para exibir histórico de agendamentos finalizados
@@ -34,6 +36,39 @@ export function PastAppointments() {
   const [selectedAppointmentId, setSelectedAppointmentId] = useState<
     number | null
   >(null);
+
+  /**
+   * Estado para armazenar os totais reais de cada appointment
+   */
+  const [realTotals, setRealTotals] = useState<Record<number, number>>({});
+
+  /**
+   * Busca os valores reais pagos de todos os appointments quando são carregados
+   */
+  useEffect(() => {
+    const fetchRealTotals = async () => {
+      const totals: Record<number, number> = {};
+      
+      for (const [, appointments] of Object.entries(groupedAppointments)) {
+        for (const appointment of appointments) {
+          try {
+            const breakdown = await getCostBreakdown(appointment.id);
+            totals[appointment.id] = breakdown.total;
+          } catch (error) {
+            console.error(`Erro ao buscar total do appointment ${appointment.id}:`, error);
+            // Em caso de erro, usa actual_budget ou estimated_budget como fallback
+            totals[appointment.id] = appointment.actual_budget || appointment.estimated_budget;
+          }
+        }
+      }
+      
+      setRealTotals(totals);
+    };
+
+    if (Object.keys(groupedAppointments).length > 0) {
+      fetchRealTotals();
+    }
+  }, [groupedAppointments]);
 
   /**
    * Alterna o estado de expansão de um determinado mês
@@ -137,7 +172,7 @@ export function PastAppointments() {
                 >
                   <div className="past-month-header-content">
                     <h2 className="past-month-title">
-                      {monthYear.charAt(0).toUpperCase() + monthYear.slice(1)}
+                      {formatMonthYear(monthYear)}
                     </h2>
                     <span className="past-appointment-count">
                       {appointments.length}{" "}
@@ -212,15 +247,15 @@ export function PastAppointments() {
                             </div>
                           )}
 
-                          {/* Orçamento estimado do serviço */}
+                          {/* Valor pago */}
                           <div className="past-info-row">
                             <span className="past-info-icon">💰</span>
                             <div className="past-info-content">
                               <span className="past-info-label">
-                                {t("estimatedBudget").toUpperCase()}
+                                VALOR PAGO
                               </span>
                               <span className="past-budget-value">
-                                €{appointment.estimated_budget.toFixed(0)}
+                                €{realTotals[appointment.id]?.toFixed(2) || (appointment.actual_budget || appointment.estimated_budget).toFixed(2)}
                               </span>
                             </div>
                           </div>

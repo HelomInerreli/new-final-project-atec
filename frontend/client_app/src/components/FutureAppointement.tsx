@@ -1,12 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FaCalendarAlt, FaCheckCircle, FaTools } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import { useFutureAppointments } from '../hooks/useFutureAppointments';
 import { formatDate } from '../utils/dateUtils';
+import { formatMonthYear } from '../utils/monthUtils';
 import '../styles/FutureAppointments.css';
 import { createAppointmentCheckoutSession } from '../services/payment';
 import { AppointmentStatusModal } from './AppointmentDetailsModal';
 import type { Appointment } from '../interfaces/appointment';
+import { getCostBreakdown } from '../services/costBreakdownService';
 
 /**
  * Componente para exibir agendamentos futuros agrupados por mês
@@ -52,6 +54,40 @@ export function FutureAppointments() {
      * Inicial: null (nenhum agendamento selecionado)
      */
     const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+
+    /**
+     * Estado para armazenar os totais reais de cada appointment
+     * Tipo: Record<appointmentId, totalValue>
+     */
+    const [realTotals, setRealTotals] = useState<Record<number, number>>({});
+
+    /**
+     * Busca os valores reais de todos os appointments quando eles são carregados
+     */
+    useEffect(() => {
+        const fetchRealTotals = async () => {
+            const totals: Record<number, number> = {};
+            
+            for (const [, appointments] of Object.entries(groupedAppointments)) {
+                for (const appointment of appointments) {
+                    try {
+                        const breakdown = await getCostBreakdown(appointment.id);
+                        totals[appointment.id] = breakdown.total;
+                    } catch (error) {
+                        console.error(`Erro ao buscar total do appointment ${appointment.id}:`, error);
+                        // Em caso de erro, usa actual_budget ou estimated_budget como fallback
+                        totals[appointment.id] = appointment.actual_budget || appointment.estimated_budget;
+                    }
+                }
+            }
+            
+            setRealTotals(totals);
+        };
+
+        if (Object.keys(groupedAppointments).length > 0) {
+            fetchRealTotals();
+        }
+    }, [groupedAppointments]);
 
     /**
      * Alterna o estado de expansão de um determinado mês
@@ -129,7 +165,7 @@ export function FutureAppointments() {
                             >
                                 <div className="month-header-content">
                                     <h2 className="month-title">
-                                        {monthYear.charAt(0).toUpperCase() + monthYear.slice(1)}
+                                        {formatMonthYear(monthYear)}
                                     </h2>
                                     <span className="appointment-count">
                                         {appointments.length} {appointments.length === 1 ? t('appointment') : t('appointments')}
@@ -190,12 +226,14 @@ export function FutureAppointments() {
                                                             </p>
                                                         </div>
 
-                                                        {/* Orçamento estimado (condicional) */}
-                                                        {appointment.estimated_budget && (
+                                                        {/* Orçamento (condicional) */}
+                                                        {realTotals[appointment.id] !== undefined && (
                                                             <div className="appointment-budget">
                                                                 <div className="budget-item">
-                                                                    <span className="budget-label">{t('estimatedBudget').toUpperCase()}</span>
-                                                                    <span className="budget-value text-muted">€{appointment.estimated_budget.toFixed(2)}</span>
+                                                                    <span className="budget-label">TOTAL A PAGAR</span>
+                                                                    <span className="budget-value text-muted">
+                                                                        €{realTotals[appointment.id].toFixed(2)}
+                                                                    </span>
                                                                 </div>
                                                             </div>
                                                         )}

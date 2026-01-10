@@ -6,6 +6,7 @@ class ServiceBase(BaseModel):
     name: str
     description: Optional[str] = None
     price: float
+    labor_cost: Optional[float] = None
     duration_minutes: Optional[int] = None
     is_active: Optional[bool] = True
     area : Optional[str] = None
@@ -17,6 +18,7 @@ class ServiceUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     price: Optional[float] = None
+    labor_cost: Optional[float] = None
     duration_minutes: Optional[int] = None
     is_active: Optional[bool] = None
     area : Optional[str] = None
@@ -24,6 +26,7 @@ class ServiceUpdate(BaseModel):
 class Service(ServiceBase):
     id: int
     description: Optional[str] = None
+    labor_cost: Optional[float] = None
     duration_minutes: Optional[int] = None
     is_active: bool
     area : Optional[str] = None

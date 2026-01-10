@@ -7,6 +7,27 @@
 export type InvoiceStatus = 'paid' | 'pending' | 'overdue';
 
 /**
+ * Interface para representar uma peça numa fatura
+ */
+export interface InvoicePartItem {
+    name: string;
+    part_number: string | null;
+    quantity: number;
+    unit_price: number;
+    total: number;
+}
+
+/**
+ * Interface para o breakdown de um serviço na fatura
+ */
+export interface InvoiceServiceBreakdown {
+    name: string;
+    labor_cost: number;
+    parts: InvoicePartItem[];
+    subtotal: number;
+}
+
+/**
  * Interface para representação de um item/linha individual da fatura
  * Cada item representa um serviço ou produto cobrado com quantidade e preços
  */
@@ -45,10 +66,16 @@ export interface Invoice {
     clientPhone: string;
     /** Morada do cliente (null se não fornecida) */
     clientAddress: string | null;
-    /** Identificação do veículo (marca, modelo, matrícula) */
+    /** Veículo associado (marca modelo matrícula) */
     vehicle: string | null;
     /** Array de itens/serviços cobrados nesta fatura */
     items: InvoiceItem[];
+    /** Breakdown discriminado de custos (mão de obra + peças) */
+    breakdown?: {
+        base_service: InvoiceServiceBreakdown;
+        extra_services: InvoiceServiceBreakdown[];
+        total: number;
+    };
     /** Subtotal dos itens antes de impostos */
     subtotal: number;
     /** Valor do imposto/IVA aplicado */

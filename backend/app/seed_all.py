@@ -82,42 +82,49 @@ VEHICLE_MODELS = {
 
 # Serviços típicos de uma oficina em Portugal
 MAIN_SERVICES = [
-    {"name": "Revisão Anual Completa", "description": "Revisão completa do veículo com inspeção de 50 pontos", "price": 180.0, "duration_minutes": 120, "area": "Mecânica"},
-    {"name": "Mudança de Óleo e Filtros", "description": "Troca de óleo motor e filtros (óleo, ar, combustível)", "price": 95.0, "duration_minutes": 60, "area": "Mecânica"},
-    {"name": "Diagnóstico Eletrónico Completo", "description": "Diagnóstico eletrônico com leitura de códigos de erro", "price": 55.0, "duration_minutes": 45, "area": "Elétrica"},
-    {"name": "Alinhamento e Equilibragem", "description": "Alinhamento e equilibragem das 4 rodas", "price": 45.0, "duration_minutes": 60, "area": "Mecânica"},
-    {"name": "Mudança de Pastilhas e Discos", "description": "Substituição de pastilhas e discos de travão", "price": 280.0, "duration_minutes": 150, "area": "Mecânica"},
-    {"name": "Revisão de Ar Condicionado", "description": "Revisão e carregamento de ar condicionado", "price": 85.0, "duration_minutes": 90, "area": "Mecânica"},
-    {"name": "Mudança de Correia de Distribuição", "description": "Substituição de correia de distribuição e tensor", "price": 450.0, "duration_minutes": 240, "area": "Mecânica"},
-    {"name": "Inspeção Pré-Compra", "description": "Inspeção completa para veículos usados", "price": 120.0, "duration_minutes": 90, "area": "Mecânica"},
-    {"name": "Reparação de Sistema de Escape", "description": "Reparação ou substituição de componentes do escape", "price": 220.0, "duration_minutes": 120, "area": "Mecânica"},
-    {"name": "Mudança de Bateria", "description": "Substituição de bateria com teste do sistema de carga", "price": 150.0, "duration_minutes": 30, "area": "Elétrica"},
-    {"name": "Reparação de Suspensão", "description": "Reparação ou substituição de componentes da suspensão", "price": 320.0, "duration_minutes": 180, "area": "Mecânica"},
-    {"name": "Polimento e Proteção de Pintura", "description": "Polimento profissional e aplicação de cera protetora", "price": 180.0, "duration_minutes": 180, "area": "Estética"},
-    {"name": "Substituição de Vidros", "description": "Substituição de vidros danificados", "price": 250.0, "duration_minutes": 120, "area": "Vidros"},
-    {"name": "Reparação de Motor", "description": "Reparação de componentes do motor", "price": 850.0, "duration_minutes": 480, "area": "Mecânica"},
-    {"name": "Mudança de Embraiagem", "description": "Substituição de kit de embraiagem completo", "price": 680.0, "duration_minutes": 360, "area": "Mecânica"},
+    {"name": "Revisão Anual Completa", "description": "Revisão completa do veículo com inspeção de 50 pontos", "price": 180.0, "labor_cost": 144.0, "duration_minutes": 120, "area": "Mecânica"},
+    {"name": "Mudança de Óleo e Filtros", "description": "Troca de óleo motor e filtros (óleo, ar, combustível)", "price": 95.0, "labor_cost": 76.0, "duration_minutes": 60, "area": "Mecânica"},
+    {"name": "Diagnóstico Eletrónico Completo", "description": "Diagnóstico eletrônico com leitura de códigos de erro", "price": 55.0, "labor_cost": 44.0, "duration_minutes": 45, "area": "Elétrica"},
+    {"name": "Alinhamento e Equilibragem", "description": "Alinhamento e equilibragem das 4 rodas", "price": 45.0, "labor_cost": 36.0, "duration_minutes": 60, "area": "Mecânica"},
+    {"name": "Mudança de Pastilhas e Discos", "description": "Substituição de pastilhas e discos de travão", "price": 280.0, "labor_cost": 224.0, "duration_minutes": 150, "area": "Mecânica"},
+    {"name": "Revisão de Ar Condicionado", "description": "Revisão e carregamento de ar condicionado", "price": 85.0, "labor_cost": 68.0, "duration_minutes": 90, "area": "Mecânica"},
+    {"name": "Mudança de Correia de Distribuição", "description": "Substituição de correia de distribuição e tensor", "price": 450.0, "labor_cost": 360.0, "duration_minutes": 240, "area": "Mecânica"},
+    {"name": "Inspeção Pré-Compra", "description": "Inspeção completa para veículos usados", "price": 120.0, "labor_cost": 96.0, "duration_minutes": 90, "area": "Mecânica"},
+    {"name": "Reparação de Sistema de Escape", "description": "Reparação ou substituição de componentes do escape", "price": 220.0, "labor_cost": 176.0, "duration_minutes": 120, "area": "Mecânica"},
+    {"name": "Mudança de Bateria", "description": "Substituição de bateria com teste do sistema de carga", "price": 150.0, "labor_cost": 120.0, "duration_minutes": 30, "area": "Elétrica"},
+    {"name": "Reparação de Suspensão", "description": "Reparação ou substituição de componentes da suspensão", "price": 320.0, "labor_cost": 256.0, "duration_minutes": 180, "area": "Mecânica"},
+    {"name": "Polimento e Proteção de Pintura", "description": "Polimento profissional e aplicação de cera protetora", "price": 180.0, "labor_cost": 144.0, "duration_minutes": 180, "area": "Estética"},
+    {"name": "Substituição de Vidros", "description": "Substituição de vidros danificados", "price": 250.0, "labor_cost": 200.0, "duration_minutes": 120, "area": "Vidros"},
+    {"name": "Reparação de Motor", "description": "Reparação de componentes do motor", "price": 850.0, "labor_cost": 680.0, "duration_minutes": 480, "area": "Mecânica"},
+    {"name": "Mudança de Embraiagem", "description": "Substituição de kit de embraiagem completo", "price": 680.0, "labor_cost": 544.0, "duration_minutes": 360, "area": "Mecânica"},
 ]
 
 EXTRA_SERVICE_CATALOG = [
-    {"name": "Pastilhas de travão dianteiras", "description": "Substituição de pastilhas dianteiras", "price": 120.0, "duration_minutes": 60},
-    {"name": "Pastilhas de travão traseiras", "description": "Substituição de pastilhas traseiras", "price": 95.0, "duration_minutes": 60},
-    {"name": "Limpeza de injetores", "description": "Limpeza profissional de injetores", "price": 110.0, "duration_minutes": 60},
-    {"name": "Carregamento de Ar Condicionado", "description": "Recarga de gás AC", "price": 75.0, "duration_minutes": 45},
-    {"name": "Troca de escovas limpa-vidros", "description": "Substituição do par de escovas", "price": 28.0, "duration_minutes": 15},
-    {"name": "Mudança de velas de ignição", "description": "Substituição de todas as velas", "price": 65.0, "duration_minutes": 45},
-    {"name": "Substituição de filtro de habitáculo", "description": "Troca de filtro do ar interior", "price": 35.0, "duration_minutes": 20},
-    {"name": "Limpeza de válvula EGR", "description": "Limpeza da válvula EGR", "price": 95.0, "duration_minutes": 90},
-    {"name": "Desinfeção do interior", "description": "Desinfeção completa com ozono", "price": 45.0, "duration_minutes": 60},
-    {"name": "Proteção de estofos", "description": "Aplicação de proteção impermeabilizante", "price": 80.0, "duration_minutes": 90},
-    {"name": "Mudança de líquido de travões", "description": "Substituição completa do líquido", "price": 55.0, "duration_minutes": 45},
-    {"name": "Substituição de amortecedores", "description": "Troca de 2 amortecedores", "price": 280.0, "duration_minutes": 120},
-    {"name": "Reparação de faróis", "description": "Polimento e restauro de faróis", "price": 90.0, "duration_minutes": 90},
-    {"name": "Instalação de GPS", "description": "Instalação de sistema GPS", "price": 150.0, "duration_minutes": 120},
-    {"name": "Aplicação de película nos vidros", "description": "Película de proteção solar", "price": 200.0, "duration_minutes": 180},
+    {"name": "Pastilhas de travão dianteiras", "description": "Substituição de pastilhas dianteiras", "price": 120.0, "labor_cost": 96.0, "duration_minutes": 60},
+    {"name": "Pastilhas de travão traseiras", "description": "Substituição de pastilhas traseiras", "price": 95.0, "labor_cost": 76.0, "duration_minutes": 60},
+    {"name": "Limpeza de injetores", "description": "Limpeza profissional de injetores", "price": 110.0, "labor_cost": 88.0, "duration_minutes": 60},
+    {"name": "Carregamento de Ar Condicionado", "description": "Recarga de gás AC", "price": 75.0, "labor_cost": 60.0, "duration_minutes": 45},
+    {"name": "Troca de escovas limpa-vidros", "description": "Substituição do par de escovas", "price": 28.0, "labor_cost": 22.4, "duration_minutes": 15},
+    {"name": "Mudança de velas de ignição", "description": "Substituição de todas as velas", "price": 65.0, "labor_cost": 52.0, "duration_minutes": 45},
+    {"name": "Substituição de filtro de habitáculo", "description": "Troca de filtro do ar interior", "price": 35.0, "labor_cost": 28.0, "duration_minutes": 20},
+    {"name": "Limpeza de válvula EGR", "description": "Limpeza da válvula EGR", "price": 95.0, "labor_cost": 76.0, "duration_minutes": 90},
+    {"name": "Desinfeção do interior", "description": "Desinfeção completa com ozono", "price": 45.0, "labor_cost": 36.0, "duration_minutes": 60},
+    {"name": "Proteção de estofos", "description": "Aplicação de proteção impermeabilizante", "price": 80.0, "labor_cost": 64.0, "duration_minutes": 90},
+    {"name": "Mudança de líquido de travões", "description": "Substituição completa do líquido", "price": 55.0, "labor_cost": 44.0, "duration_minutes": 45},
+    {"name": "Substituição de amortecedores", "description": "Troca de 2 amortecedores", "price": 280.0, "labor_cost": 224.0, "duration_minutes": 120},
+    {"name": "Reparação de faróis", "description": "Polimento e restauro de faróis", "price": 90.0, "labor_cost": 72.0, "duration_minutes": 90},
+    {"name": "Instalação de GPS", "description": "Instalação de sistema GPS", "price": 150.0, "labor_cost": 120.0, "duration_minutes": 120},
+    {"name": "Aplicação de película nos vidros", "description": "Película de proteção solar", "price": 200.0, "labor_cost": 160.0, "duration_minutes": 180},
 ]
 
-STATUSES = ["Pendente", "Concluído", "Aguardando Pagamento"]
+STATUSES = [
+    "Pendente",
+    "Cancelado",
+    "Concluído",
+    "Em Reparação",
+    "Aguardando Aprovação",
+    "Aguardando Pagamento"
+]
 
 ROLES_TO_CREATE = ["Admin", "Gestor", "Mecânico", "Elétrico", "Chaparia", "Pintura"]
 
@@ -310,7 +317,14 @@ def seed_main_data(db: Session):
         if existing:
             services.append(existing)
             continue
-        svc_in = ServiceCreate(name=svc["name"], description=svc["description"], price=svc["price"], duration_minutes=svc["duration_minutes"], area=svc["area"])
+        svc_in = ServiceCreate(
+            name=svc["name"], 
+            description=svc["description"], 
+            price=svc["price"], 
+            labor_cost=svc.get("labor_cost", svc["price"] * 0.8),
+            duration_minutes=svc["duration_minutes"], 
+            area=svc["area"]
+        )
         s = service_repo.create(svc_in)
         services.append(s)
     print(f"   ✓ {len(services)} services ready")
@@ -321,7 +335,13 @@ def seed_main_data(db: Session):
     for es in EXTRA_SERVICE_CATALOG:
         existing = db.query(ExtraServiceModel).filter(ExtraServiceModel.name == es["name"]).first()
         if not existing:
-            new_es = ExtraServiceModel(name=es["name"], description=es.get("description"), price=es["price"], duration_minutes=es.get("duration_minutes"))
+            new_es = ExtraServiceModel(
+                name=es["name"], 
+                description=es.get("description"), 
+                price=es["price"], 
+                labor_cost=es.get("labor_cost", es["price"] * 0.8),
+                duration_minutes=es.get("duration_minutes")
+            )
             db.add(new_es)
             db.commit()
             db.refresh(new_es)

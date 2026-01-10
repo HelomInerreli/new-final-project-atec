@@ -7,7 +7,6 @@ STATUSES = [
     "Finalized",
     "In Repair",
     "Awaiting Approval",
-    "Aguarda Pagamento"
 ]
 
 def update_statuses():

@@ -60,3 +60,27 @@ class Appointment(AppointmentBase):
     @property
     def service_price(self) -> Optional[float]:
         return self.service.price if self.service else None
+    
+    @computed_field
+    @property
+    def total_estimated_budget(self) -> float:
+        """
+        Calcula o orçamento estimado total incluindo:
+        - Preço do serviço base
+        - Serviços extras aprovados
+        - Peças adicionadas
+        """
+        total = self.estimated_budget or 0.0
+        
+        # Adicionar serviços extras aprovados
+        if self.extra_service_associations:
+            for extra in self.extra_service_associations:
+                if extra.status == 'approved' and extra.price:
+                    total += extra.price
+        
+        # Adicionar peças
+        if self.parts:
+            for part in self.parts:
+                total += (part.price * part.quantity)
+        
+        return round(total, 2)
