@@ -151,18 +151,7 @@ PRODUCTS = [
     {"part_number": "CRR-DIST-001", "name": "Kit Correia Distribuição", "description": "Kit completo", "category": "Transmissão", "brand": "Gates", "quantity": 6, "reserve_quantity": 1, "cost_value": 85.0, "sale_value": 169.9, "minimum_stock": 2},
 ]
 
-SAMPLE_NOTIFICATIONS = [
-    {"component": "Stock", "text": "Produto 'Filtro de Óleo Universal' está com quantidade abaixo do mínimo.", "insertedAt": (datetime.utcnow() - timedelta(hours=5)).isoformat(), "alertType": "warning"},
-    {"component": "Stock", "text": "Produto 'Pastilha de Freio Dianteira' precisa de reposição urgente.", "insertedAt": (datetime.utcnow() - timedelta(hours=4)).isoformat(), "alertType": "danger"},
-    {"component": "Appointment", "text": "Novo agendamento para hoje às 14:00 - Revisão Anual.", "insertedAt": (datetime.utcnow() - timedelta(hours=3)).isoformat(), "alertType": "info"},
-    {"component": "Appointment", "text": "Cliente confirmou agendamento para amanhã às 10:30.", "insertedAt": (datetime.utcnow() - timedelta(hours=2)).isoformat(), "alertType": "success"},
-    {"component": "Payment", "text": "Pagamento atrasado. Cliente: João Silva - Valor: €280,00", "insertedAt": (datetime.utcnow() - timedelta(hours=1)).isoformat(), "alertType": "danger"},
-    {"component": "Payment", "text": "Fatura #INV-2025-000045 paga com sucesso.", "insertedAt": (datetime.utcnow() - timedelta(minutes=45)).isoformat(), "alertType": "success"},
-    {"component": "Service", "text": "Serviço de mudança de óleo concluído - Veículo: 12-AB-34", "insertedAt": (datetime.utcnow() - timedelta(minutes=30)).isoformat(), "alertType": "success"},
-    {"component": "Service", "text": "Diagnóstico identificou problemas no sistema de travagem.", "insertedAt": (datetime.utcnow() - timedelta(minutes=15)).isoformat(), "alertType": "warning"},
-    {"component": "Stock", "text": "Novo stock de baterias recebido - 15 unidades.", "insertedAt": (datetime.utcnow() - timedelta(minutes=10)).isoformat(), "alertType": "info"},
-    {"component": "Appointment", "text": "Cliente solicitou remarcar agendamento de sexta-feira.", "insertedAt": datetime.utcnow().isoformat(), "alertType": "info"},
-]
+SAMPLE_NOTIFICATIONS = []  # Notificações automáticas removidas - serão criadas apenas por ações reais no sistema
 
 
 # ========== SEED FUNCTIONS ==========
@@ -211,21 +200,10 @@ def seed_products(db: Session):
 
 
 def seed_notifications(db: Session):
-    """Seed notifications"""
+    """Seed notifications - Removido para não criar notificações automáticas"""
     print("\n🔔 Seeding notifications...")
-    existing = notificationBadge.get_notifications(db, skip=0, limit=100)
-    if existing:
-        print(f"   ✓ Already have {len(existing)} notifications")
-        return existing
-    
-    created = []
-    for notif_data in SAMPLE_NOTIFICATIONS:
-        notification = notification_schema.NotificationCreate(**notif_data)
-        created_notif = notificationBadge.create_notification(db, notification)
-        created.append(created_notif)
-    
-    print(f"   ✓ Created {len(created)} notifications")
-    return created
+    print(f"   ✓ Notificações automáticas desativadas - serão criadas apenas por ações reais")
+    return []
 
 
 def seed_user_notifications(db: Session, user_id: int):
