@@ -31,7 +31,8 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
 
   // Função para obter label do status
   const statusLabel = (() => {
-    if ((order as any).status && typeof (order as any).status === "string") return (order as any).status;
+    if ((order as any).status && typeof (order as any).status === "string")
+      return (order as any).status;
     if ((order as any).status_text) return (order as any).status_text;
     const s = (order as any).status;
     if (s && typeof s === "object") return String(s.name ?? s.label ?? "");
@@ -48,13 +49,13 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
       ];
       const name = STATUSES[id - 1] ?? null;
       if (name) {
-        const MAP: Record<string,string> = {
-          "Pendente":"Pendente",
-          "Canceled":"Cancelada",
-          "Finalized":"Concluída",
-          "In Repair":"Em Andamento",
-          "Awaiting Approval":"Pendente",
-          "Waitting Payment":"Em Andamento",
+        const MAP: Record<string, string> = {
+          Pendente: "Pendente",
+          Canceled: "Cancelada",
+          Finalized: "Concluída",
+          "In Repair": "Em Andamento",
+          "Awaiting Approval": "Pendente",
+          "Waitting Payment": "Em Andamento",
         };
         return MAP[name] ?? name;
       }
@@ -93,7 +94,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
         <Button
           variant="destructive"
           size="default"
-          onClick={() => navigate(`/orders/${order.id}`)}
+          onClick={() => navigate(`/servicesOrders/${order.id}`)}
           aria-label={`Ver detalhes da ordem ${order.id}`}
         >
           Ver Detalhes

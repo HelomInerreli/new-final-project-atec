@@ -58,10 +58,10 @@ const ServiceOrderDetail: FC = () => {
   if (!order) return <div className="so-loading">Ordem não encontrada</div>;
 
   // Verificar se há serviços extras pendentes
-const hasPendingExtraServices = order?.extra_service_associations?.some(
-    (extra: any) => extra.status === "pending"
-  ) || false;
-
+  const hasPendingExtraServices =
+    order?.extra_service_associations?.some(
+      (extra: any) => extra.status === "pending"
+    ) || false;
 
   // Renderização do componente
   return (
@@ -116,6 +116,15 @@ const hasPendingExtraServices = order?.extra_service_associations?.some(
                 className="readonly-input"
               />
               <Input
+                label="Responsável"
+                value={
+                  order.assigned_employee
+                    ? formatField(order.assigned_employee.name)
+                    : "-"
+                }
+                className="readonly-input"
+              />
+              <Input
                 label="Tempo trabalhado"
                 value={formatTime(currentTime)}
                 className="readonly-input"
@@ -131,7 +140,7 @@ const hasPendingExtraServices = order?.extra_service_associations?.some(
                   variant="outline"
                   className="so-action-btn btn-start"
                   disabled={
-                    saving || 
+                    saving ||
                     currentNormalized === "Concluída" ||
                     order?.status?.name === "Waitting Payment" ||
                     order?.status?.name === "Finalized" ||
@@ -144,7 +153,9 @@ const hasPendingExtraServices = order?.extra_service_associations?.some(
               <AlertDialogContent className="max-w-md">
                 <AlertDialogHeader className="space-y-4">
                   <AlertDialogTitle className="text-xl">
-                    {order?.is_paused ? "Retomar Ordem de Serviço?" : "Iniciar Ordem de Serviço?"}
+                    {order?.is_paused
+                      ? "Retomar Ordem de Serviço?"
+                      : "Iniciar Ordem de Serviço?"}
                   </AlertDialogTitle>
                   <AlertDialogDescription className="text-base">
                     A ordem{" "}
@@ -229,12 +240,13 @@ const hasPendingExtraServices = order?.extra_service_associations?.some(
                   className="so-action-btn btn-success"
                   disabled={
                     saving ||
-                   currentNormalized === "Concluída" || 
-                   currentNormalized === "Pendente" || 
-                   order?.status?.name === "Waitting Payment" ||
-                   order?.status?.name === "Finalized" ||
-                   order?.is_paused ||
-                   hasPendingExtraServices}
+                    currentNormalized === "Concluída" ||
+                    currentNormalized === "Pendente" ||
+                    order?.status?.name === "Waitting Payment" ||
+                    order?.status?.name === "Finalized" ||
+                    order?.is_paused ||
+                    hasPendingExtraServices
+                  }
                 >
                   Finalizar
                 </Button>
@@ -276,7 +288,14 @@ const hasPendingExtraServices = order?.extra_service_associations?.some(
 
         <div className="so-divider" />
 
-        <div className="so-panels-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '24px' }}>
+        <div
+          className="so-panels-grid"
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr 1fr",
+            gap: "24px",
+          }}
+        >
           {/* COMENTÁRIOS */}
           <div className="so-panel" style={{ minWidth: 0 }}>
             <div className="so-panel-header">
@@ -521,8 +540,16 @@ const hasPendingExtraServices = order?.extra_service_associations?.some(
                             <h6 className="extra-name">
                               {extra.name || "Serviço Extra"}
                             </h6>
-                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                              <span className={`extra-status badge ${statusClass}`}>
+                            <div
+                              style={{
+                                display: "flex",
+                                gap: "8px",
+                                alignItems: "center",
+                              }}
+                            >
+                              <span
+                                className={`extra-status badge ${statusClass}`}
+                              >
                                 {statusLabel}
                               </span>
                               {extra.status === "pending" && (
@@ -544,7 +571,9 @@ const hasPendingExtraServices = order?.extra_service_associations?.some(
                                         Cancelar Serviço Extra
                                       </AlertDialogTitle>
                                       <AlertDialogDescription className="text-center text-base">
-                                        Tem a certeza que deseja cancelar este serviço extra? Esta ação não pode ser desfeita.
+                                        Tem a certeza que deseja cancelar este
+                                        serviço extra? Esta ação não pode ser
+                                        desfeita.
                                       </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter className="flex flex-row gap-3 justify-center sm:justify-center mt-2">
@@ -552,7 +581,9 @@ const hasPendingExtraServices = order?.extra_service_associations?.some(
                                         Cancelar
                                       </AlertDialogCancel>
                                       <AlertDialogAction
-                                        onClick={() => handleDeleteExtraService(extra.id)}
+                                        onClick={() =>
+                                          handleDeleteExtraService(extra.id)
+                                        }
                                         className="flex-1 sm:flex-none px-6 bg-red-600 hover:bg-red-700 focus-visible:ring-0 focus-visible:ring-offset-0"
                                       >
                                         Confirmar

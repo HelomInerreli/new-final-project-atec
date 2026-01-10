@@ -19,6 +19,8 @@ export interface EmployeeFormData {
   date_of_birth: string;
   hired_at: string;
   role_id: string;
+  is_manager: boolean;
+  has_system_access: boolean;
 }
 
 // Interface para props do hook
@@ -34,7 +36,12 @@ interface UseEditEmployeeModalProps {
  * @param props - Propriedades do hook
  * @returns Estado e funções para o modal
  */
-export const useEditEmployeeModal = ({ employeeId, initialData, onSuccess, onClose }: UseEditEmployeeModalProps) => {
+export const useEditEmployeeModal = ({
+  employeeId,
+  initialData,
+  onSuccess,
+  onClose,
+}: UseEditEmployeeModalProps) => {
   // Estado do formulário
   const [form, setForm] = useState<EmployeeFormData>(initialData);
   // Estado para lista de funções
@@ -97,7 +104,8 @@ export const useEditEmployeeModal = ({ employeeId, initialData, onSuccess, onClo
     if (!form.address.trim()) return "Morada é obrigatória";
     if (!form.date_of_birth) return "Data de nascimento é obrigatória";
     if (!form.hired_at) return "Data de contratação é obrigatória";
-    if (form.salary === "" || parseFloat(form.salary) < 0) return "Salário deve ser um valor válido";
+    if (form.salary === "" || parseFloat(form.salary) < 0)
+      return "Salário deve ser um valor válido";
     if (!form.role_id) return "Função é obrigatória";
     return null;
   };
@@ -126,16 +134,21 @@ export const useEditEmployeeModal = ({ employeeId, initialData, onSuccess, onClo
         date_of_birth: form.date_of_birth,
         hired_at: form.hired_at,
         role_id: parseInt(form.role_id),
+        is_manager: form.is_manager,
+        has_system_access: form.has_system_access,
       };
 
       // Faz requisição PUT
-      const response = await fetch(`http://localhost:8000/api/v1/employees/${employeeId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+      const response = await fetch(
+        `http://localhost:8000/api/v1/employees/${employeeId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => null);
@@ -150,7 +163,9 @@ export const useEditEmployeeModal = ({ employeeId, initialData, onSuccess, onClo
       // Log erro
       console.error("Erro ao atualizar funcionário:", err);
       // Mostra erro
-      alert(err instanceof Error ? err.message : "Erro ao atualizar funcionário");
+      alert(
+        err instanceof Error ? err.message : "Erro ao atualizar funcionário"
+      );
     } finally {
       // Finaliza submissão
       setSubmitting(false);

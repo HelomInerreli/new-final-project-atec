@@ -171,9 +171,27 @@ class AppointmentRepository:
                 joinedload(Appointment.status)
             )
         )
-        # Admin e Gestor veem tudo; outros roles veem apenas serviços da sua área
-        if user and user.role.lower() not in ["gestor", "admin"]:
-            query = query.filter(Appointment.service.has(Service.area.like(f'%{user.role}%')))
+        # Admin e Gestor veem tudo; outros roles veem apenas serviços da sua área e não concluídas
+        if user and user.role.lower() not in ["gestor", "admin", "administrador", "gerente"]:
+            role_name = user.role.lower()
+            
+            # Mapear roles para áreas de serviço
+            if "mecanico" in role_name or "mecânico" in role_name:
+                query = query.join(Service).filter(Service.area.ilike("%mecânica%"))
+            elif "eletric" in role_name or "elétric" in role_name:
+                query = query.join(Service).filter(Service.area.ilike("%elétrica%"))
+            elif "borracheiro" in role_name or "pneu" in role_name:
+                query = query.join(Service).filter(Service.area.ilike("%pneu%"))
+            else:
+                # Para outras roles, filtrar genericamente pela role
+                query = query.join(Service).filter(Service.area.ilike(f"%{user.role}%"))
+            
+            # Filtrar apenas appointments não concluídas (excluir "Concluída" e "Cancelada")
+            query = query.filter(
+                ~Appointment.status.has(
+                    Status.name.in_(["Concluída", "Cancelada"])
+                )
+            )
         return query.order_by(Appointment.id.desc()).offset(skip).limit(limit).all()
 
     # def get_all(self, skip: int = 0, limit: int = 100) -> List[Appointment]:
@@ -316,10 +334,11 @@ class AppointmentRepository:
         return self.update(appointment_id=appointment_id, appointment_data=update_data)
   
 
-    def start(self, appointment_id: int) -> Optional[Appointment]:
+    def start(self, appointment_id: int, current_user: Optional[User] = None) -> Optional[Appointment]:
         """
         Inicia uma appointment: define start_time e altera o status para um estado existente.
         Procura por vários nomes (prioridade) presentes no seeder e aplica status_id.
+        Associa o funcionário que iniciou a OS.
         """
         db_appointment = self.get_by_id(appointment_id=appointment_id)
         if not db_appointment:
@@ -327,8 +346,15 @@ class AppointmentRepository:
 
         # define hora de início
         db_appointment.start_time = datetime.utcnow()
+        
+        # Associar o funcionário que está iniciando a OS
+        if current_user:
+            from app.models.employee import Employee
+            employee = self.db.query(Employee).filter(Employee.email == current_user.email).first()
+            if employee:
+                db_appointment.assigned_employee_id = employee.id
 
-        # persiste start_time antes de procurar status
+        # persiste start_time e assigned_employee_id antes de procurar status
         self.db.add(db_appointment)
         self.db.commit()
         self.db.refresh(db_appointment)
@@ -573,6 +599,19 @@ class AppointmentRepository:
         # Desconta do stock
         product.quantity -= quantity
         
+        # Verificar se ficou abaixo do estoque mínimo e enviar notificação
+        if product.quantity <= product.minimum_stock:
+            try:
+                from app.services.notification_service import NotificationService
+                NotificationService.notify_low_stock(
+                    db=self.db,
+                    product_name=product.name,
+                    current_quantity=product.quantity,
+                    min_quantity=product.minimum_stock
+                )
+            except Exception as e:
+                print(f"Erro ao enviar notificação de estoque baixo: {e}")
+        
         new_part = OrderPart( 
             appointment_id=appointment_id,
             product_id=product.id,
@@ -590,15 +629,18 @@ class AppointmentRepository:
         
         return appointment
 
-    def start_work(self, appointment_id: int) -> Optional[Appointment]:
-        """Inicia o trabalho na appointment: define start_time e status para 'In Repair'."""
+    def start_work(self, appointment_id: int, employee_id: Optional[int] = None) -> Optional[Appointment]:
+        """Inicia o trabalho na appointment: define start_time, employee responsável e status para 'In Repair'."""
         db_appointment = self.get_by_id(appointment_id=appointment_id)
         if not db_appointment:
             return None
 
-        #  Apenas na primeira vez: guarda que foi iniciado
+        #  Apenas na primeira vez: guarda que foi iniciado e atribui o employee
         if not db_appointment.start_time:
             db_appointment.start_time = datetime.utcnow()
+            # Atribuir employee responsável (só na primeira vez)
+            if employee_id and not db_appointment.assigned_employee_id:
+                db_appointment.assigned_employee_id = employee_id
         
         #  SEMPRE que inicia (mesmo depois de pausar):
         db_appointment.is_paused = False

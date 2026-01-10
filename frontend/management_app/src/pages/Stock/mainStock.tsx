@@ -33,6 +33,7 @@ import http from "../../api/http";
 import type { ProductCategory, StockStatus } from "../../interfaces/Product";
 import CreateProductModal from "../../components/CreateProductModal";
 import EditProductModal from "../../components/EditProductModal";
+import { useAuth } from "../../contexts/AuthContext";
 
 // Categorias de produtos
 const categorias: ProductCategory[] = [
@@ -70,10 +71,14 @@ interface Produto {
 
 // Componente de gestão de stock
 export default function Stock() {
+  // Hook de autenticação para verificar permissões
+  const { canEdit } = useAuth();
+
   // Estados para produtos e filtros
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [categoriaFiltro, setCategoriaFiltro] = useState("todos");
+  const [loading, setLoading] = useState(false);
   // Estados para modais
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -108,6 +113,7 @@ export default function Stock() {
 
   // Buscar produtos da API
   const fetchProducts = async () => {
+    setLoading(true);
     try {
       const res = await http.get("/products/");
       const items = Array.isArray(res.data) ? res.data : [];
@@ -128,6 +134,8 @@ export default function Stock() {
     } catch (err) {
       console.error("Failed to load products", err);
       toast({ title: "Erro", description: "Falha ao carregar produtos" });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -207,11 +215,18 @@ export default function Stock() {
     <div className="flex-1 space-y-6 p-8">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-4xl font-bold text-gray-900 leading-tight">Gestão de Stock</h1>
+          <h1 className="text-4xl font-bold text-gray-900 leading-tight">
+            Gestão de Stock
+          </h1>
         </div>
-        <Button variant="destructive" onClick={() => setCreateModalOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" /> Novo Produto
-        </Button>
+        {canEdit && (
+          <Button
+            variant="destructive"
+            onClick={() => setCreateModalOpen(true)}
+          >
+            <Plus className="mr-2 h-4 w-4" /> Novo Produto
+          </Button>
+        )}
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4 mb-4">
@@ -254,7 +269,10 @@ export default function Stock() {
           </div>
         </div>
         <Select value={categoriaFiltro} onValueChange={setCategoriaFiltro}>
-          <SelectTrigger className="w-full sm:w-[200px] border-2 border-red-600 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0" style={{ height: "56px" }}>
+          <SelectTrigger
+            className="w-full sm:w-[200px] border-2 border-red-600 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+            style={{ height: "56px" }}
+          >
             <SelectValue placeholder="Filtrar por categoria" />
           </SelectTrigger>
           <SelectContent>
@@ -268,126 +286,191 @@ export default function Stock() {
         </Select>
       </div>
 
-      <div
-        className="rounded-md border-2 border-red-600"
-        style={{
-          overflowY: "auto",
-          backgroundColor: "#fff",
-          borderRadius: "0.375rem",
-          boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-          minHeight: 0,
-        }}
-      >
-        <Table>
-          <TableHeader
+      {/* Loading State */}
+      {loading && (
+        <div
+          style={{
+            padding: "3rem",
+            textAlign: "center",
+            backgroundColor: "white",
+            borderRadius: "8px",
+            border: "2px solid #dc2626",
+          }}
+        >
+          <div
+            className="spinner-border text-danger"
+            role="status"
+            style={{ width: "3rem", height: "3rem", marginBottom: "1rem" }}
+          >
+            <span className="visually-hidden">A carregar...</span>
+          </div>
+          <h3
             style={{
-              position: "sticky",
-              top: 0,
-              zIndex: 2,
-              background: "#fff",
+              fontSize: "1.25rem",
+              fontWeight: "600",
+              marginBottom: "0.5rem",
             }}
           >
-            <TableRow>
-              <TableHead className="text-left font-semibold text-base text-black">Produto</TableHead>
-              <TableHead className="text-left font-semibold text-base text-black">Descrição</TableHead>
-              <TableHead className="text-left font-semibold text-base text-black">Categoria</TableHead>
-              <TableHead className="text-left font-semibold text-base text-black">Fornecedor</TableHead>
-              <TableHead className="text-right font-semibold text-base text-black">Quantidade</TableHead>
-              <TableHead className="text-right font-semibold text-base text-black">Preço</TableHead>
-              <TableHead className="text-center font-semibold text-base text-black">Ações</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredProdutos.length === 0 ? (
+            A carregar produtos...
+          </h3>
+          <p style={{ color: "#6b7280", fontSize: "0.875rem" }}>
+            Por favor, aguarde enquanto buscamos os dados
+          </p>
+        </div>
+      )}
+
+      {/* Tabela */}
+      {!loading && (
+        <div
+          className="rounded-md border-2 border-red-600"
+          style={{
+            overflowY: "auto",
+            backgroundColor: "#fff",
+            borderRadius: "0.375rem",
+            boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+            minHeight: 0,
+          }}
+        >
+          <Table>
+            <TableHeader
+              style={{
+                position: "sticky",
+                top: 0,
+                zIndex: 2,
+                background: "#fff",
+              }}
+            >
               <TableRow>
-                <TableCell
-                  colSpan={7}
-                  className="text-center py-8 text-muted-foreground"
-                >
-                  Nenhum produto encontrado
-                </TableCell>
+                <TableHead className="text-left font-semibold text-base text-black">
+                  Produto
+                </TableHead>
+                <TableHead className="text-left font-semibold text-base text-black">
+                  Descrição
+                </TableHead>
+                <TableHead className="text-left font-semibold text-base text-black">
+                  Categoria
+                </TableHead>
+                <TableHead className="text-left font-semibold text-base text-black">
+                  Fornecedor
+                </TableHead>
+                <TableHead className="text-right font-semibold text-base text-black">
+                  Quantidade
+                </TableHead>
+                <TableHead className="text-right font-semibold text-base text-black">
+                  Preço
+                </TableHead>
+                <TableHead className="text-center font-semibold text-base text-black">
+                  Ações
+                </TableHead>
               </TableRow>
-            ) : (
-              paginatedProdutos.map((produto) => {
-                const status = getQuantidadeStatus(
-                  produto.quantidade,
-                  produto.reserveQuantity,
-                  produto.minimumStock
-                );
-                return (
-                  <TableRow key={produto.id}>
-                    <TableCell className="text-left font-medium">
-                      {produto.nome}
-                    </TableCell>
-                    <TableCell className="text-left">{produto.descricao}</TableCell>
-                    <TableCell className="text-left">{produto.categoria}</TableCell>
-                    <TableCell className="text-left">{produto.fornecedor}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <span>{produto.quantidade}</span>
-                        <Badge bg={status.bg}>{status.text}</Badge>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      €{produto.preco.toFixed(2)}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <div className="flex justify-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => handleEdit(produto)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="icon"
-                          onClick={() => handleDelete(produto.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })
-            )}
-          </TableBody>
-        </Table>
-      </div>
+            </TableHeader>
+            <TableBody>
+              {filteredProdutos.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={7}
+                    className="text-center py-8 text-muted-foreground"
+                  >
+                    Nenhum produto encontrado
+                  </TableCell>
+                </TableRow>
+              ) : (
+                paginatedProdutos.map((produto) => {
+                  const status = getQuantidadeStatus(
+                    produto.quantidade,
+                    produto.reserveQuantity,
+                    produto.minimumStock
+                  );
+                  return (
+                    <TableRow key={produto.id}>
+                      <TableCell className="text-left font-medium">
+                        {produto.nome}
+                      </TableCell>
+                      <TableCell className="text-left">
+                        {produto.descricao}
+                      </TableCell>
+                      <TableCell className="text-left">
+                        {produto.categoria}
+                      </TableCell>
+                      <TableCell className="text-left">
+                        {produto.fornecedor}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <span>{produto.quantidade}</span>
+                          <Badge bg={status.bg}>{status.text}</Badge>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        €{produto.preco.toFixed(2)}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {canEdit ? (
+                          <div className="flex justify-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => handleEdit(produto)}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="icon"
+                              onClick={() => handleDelete(produto.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <span className="text-sm text-gray-500">-</span>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      )}
 
       {/* Controles de paginação */}
-      <div className="flex justify-between items-center mt-4">
-        <div className="text-sm text-gray-600">
-          {filteredProdutos.length === 0
-            ? ""
-            : (() => {
-                const start = (page - 1) * pageSize + 1;
-                const end = Math.min(page * pageSize, filteredProdutos.length);
-                return `Mostrando ${start}–${end} de ${filteredProdutos.length}`;
-              })()}
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            disabled={page <= 1}
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-          >
-            Anterior
-          </Button>
-          <div className="flex items-center px-4 text-sm font-medium">
-            {page} / {totalPages}
+      {!loading && (
+        <div className="flex justify-between items-center mt-4">
+          <div className="text-sm text-gray-600">
+            {filteredProdutos.length === 0
+              ? ""
+              : (() => {
+                  const start = (page - 1) * pageSize + 1;
+                  const end = Math.min(
+                    page * pageSize,
+                    filteredProdutos.length
+                  );
+                  return `Mostrando ${start}–${end} de ${filteredProdutos.length}`;
+                })()}
           </div>
-          <Button
-            variant="outline"
-            disabled={page >= totalPages}
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-          >
-            Próxima
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              disabled={page <= 1}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+            >
+              Anterior
+            </Button>
+            <div className="flex items-center px-4 text-sm font-medium">
+              {page} / {totalPages}
+            </div>
+            <Button
+              variant="outline"
+              disabled={page >= totalPages}
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            >
+              Próxima
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent className="sm:max-w-md">
@@ -399,8 +482,8 @@ export default function Stock() {
               Eliminar Produto
             </AlertDialogTitle>
             <AlertDialogDescription className="text-center text-base">
-              Esta ação não pode ser desfeita. Tem a certeza que
-              deseja eliminar permanentemente este produto?
+              Esta ação não pode ser desfeita. Tem a certeza que deseja eliminar
+              permanentemente este produto?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex flex-row gap-3 justify-center sm:justify-center mt-2">
@@ -444,4 +527,3 @@ export default function Stock() {
     </div>
   );
 }
-

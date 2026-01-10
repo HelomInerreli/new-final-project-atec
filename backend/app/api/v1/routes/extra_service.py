@@ -8,6 +8,7 @@ from app.models.appoitment_extra_service import AppointmentExtraService as Appoi
 from app.models.extra_service import ExtraService as ExtraServiceModel
 from app.schemas.appointment_extra_service import AppointmentExtraService as AppointmentExtraServiceSchema
 from app.schemas.extra_service import ExtraService as ExtraServiceSchema
+from app.services.notification_service import NotificationService
 
 router = APIRouter()
 
@@ -28,7 +29,8 @@ def list_extra_services_catalog(db: Session = Depends(get_db)):
 @router.patch("/requests/{request_id}/approve", response_model=AppointmentExtraServiceSchema)
 def approve_extra_service_request(
     request_id: int,
-    repo: AppointmentRepository = Depends(get_appointment_repo)
+    repo: AppointmentRepository = Depends(get_appointment_repo),
+    db: Session = Depends(get_db)
 ):
     """
     Approve an extra-service request (marks request approved and updates appointment.actual_budget).
@@ -36,13 +38,31 @@ def approve_extra_service_request(
     db_req = repo.approve_extra_service_request(request_id=request_id)
     if not db_req:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Request not found")
+    
+    # Enviar notificação sobre aprovação
+    try:
+        from app.models.appoitment import Appointment as AppointmentModel
+        appointment = db.query(AppointmentModel).filter(AppointmentModel.id == db_req.appointment_id).first()
+        
+        if appointment:
+            NotificationService.notify_extra_service_decision(
+                db=db,
+                appointment_id=db_req.appointment_id,
+                service_name=db_req.extra_service.name if db_req.extra_service else "Serviço extra",
+                approved=True,
+                professional_user_id=appointment.assigned_employee_id
+            )
+    except Exception as e:
+        print(f"Erro ao enviar notificação de aprovação: {e}")
+    
     return db_req
 
 
 @router.patch("/requests/{request_id}/reject", response_model=AppointmentExtraServiceSchema)
 def reject_extra_service_request(
     request_id: int,
-    repo: AppointmentRepository = Depends(get_appointment_repo)
+    repo: AppointmentRepository = Depends(get_appointment_repo),
+    db: Session = Depends(get_db)
 ):
     """
     Reject an extra-service request (marks request rejected).
@@ -50,6 +70,23 @@ def reject_extra_service_request(
     db_req = repo.reject_extra_service_request(request_id=request_id)
     if not db_req:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Request not found")
+    
+    # Enviar notificação sobre rejeição
+    try:
+        from app.models.appoitment import Appointment as AppointmentModel
+        appointment = db.query(AppointmentModel).filter(AppointmentModel.id == db_req.appointment_id).first()
+        
+        if appointment:
+            NotificationService.notify_extra_service_decision(
+                db=db,
+                appointment_id=db_req.appointment_id,
+                service_name=db_req.extra_service.name if db_req.extra_service else "Serviço extra",
+                approved=False,
+                professional_user_id=appointment.assigned_employee_id
+            )
+    except Exception as e:
+        print(f"Erro ao enviar notificação de rejeição: {e}")
+    
     return db_req
 
 

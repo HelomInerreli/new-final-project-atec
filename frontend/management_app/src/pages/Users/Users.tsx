@@ -3,29 +3,29 @@ import { Button } from "../../components/ui/button";
 import { Umbrella, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "../../components/ui/table";
 import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
 } from "../../components/ui/alert-dialog";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "../../components/ui/select";
 import { Badge } from "../../components/ui/badge";
 import { Plus, Pencil, Trash2, Search } from "lucide-react";
@@ -40,355 +40,442 @@ import type { EmployeeFormData } from "../../hooks/useEditEmployeeModal";
 import "../../components/inputs.css";
 
 // Variantes de cores para funções
-const roleVariants: { [key: string]: "destructive" | "default" | "secondary" | "outline" } = {
-    Gestor: "destructive",
-    Mecanico: "default",
-    Eletricista: "secondary",
-    Borracheiro: "outline",
+const roleVariants: {
+  [key: string]: "destructive" | "default" | "secondary" | "outline";
+} = {
+  Gestor: "destructive",
+  Mecanico: "default",
+  Eletricista: "secondary",
+  Borracheiro: "outline",
 } as const;
 
 // Componente de gestão de funcionários
 export default function Users() {
-    // Hook de navegação
-    const navigate = useNavigate();
-    // Buscar funcionários
-    const { employees, loading, error, updateEmployee, removeEmployee, refetch } = useEmployees();
-    // Buscar funções
-    const { roles } = useRoles();
+  // Hook de navegação
+  const navigate = useNavigate();
+  // Buscar funcionários
+  const { employees, loading, error, updateEmployee, removeEmployee, refetch } =
+    useEmployees();
+  // Buscar funções
+  const { roles } = useRoles();
 
-    // Estados para filtros e paginação
-    const [searchTerm, setSearchTerm] = useState("");
-    const [roleFilter, setRoleFilter] = useState<string>("all");
-    // Estados para modais
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [editFormData, setEditFormData] = useState<EmployeeFormData | null>(null);
-    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-    const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
-    const [deletingEmployeeId, setDeletingEmployeeId] = useState<number | null>(null);
-    // Estado para paginação
-    const [page, setPage] = useState<number>(1);
-    const pageSize = 5;
+  // Estados para filtros e paginação
+  const [searchTerm, setSearchTerm] = useState("");
+  const [roleFilter, setRoleFilter] = useState<string>("all");
+  // Estados para modais
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editFormData, setEditFormData] = useState<EmployeeFormData | null>(
+    null
+  );
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
+  const [deletingEmployeeId, setDeletingEmployeeId] = useState<number | null>(
+    null
+  );
+  // Estado para paginação
+  const [page, setPage] = useState<number>(1);
+  const pageSize = 5;
 
-    // Filtrar funcionários
-    const filteredEmployees = employees.filter((employee) => {
-        const matchesSearch =
-            `${employee.name} ${employee.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            employee.email.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesRole = roleFilter === "all" || employee.role.id === parseInt(roleFilter);
-        return matchesSearch && matchesRole;
+  // Filtrar funcionários
+  const filteredEmployees = employees.filter((employee) => {
+    const matchesSearch =
+      `${employee.name} ${employee.last_name}`
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      employee.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesRole =
+      roleFilter === "all" || employee.role.id === parseInt(roleFilter);
+    return matchesSearch && matchesRole;
+  });
+
+  // Resetar página quando filtros mudam
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm, roleFilter]);
+
+  // Calcular páginas totais e funcionários paginados
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredEmployees.length / pageSize)
+  );
+  const paginatedEmployees = filteredEmployees.slice(
+    (page - 1) * pageSize,
+    page * pageSize
+  );
+
+  // Handler para editar
+  const handleEdit = (employee: Employee) => {
+    setEditingEmployee(employee);
+    setEditFormData({
+      name: employee.name,
+      last_name: employee.last_name,
+      email: employee.email,
+      phone: employee.phone || "",
+      salary: employee.salary?.toString() || "",
+      address: employee.address || "",
+      date_of_birth: employee.date_of_birth
+        ? employee.date_of_birth.split("T")[0]
+        : "",
+      hired_at: employee.hired_at ? employee.hired_at.split("T")[0] : "",
+      role_id: employee.role.id.toString(),
+      is_manager: employee.is_manager || false,
+      has_system_access: employee.has_system_access || false,
     });
+    setIsEditModalOpen(true);
+  };
 
-    // Resetar página quando filtros mudam
-    useEffect(() => {
-        setPage(1);
-    }, [searchTerm, roleFilter]);
+  // Handler para deletar
+  const handleDeleteClick = (id: number) => {
+    setDeletingEmployeeId(id);
+    setIsDeleteDialogOpen(true);
+  };
 
-    // Calcular páginas totais e funcionários paginados
-    const totalPages = Math.max(1, Math.ceil(filteredEmployees.length / pageSize));
-    const paginatedEmployees = filteredEmployees.slice(
-        (page - 1) * pageSize,
-        page * pageSize
-    );
+  // Confirmar delete
+  const handleDeleteConfirm = async () => {
+    if (deletingEmployeeId) {
+      toast.promise(removeEmployee(deletingEmployeeId), {
+        loading: "A apagar funcionário...",
+        success: "Funcionário apagado com sucesso!",
+        error: "Erro ao apagar funcionário.",
+      });
+    }
+    setIsDeleteDialogOpen(false);
+    setDeletingEmployeeId(null);
+  };
 
-    // Handler para editar
-    const handleEdit = (employee: Employee) => {
-        setEditingEmployee(employee);
-        setEditFormData({
-            name: employee.name,
-            last_name: employee.last_name,
-            email: employee.email,
-            phone: employee.phone || "",
-            salary: employee.salary?.toString() || "",
-            address: employee.address || "",
-            date_of_birth: employee.date_of_birth ? employee.date_of_birth.split('T')[0] : "",
-            hired_at: employee.hired_at ? employee.hired_at.split('T')[0] : "",
-            role_id: employee.role.id.toString(),
-        });
-        setIsEditModalOpen(true);
-    };
-
-    // Handler para deletar
-    const handleDeleteClick = (id: number) => {
-        setDeletingEmployeeId(id);
-        setIsDeleteDialogOpen(true);
-    };
-
-    // Confirmar delete
-    const handleDeleteConfirm = async () => {
-        if (deletingEmployeeId) {
-            toast.promise(removeEmployee(deletingEmployeeId), {
-                loading: 'A apagar funcionário...',
-                success: 'Funcionário apagado com sucesso!',
-                error: 'Erro ao apagar funcionário.',
-            });
-        }
-        setIsDeleteDialogOpen(false);
-        setDeletingEmployeeId(null);
-    };
-
-    // Renderizar página de funcionários
-    return (
-        <div className="flex-1 space-y-6 p-8">
-            <div className="flex justify-between items-center">
-                <div>
-                    <h1 className="text-4xl font-bold text-gray-900 leading-tight">Gestão de Funcionários</h1>
-                </div>
-                <div className="flex items-center gap-2">
-                    <Button variant="outline" className="border-2 border-red-600" onClick={() => navigate('/ferias')}>
-                        <Calendar className="h-4 w-4 mr-2" />
-                        Férias
-                    </Button>
-                    <Button variant="outline" className="border-2 border-red-600" onClick={() => navigate('/folgas')}>
-                        <Umbrella className="h-4 w-4 mr-2" />
-                        Folgas
-                    </Button>
-                    <Button variant="destructive" className="border-red-500" onClick={() => setIsCreateModalOpen(true)}>
-                        <Plus className="mr-2 h-4 w-4" />
-                        Novo Funcionário
-                    </Button>
-                </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-4 mb-4">
-                <div className="mb-input-wrapper flex-1">
-                    <div style={{ position: "relative" }}>
-                        <Search
-                            size={20}
-                            style={{
-                                position: "absolute",
-                                left: "14px",
-                                top: "50%",
-                                transform: "translateY(-50%)",
-                                color: "#6b7280",
-                                pointerEvents: "none",
-                                zIndex: 1,
-                            }}
-                        />
-                        <input
-                            type="text"
-                            placeholder=""
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="mb-input"
-                            style={{ paddingLeft: "46px", borderColor: "#dc2626" }}
-                            onFocus={(e) =>
-                                e.target.nextElementSibling?.classList.add("shrunken")
-                            }
-                            onBlur={(e) => {
-                                if (!e.target.value) {
-                                    e.target.nextElementSibling?.classList.remove("shrunken");
-                                }
-                            }}
-                        />
-                        <label
-                            className={`mb-input-label ${searchTerm ? "shrunken" : ""}`}
-                            style={{ left: "46px" }}
-                        >
-                            Pesquisar por nome ou email...
-                        </label>
-                    </div>
-                </div>
-                <Select value={roleFilter} onValueChange={setRoleFilter}>
-                    <SelectTrigger className="w-full sm:w-[200px] border-2 border-red-600 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0" style={{ height: "56px" }}>
-                        <SelectValue placeholder="Filtrar por função" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">Todas as Funções</SelectItem>
-                        {roles.map(role => (
-                            <SelectItem key={role.id} value={String(role.id)}>
-                                {role.name}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
-
-            <div
-                className="rounded-md border-2 border-red-600"
-                style={{
-                    overflowY: "auto",
-                    backgroundColor: "#fff",
-                    borderRadius: "0.375rem",
-                    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-                    minHeight: 0,
-                }}
-            >
-                <Table>
-                    <TableHeader
-                        style={{
-                            position: "sticky",
-                            top: 0,
-                            zIndex: 2,
-                            background: "#fff",
-                        }}
-                    >
-                        <TableRow>
-                            <TableHead className="text-left font-semibold text-base text-black">Funcionário</TableHead>
-                            <TableHead className="text-left font-semibold text-base text-black">Email</TableHead>
-                            <TableHead className="text-left font-semibold text-base text-black">Telefone</TableHead>
-                            <TableHead className="text-left font-semibold text-base text-black">Função</TableHead>
-                            <TableHead className="text-left font-semibold text-base text-black">Data de Contratação</TableHead>
-                            <TableHead className="text-center font-semibold text-base text-black">Ações</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {loading ? (
-                            Array.from({ length: 5 }).map((_, index) => (
-                                <TableRow key={index}>
-                                    <TableCell><Skeleton className="h-5 w-32" /></TableCell>
-                                    <TableCell><Skeleton className="h-5 w-40" /></TableCell>
-                                    <TableCell><Skeleton className="h-5 w-24" /></TableCell>
-                                    <TableCell><Skeleton className="h-5 w-20" /></TableCell>
-                                    <TableCell><Skeleton className="h-5 w-24" /></TableCell>
-                                    <TableCell className="text-right"><Skeleton className="h-8 w-20 ml-auto" /></TableCell>
-                                </TableRow>
-                            ))
-                        ) : error ? (
-                            <TableRow>
-                                <TableCell colSpan={6} className="text-center text-destructive">
-                                    {error}
-                                </TableCell>
-                            </TableRow>
-                        ) : filteredEmployees.length === 0 ? (
-                            <TableRow>
-                                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                                    Nenhum funcionário encontrado
-                                </TableCell>
-                            </TableRow>
-                        ) : (
-                            paginatedEmployees.map((employee) => (
-                                <TableRow key={employee.id}>
-                                    <TableCell className="text-left font-medium">{`${employee.name} ${employee.last_name}`}</TableCell>
-                                    <TableCell className="text-left">{employee.email}</TableCell>
-                                    <TableCell className="text-left">{employee.phone || "-"}</TableCell>
-                                    <TableCell className="text-left">
-                                        <Badge 
-                                            className={
-                                                employee.role.name === "Gestor" ? "bg-purple-600 hover:bg-purple-700 text-white" :
-                                                employee.role.name === "Mecanico" ? "bg-blue-600 hover:bg-blue-700 text-white" :
-                                                employee.role.name === "Eletricista" ? "bg-orange-600 hover:bg-orange-700 text-white" :
-                                                employee.role.name === "Borracheiro" ? "bg-teal-600 hover:bg-teal-700 text-white" :
-                                                "bg-gray-600 hover:bg-gray-700 text-white"
-                                            }
-                                        >
-                                            {employee.role.name}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell className="text-left">
-                                        {new Date(employee.hired_at).toLocaleDateString("pt-PT")}
-                                    </TableCell>
-                                    <TableCell className="text-center">
-                                        <div className="flex justify-center gap-2">
-                                            <Button
-                                                variant="outline"
-                                                size="icon"
-                                                onClick={() => handleEdit(employee)}
-                                            >
-                                                <Pencil className="h-4 w-4" />
-                                            </Button>
-                                            <Button
-                                                variant="destructive"
-                                                size="icon"
-                                                onClick={() => handleDeleteClick(employee.id)}
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
-                            ))
-                        )}
-                    </TableBody>
-                </Table>
-            </div>
-
-            {/* Controles de paginação */}
-            <div className="flex justify-between items-center mt-4">
-                <div className="text-sm text-gray-600">
-                    {filteredEmployees.length === 0
-                        ? ""
-                        : (() => {
-                            const start = (page - 1) * pageSize + 1;
-                            const end = Math.min(page * pageSize, filteredEmployees.length);
-                            return `Mostrando ${start}–${end} de ${filteredEmployees.length}`;
-                        })()}
-                </div>
-                <div className="flex gap-2">
-                    <Button
-                        variant="outline"
-                        disabled={page <= 1}
-                        onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    >
-                        Anterior
-                    </Button>
-                    <div className="flex items-center px-4 text-sm font-medium">
-                        {page} / {totalPages}
-                    </div>
-                    <Button
-                        variant="outline"
-                        disabled={page >= totalPages}
-                        onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                    >
-                        Próxima
-                    </Button>
-                </div>
-            </div>
-
-            <CreateEmployeeModal
-                show={isCreateModalOpen}
-                onClose={() => setIsCreateModalOpen(false)}
-                onSuccess={refetch}
-            />
-
-            {editingEmployee && editFormData && (
-                <EditEmployeeModal
-                    show={isEditModalOpen}
-                    employeeId={editingEmployee.id}
-                    initialData={editFormData}
-                    onClose={() => {
-                        setIsEditModalOpen(false);
-                        setEditingEmployee(null);
-                        setEditFormData(null);
-                    }}
-                    onSuccess={() => {
-                        refetch();
-                        toast.success("Funcionário atualizado com sucesso!");
-                    }}
-                />
-            )}
-
-            <AlertDialog
-                open={isDeleteDialogOpen}
-                onOpenChange={setIsDeleteDialogOpen}
-            >
-                <AlertDialogContent className="sm:max-w-md">
-                    <AlertDialogHeader className="space-y-4">
-                        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
-                            <Trash2 className="h-6 w-6 text-red-600" />
-                        </div>
-                        <AlertDialogTitle className="text-center text-xl">
-                            Eliminar Funcionário
-                        </AlertDialogTitle>
-                        <AlertDialogDescription className="text-center text-base">
-                            Esta ação não pode ser desfeita. Tem a certeza que
-                            deseja eliminar permanentemente este funcionário?
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter className="flex flex-row gap-3 justify-center sm:justify-center mt-2">
-                        <AlertDialogCancel className="mt-0 flex-1 sm:flex-none px-6 hover:bg-gray-100 focus-visible:ring-0 focus-visible:ring-offset-0">
-                            Cancelar
-                        </AlertDialogCancel>
-                        <AlertDialogAction
-                            onClick={handleDeleteConfirm}
-                            className="mt-0 flex-1 sm:flex-none px-6 bg-red-600 hover:bg-red-700 text-white focus-visible:ring-0 focus-visible:ring-offset-0"
-                        >
-                            Eliminar
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+  // Renderizar página de funcionários
+  return (
+    <div className="flex-1 space-y-6 p-8">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-4xl font-bold text-gray-900 leading-tight">
+            Gestão de Funcionários
+          </h1>
         </div>
-    );
-}
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            className="border-2 border-red-600"
+            onClick={() => navigate("/ferias")}
+          >
+            <Calendar className="h-4 w-4 mr-2" />
+            Férias
+          </Button>
+          <Button
+            variant="outline"
+            className="border-2 border-red-600"
+            onClick={() => navigate("/folgas")}
+          >
+            <Umbrella className="h-4 w-4 mr-2" />
+            Folgas
+          </Button>
+          <Button
+            variant="destructive"
+            className="border-red-500"
+            onClick={() => setIsCreateModalOpen(true)}
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Novo Funcionário
+          </Button>
+        </div>
+      </div>
 
+      <div className="flex flex-col sm:flex-row gap-4 mb-4">
+        <div className="mb-input-wrapper flex-1">
+          <div style={{ position: "relative" }}>
+            <Search
+              size={20}
+              style={{
+                position: "absolute",
+                left: "14px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                color: "#6b7280",
+                pointerEvents: "none",
+                zIndex: 1,
+              }}
+            />
+            <input
+              type="text"
+              placeholder=""
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="mb-input"
+              style={{ paddingLeft: "46px", borderColor: "#dc2626" }}
+              onFocus={(e) =>
+                e.target.nextElementSibling?.classList.add("shrunken")
+              }
+              onBlur={(e) => {
+                if (!e.target.value) {
+                  e.target.nextElementSibling?.classList.remove("shrunken");
+                }
+              }}
+            />
+            <label
+              className={`mb-input-label ${searchTerm ? "shrunken" : ""}`}
+              style={{ left: "46px" }}
+            >
+              Pesquisar por nome ou email...
+            </label>
+          </div>
+        </div>
+        <Select value={roleFilter} onValueChange={setRoleFilter}>
+          <SelectTrigger
+            className="w-full sm:w-[200px] border-2 border-red-600 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+            style={{ height: "56px" }}
+          >
+            <SelectValue placeholder="Filtrar por função" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todas as Funções</SelectItem>
+            {roles.map((role) => (
+              <SelectItem key={role.id} value={String(role.id)}>
+                {role.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Loading State */}
+      {loading && (
+        <div
+          style={{
+            padding: "3rem",
+            textAlign: "center",
+            backgroundColor: "white",
+            borderRadius: "8px",
+            border: "2px solid #dc2626",
+          }}
+        >
+          <div
+            className="spinner-border text-danger"
+            role="status"
+            style={{ width: "3rem", height: "3rem", marginBottom: "1rem" }}
+          >
+            <span className="visually-hidden">A carregar...</span>
+          </div>
+          <h3
+            style={{
+              fontSize: "1.25rem",
+              fontWeight: "600",
+              marginBottom: "0.5rem",
+            }}
+          >
+            A carregar funcionários...
+          </h3>
+          <p style={{ color: "#6b7280", fontSize: "0.875rem" }}>
+            Por favor, aguarde enquanto buscamos os dados
+          </p>
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && (
+        <div className="alert alert-danger" role="alert">
+          {error}
+        </div>
+      )}
+
+      {/* Tabela */}
+      {!loading && !error && (
+        <div
+          className="rounded-md border-2 border-red-600"
+          style={{
+            overflowY: "auto",
+            backgroundColor: "#fff",
+            borderRadius: "0.375rem",
+            boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+            minHeight: 0,
+          }}
+        >
+          <Table>
+            <TableHeader
+              style={{
+                position: "sticky",
+                top: 0,
+                zIndex: 2,
+                background: "#fff",
+              }}
+            >
+              <TableRow>
+                <TableHead className="text-left font-semibold text-base text-black">
+                  Funcionário
+                </TableHead>
+                <TableHead className="text-left font-semibold text-base text-black">
+                  Email
+                </TableHead>
+                <TableHead className="text-left font-semibold text-base text-black">
+                  Telefone
+                </TableHead>
+                <TableHead className="text-left font-semibold text-base text-black">
+                  Função
+                </TableHead>
+                <TableHead className="text-left font-semibold text-base text-black">
+                  Data de Contratação
+                </TableHead>
+                <TableHead className="text-center font-semibold text-base text-black">
+                  Ações
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredEmployees.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={6}
+                    className="text-center py-8 text-muted-foreground"
+                  >
+                    Nenhum funcionário encontrado
+                  </TableCell>
+                </TableRow>
+              ) : (
+                paginatedEmployees.map((employee) => (
+                  <TableRow key={employee.id}>
+                    <TableCell className="text-left font-medium">{`${employee.name} ${employee.last_name}`}</TableCell>
+                    <TableCell className="text-left">
+                      {employee.email}
+                    </TableCell>
+                    <TableCell className="text-left">
+                      {employee.phone || "-"}
+                    </TableCell>
+                    <TableCell className="text-left">
+                      <Badge
+                        className={
+                          employee.role.name === "Gestor"
+                            ? "bg-purple-600 hover:bg-purple-700 text-white"
+                            : employee.role.name === "Mecanico"
+                            ? "bg-blue-600 hover:bg-blue-700 text-white"
+                            : employee.role.name === "Eletricista"
+                            ? "bg-orange-600 hover:bg-orange-700 text-white"
+                            : employee.role.name === "Borracheiro"
+                            ? "bg-teal-600 hover:bg-teal-700 text-white"
+                            : "bg-gray-600 hover:bg-gray-700 text-white"
+                        }
+                      >
+                        {employee.role.name}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-left">
+                      {new Date(employee.hired_at).toLocaleDateString("pt-PT")}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex justify-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => handleEdit(employee)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="icon"
+                          onClick={() => handleDeleteClick(employee.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+
+      {/* Controles de paginação */}
+      {!loading && !error && (
+        <div className="flex justify-between items-center mt-4">
+          <div className="text-sm text-gray-600">
+            {filteredEmployees.length === 0
+              ? ""
+              : (() => {
+                  const start = (page - 1) * pageSize + 1;
+                  const end = Math.min(
+                    page * pageSize,
+                    filteredEmployees.length
+                  );
+                  return `Mostrando ${start}–${end} de ${filteredEmployees.length}`;
+                })()}
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              disabled={page <= 1}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+            >
+              Anterior
+            </Button>
+            <div className="flex items-center px-4 text-sm font-medium">
+              {page} / {totalPages}
+            </div>
+            <Button
+              variant="outline"
+              disabled={page >= totalPages}
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            >
+              Próxima
+            </Button>
+          </div>
+        </div>
+      )}
+
+      <CreateEmployeeModal
+        show={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSuccess={refetch}
+      />
+
+      {editingEmployee && editFormData && (
+        <EditEmployeeModal
+          show={isEditModalOpen}
+          employeeId={editingEmployee.id}
+          initialData={editFormData}
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setEditingEmployee(null);
+            setEditFormData(null);
+          }}
+          onSuccess={() => {
+            refetch();
+            toast.success("Funcionário atualizado com sucesso!");
+          }}
+        />
+      )}
+
+      <AlertDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+      >
+        <AlertDialogContent className="sm:max-w-md">
+          <AlertDialogHeader className="space-y-4">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+              <Trash2 className="h-6 w-6 text-red-600" />
+            </div>
+            <AlertDialogTitle className="text-center text-xl">
+              Eliminar Funcionário
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center text-base">
+              Esta ação não pode ser desfeita. Tem a certeza que deseja eliminar
+              permanentemente este funcionário?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex flex-row gap-3 justify-center sm:justify-center mt-2">
+            <AlertDialogCancel className="mt-0 flex-1 sm:flex-none px-6 hover:bg-gray-100 focus-visible:ring-0 focus-visible:ring-offset-0">
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              className="mt-0 flex-1 sm:flex-none px-6 bg-red-600 hover:bg-red-700 text-white focus-visible:ring-0 focus-visible:ring-offset-0"
+            >
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+}

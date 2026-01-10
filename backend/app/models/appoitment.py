@@ -40,12 +40,14 @@ class Appointment(Base):
     customer_id = Column(Integer, ForeignKey("customers.id"), nullable=False)
     service_id = Column(Integer, ForeignKey("services.id"), nullable=True)
     status_id = Column(Integer, ForeignKey("statuses.id"), nullable=True)
+    assigned_employee_id = Column(Integer, ForeignKey("employees.id"), nullable=True)
 
     # Relationships
     vehicle = relationship("Vehicle", back_populates="appointments")
     invoices = relationship("Invoice", back_populates="appointment", order_by="Invoice.id.desc()")
     customer = relationship("Customer", back_populates="appointments")
     service = relationship("Service", back_populates="appointments")
+    assigned_employee = relationship("Employee", foreign_keys=[assigned_employee_id])
     extra_service_associations = relationship(
         "AppointmentExtraService",
         back_populates="appointment",

@@ -217,15 +217,22 @@ def get_yearly_metrics(
     if year is None:
         year = datetime.now().year
     
+    # Primeiro, pegar o ID do status "Concluído"
+    completed_status = db.query(Status).filter(
+        Status.name.ilike("%concluído%")
+    ).first()
+    completed_status_id = completed_status.id if completed_status else None
+    
+    # Definir a expressão do mês
+    month_expr = extract('month', Appointment.appointment_date)
+    
     # Query base para o ano
     base_query = db.query(
-        extract('month', Appointment.appointment_date).label('month'),
+        month_expr.label('month'),
         func.count(Appointment.id).label('total'),
         func.sum(
             case(
-                (Appointment.status_id == db.query(Status.id).filter(
-                    Status.name.ilike("%concluído%")
-                ).scalar_subquery(), 1),
+                (Appointment.status_id == completed_status_id, 1),
                 else_=0
             )
         ).label('completed')
@@ -249,7 +256,7 @@ def get_yearly_metrics(
                 elif "pintura" in role_name:
                     base_query = base_query.filter(Service.area.ilike("%pintura%"))
     
-    results = base_query.group_by('month').order_by('month').all()
+    results = base_query.group_by(month_expr).order_by(month_expr).all()
     
     # Formatar resultados
     monthly_data = []
@@ -368,6 +375,10 @@ def get_metrics_by_status(
     
     total_all = sum(r.total for r in results)
     
+    print(f"🔍 [BY-STATUS] start_date={start_date}, end_date={end_date}")
+    print(f"🔍 [BY-STATUS] results={results}")
+    print(f"🔍 [BY-STATUS] total_all={total_all}")
+    
     return [{
         "status_id": r.id,
         "status_name": r.name,
@@ -415,3 +426,25 @@ def get_summary_metrics(
         "pending_rate": round((pending / total_appointments * 100), 2) if total_appointments > 0 else 0,
         "top_services": [{"name": s.name, "count": s.count} for s in top_services]
     }
+
+
+@router.get("/available-years")
+def get_available_years(
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user_optional)
+):
+    """
+    Retorna a lista de anos que têm dados de agendamentos disponíveis.
+    """
+    # Query base filtrada por role
+    base_query = db.query(
+        func.distinct(extract('year', Appointment.appointment_date)).label('year')
+    )
+    base_query = filter_by_user_role(base_query, current_user, db)
+    
+    years = base_query.order_by(func.extract('year', Appointment.appointment_date).desc()).all()
+    
+    # Converter para lista de inteiros
+    available_years = [int(year[0]) for year in years if year[0] is not None]
+    
+    return {"available_years": available_years}

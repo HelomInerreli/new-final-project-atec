@@ -11,6 +11,8 @@ from app.models.customer import Customer
 from app.models.vehicle import Vehicle
 from app.models.invoice import Invoice
 from app.models.status import Status
+from app.services.notification_service import NotificationService
+import json
 from datetime import datetime
 
 # Configure Stripe
@@ -232,12 +234,29 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
                 # Create invoice
                 invoice = create_invoice_from_session(db, appointment, session)
                 
-                # Update appointment status to Concluido (ID=2)
+                # Update appointment status to Concluido (ID=3)
                 appointment.status_id = 3
                 print(f"✅ Status updated to Concluido (id=3)")
                 
                 db.commit()
                 print(f"✅ Invoice created successfully: {invoice.invoice_number}")
+                print(f"✅ Payment confirmed for appointment {appointment_id}")
+                
+                # Enviar notificação de pagamento recebido
+                try:
+                    customer = db.query(Customer).filter(Customer.id == appointment.customer_id).first()
+                    amount = session.get('amount_total', 0) / 100  # Stripe usa centavos
+                    
+                    if customer:
+                        NotificationService.notify_payment_received(
+                            db=db,
+                            appointment_id=appointment.id,
+                            amount=amount,
+                            customer_name=customer.name
+                        )
+                        print(f"✅ Notification sent to customer {customer.name}")
+                except Exception as e:
+                    print(f"⚠️ Erro ao enviar notificação de pagamento: {e}")
                 
                 return {
                     "status": "success",

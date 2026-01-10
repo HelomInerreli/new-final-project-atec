@@ -6,22 +6,42 @@
 import { useState, useMemo } from "react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "../../components/ui/table";
-import {AlertDialog, AlertDialogAction, AlertDialogCancel,AlertDialogContent,AlertDialogDescription,AlertDialogFooter,AlertDialogHeader,AlertDialogTitle,
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../../components/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
 } from "../../components/ui/alert-dialog";
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "../../components/ui/select";
 import { Plus, Search, Trash2, Eye, Calendar, Key } from "lucide-react";
 import { toast } from "../../hooks/use-toast";
 import Badge from "react-bootstrap/Badge";
 import { Link } from "react-router-dom";
 import { Spinner, Alert } from "react-bootstrap";
-import { useFetchCustomers } from '../../hooks/useCustomers';
-import { useFetchVehicleCounts } from '../../hooks/useVehicles';
-import { useFetchCustomerAppointments } from '../../hooks/useAppointments';
-import { CustomerAppointmentsModal } from '../../components/CustomerAppointmentsModal';
-import NewCustomerModal from '../../components/NewCustomerModal';
-import CreateCustomerModal from '../../components/CreateCustomerModal';
+import { useFetchCustomers } from "../../hooks/useCustomers";
+import { useFetchVehicleCounts } from "../../hooks/useVehicles";
+import { useFetchCustomerAppointments } from "../../hooks/useAppointments";
+import { CustomerAppointmentsModal } from "../../components/CustomerAppointmentsModal";
+import NewCustomerModal from "../../components/NewCustomerModal";
+import CreateCustomerModal from "../../components/CreateCustomerModal";
 import "../../components/inputs.css";
 // Estilos de inputs
 
@@ -29,7 +49,7 @@ import "../../components/inputs.css";
 export default function Customers() {
   // Hook para buscar clientes
   const { customers: rawCustomers, loading, error } = useFetchCustomers();
-  
+
   // Estados para filtros e paginação
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFiltro, setStatusFiltro] = useState("todos");
@@ -41,20 +61,25 @@ export default function Customers() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [clienteToDelete, setClienteToDelete] = useState<string | null>(null);
   const [resetPasswordDialogOpen, setResetPasswordDialogOpen] = useState(false);
-  const [clienteToResetPassword, setClienteToResetPassword] = useState<string | null>(null);
+  const [clienteToResetPassword, setClienteToResetPassword] = useState<
+    string | null
+  >(null);
   const [appointmentsDialogOpen, setAppointmentsDialogOpen] = useState(false);
-  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(
+    null
+  );
 
   // IDs dos clientes para contar veículos
   const customerIds = useMemo(() => {
-    return rawCustomers.map(profile => profile.customer.id);
+    return rawCustomers.map((profile) => profile.customer.id);
   }, [rawCustomers]);
 
   // Buscar contagem de veículos
   const { vehicleCounts } = useFetchVehicleCounts(customerIds);
 
   // Buscar agendamentos do cliente selecionado
-  const { appointments: customerAppointments, loading: appointmentsLoading } = useFetchCustomerAppointments(selectedCustomerId);
+  const { appointments: customerAppointments, loading: appointmentsLoading } =
+    useFetchCustomerAppointments(selectedCustomerId);
 
   // Handler para abrir modal de agendamentos
   const handleViewAppointments = (customerId: string) => {
@@ -64,16 +89,20 @@ export default function Customers() {
 
   // Mapear dados para tipo Cliente
   const clientes = useMemo(() => {
-    return rawCustomers.map(profile => ({
+    return rawCustomers.map((profile) => ({
       id: profile.customer.id.toString(),
       name: profile.customer.name,
       email: profile.auth.email,
-      phone: profile.customer.phone || 'N/A',
-      address: profile.customer.address || 'N/A',
-      city: profile.customer.city || 'N/A',
-      postalCode: profile.customer.postal_code || 'N/A',
-      status: profile.auth.is_active ? 'Ativo' as const : 'Inativo' as const,
-      lastVisit: profile.customer.updated_at ? new Date(profile.customer.updated_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+      phone: profile.customer.phone || "N/A",
+      address: profile.customer.address || "N/A",
+      city: profile.customer.city || "N/A",
+      postalCode: profile.customer.postal_code || "N/A",
+      status: profile.auth.is_active
+        ? ("Ativo" as const)
+        : ("Inativo" as const),
+      lastVisit: profile.customer.updated_at
+        ? new Date(profile.customer.updated_at).toISOString().split("T")[0]
+        : new Date().toISOString().split("T")[0],
       vehicles: vehicleCounts[profile.customer.id.toString()] || 0,
     }));
   }, [rawCustomers, vehicleCounts]);
@@ -121,13 +150,16 @@ export default function Customers() {
   const handleCreateCustomer = async (customerData: any) => {
     setCreatingCustomer(true);
     try {
-      const response = await fetch('http://localhost:8000/api/v1/customersauth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(customerData),
-      });
+      const response = await fetch(
+        "http://localhost:8000/api/v1/customersauth/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(customerData),
+        }
+      );
 
       if (response.ok) {
         toast({
@@ -138,13 +170,16 @@ export default function Customers() {
         // TODO: Refresh customer list
       } else {
         const errorData = await response.json();
-        throw new Error(errorData.detail || 'Falha ao criar cliente');
+        throw new Error(errorData.detail || "Falha ao criar cliente");
       }
     } catch (error) {
       console.error("Create customer error:", error);
       toast({
         title: "Erro",
-        description: error instanceof Error ? error.message : "Não foi possível criar o cliente.",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Não foi possível criar o cliente.",
         variant: "destructive",
       });
     } finally {
@@ -161,15 +196,18 @@ export default function Customers() {
   // Confirmar reset de password
   const confirmResetPassword = async () => {
     if (!clienteToResetPassword) return;
-    
+
     console.log("Resetting password for ID:", clienteToResetPassword);
     try {
-      const response = await fetch(`http://localhost:8000/api/v1/customersauth/reset-password/${clienteToResetPassword}`, {
-        method: 'POST',
-      });
-      
+      const response = await fetch(
+        `http://localhost:8000/api/v1/customersauth/reset-password/${clienteToResetPassword}`,
+        {
+          method: "POST",
+        }
+      );
+
       console.log("Response status:", response.status);
-      
+
       if (response.ok) {
         toast({
           title: "Password Resetada",
@@ -179,7 +217,7 @@ export default function Customers() {
       } else {
         const errorText = await response.text();
         console.error("Reset failed:", errorText);
-        throw new Error('Falha ao resetar password');
+        throw new Error("Falha ao resetar password");
       }
     } catch (error) {
       console.error("Reset error:", error);
@@ -196,23 +234,10 @@ export default function Customers() {
 
   // Formatar data
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-PT');
+    return new Date(dateString).toLocaleDateString("pt-PT");
   };
 
-  // Estado de carregamento
-  if (loading) {
-    return (
-      <div className="d-flex justify-content-center align-items-center vh-100">
-        <Spinner animation="border" variant="danger" />
-        <span className="ms-3 fs-5">A Carregar Clientes...</span>
-      </div>
-    );
-  }
-
-  // Estado de erro
-  if (error) {
-    return <Alert variant="danger" className="m-4">{error}</Alert>;
-  }
+  // Estado de carregamento e erro - renderizados condicionalmente abaixo
 
   // Renderizar página
   return (
@@ -221,7 +246,7 @@ export default function Customers() {
         <div>
           <h1 className="h1 fw-bold text-dark">Gestão de Clientes</h1>
         </div>
-        <Button 
+        <Button
           variant="destructive"
           onClick={() => setNewCustomerModalOpen(true)}
         >
@@ -271,7 +296,10 @@ export default function Customers() {
           </div>
         </div>
         <Select value={statusFiltro} onValueChange={setStatusFiltro}>
-          <SelectTrigger className="border-2 border-red-600 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0" style={{ width: 200, height: "56px" }}>
+          <SelectTrigger
+            className="border-2 border-red-600 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+            style={{ width: 200, height: "56px" }}
+          >
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
@@ -282,112 +310,169 @@ export default function Customers() {
         </Select>
       </div>
 
-      <div 
-        className="rounded-md border-2 border-red-600"
-        style={{
-          overflowY: "auto",
-          backgroundColor: "#fff",
-          borderRadius: "0.375rem",
-          boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-          minHeight: 0,
-        }}
-      >
-        <Table>
-          <TableHeader
+      {/* Loading State */}
+      {loading && (
+        <div
+          style={{
+            padding: "3rem",
+            textAlign: "center",
+            backgroundColor: "white",
+            borderRadius: "8px",
+            border: "2px solid #dc2626",
+          }}
+        >
+          <div
+            className="spinner-border text-danger"
+            role="status"
+            style={{ width: "3rem", height: "3rem", marginBottom: "1rem" }}
+          >
+            <span className="visually-hidden">A carregar...</span>
+          </div>
+          <h3
             style={{
-              position: "sticky",
-              top: 0,
-              zIndex: 2,
-              background: "#fff",
+              fontSize: "1.25rem",
+              fontWeight: "600",
+              marginBottom: "0.5rem",
             }}
           >
-            <TableRow>
-              <TableHead className="font-semibold text-base text-black">Nome</TableHead>
-              <TableHead className="font-semibold text-base text-black">Email</TableHead>
-              <TableHead className="font-semibold text-base text-black">Telefone</TableHead>
-              <TableHead className="font-semibold text-base text-black">Cidade</TableHead>
-              <TableHead className="text-center font-semibold text-base text-black">Veículos</TableHead>
-              <TableHead className="font-semibold text-base text-black">Última Visita</TableHead>
-              <TableHead className="font-semibold text-base text-black">Status</TableHead>
-              <TableHead className="text-right font-semibold text-base text-black">Ações</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredClientes.length === 0 ? (
+            A carregar clientes...
+          </h3>
+          <p style={{ color: "#6b7280", fontSize: "0.875rem" }}>
+            Por favor, aguarde enquanto buscamos os dados
+          </p>
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && <Alert variant="danger">{error}</Alert>}
+
+      {/* Tabela */}
+      {!loading && !error && (
+        <div
+          className="rounded-md border-2 border-red-600"
+          style={{
+            overflowY: "auto",
+            backgroundColor: "#fff",
+            borderRadius: "0.375rem",
+            boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+            minHeight: 0,
+          }}
+        >
+          <Table>
+            <TableHeader
+              style={{
+                position: "sticky",
+                top: 0,
+                zIndex: 2,
+                background: "#fff",
+              }}
+            >
               <TableRow>
-                <TableCell colSpan={8} className="text-center text-muted-foreground">
-                  Nenhum cliente encontrado
-                </TableCell>
+                <TableHead className="font-semibold text-base text-black">
+                  Nome
+                </TableHead>
+                <TableHead className="font-semibold text-base text-black">
+                  Email
+                </TableHead>
+                <TableHead className="font-semibold text-base text-black">
+                  Telefone
+                </TableHead>
+                <TableHead className="font-semibold text-base text-black">
+                  Cidade
+                </TableHead>
+                <TableHead className="text-center font-semibold text-base text-black">
+                  Veículos
+                </TableHead>
+                <TableHead className="font-semibold text-base text-black">
+                  Última Visita
+                </TableHead>
+                <TableHead className="font-semibold text-base text-black">
+                  Status
+                </TableHead>
+                <TableHead className="text-right font-semibold text-base text-black">
+                  Ações
+                </TableHead>
               </TableRow>
-            ) : (
-              paginatedClientes.map((cliente) => (
-                <TableRow key={cliente.id}>
-                  <TableCell className="font-medium">
-                    {cliente.name}
+            </TableHeader>
+            <TableBody>
+              {filteredClientes.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={8}
+                    className="text-center text-muted-foreground"
+                  >
+                    Nenhum cliente encontrado
                   </TableCell>
-                  <TableCell>{cliente.email}</TableCell>
-                  <TableCell>{cliente.phone}</TableCell>
-                  <TableCell>{cliente.city}</TableCell>
-                  <TableCell className="text-center">
-                    <Badge bg={cliente.vehicles > 0 ? "danger" : "secondary"}>
-                      {cliente.vehicles}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{formatDate(cliente.lastVisit)}</TableCell>
-                  <TableCell>
-                    <Badge bg={cliente.status === "Ativo" ? "danger" : "secondary"}>
-                      {cliente.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        title="Resetar Password"
-                        onClick={() => handleResetPassword(cliente.id)}
+                </TableRow>
+              ) : (
+                paginatedClientes.map((cliente) => (
+                  <TableRow key={cliente.id}>
+                    <TableCell className="font-medium">
+                      {cliente.name}
+                    </TableCell>
+                    <TableCell>{cliente.email}</TableCell>
+                    <TableCell>{cliente.phone}</TableCell>
+                    <TableCell>{cliente.city}</TableCell>
+                    <TableCell className="text-center">
+                      <Badge bg={cliente.vehicles > 0 ? "danger" : "secondary"}>
+                        {cliente.vehicles}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{formatDate(cliente.lastVisit)}</TableCell>
+                    <TableCell>
+                      <Badge
+                        bg={cliente.status === "Ativo" ? "danger" : "secondary"}
                       >
-                        <Key className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        title="Ver Agendamentos"
-                        onClick={() => handleViewAppointments(cliente.id)}
-                      >
-                        <Calendar className="h-4 w-4" />
-                      </Button>
-                      <Link to={`/customers/${cliente.id}`}>
+                        {cliente.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
                         <Button
                           variant="outline"
                           size="icon"
+                          title="Resetar Password"
+                          onClick={() => handleResetPassword(cliente.id)}
                         >
-                          <Eye className="h-4 w-4" />
+                          <Key className="h-4 w-4" />
                         </Button>
-                      </Link>
-                      <Button
-                        variant="destructive"
-                        size="icon"
-                        onClick={() => handleDelete(cliente.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          title="Ver Agendamentos"
+                          onClick={() => handleViewAppointments(cliente.id)}
+                        >
+                          <Calendar className="h-4 w-4" />
+                        </Button>
+                        <Link to={`/customers/${cliente.id}`}>
+                          <Button variant="outline" size="icon">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </Link>
+                        <Button
+                          variant="destructive"
+                          size="icon"
+                          onClick={() => handleDelete(cliente.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      )}
 
       {/* Pagination */}
-      {totalPages > 1 && (
+      {!loading && !error && totalPages > 1 && (
         <div className="flex items-center justify-center gap-2 mt-4">
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
             disabled={currentPage === 1}
           >
             Anterior
@@ -398,7 +483,9 @@ export default function Customers() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+            }
             disabled={currentPage === totalPages}
           >
             Próxima
@@ -416,8 +503,8 @@ export default function Customers() {
               Eliminar Cliente
             </AlertDialogTitle>
             <AlertDialogDescription className="text-center text-base">
-              Esta ação não pode ser desfeita. Tem a certeza que
-              deseja eliminar permanentemente este cliente?
+              Esta ação não pode ser desfeita. Tem a certeza que deseja eliminar
+              permanentemente este cliente?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex flex-row gap-3 justify-center sm:justify-center mt-2">
@@ -435,7 +522,10 @@ export default function Customers() {
       </AlertDialog>
 
       {/* Reset Password Confirmation Dialog */}
-      <AlertDialog open={resetPasswordDialogOpen} onOpenChange={setResetPasswordDialogOpen}>
+      <AlertDialog
+        open={resetPasswordDialogOpen}
+        onOpenChange={setResetPasswordDialogOpen}
+      >
         <AlertDialogContent className="sm:max-w-md">
           <AlertDialogHeader className="space-y-4">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
@@ -445,8 +535,8 @@ export default function Customers() {
               Resetar Password
             </AlertDialogTitle>
             <AlertDialogDescription className="text-center text-base">
-              A password deste cliente será alterada para '12345678'. 
-              O cliente deverá alterar a password no próximo login.
+              A password deste cliente será alterada para '12345678'. O cliente
+              deverá alterar a password no próximo login.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex flex-row gap-3 justify-center sm:justify-center mt-2">
@@ -488,4 +578,3 @@ export default function Customers() {
     </div>
   );
 }
-

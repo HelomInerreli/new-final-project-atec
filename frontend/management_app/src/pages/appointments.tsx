@@ -65,6 +65,7 @@ import { statusService } from "../services/statusService";
 import type { Status } from "../services/statusService";
 import CreateAppointmentModal from "../components/CreateAppointmentModal";
 import EditAppointmentModal from "../components/EditAppointmentModal";
+import { useCurrentUser } from "../hooks/useCurrentUser";
 import "../components/inputs.css";
 
 // Interface para os dados do formulário
@@ -92,6 +93,9 @@ const initialFormData: FormData = {
 
 // Componente principal para gestão de agendamentos
 export default function Agendamentos() {
+  // Hook para obter informações do usuário atual
+  const { user } = useCurrentUser();
+
   // Estados para armazenar dados dos agendamentos e filtros
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -102,13 +106,22 @@ export default function Agendamentos() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("todos");
   const [monthFilter, setMonthFilter] = useState<string>("todos");
+  const [yearFilter, setYearFilter] = useState<string>("todos");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+  const [selectedAppointment, setSelectedAppointment] =
+    useState<Appointment | null>(null);
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Verificar se o usuário é gestor ou admin
+  const isManager = user
+    ? ["admin", "gestor", "administrador", "gerente"].includes(
+        user.role.toLowerCase()
+      )
+    : false;
 
   // Estados para dropdowns
   const [customerDropdownOpen, setCustomerDropdownOpen] = useState(false);
@@ -313,14 +326,18 @@ export default function Agendamentos() {
   const translateStatus = (statusName?: string): string => {
     if (!statusName) return "Pendente";
     const lower = statusName.toLowerCase();
-    if (lower.includes("concluída") || lower.includes("concluida") || lower.includes("concluído") || lower.includes("concluido"))
+    if (
+      lower.includes("concluída") ||
+      lower.includes("concluida") ||
+      lower.includes("concluído") ||
+      lower.includes("concluido")
+    )
       return "Concluída";
     if (lower.includes("em andamento") || lower.includes("em progresso"))
       return "Em Andamento";
     if (lower.includes("cancelada") || lower.includes("cancelado"))
       return "Cancelada";
-    if (lower.includes("pendente"))
-      return "Pendente";
+    if (lower.includes("pendente")) return "Pendente";
     return statusName;
   };
 
@@ -328,7 +345,12 @@ export default function Agendamentos() {
   const getStatusColor = (statusName?: string) => {
     if (!statusName) return "bg-yellow-100 text-yellow-800"; // Default to Pendente color
     const lower = statusName.toLowerCase();
-    if (lower.includes("concluída") || lower.includes("concluida") || lower.includes("concluído") || lower.includes("concluido"))
+    if (
+      lower.includes("concluída") ||
+      lower.includes("concluida") ||
+      lower.includes("concluído") ||
+      lower.includes("concluido")
+    )
       return "bg-green-100 text-green-800";
     if (lower.includes("em andamento") || lower.includes("em progresso"))
       return "bg-blue-100 text-blue-800";
@@ -338,57 +360,95 @@ export default function Agendamentos() {
   };
 
   // Filtragem dos agendamentos
-  const filteredAppointments = appointments.filter((appointment) => {
-    const customerName = appointment.customer?.name || "";
-    const vehicleInfo = appointment.vehicle
-      ? `${appointment.vehicle.brand} ${appointment.vehicle.model} - ${appointment.vehicle.license_plate}`
-      : "";
-    const serviceName = appointment.service?.name || "";
-    const statusName = appointment.status?.name || "";
-    const translatedStatus = translateStatus(statusName).toLowerCase();
-    const appointmentDate = new Date(appointment.appointment_date);
-    const appointmentMonth = appointmentDate.getMonth(); // 0-11
-    const appointmentYear = appointmentDate.getFullYear();
+  const filteredAppointments = appointments
+    .filter((appointment) => {
+      const customerName = appointment.customer?.name || "";
+      const vehicleInfo = appointment.vehicle
+        ? `${appointment.vehicle.brand} ${appointment.vehicle.model} - ${appointment.vehicle.license_plate}`
+        : "";
+      const serviceName = appointment.service?.name || "";
+      const serviceArea = appointment.service?.area || "";
+      const statusName = appointment.status?.name || "";
+      const translatedStatus = translateStatus(statusName).toLowerCase();
+      const appointmentDate = new Date(appointment.appointment_date);
+      const appointmentMonth = appointmentDate.getMonth(); // 0-11
+      const appointmentYear = appointmentDate.getFullYear();
 
-    // Excluir cancelados e concluídos por padrão, exceto se o filtro for explícito
-    const isCancelled = statusName.toLowerCase().includes("cancelado") || 
-                       statusName.toLowerCase().includes("cancelada");
-    const isCompleted = statusName.toLowerCase().includes("concluído") || 
-                       statusName.toLowerCase().includes("concluída") ||
-                       statusName.toLowerCase().includes("completo");
-    
-    if (isCancelled && statusFilter !== "cancelado" && statusFilter !== "cancelada") {
-      return false;
-    }
-    
-    if (isCompleted && statusFilter !== "concluído" && statusFilter !== "concluída" && statusFilter !== "completo") {
-      return false;
-    }
+      // Filtrar por role do usuário (não-gestores só veem agendamentos da sua área)
+      if (!isManager && user) {
+        const userRole = user.role.toLowerCase();
+        const normalizedArea = serviceArea.toLowerCase();
 
-    const matchesSearch =
-      customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      vehicleInfo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      serviceName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      appointment.id.toString().includes(searchTerm);
+        // Mecânico vê apenas "mecânica", Eletricista vê apenas "elétrica", etc.
+        if (
+          !normalizedArea.includes(userRole) &&
+          userRole !== "mecânico" &&
+          userRole !== "eletricista" &&
+          userRole !== "borracheiro"
+        ) {
+          // Se não for uma das roles específicas, não aplicar filtro de área
+        } else if (
+          userRole === "mecânico" &&
+          !normalizedArea.includes("mecânica")
+        ) {
+          return false;
+        } else if (
+          userRole === "eletricista" &&
+          !normalizedArea.includes("elétrica") &&
+          !normalizedArea.includes("eletrica")
+        ) {
+          return false;
+        } else if (
+          userRole === "borracheiro" &&
+          !normalizedArea.includes("pneu")
+        ) {
+          return false;
+        }
+      }
 
-    const matchesStatus =
-      statusFilter === "todos" ||
-      translatedStatus.includes(statusFilter.toLowerCase()) ||
-      statusName.toLowerCase().includes(statusFilter.toLowerCase());
+      // Excluir cancelados e concluídos para não-gestores
+      const isCancelled =
+        statusName.toLowerCase().includes("cancelado") ||
+        statusName.toLowerCase().includes("cancelada");
+      const isCompleted =
+        statusName.toLowerCase().includes("concluído") ||
+        statusName.toLowerCase().includes("concluída") ||
+        statusName.toLowerCase().includes("completo");
 
-    const matchesMonth = 
-      monthFilter === "todos" ||
-      (monthFilter !== "todos" && 
-       appointmentMonth === parseInt(monthFilter) &&
-       appointmentYear === 2025);
+      // Não-gestores não veem cancelados nem concluídos
+      if (!isManager) {
+        if (isCancelled || isCompleted) {
+          return false;
+        }
+      }
+      // Gestores veem tudo quando filtro = "todos", ou apenas o status selecionado
 
-    return matchesSearch && matchesStatus && matchesMonth;
-  }).sort((a, b) => {
-    // Ordenar do mais antigo para o mais recente
-    const dateA = new Date(a.appointment_date).getTime();
-    const dateB = new Date(b.appointment_date).getTime();
-    return dateA - dateB;
-  });
+      const matchesSearch =
+        customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        vehicleInfo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        serviceName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        appointment.id.toString().includes(searchTerm);
+
+      const matchesStatus =
+        statusFilter === "todos" ||
+        translatedStatus.includes(statusFilter.toLowerCase()) ||
+        statusName.toLowerCase().includes(statusFilter.toLowerCase());
+
+      // Filtro de mês e ano
+      const matchesMonth =
+        monthFilter === "todos" || appointmentMonth === parseInt(monthFilter);
+
+      const matchesYear =
+        yearFilter === "todos" || appointmentYear === parseInt(yearFilter);
+
+      return matchesSearch && matchesStatus && matchesMonth && matchesYear;
+    })
+    .sort((a, b) => {
+      // Ordenar do mais antigo para o mais recente
+      const dateA = new Date(a.appointment_date).getTime();
+      const dateB = new Date(b.appointment_date).getTime();
+      return dateA - dateB;
+    });
 
   // Debug log
   console.log("🔍 Filtro de appointments:");
@@ -396,6 +456,8 @@ export default function Agendamentos() {
   console.log("  - Filtered appointments:", filteredAppointments.length);
   console.log("  - Search term:", searchTerm);
   console.log("  - Status filter:", statusFilter);
+  console.log("  - Month filter:", monthFilter);
+  console.log("  - Year filter:", yearFilter);
 
   // Função para abrir diálogo de edição
   const handleOpenDialog = (appointment: Appointment | null) => {
@@ -516,7 +578,9 @@ export default function Agendamentos() {
     <div className="flex-1 space-y-6 p-8">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-4xl font-bold text-gray-900 leading-tight">Gestão de Agendamentos</h1>
+          <h1 className="text-4xl font-bold text-gray-900 leading-tight">
+            Gestão de Agendamentos
+          </h1>
         </div>
         <Button
           variant="destructive"
@@ -569,177 +633,237 @@ export default function Agendamentos() {
           </div>
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full sm:w-[200px] border-2 border-red-600 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0" style={{ height: "56px" }}>
+          <SelectTrigger
+            className="w-full sm:w-[200px] border-2 border-red-600 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+            style={{ height: "56px" }}
+          >
             <SelectValue placeholder="Filtrar por status" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="todos">Todos os status</SelectItem>
-            <SelectItem value="pendente">Pendente</SelectItem>
-            <SelectItem value="em andamento">Em Andamento</SelectItem>
-            <SelectItem value="concluída">Concluída</SelectItem>
-            <SelectItem value="cancelada">Cancelada</SelectItem>
+            {statuses.map((status) => (
+              <SelectItem key={status.id} value={status.name.toLowerCase()}>
+                {translateStatus(status.name)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={yearFilter} onValueChange={setYearFilter}>
+          <SelectTrigger
+            className="w-full sm:w-[140px] border-2 border-red-600 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+            style={{ height: "56px" }}
+          >
+            <SelectValue placeholder="Ano" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todos">Todos os anos</SelectItem>
+            <SelectItem value="2026">2026</SelectItem>
+            <SelectItem value="2025">2025</SelectItem>
           </SelectContent>
         </Select>
         <Select value={monthFilter} onValueChange={setMonthFilter}>
-          <SelectTrigger className="w-full sm:w-[200px] border-2 border-red-600 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0" style={{ height: "56px" }}>
+          <SelectTrigger
+            className="w-full sm:w-[200px] border-2 border-red-600 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+            style={{ height: "56px" }}
+          >
             <SelectValue placeholder="Filtrar por mês" />
           </SelectTrigger>
           <SelectContent className="w-[350px]">
-            <SelectItem value="todos" className="col-span-3">Todos os meses</SelectItem>
+            <SelectItem value="todos" className="col-span-3">
+              Todos os meses
+            </SelectItem>
             <div className="grid grid-cols-3 gap-1 p-2">
-              <SelectItem value="0" className="text-center">Jan</SelectItem>
-              <SelectItem value="1" className="text-center">Fev</SelectItem>
-              <SelectItem value="2" className="text-center">Mar</SelectItem>
-              <SelectItem value="3" className="text-center">Abr</SelectItem>
-              <SelectItem value="4" className="text-center">Mai</SelectItem>
-              <SelectItem value="5" className="text-center">Jun</SelectItem>
-              <SelectItem value="6" className="text-center">Jul</SelectItem>
-              <SelectItem value="7" className="text-center">Ago</SelectItem>
-              <SelectItem value="8" className="text-center">Set</SelectItem>
-              <SelectItem value="9" className="text-center">Out</SelectItem>
-              <SelectItem value="10" className="text-center">Nov</SelectItem>
-              <SelectItem value="11" className="text-center">Dez</SelectItem>
+              <SelectItem value="0" className="text-center">
+                Jan
+              </SelectItem>
+              <SelectItem value="1" className="text-center">
+                Fev
+              </SelectItem>
+              <SelectItem value="2" className="text-center">
+                Mar
+              </SelectItem>
+              <SelectItem value="3" className="text-center">
+                Abr
+              </SelectItem>
+              <SelectItem value="4" className="text-center">
+                Mai
+              </SelectItem>
+              <SelectItem value="5" className="text-center">
+                Jun
+              </SelectItem>
+              <SelectItem value="6" className="text-center">
+                Jul
+              </SelectItem>
+              <SelectItem value="7" className="text-center">
+                Ago
+              </SelectItem>
+              <SelectItem value="8" className="text-center">
+                Set
+              </SelectItem>
+              <SelectItem value="9" className="text-center">
+                Out
+              </SelectItem>
+              <SelectItem value="10" className="text-center">
+                Nov
+              </SelectItem>
+              <SelectItem value="11" className="text-center">
+                Dez
+              </SelectItem>
             </div>
           </SelectContent>
         </Select>
       </div>
 
-      {/* Grid de Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
-        {filteredAppointments.map((appointment) => {
-          const appointmentDate = new Date(appointment.appointment_date);
-          const dateStr = appointmentDate.toLocaleDateString("pt-BR");
-          const timeStr = appointmentDate.toLocaleTimeString("pt-BR", {
-            hour: "2-digit",
-            minute: "2-digit",
-          });
-          const vehicleInfo = appointment.vehicle
-            ? `${appointment.vehicle.brand} ${appointment.vehicle.model} - ${appointment.vehicle.license_plate}`
-            : "N/A";
-
-          return (
-            <Card
-              key={appointment.id}
-              className="flex flex-col hover:shadow-lg transition-shadow border-2 border-red-600"
-            >
-              <CardHeader>
-                <div className="space-y-2">
-                  <Badge
-                    className={getStatusColor(appointment.status?.name)}
-                    variant="outline"
-                  >
-                    {translateStatus(appointment.status?.name)}
-                  </Badge>
-                  <CardTitle className="text-lg">
-                    {appointment.customer?.name || "N/A"}
-                  </CardTitle>
-                  <CardDescription className="mt-1">
-                    {vehicleInfo}
-                  </CardDescription>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3 flex-1">
-                <div className="space-y-2 text-sm">
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Calendar className="h-4 w-4" />
-                    <span>{dateStr}</span>
-                    <Clock className="h-4 w-4 ml-2" />
-                    <span>{timeStr}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Phone className="h-4 w-4" />
-                    <span>{appointment.customer?.phone || "N/A"}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Mail className="h-4 w-4" />
-                    <span className="truncate">
-                      {appointment.customer?.email || "N/A"}
-                    </span>
-                  </div>
-                </div>
-                <div className="pt-3 border-t">
-                  <p className="font-medium text-sm">
-                    {appointment.service?.name || "N/A"}
-                  </p>
-                  {appointment.description && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {appointment.description}
-                    </p>
-                  )}
-                  {appointment.estimated_budget > 0 && (
-                    <p className="text-xs font-semibold mt-1">
-                      Orçamento: €{appointment.estimated_budget.toFixed(2)}
-                    </p>
-                  )}
-                </div>
-              </CardContent>
-
-              <div className="flex gap-2 p-4 pt-0">
-                <Button
-                  variant="outline"
-                  className="flex-1"
-                  onClick={() => {
-                    setSelectedAppointment(appointment);
-                    setIsEditModalOpen(true);
-                  }}
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
-
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="destructive"
-                      className="flex-1"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent className="sm:max-w-md">
-                    <AlertDialogHeader className="space-y-4">
-                      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
-                        <AlertTriangle className="h-6 w-6 text-red-600" />
-                      </div>
-                      <AlertDialogTitle className="text-center text-xl">
-                        Eliminar Agendamento
-                      </AlertDialogTitle>
-                      <AlertDialogDescription className="text-center text-base">
-                        Esta ação não pode ser desfeita. Tem a certeza que
-                        deseja eliminar permanentemente este agendamento?
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter className="flex flex-row gap-3 justify-center sm:justify-center mt-2">
-                      <AlertDialogCancel className="mt-0 flex-1 sm:flex-none px-6 hover:bg-gray-100 focus-visible:ring-0 focus-visible:ring-offset-0">
-                        Cancelar
-                      </AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={() => handleDelete(appointment.id)}
-                        className="mt-0 flex-1 sm:flex-none px-6 bg-red-600 hover:bg-red-700 text-white focus-visible:ring-0 focus-visible:ring-offset-0"
-                      >
-                        Eliminar
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
-            </Card>
-          );
-        })}
-      </div>
-
-      {/* Mensagem de Nenhum Resultado */}
-      {filteredAppointments.length === 0 && (
+      {/* Loading State */}
+      {loading && (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <Calendar className="h-12 w-12 text-muted-foreground mb-4" />
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mb-4"></div>
             <h3 className="text-lg font-semibold mb-2">
-              Nenhum agendamento encontrado
+              A carregar agendamentos...
             </h3>
             <p className="text-sm text-muted-foreground">
-              Tente ajustar os filtros ou criar um novo agendamento
+              Por favor, aguarde enquanto buscamos os dados
             </p>
           </CardContent>
         </Card>
+      )}
+
+      {/* Grid de Cards */}
+      {!loading && (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+          {filteredAppointments.map((appointment) => {
+            const appointmentDate = new Date(appointment.appointment_date);
+            const dateStr = appointmentDate.toLocaleDateString("pt-BR");
+            const timeStr = appointmentDate.toLocaleTimeString("pt-BR", {
+              hour: "2-digit",
+              minute: "2-digit",
+            });
+            const vehicleInfo = appointment.vehicle
+              ? `${appointment.vehicle.brand} ${appointment.vehicle.model} - ${appointment.vehicle.license_plate}`
+              : "N/A";
+
+            return (
+              <Card
+                key={appointment.id}
+                className="flex flex-col hover:shadow-lg transition-shadow border-2 border-red-600"
+              >
+                <CardHeader>
+                  <div className="space-y-2">
+                    <Badge
+                      className={getStatusColor(appointment.status?.name)}
+                      variant="outline"
+                    >
+                      {translateStatus(appointment.status?.name)}
+                    </Badge>
+                    <CardTitle className="text-lg">
+                      {appointment.customer?.name || "N/A"}
+                    </CardTitle>
+                    <CardDescription className="mt-1">
+                      {vehicleInfo}
+                    </CardDescription>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3 flex-1">
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Calendar className="h-4 w-4" />
+                      <span>{dateStr}</span>
+                      <Clock className="h-4 w-4 ml-2" />
+                      <span>{timeStr}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Phone className="h-4 w-4" />
+                      <span>{appointment.customer?.phone || "N/A"}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Mail className="h-4 w-4" />
+                      <span className="truncate">
+                        {appointment.customer?.email || "N/A"}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="pt-3 border-t">
+                    <p className="font-medium text-sm">
+                      {appointment.service?.name || "N/A"}
+                    </p>
+                    {appointment.description && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {appointment.description}
+                      </p>
+                    )}
+                    {appointment.estimated_budget > 0 && (
+                      <p className="text-xs font-semibold mt-1">
+                        Orçamento: €{appointment.estimated_budget.toFixed(2)}
+                      </p>
+                    )}
+                  </div>
+                </CardContent>
+
+                <div className="flex gap-2 p-4 pt-0">
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => {
+                      setSelectedAppointment(appointment);
+                      setIsEditModalOpen(true);
+                    }}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" className="flex-1">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent className="sm:max-w-md">
+                      <AlertDialogHeader className="space-y-4">
+                        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+                          <AlertTriangle className="h-6 w-6 text-red-600" />
+                        </div>
+                        <AlertDialogTitle className="text-center text-xl">
+                          Eliminar Agendamento
+                        </AlertDialogTitle>
+                        <AlertDialogDescription className="text-center text-base">
+                          Esta ação não pode ser desfeita. Tem a certeza que
+                          deseja eliminar permanentemente este agendamento?
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter className="flex flex-row gap-3 justify-center sm:justify-center mt-2">
+                        <AlertDialogCancel className="mt-0 flex-1 sm:flex-none px-6 hover:bg-gray-100 focus-visible:ring-0 focus-visible:ring-offset-0">
+                          Cancelar
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => handleDelete(appointment.id)}
+                          className="mt-0 flex-1 sm:flex-none px-6 bg-red-600 hover:bg-red-700 text-white focus-visible:ring-0 focus-visible:ring-offset-0"
+                        >
+                          Eliminar
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              </Card>
+            );
+          })}
+
+          {/* Mensagem de Nenhum Resultado */}
+          {filteredAppointments.length === 0 && (
+            <Card className="col-span-full">
+              <CardContent className="flex flex-col items-center justify-center py-12">
+                <Calendar className="h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold mb-2">
+                  Nenhum agendamento encontrado
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Tente ajustar os filtros ou criar um novo agendamento
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
       )}
 
       {/* Dialog para Editar */}
@@ -750,7 +874,7 @@ export default function Agendamentos() {
               <DialogTitle className="text-white text-2xl font-bold">
                 Editar Agendamento
               </DialogTitle>
-              <button 
+              <button
                 type="button"
                 onClick={() => {
                   setIsFormOpen(false);
@@ -762,7 +886,17 @@ export default function Agendamentos() {
                 style={{ outline: "none", boxShadow: "none" }}
                 aria-label="Fechar"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <line x1="18" y1="6" x2="6" y2="18"></line>
                   <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
@@ -1114,7 +1248,9 @@ export default function Agendamentos() {
                         cursor: "pointer",
                       }}
                       onClick={() => {
-                        const element = document.getElementById("appointment_date") as HTMLInputElement;
+                        const element = document.getElementById(
+                          "appointment_date"
+                        ) as HTMLInputElement;
                         element?.showPicker?.();
                       }}
                     />
@@ -1316,24 +1452,24 @@ export default function Agendamentos() {
                           style={{ maxHeight: "250px", overflowY: "auto" }}
                         >
                           {statuses.map((status) => (
-                              <li
-                                key={status.id}
-                                className={`mb-select-item ${
-                                  formData.status_id === status.id.toString()
-                                    ? "selected"
-                                    : ""
-                                }`}
-                                onClick={() => {
-                                  handleSelectChange(
-                                    "status_id",
-                                    status.id.toString()
-                                  );
-                                  setStatusDropdownOpen(false);
-                                }}
-                              >
-                                {translateStatus(status.name)}
-                              </li>
-                            ))}
+                            <li
+                              key={status.id}
+                              className={`mb-select-item ${
+                                formData.status_id === status.id.toString()
+                                  ? "selected"
+                                  : ""
+                              }`}
+                              onClick={() => {
+                                handleSelectChange(
+                                  "status_id",
+                                  status.id.toString()
+                                );
+                                setStatusDropdownOpen(false);
+                              }}
+                            >
+                              {translateStatus(status.name)}
+                            </li>
+                          ))}
                         </ul>
                       )}
                     </div>
@@ -1399,7 +1535,10 @@ export default function Agendamentos() {
         onClose={() => setIsCreateModalOpen(false)}
         onSuccess={() => {
           loadAppointments();
-          toast({ title: "Sucesso!", description: "Agendamento criado com sucesso." });
+          toast({
+            title: "Sucesso!",
+            description: "Agendamento criado com sucesso.",
+          });
         }}
       />
 
@@ -1413,10 +1552,12 @@ export default function Agendamentos() {
         }}
         onSuccess={() => {
           loadAppointments();
-          toast({ title: "Sucesso!", description: "Agendamento atualizado com sucesso." });
+          toast({
+            title: "Sucesso!",
+            description: "Agendamento atualizado com sucesso.",
+          });
         }}
       />
     </div>
   );
 }
-

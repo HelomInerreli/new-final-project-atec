@@ -7,14 +7,24 @@ import { ArrowLeft, Edit, Trash2, Save, User } from "lucide-react";
 import { useVehicleDetailsPage } from "../../hooks/useVehicleDetails";
 import { Spinner, Alert } from "react-bootstrap";
 import "../../styles/VehicleDetails.css";
-import { X } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
+import { X } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../components/ui/select";
+import { useAuth } from "../../contexts/AuthContext";
 
 // Componente de detalhes do veículo
 export default function VehicleDetails() {
+  // Hook de autenticação para verificar permissões
+  const { canEdit } = useAuth();
+
   // Obter ID do veículo da URL
   const { id } = useParams<{ id: string }>();
-  
+
   // Hook para gerenciar detalhes do veículo
   const {
     vehicleData,
@@ -42,9 +52,7 @@ export default function VehicleDetails() {
   if (error || !vehicleData) {
     return (
       <div className="container my-4">
-        <Alert variant="danger">
-          {error || "Veículo não encontrado"}
-        </Alert>
+        <Alert variant="danger">{error || "Veículo não encontrado"}</Alert>
         <Link to="/vehicles">
           <Button variant="outline" className="mt-3">
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -56,23 +64,22 @@ export default function VehicleDetails() {
   }
 
   // Calcular status do veículo
-  const status = vehicleData.vehicle.deleted_at 
-    ? "Inativo" 
-    : vehicleData.vehicle.customer_id === 0 
-    ? "Sem Cliente" 
+  const status = vehicleData.vehicle.deleted_at
+    ? "Inativo"
+    : vehicleData.vehicle.customer_id === 0
+    ? "Sem Cliente"
     : "Ativo";
 
   // Renderizar página de detalhes
   return (
-    <div className="container" style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
+    <div
+      className="container"
+      style={{ maxWidth: "1200px", margin: "0 auto", padding: "2rem" }}
+    >
       {/* Header */}
       <div className="d-flex align-items-center gap-3 mb-4">
         <Link to="/vehicles">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="back-button-custom"
-          >
+          <Button variant="ghost" size="icon" className="back-button-custom">
             <ArrowLeft className="h-5 w-5" />
           </Button>
         </Link>
@@ -80,47 +87,64 @@ export default function VehicleDetails() {
       </div>
 
       {/* Card de informações do veículo */}
-      <div className="card mb-4" style={{ border: '1px solid #dc3545', borderRadius: '8px' }}>
+      <div
+        className="card mb-4"
+        style={{ border: "1px solid #dc3545", borderRadius: "8px" }}
+      >
         <div className="card-body p-4">
           <div className="d-flex justify-content-between align-items-center mb-4">
             <div className="d-flex align-items-center gap-3">
               <h5 className="mb-0 fw-semibold">Informações do Veículo</h5>
-              <Badge 
+              <Badge
                 variant={status === "Ativo" ? "destructive" : "secondary"}
-                style={{ fontSize: '0.75rem', padding: '0.25rem 0.75rem' }}
+                style={{ fontSize: "0.75rem", padding: "0.25rem 0.75rem" }}
               >
                 {status}
               </Badge>
             </div>
             <div className="d-flex gap-2">
               {isEditing && (
-                <Button 
+                <Button
                   onClick={() => setIsEditing(false)}
                   variant="outline"
                   className="btn-custom-outline"
                 >
-                  <X className="me-2" style={{ width: '16px', height: '16px' }} />
+                  <X
+                    className="me-2"
+                    style={{ width: "16px", height: "16px" }}
+                  />
                   Cancelar
                 </Button>
               )}
-              <Button 
-                onClick={isEditing ? handleSave : () => setIsEditing(true)} 
+              <Button
+                onClick={isEditing ? handleSave : () => setIsEditing(true)}
                 variant={isEditing ? "destructive" : "outline"}
-                className={isEditing ? "btn-custom-filled" : "btn-custom-outline"}
+                className={
+                  isEditing ? "btn-custom-filled" : "btn-custom-outline"
+                }
               >
                 {isEditing ? (
-                  <Save className="me-2" style={{ width: '16px', height: '16px' }} />
+                  <Save
+                    className="me-2"
+                    style={{ width: "16px", height: "16px" }}
+                  />
                 ) : (
-                  <Edit className="me-2" style={{ width: '16px', height: '16px' }} />
+                  <Edit
+                    className="me-2"
+                    style={{ width: "16px", height: "16px" }}
+                  />
                 )}
                 {isEditing ? "Salvar" : "Editar"}
               </Button>
-              <Button 
-                variant="destructive" 
+              <Button
+                variant="destructive"
                 onClick={handleDelete}
                 className="btn-custom-filled"
               >
-                <Trash2 className="me-2" style={{ width: '16px', height: '16px' }} />
+                <Trash2
+                  className="me-2"
+                  style={{ width: "16px", height: "16px" }}
+                />
                 Excluir
               </Button>
             </div>
@@ -129,7 +153,10 @@ export default function VehicleDetails() {
           <div className="row g-4">
             {/* Row 1: Brand and Model */}
             <div className="col-md-6">
-              <Label htmlFor="brand" className="form-label small text-muted mb-1 d-block text-start">
+              <Label
+                htmlFor="brand"
+                className="form-label small text-muted mb-1 d-block text-start"
+              >
                 Marca
               </Label>
               <Input
@@ -138,11 +165,14 @@ export default function VehicleDetails() {
                 onChange={(e) => handleInputChange("brand", e.target.value)}
                 disabled={!isEditing}
                 className="form-control"
-                style={{ backgroundColor: '#f8f9fa' }}
+                style={{ backgroundColor: "#f8f9fa" }}
               />
             </div>
             <div className="col-md-6">
-              <Label htmlFor="model" className="form-label small text-muted mb-1 d-block text-start">
+              <Label
+                htmlFor="model"
+                className="form-label small text-muted mb-1 d-block text-start"
+              >
                 Modelo
               </Label>
               <Input
@@ -151,13 +181,16 @@ export default function VehicleDetails() {
                 onChange={(e) => handleInputChange("model", e.target.value)}
                 disabled={!isEditing}
                 className="form-control"
-                style={{ backgroundColor: '#f8f9fa' }}
+                style={{ backgroundColor: "#f8f9fa" }}
               />
             </div>
 
             {/* Row 2: Plate and Kilometers */}
             <div className="col-md-6">
-              <Label htmlFor="plate" className="form-label small text-muted mb-1 d-block text-start">
+              <Label
+                htmlFor="plate"
+                className="form-label small text-muted mb-1 d-block text-start"
+              >
                 Matrícula
               </Label>
               <Input
@@ -166,27 +199,35 @@ export default function VehicleDetails() {
                 onChange={(e) => handleInputChange("plate", e.target.value)}
                 disabled
                 className="form-control"
-                style={{ backgroundColor: '#f8f9fa' }}
+                style={{ backgroundColor: "#f8f9fa" }}
               />
             </div>
             <div className="col-md-6">
-              <Label htmlFor="kilometers" className="form-label small text-muted mb-1 d-block text-start">
+              <Label
+                htmlFor="kilometers"
+                className="form-label small text-muted mb-1 d-block text-start"
+              >
                 Quilometragem
               </Label>
               <Input
                 id="kilometers"
                 type="number"
                 value={formData.kilometers}
-                onChange={(e) => handleInputChange("kilometers", parseInt(e.target.value) || 0)}
+                onChange={(e) =>
+                  handleInputChange("kilometers", parseInt(e.target.value) || 0)
+                }
                 disabled={!isEditing}
                 className="form-control"
-                style={{ backgroundColor: '#f8f9fa' }}
+                style={{ backgroundColor: "#f8f9fa" }}
               />
             </div>
 
             {/* Row 3: Color and Fuel Type */}
             <div className="col-md-6">
-              <Label htmlFor="color" className="form-label small text-muted mb-1 d-block text-start">
+              <Label
+                htmlFor="color"
+                className="form-label small text-muted mb-1 d-block text-start"
+              >
                 Cor
               </Label>
               <Input
@@ -195,11 +236,14 @@ export default function VehicleDetails() {
                 onChange={(e) => handleInputChange("color", e.target.value)}
                 disabled={!isEditing}
                 className="form-control"
-                style={{ backgroundColor: '#f8f9fa' }}
+                style={{ backgroundColor: "#f8f9fa" }}
               />
             </div>
             <div className="col-md-6">
-              <Label htmlFor="fuelType" className="form-label small text-muted mb-1 d-block text-start">
+              <Label
+                htmlFor="fuelType"
+                className="form-label small text-muted mb-1 d-block text-start"
+              >
                 Tipo de Combustível
               </Label>
               <Input
@@ -208,35 +252,45 @@ export default function VehicleDetails() {
                 onChange={(e) => handleInputChange("fuelType", e.target.value)}
                 disabled={!isEditing}
                 className="form-control"
-                style={{ backgroundColor: '#f8f9fa' }}
+                style={{ backgroundColor: "#f8f9fa" }}
               />
             </div>
 
             {/* Row 4: Engine Size and Imported */}
             <div className="col-md-6">
-              <Label htmlFor="engineSize" className="form-label small text-muted mb-1 d-block text-start">
+              <Label
+                htmlFor="engineSize"
+                className="form-label small text-muted mb-1 d-block text-start"
+              >
                 Cilindrada
               </Label>
               <Input
                 id="engineSize"
                 value={formData.engineSize || ""}
-                onChange={(e) => handleInputChange("engineSize", e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("engineSize", e.target.value)
+                }
                 disabled={!isEditing}
                 className="form-control"
-                style={{ backgroundColor: '#f8f9fa' }}
+                style={{ backgroundColor: "#f8f9fa" }}
                 placeholder="Ex: 1.6L, 2.0L"
               />
             </div>
             <div className="col-md-6">
-              <Label htmlFor="imported" className="form-label small text-muted mb-1 d-block text-start">
+              <Label
+                htmlFor="imported"
+                className="form-label small text-muted mb-1 d-block text-start"
+              >
                 Importado
               </Label>
               <Select
                 value={formData.imported ? "true" : "false"}
-                onValueChange={(value) => handleInputChange("imported", value === "true")}
+                onValueChange={(value) =>
+                  handleInputChange("imported", value === "true")
+                }
                 disabled={!isEditing}
               >
-                <SelectTrigger style={{ backgroundColor: '#f8f9fa' }}>
+                <SelectTrigger style={{ backgroundColor: "#f8f9fa" }}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -248,16 +302,21 @@ export default function VehicleDetails() {
 
             {/* Row 5: Description */}
             <div className="col-12">
-              <Label htmlFor="description" className="form-label small text-muted mb-1 d-block text-start">
+              <Label
+                htmlFor="description"
+                className="form-label small text-muted mb-1 d-block text-start"
+              >
                 Descrição
               </Label>
               <Input
                 id="description"
                 value={formData.description || ""}
-                onChange={(e) => handleInputChange("description", e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("description", e.target.value)
+                }
                 disabled={!isEditing}
                 className="form-control"
-                style={{ backgroundColor: '#f8f9fa' }}
+                style={{ backgroundColor: "#f8f9fa" }}
                 placeholder="Informações adicionais sobre o veículo"
               />
             </div>
@@ -268,10 +327,12 @@ export default function VehicleDetails() {
                 Data de Cadastro
               </Label>
               <Input
-                value={new Date(vehicleData.vehicle.created_at).toLocaleDateString("pt-PT")}
+                value={new Date(
+                  vehicleData.vehicle.created_at
+                ).toLocaleDateString("pt-PT")}
                 disabled
                 className="form-control"
-                style={{ backgroundColor: '#f8f9fa' }}
+                style={{ backgroundColor: "#f8f9fa" }}
               />
             </div>
           </div>
@@ -279,7 +340,10 @@ export default function VehicleDetails() {
       </div>
 
       {/* Card do proprietário */}
-      <div className="card" style={{ border: '1px solid #dc3545', borderRadius: '8px' }}>
+      <div
+        className="card"
+        style={{ border: "1px solid #dc3545", borderRadius: "8px" }}
+      >
         <div className="card-body p-4">
           <div className="d-flex justify-content-between align-items-center mb-4">
             <h5 className="mb-0 fw-semibold">Proprietário do Veículo</h5>
@@ -297,23 +361,32 @@ export default function VehicleDetails() {
               </div>
               <div className="col-md-6">
                 <p className="small text-muted">Telefone</p>
-                <p className="mb-0 fw-semibold">{vehicleData.customer.phone || "N/A"}</p>
+                <p className="mb-0 fw-semibold">
+                  {vehicleData.customer.phone || "N/A"}
+                </p>
               </div>
               <div className="col-md-6">
                 <p className="small text-muted">Cidade</p>
-                <p className="mb-0 fw-semibold">{vehicleData.customer.city || "N/A"}</p>
+                <p className="mb-0 fw-semibold">
+                  {vehicleData.customer.city || "N/A"}
+                </p>
               </div>
-              <div className="col-md-6 align-self-end">
-                <Link to={`/customers/${vehicleData.customer.id}`}>
-                  <Button 
-                    variant="outline" 
-                    className="btn-custom-outline w-100"
-                  >
-                    <User className="me-2" style={{ width: '16px', height: '16px' }} />
-                    Ver Perfil do Cliente
-                  </Button>
-                </Link>
-              </div>
+              {canEdit && (
+                <div className="col-md-6 align-self-end">
+                  <Link to={`/customers/${vehicleData.customer.id}`}>
+                    <Button
+                      variant="outline"
+                      className="btn-custom-outline w-100"
+                    >
+                      <User
+                        className="me-2"
+                        style={{ width: "16px", height: "16px" }}
+                      />
+                      Ver Perfil do Cliente
+                    </Button>
+                  </Link>
+                </div>
+              )}
             </div>
           )}
         </div>

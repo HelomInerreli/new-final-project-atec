@@ -47,11 +47,13 @@ fake = Faker("pt_PT")
 
 # ========== CONFIGURATION ==========
 # Números realistas para uma oficina pequena/média em Portugal
-NUM_APPOINTMENTS = 85  # ~7 por mês em média
+NUM_APPOINTMENTS_2025 = 85  # Appointments de 2025
+NUM_APPOINTMENTS_2026_PAST = 15  # Appointments finalizados/cancelados até 9 de janeiro
+NUM_APPOINTMENTS_2026_FUTURE = 20  # Appointments agendados até 23 de janeiro
 MIN_VEHICLES_PER_CUSTOMER = 1
 MAX_VEHICLES_PER_CUSTOMER = 2
 MAX_EXTRA_SERVICES_PER_APPOINTMENT = 2
-NUM_EMPLOYEES = 6  # Equipa realista: admin, gestor, 4 mecânicos
+NUM_EMPLOYEES = 8  # Equipa realista: admin, gestor, mecânicos, elétrico, chaparia, pintura
 NUM_CUSTOMERS = 35  # Base de clientes de oficina local
 
 # Admin user credentials
@@ -126,7 +128,7 @@ STATUSES = [
     "Aguardando Pagamento"
 ]
 
-ROLES_TO_CREATE = ["Admin", "Gestor", "Mecânico", "Elétrico", "Chaparia", "Pintura"]
+ROLES_TO_CREATE = ["Admin", "Gestor", "Mecânico", "Elétrico", "Chaparia", "Pintura", "Estética", "Vidros"]
 
 # Stock típico de oficina pequena/média
 PRODUCTS = [
@@ -283,6 +285,39 @@ def create_invoice_for_appointment(db: Session, appointment: Appointment, invoic
     
     db.add(invoice)
     return invoice
+
+
+def get_employee_for_service_area(db: Session, service_area: str, employees: list):
+    """
+    Retorna um funcionário apropriado baseado na área do serviço.
+    Mapeia áreas de serviço para roles de funcionários.
+    """
+    # Mapeamento de áreas de serviço para roles
+    area_to_role = {
+        "Mecânica": "Mecânico",
+        "Elétrica": "Elétrico",
+        "Chaparia": "Chaparia",
+        "Pintura": "Pintura",
+        "Estética": "Estética",
+        "Vidros": "Vidros"
+    }
+    
+    # Obter a role apropriada
+    target_role = area_to_role.get(service_area, "Mecânico")  # Default: Mecânico
+    
+    # Filtrar funcionários da role apropriada
+    matching_employees = [emp for emp in employees if emp.role and emp.role.name == target_role]
+    
+    # Se não encontrar nenhum da role específica, usar mecânico
+    if not matching_employees:
+        matching_employees = [emp for emp in employees if emp.role and emp.role.name == "Mecânico"]
+    
+    # Se ainda não encontrar, retornar qualquer funcionário que não seja Admin ou Gestor
+    if not matching_employees:
+        matching_employees = [emp for emp in employees if emp.role and emp.role.name not in ["Admin", "Gestor"]]
+    
+    # Retornar um funcionário aleatório da lista filtrada
+    return random.choice(matching_employees) if matching_employees else None
 
 
 def seed_main_data(db: Session):
@@ -482,73 +517,17 @@ def seed_main_data(db: Session):
                 continue
     print(f"   ✓ Created {len(vehicles)} vehicles")
     
-    # 8) Appointments - Distribuídos de forma realista em 2025
+    # 8) Appointments - Distribuídos de forma realista em 2025 e 2026
     print("   Creating appointments...")
     appointments = []
     
-    # Data atual: 15 de dezembro de 2025
-    current_date = datetime(2025, 12, 15)
-    
-    # Distribuição realista (~85 appointments para o ano todo):
-    # - 8-10 appointments para hoje
-    # - 10-12 appointments nos últimos 7 dias
-    # - 15 appointments em dezembro (passados e futuros)
-    # - 20 appointments em novembro
-    # - 30 appointments distribuídos de janeiro a outubro
-    
     status_types = list(status_objects.keys())
     
-    # HOJE (15 de dezembro) - 10 appointments
-    print("   - Creating appointments for today...")
-    for i in range(10):
-        customer = random.choice(customers)
-        customer_vehicles = [v for v in vehicles if v.customer_id == customer.id]
-        if not customer_vehicles:
-            continue
-        vehicle = random.choice(customer_vehicles)
-        main_service = random.choice(services)
-        
-        # Horários distribuídos ao longo do dia (8h-18h)
-        hour = random.randint(8, 18)
-        minute = random.choice([0, 30])
-        appointment_date = current_date.replace(hour=hour, minute=minute)
-        
-        # Status realistas para hoje: se hora já passou, marcar como Concluído
-        current_hour = datetime.now().hour
-        if hour < current_hour:
-            # Hora já passou hoje - deve estar Concluído
-            status_weights = [0.0, 0.90, 0.10]
-        else:
-            # Hora ainda não chegou - Pendente
-            status_weights = [1.0, 0.0, 0.0]
-        status_name = random.choices(["Pendente", "Concluído", "Aguardando Pagamento"], weights=status_weights)[0]
-        
-        estimated_budget = main_service.price
-        actual_budget = estimated_budget * random.uniform(0.9, 1.15) if status_name in ["Concluído", "Aguardando Pagamento"] else 0.0
-        
-        appointment_in = AppointmentCreate(
-            vehicle_id=vehicle.id,
-            customer_id=customer.id,
-            service_id=main_service.id,
-            appointment_date=appointment_date,
-            description=f"{main_service.name} - {vehicle.brand} {vehicle.model} ({vehicle.plate})",
-            estimated_budget=estimated_budget,
-            actual_budget=actual_budget
-        )
-        
-        try:
-            appt = appointment_repo.create(appointment_in)
-            if appt:
-                appt.status_id = status_objects[status_name].id
-                db.commit()
-                appointments.append(appt)
-        except Exception as e:
-            db.rollback()
-            continue
+    # ==================== APPOINTMENTS DE 2025 ====================
+    # Todos os appointments de 2025 devem estar CONCLUÍDOS ou CANCELADOS
+    print("   - Creating 2025 appointments (all finalized/cancelled)...")
     
-    # ÚLTIMOS 7 DIAS (8 a 14 de dezembro) - 12 appointments
-    print("   - Creating appointments for last 7 days...")
-    for i in range(12):
+    for i in range(NUM_APPOINTMENTS_2025):
         customer = random.choice(customers)
         customer_vehicles = [v for v in vehicles if v.customer_id == customer.id]
         if not customer_vehicles:
@@ -556,150 +535,31 @@ def seed_main_data(db: Session):
         vehicle = random.choice(customer_vehicles)
         main_service = random.choice(services)
         
-        days_ago = random.randint(1, 7)
-        hour = random.randint(8, 18)
-        appointment_date = current_date - timedelta(days=days_ago)
-        appointment_date = appointment_date.replace(hour=hour, minute=random.choice([0, 30]))
-        
-        # Appointments passados devem estar Concluídos ou Aguardando Pagamento
-        status_weights = [0.0, 0.90, 0.10]
-        status_name = random.choices(["Pendente", "Concluído", "Aguardando Pagamento"], weights=status_weights)[0]
-        
-        estimated_budget = main_service.price
-        actual_budget = estimated_budget * random.uniform(0.9, 1.2) if status_name in ["Concluído", "Aguardando Pagamento"] else 0.0
-        
-        appointment_in = AppointmentCreate(
-            vehicle_id=vehicle.id,
-            customer_id=customer.id,
-            service_id=main_service.id,
-            appointment_date=appointment_date,
-            description=f"{main_service.name} - {vehicle.brand} {vehicle.model} ({vehicle.plate})",
-            estimated_budget=estimated_budget,
-            actual_budget=actual_budget
-        )
-        
-        try:
-            appt = appointment_repo.create(appointment_in)
-            if appt:
-                appt.status_id = status_objects[status_name].id
-                db.commit()
-                appointments.append(appt)
-        except Exception as e:
-            db.rollback()
-            continue
-    
-    # DEZEMBRO (1 a 7 e 16-31) - 15 appointments
-    print("   - Creating appointments for December...")
-    for i in range(15):
-        customer = random.choice(customers)
-        customer_vehicles = [v for v in vehicles if v.customer_id == customer.id]
-        if not customer_vehicles:
-            continue
-        vehicle = random.choice(customer_vehicles)
-        main_service = random.choice(services)
-        
-        # 40% dias 1-7 (passados), 60% dias 16-31 (futuros)
-        if random.random() < 0.4:
-            day = random.randint(1, 7)
-            # Dias passados: Concluído ou Aguardando Pagamento
-            status_name = random.choices(["Concluído", "Aguardando Pagamento"], weights=[0.85, 0.15])[0]
-        else:
-            day = random.randint(16, 30)
-            # Dias futuros: Pendente
-            status_name = "Pendente"
-        
-        appointment_date = datetime(2025, 12, day, random.randint(9, 17), random.choice([0, 30]))
-        
-        estimated_budget = main_service.price
-        actual_budget = estimated_budget * random.uniform(0.85, 1.25) if status_name == "Concluído" else 0.0
-        
-        appointment_in = AppointmentCreate(
-            vehicle_id=vehicle.id,
-            customer_id=customer.id,
-            service_id=main_service.id,
-            appointment_date=appointment_date,
-            description=f"{main_service.name} - {vehicle.brand} {vehicle.model} ({vehicle.plate})",
-            estimated_budget=estimated_budget,
-            actual_budget=actual_budget
-        )
-        
-        try:
-            appt = appointment_repo.create(appointment_in)
-            if appt:
-                appt.status_id = status_objects[status_name].id
-                db.commit()
-                appointments.append(appt)
-        except Exception as e:
-            db.rollback()
-            continue
-    
-    # NOVEMBRO - 18 appointments (já passou, todos devem estar finalizados)
-    print("   - Creating appointments for November...")
-    for i in range(18):
-        customer = random.choice(customers)
-        customer_vehicles = [v for v in vehicles if v.customer_id == customer.id]
-        if not customer_vehicles:
-            continue
-        vehicle = random.choice(customer_vehicles)
-        main_service = random.choice(services)
-        
-        day = random.randint(1, 30)
-        appointment_date = datetime(2025, 11, day, random.randint(9, 17), random.choice([0, 30]))
-        
-        # Novembro já passou - não pode ter Pendente
-        status_weights = [0.0, 0.90, 0.10]
-        status_name = random.choices(["Pendente", "Concluído", "Aguardando Pagamento"], weights=status_weights)[0]
-        
-        estimated_budget = main_service.price
-        actual_budget = estimated_budget * random.uniform(0.85, 1.3) if status_name in ["Concluído", "Aguardando Pagamento"] else 0.0
-        
-        appointment_in = AppointmentCreate(
-            vehicle_id=vehicle.id,
-            customer_id=customer.id,
-            service_id=main_service.id,
-            appointment_date=appointment_date,
-            description=f"{main_service.name} - {vehicle.brand} {vehicle.model} ({vehicle.plate})",
-            estimated_budget=estimated_budget,
-            actual_budget=actual_budget
-        )
-        
-        try:
-            appt = appointment_repo.create(appointment_in)
-            if appt:
-                appt.status_id = status_objects[status_name].id
-                db.commit()
-                appointments.append(appt)
-        except Exception as e:
-            db.rollback()
-            continue
-    
-    # RESTO DO ANO (Jan-Out) - 30 appointments (todos já passaram)
-    print("   - Creating appointments for rest of the year...")
-    for i in range(30):
-        customer = random.choice(customers)
-        customer_vehicles = [v for v in vehicles if v.customer_id == customer.id]
-        if not customer_vehicles:
-            continue
-        vehicle = random.choice(customer_vehicles)
-        main_service = random.choice(services)
-        
-        month = random.randint(1, 10)
-        # Garantir que dia é válido para cada mês
-        if month in [1, 3, 5, 7, 8, 10]:
+        # Distribuir uniformemente ao longo de 2025
+        month = random.randint(1, 12)
+        if month in [1, 3, 5, 7, 8, 10, 12]:
             day = random.randint(1, 31)
-        elif month in [4, 6, 9]:
+        elif month in [4, 6, 9, 11]:
             day = random.randint(1, 30)
         else:  # Fevereiro
             day = random.randint(1, 28)
         
         appointment_date = datetime(2025, month, day, random.randint(9, 17), random.choice([0, 30]))
         
-        # Janeiro a Outubro já passaram - não pode ter Pendente
-        status_weights = [0.0, 0.90, 0.10]
-        status_name = random.choices(["Pendente", "Concluído", "Aguardando Pagamento"], weights=status_weights)[0]
+        # 2025: 85% Concluído, 15% Cancelado (sem Pendente)
+        status_weights = [0.0, 0.85, 0.0, 0.15]  # [Pendente, Concluído, Aguardando, Cancelado]
+        status_name = random.choices(
+            ["Pendente", "Concluído", "Aguardando Pagamento", "Cancelado"], 
+            weights=status_weights
+        )[0]
         
         estimated_budget = main_service.price
-        actual_budget = estimated_budget * random.uniform(0.8, 1.35) if status_name in ["Concluído", "Aguardando Pagamento"] else 0.0
+        
+        # Cancelados não têm orçamento real
+        if status_name == "Cancelado":
+            actual_budget = 0.0
+        else:
+            actual_budget = estimated_budget * random.uniform(0.85, 1.35)
         
         appointment_in = AppointmentCreate(
             vehicle_id=vehicle.id,
@@ -715,13 +575,137 @@ def seed_main_data(db: Session):
             appt = appointment_repo.create(appointment_in)
             if appt:
                 appt.status_id = status_objects[status_name].id
+                
+                # Associar funcionário apropriado se não for cancelado
+                if status_name != "Cancelado":
+                    assigned_employee = get_employee_for_service_area(db, main_service.area, employees)
+                    if assigned_employee:
+                        appt.assigned_employee_id = assigned_employee.id
+                
                 db.commit()
                 appointments.append(appt)
         except Exception as e:
             db.rollback()
             continue
     
-    print(f"   ✓ Created {len(appointments)} appointments distributed across 2025")
+    print(f"   ✓ Created {len(appointments)} appointments for 2025 (all finalized/cancelled)")
+    
+    # ==================== APPOINTMENTS DE 2026 - PASSADOS ====================
+    # Data de hoje: 9 de janeiro de 2026
+    current_date = datetime(2026, 1, 9)
+    print("   - Creating 2026 past appointments (until today)...")
+    
+    appointments_2026_start = len(appointments)
+    
+    for i in range(NUM_APPOINTMENTS_2026_PAST):
+        customer = random.choice(customers)
+        customer_vehicles = [v for v in vehicles if v.customer_id == customer.id]
+        if not customer_vehicles:
+            continue
+        vehicle = random.choice(customer_vehicles)
+        main_service = random.choice(services)
+        
+        # Dias 1-9 de janeiro de 2026
+        day = random.randint(1, 9)
+        hour = random.randint(9, 17)
+        appointment_date = datetime(2026, 1, day, hour, random.choice([0, 30]))
+        
+        # Appointments passados: 70% Concluído, 15% Aguardando Pagamento, 15% Cancelado
+        status_weights = [0.0, 0.70, 0.15, 0.15]
+        status_name = random.choices(
+            ["Pendente", "Concluído", "Aguardando Pagamento", "Cancelado"], 
+            weights=status_weights
+        )[0]
+        
+        estimated_budget = main_service.price
+        
+        if status_name == "Cancelado":
+            actual_budget = 0.0
+        else:
+            actual_budget = estimated_budget * random.uniform(0.90, 1.20)
+        
+        appointment_in = AppointmentCreate(
+            vehicle_id=vehicle.id,
+            customer_id=customer.id,
+            service_id=main_service.id,
+            appointment_date=appointment_date,
+            description=f"{main_service.name} - {vehicle.brand} {vehicle.model} ({vehicle.plate})",
+            estimated_budget=estimated_budget,
+            actual_budget=actual_budget
+        )
+        
+        try:
+            appt = appointment_repo.create(appointment_in)
+            if appt:
+                appt.status_id = status_objects[status_name].id
+                
+                # Associar funcionário se não for cancelado
+                if status_name != "Cancelado":
+                    assigned_employee = get_employee_for_service_area(db, main_service.area, employees)
+                    if assigned_employee:
+                        appt.assigned_employee_id = assigned_employee.id
+                
+                db.commit()
+                appointments.append(appt)
+        except Exception as e:
+            db.rollback()
+            continue
+    
+    print(f"   ✓ Created {len(appointments) - appointments_2026_start} past appointments for 2026")
+    
+    # ==================== APPOINTMENTS DE 2026 - FUTUROS ====================
+    # Agendamentos de 10 a 23 de janeiro de 2026
+    print("   - Creating 2026 future appointments (10-23 Jan)...")
+    
+    appointments_2026_future_start = len(appointments)
+    
+    for i in range(NUM_APPOINTMENTS_2026_FUTURE):
+        customer = random.choice(customers)
+        customer_vehicles = [v for v in vehicles if v.customer_id == customer.id]
+        if not customer_vehicles:
+            continue
+        vehicle = random.choice(customer_vehicles)
+        main_service = random.choice(services)
+        
+        # Dias 10-23 de janeiro de 2026
+        day = random.randint(10, 23)
+        hour = random.randint(9, 17)
+        appointment_date = datetime(2026, 1, day, hour, random.choice([0, 30]))
+        
+        # Agendamentos futuros: todos Pendentes
+        status_name = "Pendente"
+        
+        estimated_budget = main_service.price
+        actual_budget = 0.0  # Ainda não executado
+        
+        appointment_in = AppointmentCreate(
+            vehicle_id=vehicle.id,
+            customer_id=customer.id,
+            service_id=main_service.id,
+            appointment_date=appointment_date,
+            description=f"{main_service.name} - {vehicle.brand} {vehicle.model} ({vehicle.plate})",
+            estimated_budget=estimated_budget,
+            actual_budget=actual_budget
+        )
+        
+        try:
+            appt = appointment_repo.create(appointment_in)
+            if appt:
+                appt.status_id = status_objects[status_name].id
+                
+                # Agendamentos futuros também podem ter funcionário pré-designado
+                assigned_employee = get_employee_for_service_area(db, main_service.area, employees)
+                if assigned_employee:
+                    appt.assigned_employee_id = assigned_employee.id
+                
+                db.commit()
+                appointments.append(appt)
+        except Exception as e:
+            db.rollback()
+            continue
+    
+    print(f"   ✓ Created {len(appointments) - appointments_2026_future_start} future appointments for 2026")
+    print(f"   ✓ TOTAL: {len(appointments)} appointments created ({NUM_APPOINTMENTS_2025} in 2025, {len(appointments) - NUM_APPOINTMENTS_2025} in 2026)")
     
     # 9) Extra services para alguns appointments (realista: ~30% têm extras)
     print("   Adding extra services to appointments...")
@@ -751,26 +735,50 @@ def seed_main_data(db: Session):
     finalized_status = db.query(Status).filter(Status.name == "Concluído").first()
     paid_status = db.query(Status).filter(Status.name == "Aguardando Pagamento").first()
     
-    invoice_counter = 1
-    finalized_appointments = []
+    # Separar appointments de 2025 e 2026
+    appointments_2025 = [apt for apt in appointments if apt.appointment_date.year == 2025]
+    appointments_2026 = [apt for apt in appointments if apt.appointment_date.year == 2026]
+    
+    # Faturas de 2025
+    invoice_counter_2025 = 1
+    finalized_appointments_2025 = []
     
     if finalized_status:
-        finalized_appointments = [apt for apt in appointments if apt.status_id == finalized_status.id]
+        finalized_appointments_2025 = [apt for apt in appointments_2025 if apt.status_id == finalized_status.id]
     
-    # Adicionar appointments com status "Aguardando Pagamento"
     if paid_status:
-        finalized_appointments.extend([apt for apt in appointments if apt.status_id == paid_status.id])
+        finalized_appointments_2025.extend([apt for apt in appointments_2025 if apt.status_id == paid_status.id])
     
-    for appointment in finalized_appointments:
-        invoice_number = f"INV-2025-{str(invoice_counter).zfill(6)}"
+    for appointment in finalized_appointments_2025:
+        invoice_number = f"INV-2025-{str(invoice_counter_2025).zfill(6)}"
         try:
             create_invoice_for_appointment(db, appointment, invoice_number)
-            invoice_counter += 1
+            invoice_counter_2025 += 1
+        except:
+            db.rollback()
+    
+    # Faturas de 2026
+    invoice_counter_2026 = 1
+    finalized_appointments_2026 = []
+    
+    if finalized_status:
+        finalized_appointments_2026 = [apt for apt in appointments_2026 if apt.status_id == finalized_status.id]
+    
+    if paid_status:
+        finalized_appointments_2026.extend([apt for apt in appointments_2026 if apt.status_id == paid_status.id])
+    
+    for appointment in finalized_appointments_2026:
+        invoice_number = f"INV-2026-{str(invoice_counter_2026).zfill(6)}"
+        try:
+            create_invoice_for_appointment(db, appointment, invoice_number)
+            invoice_counter_2026 += 1
         except:
             db.rollback()
     
     db.commit()
-    print(f"   ✓ Created {len(finalized_appointments)} invoices")
+    print(f"   ✓ Created {len(finalized_appointments_2025)} invoices for 2025")
+    print(f"   ✓ Created {len(finalized_appointments_2026)} invoices for 2026")
+    print(f"   ✓ TOTAL: {len(finalized_appointments_2025) + len(finalized_appointments_2026)} invoices")
 
 
 def run_all_seeds():

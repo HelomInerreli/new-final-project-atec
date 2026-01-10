@@ -26,6 +26,30 @@ export default function Dashboard() {
   const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1;
   const lastMonthYear = currentMonth === 1 ? currentYear - 1 : currentYear;
 
+  // Estilos para o select de ano
+  useEffect(() => {
+    const style = document.createElement("style");
+    style.innerHTML = `
+      .year-select option:hover,
+      .year-select option:focus,
+      .year-select option:checked {
+        background-color: #ef4444 !important;
+        color: white !important;
+      }
+      .year-select option {
+        background-color: #dc2626;
+        color: white;
+      }
+      .year-select option:not(:checked):hover {
+        background-color: #f87171 !important;
+      }
+    `;
+    document.head.appendChild(style);
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
+
   // Estados para os dados das métricas
   const [dailyMetrics, setDailyMetrics] = useState<DailyMetrics | null>(null);
   const [currentMonthMetrics, setCurrentMonthMetrics] =
@@ -39,6 +63,17 @@ export default function Dashboard() {
   );
   const [serviceMetrics, setServiceMetrics] = useState<ServiceMetric[]>([]);
   const [statusMetrics, setStatusMetrics] = useState<StatusMetric[]>([]);
+  const [dailyStatusMetrics, setDailyStatusMetrics] = useState<StatusMetric[]>(
+    []
+  );
+  const [yearlyServiceMetrics, setYearlyServiceMetrics] = useState<
+    ServiceMetric[]
+  >([]);
+  const [yearlyStatusMetrics, setYearlyStatusMetrics] = useState<
+    StatusMetric[]
+  >([]);
+  const [selectedYear, setSelectedYear] = useState<number>(currentYear);
+  const [availableYears, setAvailableYears] = useState<number[]>([]);
 
   // Estado de carregamento
   const [loading, setLoading] = useState<boolean>(true);
@@ -48,14 +83,46 @@ export default function Dashboard() {
     loadAllMetrics();
   }, []);
 
+  // Recarregar métricas anuais quando o ano selecionado muda
+  useEffect(() => {
+    loadYearlyMetrics();
+  }, [selectedYear]);
+
+  // Função para carregar apenas métricas anuais
+  const loadYearlyMetrics = async () => {
+    try {
+      const startDate = `${selectedYear}-01-01`;
+      const endDate = `${selectedYear}-12-31`;
+
+      const [yearData, lastYearData, servicesData, statusesData] =
+        await Promise.all([
+          metricsService.getYearlyMetrics(selectedYear),
+          metricsService.getYearlyMetrics(selectedYear - 1),
+          metricsService.getMetricsByService(startDate, endDate),
+          metricsService.getMetricsByStatus(startDate, endDate),
+        ]);
+      setCurrentYearMetrics(yearData);
+      setLastYearMetrics(lastYearData);
+      setYearlyServiceMetrics(servicesData || []);
+      setYearlyStatusMetrics(statusesData || []);
+    } catch (error) {
+      console.error("Erro ao carregar métricas anuais:", error);
+    }
+  };
+
   // Função para carregar todas as métricas
   const loadAllMetrics = async () => {
     setLoading(true);
     try {
       console.log("🔄 Carregando métricas...");
 
+      // Data de hoje para filtros
+      const today = new Date();
+      const todayStr = today.toISOString().split("T")[0];
+
       const [
         dailyData,
+        dailyStatusData,
         currentMonthData,
         lastMonthData,
         currentYearData,
@@ -66,6 +133,10 @@ export default function Dashboard() {
         metricsService.getDailyMetrics().catch((e) => {
           console.error("❌ Erro daily:", e);
           return null;
+        }),
+        metricsService.getMetricsByStatus(todayStr, todayStr).catch((e) => {
+          console.error("❌ Erro daily status:", e);
+          return [];
         }),
         metricsService
           .getMonthlyMetrics(currentYear, currentMonth)
@@ -99,6 +170,7 @@ export default function Dashboard() {
 
       console.log("✅ Dados carregados:", {
         dailyData,
+        dailyStatusData,
         currentMonthData,
         lastMonthData,
         currentYearData,
@@ -107,13 +179,31 @@ export default function Dashboard() {
         statuses: statusesData?.length,
       });
 
+      console.log("🔍 dailyStatusData recebido:", dailyStatusData);
+      console.log(
+        "🔍 dailyStatusData filtrado (total > 0):",
+        dailyStatusData?.filter((s) => s.total > 0)
+      );
+
       setDailyMetrics(dailyData);
+      setDailyStatusMetrics(dailyStatusData || []);
       setCurrentMonthMetrics(currentMonthData);
       setLastMonthMetrics(lastMonthData);
       setCurrentYearMetrics(currentYearData);
       setLastYearMetrics(lastYearData);
       setServiceMetrics(servicesData || []);
       setStatusMetrics(statusesData || []);
+      // NÃO inicializar métricas anuais aqui - serão carregadas por loadYearlyMetrics
+
+      // Buscar anos disponíveis
+      try {
+        const yearsResponse = await metricsService.getAvailableYears();
+        setAvailableYears(yearsResponse.available_years || []);
+      } catch (error) {
+        console.error("❌ Erro ao buscar anos disponíveis:", error);
+        // Fallback para anos atuais se houver erro
+        setAvailableYears([currentYear, currentYear - 1]);
+      }
     } catch (error) {
       console.error("❌ Erro ao carregar métricas:", error);
     } finally {
@@ -185,9 +275,24 @@ export default function Dashboard() {
         style={{ backgroundColor: "transparent" }}
       >
         <TabsList className="grid w-full grid-cols-3 !bg-white border border-gray-200 shadow-sm mb-4">
-          <TabsTrigger value="daily">Dia Atual</TabsTrigger>
-          <TabsTrigger value="monthly">Visão Mensal</TabsTrigger>
-          <TabsTrigger value="yearly">Visão Anual</TabsTrigger>
+          <TabsTrigger
+            value="daily"
+            className="data-[state=active]:bg-red-600 data-[state=active]:text-white"
+          >
+            Dia Atual
+          </TabsTrigger>
+          <TabsTrigger
+            value="monthly"
+            className="data-[state=active]:bg-red-600 data-[state=active]:text-white"
+          >
+            Visão Mensal
+          </TabsTrigger>
+          <TabsTrigger
+            value="yearly"
+            className="data-[state=active]:bg-red-600 data-[state=active]:text-white"
+          >
+            Visão Anual
+          </TabsTrigger>
         </TabsList>
 
         {/* Aba do dia atual */}
@@ -233,13 +338,21 @@ export default function Dashboard() {
               icon="⏱️"
               color="blue"
             />
-            <PieChartComponent
-              data={statusMetrics.filter((s) => s.total > 0)}
-              dataKey="total"
-              nameKey="status_name"
-              title="Distribuição por Status (Hoje)"
-              height={300}
-            />
+            {dailyStatusMetrics && dailyStatusMetrics.length > 0 ? (
+              <PieChartComponent
+                data={dailyStatusMetrics.filter((s) => s.total > 0)}
+                dataKey="total"
+                nameKey="status_name"
+                title="Distribuição por Status (Hoje)"
+                height={300}
+              />
+            ) : (
+              <div className="p-4 bg-white shadow-sm border border-gray-200 rounded-lg flex items-center justify-center">
+                <p className="text-gray-500">
+                  Nenhum dado de status disponível para hoje
+                </p>
+              </div>
+            )}
           </div>
         </TabsContent>
 
@@ -356,9 +469,32 @@ export default function Dashboard() {
           className="mt-4"
           style={{ backgroundColor: "transparent" }}
         >
+          <div className="mb-4 flex items-center gap-3">
+            <label className="text-sm font-medium text-gray-700">Ano:</label>
+            <select
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(Number(e.target.value))}
+              className="year-select px-3 py-2 border-0 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-600"
+              style={{
+                backgroundColor: "#dc2626",
+                color: "white",
+                fontWeight: "500",
+              }}
+            >
+              {availableYears.length > 0 ? (
+                availableYears.map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))
+              ) : (
+                <option value={currentYear}>{currentYear}</option>
+              )}
+            </select>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
             <MetricCard
-              title={`Total ${currentYear}`}
+              title={`Total ${selectedYear}`}
               value={currentYearMetrics?.totals?.total_appointments || 0}
               subtitle={`${
                 currentYearMetrics?.totals?.completed || 0
@@ -366,7 +502,7 @@ export default function Dashboard() {
               color="blue"
             />
             <MetricCard
-              title={`Total ${currentYear - 1}`}
+              title={`Total ${selectedYear - 1}`}
               value={lastYearMetrics?.totals?.total_appointments || 0}
               subtitle={`${lastYearMetrics?.totals?.completed || 0} concluídos`}
               color="purple"
@@ -376,7 +512,7 @@ export default function Dashboard() {
               value={
                 currentYearMetrics?.totals?.average_per_month?.toFixed(0) || 0
               }
-              subtitle={`${currentYear}`}
+              subtitle={`${selectedYear}`}
               icon="📊"
               color="green"
             />
@@ -387,7 +523,7 @@ export default function Dashboard() {
                   (currentYearMetrics?.totals?.total_appointments || 1)) *
                 100
               ).toFixed(1)}%`}
-              subtitle={`${currentYear}`}
+              subtitle={`${selectedYear}`}
               icon="✅"
               color="orange"
             />
@@ -401,7 +537,7 @@ export default function Dashboard() {
                 { key: "total_appointments", color: "#3b82f6", name: "Total" },
                 { key: "completed", color: "#10b981", name: "Concluídos" },
               ]}
-              title={`Atendimentos Mensais - ${currentYear}`}
+              title={`Atendimentos Mensais - ${selectedYear}`}
               height={350}
             />
 
@@ -412,26 +548,26 @@ export default function Dashboard() {
                 { key: "total_appointments", color: "#8b5cf6", name: "Total" },
                 { key: "completed", color: "#059669", name: "Concluídos" },
               ]}
-              title={`Atendimentos Mensais - ${currentYear - 1}`}
+              title={`Atendimentos Mensais - ${selectedYear - 1}`}
               height={350}
             />
           </div>
 
           <div className="grid grid-cols-1 gap-6 mt-4">
             <BarChartComponent
-              data={serviceMetrics.slice(0, 10)}
+              data={yearlyServiceMetrics.slice(0, 10)}
               xKey="service_name"
               yKey="total_appointments"
-              title="Top 10 Serviços Mais Solicitados (Total)"
+              title={`Top 10 Serviços Mais Solicitados - ${selectedYear}`}
               height={350}
             />
           </div>
 
           <PieChartComponent
-            data={statusMetrics}
+            data={yearlyStatusMetrics}
             dataKey="total"
             nameKey="status_name"
-            title="Distribuição por Status (Total)"
+            title={`Distribuição por Status - ${selectedYear}`}
             height={350}
           />
         </TabsContent>

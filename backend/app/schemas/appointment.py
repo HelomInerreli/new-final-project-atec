@@ -8,7 +8,8 @@ from .appointment_extra_service import AppointmentExtraService
 from .customer import Customer as CustomerSchema 
 from .vehicle import Vehicle as VehicleSchema 
 from .order_comment import CommentOut
-from .order_part import OrderPartOut  
+from .order_part import OrderPartOut
+from .employee import Employee as EmployeeSchema  
 
 class AppointmentBase(BaseModel):
     appointment_date: datetime
@@ -39,6 +40,8 @@ class Appointment(AppointmentBase):
     status: Optional[StatusSchema] = None
     service: Optional[ServiceSchema] = None
     service_id: Optional[int] = None
+    assigned_employee_id: Optional[int] = None
+    assigned_employee: Optional[EmployeeSchema] = None
     extra_service_associations: List[AppointmentExtraService] = []
     comments: List[CommentOut] = []
     parts: List[OrderPartOut] = []
