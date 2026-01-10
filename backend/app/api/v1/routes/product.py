@@ -4,6 +4,7 @@ from typing import List, Optional
 from app.deps import get_db
 from app.schemas import product as product_schema
 from app.crud import product as crud_product
+from app.services.notification_service import NotificationService
 
 router = APIRouter()
 
@@ -54,9 +55,42 @@ def get_by_part(part_number: str, db: Session = Depends(get_db)):
 
 @router.put("/{product_id}", response_model=product_schema.Product)
 def update_product(product_id: int, product: product_schema.ProductCreate, db: Session = Depends(get_db)):
+    # Buscar produto antes da atualização para comparar
+    old_product = crud_product.get_product(db, product_id)
+    if not old_product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    old_quantity = old_product.quantity
+    
+    # Atualizar produto
     updated = crud_product.ProductRepository(db).update(product_id, product)
     if not updated:
         raise HTTPException(status_code=404, detail="Product not found")
+    
+    # Notificar sobre mudança de stock se a quantidade mudou
+    if updated.quantity != old_quantity:
+        try:
+            NotificationService.notify_stock_updated(
+                db=db,
+                product_name=updated.name,
+                old_quantity=old_quantity,
+                new_quantity=updated.quantity
+            )
+        except Exception as e:
+            print(f"Erro ao enviar notificação de atualização de stock: {e}")
+    
+    # Verificar se o estoque está abaixo do mínimo e enviar notificação adicional
+    if updated.quantity <= updated.minimum_stock:
+        try:
+            NotificationService.notify_low_stock(
+                db=db,
+                product_name=updated.name,
+                current_quantity=updated.quantity,
+                min_quantity=updated.minimum_stock
+            )
+        except Exception as e:
+            print(f"Erro ao enviar notificação de estoque baixo: {e}")
+    
     return updated
 
 

@@ -13,6 +13,7 @@ from app.core.security import get_current_user_id
 from app.models.customerAuth import CustomerAuth
 from app.models.customer import Customer as CustomerModel
 from app.models.vehicle import Vehicle as VehicleModel
+from app.services.notification_service import NotificationService
 
 
 router = APIRouter()
@@ -25,12 +26,32 @@ def get_customer_repo(db: Session = Depends(get_db)) -> CustomerRepository:
 @router.post("/", response_model=Customer, status_code=status.HTTP_201_CREATED)
 def create_customer(
     customer_in: CustomerCreate,
-    repo: CustomerRepository = Depends(get_customer_repo)
+    repo: CustomerRepository = Depends(get_customer_repo),
+    db: Session = Depends(get_db)
 ):
     """
     Create a new customer.
     """
-    return repo.create(customer=customer_in)
+    new_customer = repo.create(customer=customer_in)
+    
+    # Enviar notificação sobre novo cliente
+    try:
+        # Buscar email do CustomerAuth
+        customer_auth = db.query(CustomerAuth).filter(
+            CustomerAuth.id_customer == new_customer.id
+        ).first()
+        
+        email = customer_auth.email if customer_auth else "N/A"
+        
+        NotificationService.notify_new_customer(
+            db=db,
+            customer_name=new_customer.name,
+            email=email
+        )
+    except Exception as e:
+        print(f"Erro ao enviar notificação de novo cliente: {e}")
+    
+    return new_customer
 
 
 @router.get("/all-profiles")

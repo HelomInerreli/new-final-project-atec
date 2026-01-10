@@ -9,6 +9,7 @@ from app.models.user import User
 from app.core.security import create_access_token
 from app.schemas.user import UserUpdate, PasswordChange
 from app.schemas.role import Role
+from app.services.notification_service import NotificationService
 
 router = APIRouter()
 
@@ -54,8 +55,17 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
         print(f"Verificação de senha para {req.email}: {senha_valida}")
     if not user or not crud_user.verify_password(req.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid email or password")
+    
     # Always issue access token (no 2FA)
     access_token = create_access_token({"sub": str(user.id), "role": user.role})
+    
+    # Check for low stock and notify if user is Admin or Manager
+    if user.role in ["Admin", "Manager"]:
+        try:
+            NotificationService.check_and_notify_low_stock_on_login(db, user.id)
+        except Exception as e:
+            print(f"Error checking low stock on login: {e}")
+    
     return LoginResponse(access_token=access_token)
 
 # 2FA endpoint removed in simplified flow

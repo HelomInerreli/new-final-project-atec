@@ -57,6 +57,40 @@ export default function SideBarMenu() {
   const [userRole, setUserRole] = useState<string>("");
   const [isManager, setIsManager] = useState<boolean>(false);
 
+  // Função para traduzir o role para português
+  const translateRole = (role: string): string => {
+    const roleMap: Record<string, string> = {
+      admin: "Admin",
+      gestor: "Gestor",
+      mecanico: "Mecânico",
+      mecânico: "Mecânico",
+      eletricista: "Eletricista",
+      chapeiro: "Chapeiro",
+      pintor: "Pintor",
+      estética: "Estética",
+      "técnico de vidros": "Técnico de Vidros",
+      vidros: "Vidros",
+    };
+    return roleMap[role.toLowerCase()] || role;
+  };
+
+  // Função para obter cor do badge baseado no role
+  const getRoleBadgeColor = (role: string): string => {
+    const roleColors: Record<string, string> = {
+      admin: "#eab308", // amarelo
+      gestor: "#7c3aed", // roxo
+      mecanico: "#2563eb", // azul
+      mecânico: "#2563eb",
+      eletricista: "#ea580c", // laranja
+      chapeiro: "#059669", // verde
+      pintor: "#8b5cf6", // violeta
+      estética: "#ec4899", // rosa
+      "técnico de vidros": "#06b6d4", // ciano
+      vidros: "#06b6d4",
+    };
+    return roleColors[role.toLowerCase()] || "#6b7280"; // cinza padrão
+  };
+
   // Busca contagens de notificações
   const fetchNotificationCounts = async () => {
     try {
@@ -151,6 +185,38 @@ export default function SideBarMenu() {
     setShowNotificationModal(true);
   };
 
+  // Função para obter cor de fundo baseada no alertType
+  const getNotificationBackgroundColor = (alertType: string) => {
+    switch (alertType.toLowerCase()) {
+      case "danger":
+        return "rgba(220, 53, 69, 0.08)"; // vermelho fraco
+      case "warning":
+        return "rgba(255, 193, 7, 0.08)"; // amarelo fraco
+      case "success":
+        return "rgba(25, 135, 84, 0.08)"; // verde fraco
+      case "info":
+      default:
+        return "rgba(13, 110, 253, 0.08)"; // azul fraco
+    }
+  };
+
+  // Função para traduzir o nome do componente
+  const translateComponent = (component: string): string => {
+    const componentMap: Record<string, string> = {
+      Dashboard: "Dashboard",
+      ServiceOrder: "Ordens de Serviço",
+      Appointment: "Agendamentos",
+      Customer: "Clientes",
+      Vehicle: "Veículos",
+      Stock: "Stock",
+      Payment: "Pagamentos",
+      User: "Usuários",
+      Service: "Gestão de Serviços",
+      Settings: "Configurações",
+    };
+    return componentMap[component] || component;
+  };
+
   // Marca notificação como lida
   const handleMarkAsRead = async (userNotificationId: number) => {
     try {
@@ -168,7 +234,8 @@ export default function SideBarMenu() {
   // Marca todas as notificações como lidas
   const handleMarkAllAsRead = async () => {
     try {
-      await http.put(`/users/${USER_ID}/notifications/read-all`);
+      if (!userId) return;
+      await http.put(`/users/${userId}/notifications/read-all`);
       setNotifications([]);
       setNotificationCounts({});
       setTotalUnread(0);
@@ -424,45 +491,70 @@ export default function SideBarMenu() {
 
       {/* User section with bell icon */}
       <div
-        style={
-          collapsed
-            ? {
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                padding: "0.5rem",
-              }
-            : userHeaderStyle
-        }
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          padding: collapsed ? "0.5rem" : "0.5rem 0.75rem",
+          gap: "0.25rem",
+        }}
       >
-        {!collapsed && (
-          <span style={{ flex: 1, textAlign: "left" }}>{userName}</span>
-        )}
-        <button
-          style={bellButtonStyle}
-          onClick={handleOpenModal}
-          title="Notificações"
-        >
-          <span style={{ position: "relative" }}>
-            <Bell size={20} />
-            {totalUnread > 0 && (
-              <Badge
-                pill
-                bg="danger"
-                style={{
-                  position: "absolute",
-                  top: -5,
-                  right: -8,
-                  fontSize: "0.65rem",
-                  padding: "0.05rem 0.25rem",
-                  lineHeight: 1,
-                }}
-              >
-                {totalUnread}
-              </Badge>
-            )}
+        {!collapsed && userRole && (
+          <span
+            style={{
+              fontSize: "0.6rem",
+              padding: "0.1rem 0.4rem",
+              backgroundColor: getRoleBadgeColor(userRole),
+              color: "white",
+              borderRadius: "0.75rem",
+              fontWeight: "600",
+              textAlign: "center",
+              alignSelf: "flex-start",
+              textTransform: "uppercase",
+              letterSpacing: "0.3px",
+            }}
+          >
+            {translateRole(userRole)}
           </span>
-        </button>
+        )}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: collapsed ? "center" : "space-between",
+            fontSize: 14,
+            color: "#fff",
+            gap: "0.5rem",
+          }}
+        >
+          {!collapsed && (
+            <span style={{ flex: 1, textAlign: "left" }}>{userName}</span>
+          )}
+          <button
+            style={bellButtonStyle}
+            onClick={handleOpenModal}
+            title="Notificações"
+          >
+            <span style={{ position: "relative" }}>
+              <Bell size={20} />
+              {totalUnread > 0 && (
+                <Badge
+                  pill
+                  bg="danger"
+                  style={{
+                    position: "absolute",
+                    top: -5,
+                    right: -8,
+                    fontSize: "0.65rem",
+                    padding: "0.05rem 0.25rem",
+                    lineHeight: 1,
+                  }}
+                >
+                  {totalUnread}
+                </Badge>
+              )}
+            </span>
+          </button>
+        </div>
       </div>
 
       <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden" }}>
@@ -741,7 +833,12 @@ export default function SideBarMenu() {
                 {notifications.map((notif) => (
                   <ListGroup.Item
                     key={notif.id}
-                    className={`notification-item alert-${notif.alertType}`}
+                    className={`notification-item`}
+                    style={{
+                      backgroundColor: getNotificationBackgroundColor(
+                        notif.alertType
+                      ),
+                    }}
                   >
                     <div
                       style={{
@@ -759,10 +856,7 @@ export default function SideBarMenu() {
                             marginBottom: "0.3rem",
                           }}
                         >
-                          <strong>{notif.component}</strong>
-                          <span className={`badge bg-${notif.alertType}`}>
-                            {notif.alertType}
-                          </span>
+                          <strong>{translateComponent(notif.component)}</strong>
                         </div>
                         <p style={{ margin: "0.3rem 0", fontSize: "0.9rem" }}>
                           {notif.text}
