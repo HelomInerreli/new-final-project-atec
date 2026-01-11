@@ -1,3 +1,10 @@
+import sys
+from pathlib import Path
+
+# Add backend root to path
+backend_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(backend_root))
+
 from app.database import SessionLocal
 from app.models.product import Product
 from datetime import datetime

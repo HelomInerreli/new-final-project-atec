@@ -1,12 +1,21 @@
 """
-Script para adicionar colunas faltantes na tabela appointments.
-Executa: python -m app.scripts.migrate_add_start_time
+Migration: Add missing columns to appointments table
+
+Usage:
+    python -m scripts.migrations.migrate_add_start_time
+    OR
+    python scripts/migrations/migrate_add_start_time.py
 """
 import sqlite3
+import sys
 from pathlib import Path
 
+# Add backend root to path
+backend_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(backend_root))
+
 # Caminho para o banco de dados
-DB_PATH = Path(__file__).parent.parent.parent / "test.db"
+DB_PATH = backend_root / "test.db"
 
 def check_column_exists(cursor, table_name: str, column_name: str) -> bool:
     """Verifica se uma coluna existe na tabela."""

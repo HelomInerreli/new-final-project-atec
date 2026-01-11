@@ -1,14 +1,15 @@
 import os
 import sys
+from pathlib import Path
 
-# Add backend to path
-backend_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, backend_dir)
+# Add backend root to path
+backend_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(backend_root))
 
 # Run seed
 if __name__ == "__main__":
     from app.database import SessionLocal, engine, Base
-    from app.scripts.seed import seed_data
+    from scripts.seeds.seed import seed_data
     
     print("Creating database tables...")
     Base.metadata.create_all(bind=engine)

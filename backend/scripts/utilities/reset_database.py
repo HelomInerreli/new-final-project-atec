@@ -3,7 +3,9 @@ Reset Database Script
 Drops all tables and recreates them with fresh seed data.
 
 Usage:
-    python reset_database.py
+    python -m scripts.utilities.reset_database
+    OR
+    cd backend && python scripts/utilities/reset_database.py
     
 This will:
 1. Drop all tables
@@ -11,9 +13,16 @@ This will:
 3. Run all seeds (admin user, products, notifications, customers, etc.)
 """
 
+import sys
+import os
+from pathlib import Path
+
+# Add backend root to path
+backend_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(backend_root))
+
 from app.database import engine, Base, SessionLocal
 from app.seed_all import run_all_seeds
-import sys
 
 def reset_database():
     """Drop all tables, recreate schema, and run seeds"""

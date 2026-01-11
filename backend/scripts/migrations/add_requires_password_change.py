@@ -1,6 +1,19 @@
 """
-Script para adicionar a coluna requires_password_change na tabela users
+Migration: Add requires_password_change column to users table
+
+Usage:
+    python -m scripts.migrations.add_requires_password_change
+    OR
+    cd backend && python scripts/migrations/add_requires_password_change.py
 """
+
+import sys
+from pathlib import Path
+
+# Add backend root to path
+backend_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(backend_root))
+
 from sqlalchemy import create_engine, text
 from app.core.config import settings
 

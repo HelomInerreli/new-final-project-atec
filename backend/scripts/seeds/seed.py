@@ -1,9 +1,15 @@
 import random
 import json
 import os
+import sys
+from pathlib import Path
 from faker import Faker
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
+
+# Add backend root to path
+backend_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(backend_root))
 
 from app.database import SessionLocal, engine, Base
 from app.crud.customer import CustomerRepository
@@ -33,7 +39,7 @@ from app.models.product import Product
 from app.models.role import Role
 from app.models.user import User
 from app.models.employee import Employee
-from app.scripts.seed_products import seed_products
+from scripts.seeds.seed_products import seed_products
 from app.models.absenceType import AbsenceType
 from app.models.absence_status import AbsenceStatus
 

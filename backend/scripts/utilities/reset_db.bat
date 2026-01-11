@@ -8,14 +8,14 @@ echo   Database Reset Tool
 echo ================================================
 echo.
 
-cd /d "%~dp0"
+cd /d "%~dp0\..\..\"
 
 if exist .venv\Scripts\python.exe (
     echo Using virtual environment Python...
-    .venv\Scripts\python.exe reset_database.py
+    .venv\Scripts\python.exe scripts\utilities\reset_database.py
 ) else (
     echo Virtual environment not found, using system Python...
-    python reset_database.py
+    python scripts\utilities\reset_database.py
 )
 
 pause

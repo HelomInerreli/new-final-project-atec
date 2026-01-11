@@ -1,3 +1,18 @@
+"""
+Seed script for creating initial management user
+Creates an admin user if it doesn't exist
+
+Run from backend directory:
+    python -m scripts.seeds.seed_management_user
+"""
+
+import sys
+from pathlib import Path
+
+# Add backend root to Python path
+backend_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(backend_root))
+
 import os
 from app.database import SessionLocal
 from app.crud import user as crud_user

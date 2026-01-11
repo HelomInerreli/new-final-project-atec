@@ -1,8 +1,19 @@
 """
 Seed script for notifications
 This script creates sample notifications in the database for testing purposes.
-Run with: python -m backend.app.seed_notifications
+
+Note: Automatic notifications disabled. Notifications will be created only by real system actions.
+
+Run from backend directory:
+    python -m scripts.seeds.seed_notifications
 """
+
+import sys
+from pathlib import Path
+
+# Add backend root to Python path
+backend_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(backend_root))
 
 from app.database import SessionLocal
 from app.crud import notificationBadge
