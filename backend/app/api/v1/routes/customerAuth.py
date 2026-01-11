@@ -927,19 +927,26 @@ def reset_password(
     db: Session = Depends(get_db)
 ):
     """
-    Reset a customer's password to '12345678'.
+    Reset a customer's password to default (from environment).
+    Only for development/testing purposes.
     """
+    # Only allow in development mode
+    import os
+    if os.getenv("ENVIRONMENT", "development") == "production":
+        raise HTTPException(status_code=403, detail="Not available in production")
+    
     customer_auth = db.query(CustomerAuth).filter(CustomerAuth.id_customer == customer_id).first()
     if not customer_auth:
         raise HTTPException(status_code=404, detail="Customer authentication record not found")
     
-    # Hash the default password
-    hashed_password = get_password_hash("12345678")
+    # Get default password from environment
+    default_password = os.getenv("DEFAULT_CUSTOMER_PASSWORD", "Customer@2025!Test")
+    hashed_password = get_password_hash(default_password)
     
     customer_auth.password_hash = hashed_password
     db.commit()
     
-    return {"message": "Password reset successfully to '12345678'"}
+    return {"message": "Password reset successfully to default (check .env)"}
 #endregion
 
 # region CRUD Endpoints for CustomerAuth

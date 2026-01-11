@@ -13,9 +13,15 @@ config = Config(".env")
 from sqlalchemy.orm import Session
 from sqlalchemy.orm import joinedload
 from app.models.user import User
+from app.database import SessionLocal
 
-# Import get_db from the correct location
-from app.deps import get_db
+# Dependência de sessão local (evita import circular com deps.py)
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 # OAuth2 scheme for FastAPI
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/customersauth/token")

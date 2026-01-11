@@ -1,5 +1,6 @@
 import random
 import json
+import os
 from faker import Faker
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
@@ -11,6 +12,7 @@ from app.crud.appointment import AppointmentRepository
 from app.crud.employee import EmployeeRepository
 from app.crud.service import ServiceRepository
 from app.crud.user import pwd_context
+from app.core.security import get_password_hash
 from app.schemas.customer import CustomerCreate
 from app.schemas.vehicle import VehicleCreate
 from app.schemas.appointment import AppointmentCreate

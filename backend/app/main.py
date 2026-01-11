@@ -1,11 +1,21 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from starlette.middleware.sessions import SessionMiddleware
 from app.database import Base, engine, SessionLocal
 from app.api.v1.api import api_router as api_v1_router
 from app.scheduler.scheduler import NotificationScheduler
 from app.core.security import SECRET_KEY
 from app.core.logger import setup_logger
+from app.exceptions import (
+    DomainException,
+    NotFoundError,
+    AlreadyExistsError,
+    ValidationError,
+    UnauthorizedError,
+    ForbiddenError,
+    BusinessRuleError
+)
 
 # IMPORTANTE: Importe aqui todos os seus modelos.
 # O SQLAlchemy precisa que eles sejam carregados na memória para saber
@@ -46,6 +56,82 @@ app = FastAPI(
     description="API para gestão de oficina automotiva",
     version="1.0.0"
 )
+
+
+# ============================================================================
+# EXCEPTION HANDLERS - Framework-agnostic domain exceptions to HTTP responses
+# ============================================================================
+
+@app.exception_handler(NotFoundError)
+async def not_found_handler(request: Request, exc: NotFoundError):
+    """Handle NotFoundError and its subclasses (e.g., CustomerNotFoundError)."""
+    logger.warning(f"NotFound: {exc.message} - Path: {request.url.path}")
+    return JSONResponse(
+        status_code=status.HTTP_404_NOT_FOUND,
+        content={"detail": exc.message, "code": exc.code}
+    )
+
+
+@app.exception_handler(AlreadyExistsError)
+async def already_exists_handler(request: Request, exc: AlreadyExistsError):
+    """Handle AlreadyExistsError and its subclasses (e.g., CustomerAlreadyExistsError)."""
+    logger.warning(f"AlreadyExists: {exc.message} - Path: {request.url.path}")
+    return JSONResponse(
+        status_code=status.HTTP_409_CONFLICT,
+        content={"detail": exc.message, "code": exc.code}
+    )
+
+
+@app.exception_handler(ValidationError)
+async def validation_error_handler(request: Request, exc: ValidationError):
+    """Handle ValidationError and its subclasses (e.g., CustomerValidationError)."""
+    logger.warning(f"Validation: {exc.message} - Path: {request.url.path}")
+    return JSONResponse(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        content={"detail": exc.message, "code": exc.code}
+    )
+
+
+@app.exception_handler(UnauthorizedError)
+async def unauthorized_handler(request: Request, exc: UnauthorizedError):
+    """Handle UnauthorizedError."""
+    logger.warning(f"Unauthorized: {exc.message} - Path: {request.url.path}")
+    return JSONResponse(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        content={"detail": exc.message, "code": exc.code},
+        headers={"WWW-Authenticate": "Bearer"}
+    )
+
+
+@app.exception_handler(ForbiddenError)
+async def forbidden_handler(request: Request, exc: ForbiddenError):
+    """Handle ForbiddenError."""
+    logger.warning(f"Forbidden: {exc.message} - Path: {request.url.path}")
+    return JSONResponse(
+        status_code=status.HTTP_403_FORBIDDEN,
+        content={"detail": exc.message, "code": exc.code}
+    )
+
+
+@app.exception_handler(BusinessRuleError)
+async def business_rule_handler(request: Request, exc: BusinessRuleError):
+    """Handle BusinessRuleError and its subclasses (e.g., CustomerHasActiveAppointmentsError)."""
+    logger.warning(f"BusinessRule: {exc.message} - Path: {request.url.path}")
+    return JSONResponse(
+        status_code=status.HTTP_409_CONFLICT,
+        content={"detail": exc.message, "code": exc.code}
+    )
+
+
+@app.exception_handler(DomainException)
+async def domain_exception_handler(request: Request, exc: DomainException):
+    """Catch-all handler for any DomainException not caught by specific handlers."""
+    logger.error(f"DomainException: {exc.message} - Path: {request.url.path}", exc_info=True)
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content={"detail": exc.message, "code": exc.code}
+    )
+
 
 # Add SessionMiddleware for OAuth2
 app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)

@@ -1,3 +1,4 @@
+import os
 from sqlalchemy.orm import Session
 from app.models.employee import Employee
 from app.models.user import User
@@ -42,11 +43,12 @@ class EmployeeRepository:
             # Get role name from employee's role
             role_name = db_employee.role.name if db_employee.role else "user"
             
-            # Use default password "123456"
+            # Get default password from environment for security
+            default_password = os.getenv("DEFAULT_EMPLOYEE_PASSWORD", "Employee@2025!Change")
             user_create = UserCreate(
                 name=f"{employee.name} {employee.last_name}",
                 email=employee.email,
-                password="123456",
+                password=default_password,
                 role=role_name
             )
             # Create user already linked to employee with password change required
@@ -79,10 +81,12 @@ class EmployeeRepository:
         # If access is enabled and no user exists, create one with default password
         if new_has_access and not existing_user:
             role_name = db_employee.role.name if db_employee.role else "user"
+            # Get default password from environment for security
+            default_password = os.getenv("DEFAULT_EMPLOYEE_PASSWORD", "Employee@2025!Change")
             user_create = UserCreate(
                 name=f"{db_employee.name} {db_employee.last_name}",
                 email=db_employee.email,
-                password="123456",
+                password=default_password,
                 role=role_name
             )
             db_user = crud_user.create_user(self.db, user_create)

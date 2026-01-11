@@ -4,12 +4,14 @@ This file is automatically executed when the backend starts
 """
 import random
 import json
+import os
 from faker import Faker
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 
 from app.database import SessionLocal
 from app.core.logger import setup_logger
+from app.core.security import get_password_hash
 
 logger = setup_logger(__name__)
 from app.crud.customer import CustomerRepository
@@ -59,9 +61,10 @@ MAX_EXTRA_SERVICES_PER_APPOINTMENT = 2
 NUM_EMPLOYEES = 8  # Equipa realista: admin, gestor, mecânicos, elétrico, chaparia, pintura
 NUM_CUSTOMERS = 35  # Base de clientes de oficina local
 
-# Admin user credentials
-ADMIN_EMAIL = "admin@mecatec.pt"
-ADMIN_PASSWORD = "Mecatec@2025"
+# Admin user credentials from environment variables
+ADMIN_EMAIL = os.getenv("INITIAL_ADMIN_EMAIL", "admin@mecatec.pt")
+ADMIN_PASSWORD = os.getenv("INITIAL_ADMIN_PASSWORD", "Mecatec@2025!Strong")
+DEFAULT_CUSTOMER_PASSWORD = os.getenv("DEFAULT_CUSTOMER_PASSWORD", "Customer@2025!Test")
 
 # ========== DATA DEFINITIONS ========== # Adicionadas mais marcas de carros
 # Marcas mais comuns em Portugal
@@ -169,7 +172,11 @@ def seed_admin_user(db: Session):
     
     u = UserCreate(name="Admin", email=ADMIN_EMAIL, password=ADMIN_PASSWORD, role="admin")
     created = crud_user.create_user(db, u)
+    # Force password change on first login for security
+    created.requires_password_change = True
+    db.commit()
     logger.info(f"   ✓ Created admin user: {created.email}")
+    logger.warning("   ⚠ Admin user requires password change on first login")
     return created
 
 
@@ -437,8 +444,9 @@ def seed_main_data(db: Session):
             db.refresh(cust_model)
             customers.append(cust_model)
             
-            # CustomerAuth
-            auth = CustomerAuth(id_customer=cust_model.id, email=mc["email"], password_hash="$2b$12$G8EYjnybOQpHy.pCo7lx9.GMasGyWMvdEOsV8fKPSAsBVyHPKGpYm", email_verified=True, is_active=True, created_at=datetime.utcnow())
+            # CustomerAuth - Generate hash dynamically for security
+            password_hash = get_password_hash(DEFAULT_CUSTOMER_PASSWORD)
+            auth = CustomerAuth(id_customer=cust_model.id, email=mc["email"], password_hash=password_hash, email_verified=True, is_active=True, created_at=datetime.utcnow())
             db.add(auth)
             db.commit()
         except Exception as e:
@@ -465,11 +473,12 @@ def seed_main_data(db: Session):
             db.refresh(cust_model)
             customers.append(cust_model)
             
-            # CustomerAuth
+            # CustomerAuth - Generate hash dynamically for security
+            password_hash = get_password_hash(DEFAULT_CUSTOMER_PASSWORD)
             auth = CustomerAuth(
                 id_customer=cust_model.id,
                 email=email,
-                password_hash="$2b$12$G8EYjnybOQpHy.pCo7lx9.GMasGyWMvdEOsV8fKPSAsBVyHPKGpYm",
+                password_hash=password_hash,
                 email_verified=True,
                 is_active=True,
                 created_at=datetime.utcnow()
@@ -781,13 +790,14 @@ def run_all_seeds():
         
         seed_main_data(db)
         
-        print("\n" + "="*60)
-        print("✅ ALL SEEDS COMPLETED SUCCESSFULLY!")
-        print("="*60)
-        print(f"\n🔐 Login credentials:")
-        print(f"   Email: {ADMIN_EMAIL}")
-        print(f"   Password: {ADMIN_PASSWORD}")
-        print()
+        logger.info("\n" + "="*60)
+        logger.info("✅ ALL SEEDS COMPLETED SUCCESSFULLY!")
+        logger.info("="*60)
+        logger.info(f"\n🔐 Login credentials:")
+        logger.info(f"   Email: {ADMIN_EMAIL}")
+        logger.info(f"   Default Customer Password: {DEFAULT_CUSTOMER_PASSWORD}")
+        logger.warning(f"   ⚠ CHANGE ADMIN PASSWORD ON FIRST LOGIN (required)")
+        logger.info("")
         
     except Exception as e:
         print(f"\n❌ ERROR during seeding: {e}")

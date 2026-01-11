@@ -7,6 +7,3 @@ def get_db():
         yield db
     finally:
         db.close()
-
-# Import the auth function from security.py for other modules to use
-from app.core.security import get_current_user_id
