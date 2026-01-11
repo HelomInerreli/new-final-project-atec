@@ -565,3 +565,93 @@ async def get_invoice_by_number(invoice_number: str, db: Session = Depends(get_d
         "stripe_session_id": invoice.stripe_session_id,
         "stripe_payment_intent_id": invoice.stripe_payment_intent_id,
     }
+
+
+@router.post("/confirm-payment/{appointment_id}")
+def confirm_payment_success(appointment_id: int, db: Session = Depends(get_db)):
+    """
+    Endpoint chamado pelo frontend após retorno do Stripe.
+    Verifica se o pagamento foi bem sucedido e atualiza o status do appointment.
+    Usado em desenvolvimento quando webhooks não funcionam em localhost.
+    """
+    try:
+        print(f"🔍 Verificando pagamento para appointment {appointment_id}")
+        
+        # Buscar o appointment
+        appointment = db.query(Appointment).filter(Appointment.id == appointment_id).first()
+        if not appointment:
+            raise HTTPException(status_code=404, detail="Appointment not found")
+        
+        # Verificar se já existe invoice (pagamento já processado)
+        existing_invoice = db.query(Invoice).filter(
+            Invoice.appointment_id == appointment.id
+        ).first()
+        
+        if existing_invoice:
+            print(f"✅ Pagamento já processado anteriormente")
+            return {
+                "status": "success",
+                "message": "Payment already processed",
+                "invoice_id": existing_invoice.id
+            }
+        
+        # Buscar a sessão mais recente do Stripe para este appointment
+        sessions = stripe.checkout.Session.list(limit=20)
+        matching_session = None
+        
+        for session in sessions.data:
+            if (session.metadata.get('appointment_id') == str(appointment_id) and 
+                session.payment_status == 'paid'):
+                matching_session = session
+                break
+        
+        if not matching_session:
+            print(f"⚠️ Nenhuma sessão paga encontrada para appointment {appointment_id}")
+            raise HTTPException(
+                status_code=404, 
+                detail="No paid session found. Please wait a moment and try again."
+            )
+        
+        print(f"✅ Sessão paga encontrada: {matching_session.id}")
+        
+        # Criar invoice usando a mesma função do webhook
+        invoice = create_invoice_from_session(db, appointment, matching_session)
+        
+        # Atualizar status do appointment para Finalizado
+        finalized_status = db.query(Status).filter(Status.name.ilike('%finalized%')).first()
+        if finalized_status:
+            appointment.status_id = finalized_status.id
+        else:
+            appointment.status_id = 3  # Fallback
+        
+        db.commit()
+        print(f"✅ Pagamento confirmado e invoice criada: {invoice.invoice_number}")
+        
+        # Enviar notificação ao cliente
+        try:
+            customer = db.query(Customer).filter(Customer.id == appointment.customer_id).first()
+            amount = matching_session.amount_total / 100
+            
+            if customer:
+                NotificationService.notify_payment_received(
+                    db=db,
+                    appointment_id=appointment.id,
+                    amount=amount,
+                    customer_name=customer.name
+                )
+        except Exception as e:
+            print(f"⚠️ Erro ao enviar notificação: {e}")
+        
+        return {
+            "status": "success",
+            "message": "Payment confirmed successfully",
+            "invoice_id": invoice.id,
+            "invoice_number": invoice.invoice_number
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        print(f"❌ Erro ao confirmar pagamento: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))

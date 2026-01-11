@@ -1,24 +1,23 @@
 import "../styles/ClientMenu.css";
 import "../i18n";
 import { useTranslation } from "react-i18next";
-import { 
-  FaTachometerAlt, 
-  FaCalendarAlt, 
-  FaCar, 
-  FaCalendarPlus, 
-  FaCheckCircle, 
-  FaFileInvoice,  
-  FaUser, 
-} from 'react-icons/fa';
+import {
+  FaTachometerAlt,
+  FaCalendarAlt,
+  FaCar,
+  FaCalendarPlus,
+  FaCheckCircle,
+  FaFileInvoice,
+  FaUser,
+} from "react-icons/fa";
 
 // Tipo para as seções do menu do cliente
-export type ClientSection = 
-  | "dashboard" 
-  | "appointments" 
-  | "vehicles" 
-  | "service-history" 
-  | "invoices" 
-
+export type ClientSection =
+  | "dashboard"
+  | "appointments"
+  | "vehicles"
+  | "service-history"
+  | "invoices";
 
 // Interface para as propriedades do componente ClientMenu
 interface ClientMenuProps {
@@ -27,7 +26,10 @@ interface ClientMenuProps {
 }
 
 // Componente do menu lateral do cliente
-export function ClientMenu({ activeSection, onSectionChange }: ClientMenuProps) {
+export function ClientMenu({
+  activeSection,
+  onSectionChange,
+}: ClientMenuProps) {
   const { t } = useTranslation();
 
   // Função para lidar com clique em uma seção do menu
@@ -61,22 +63,12 @@ export function ClientMenu({ activeSection, onSectionChange }: ClientMenuProps) 
             </button>
           </li>
 
-
           <li className={activeSection === "service-history" ? "active" : ""}>
             <button onClick={() => handleClick("service-history")}>
               <FaCheckCircle className="menu-icon" />
               <span>{t("myServices")}</span>
             </button>
           </li>
-
-          <li className={activeSection === "invoices" ? "active" : ""}>
-            <button onClick={() => handleClick("invoices")}>
-              <FaFileInvoice className="menu-icon" />
-              <span>{t("myInvoices")}</span>
-            </button>
-          </li>
-          
-          
         </ul>
       </nav>
     </div>

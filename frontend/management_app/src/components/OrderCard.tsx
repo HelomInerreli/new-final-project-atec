@@ -24,6 +24,8 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
         return "status-concluida";
       case "Cancelada":
         return "status-cancelada";
+      case "Aguardando Pagamento":
+        return "status-aguardando-pagamento";
       default:
         return "";
     }
@@ -55,7 +57,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
           Finalized: "Concluída",
           "In Repair": "Em Andamento",
           "Awaiting Approval": "Pendente",
-          "Waitting Payment": "Em Andamento",
+          "Waitting Payment": "Aguardando Pagamento",
         };
         return MAP[name] ?? name;
       }

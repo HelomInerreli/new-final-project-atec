@@ -13,5 +13,6 @@ class User(Base):
     twofactor_enabled = Column(Boolean, nullable=False, default=False)
     twofactor_secret = Column(String(255), nullable=True)
     employee_id = Column(Integer, ForeignKey("employees.id"), nullable=True, unique=True)
+    requires_password_change = Column(Boolean, nullable=False, default=False)
     
     employee = relationship("Employee", back_populates="user", uselist=False)

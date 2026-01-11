@@ -100,8 +100,15 @@ export function AppointmentStatusModal({
 
   // Buscar breakdown de custos discriminado
   const { breakdown, loading: breakdownLoading } = useCostBreakdown(
-    open ? (appointment?.id ?? null) : null
+    open ? appointment?.id ?? null : null
   );
+
+  // Log para debug
+  useEffect(() => {
+    if (breakdown) {
+      console.log("Breakdown carregado:", breakdown);
+    }
+  }, [breakdown]);
 
   // Usa o appointment atualizado automaticamente se disponível, senão usa o prop
   const currentAppointment = liveAppointment || appointment;
@@ -263,8 +270,22 @@ export function AppointmentStatusModal({
                       Data do Agendamento
                     </p>
                     <p className="fw-semibold">
-                      {(currentAppointment.appointment_date ||
-                        currentAppointment.date)?.replace('T', ' ')}
+                      {new Date(
+                        currentAppointment.appointment_date ||
+                          currentAppointment.date
+                      ).toLocaleDateString("pt-PT", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                      })}{" "}
+                      às{" "}
+                      {new Date(
+                        currentAppointment.appointment_date ||
+                          currentAppointment.date
+                      ).toLocaleTimeString("pt-PT", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
                     </p>
                   </div>
                 </div>
@@ -280,61 +301,125 @@ export function AppointmentStatusModal({
                   <i className="bi bi-currency-euro me-3 mt-1 text-primary"></i>
                   <div className="flex-grow-1">
                     <p className="text-muted text-uppercase small mb-1">
-                      Orçamento
+                      Orçamento Detalhado
                     </p>
-                    
+
                     {breakdownLoading ? (
                       <p className="fw-semibold">A carregar...</p>
                     ) : breakdown ? (
                       <>
-                        <p className="fw-semibold mb-2">
-                          €{breakdown.total.toFixed(2)}
-                        </p>
-                        
-                        {/* Breakdown discriminado */}
-                        <div className="small text-muted">
-                          <div className="mb-2">
-                            <strong>{breakdown.base_service.name}</strong>
-                            {breakdown.base_service.labor_cost > 0 && (
-                              <div className="ms-2">
-                                • Mão de Obra: €{breakdown.base_service.labor_cost.toFixed(2)}
-                              </div>
-                            )}
-                            {breakdown.base_service.parts.length > 0 && (
-                              <div className="ms-2">
-                                • Peças ({breakdown.base_service.parts.length}): €
-                                {breakdown.base_service.parts.reduce((sum, p) => sum + p.total, 0).toFixed(2)}
-                              </div>
-                            )}
-                            <div className="ms-2">
-                              <strong>Subtotal: €{breakdown.base_service.subtotal.toFixed(2)}</strong>
+                        {/* Serviço Base */}
+                        <div className="border rounded p-3 mb-3 bg-light">
+                          <h6 className="fw-bold mb-2 text-dark">
+                            <i className="bi bi-wrench me-2"></i>
+                            {breakdown.base_service.name}
+                          </h6>
+
+                          {breakdown.base_service.labor_cost > 0 && (
+                            <div className="d-flex justify-content-between mb-1">
+                              <span>• Mão de Obra</span>
+                              <span className="fw-semibold">
+                                €{breakdown.base_service.labor_cost.toFixed(2)}
+                              </span>
                             </div>
-                          </div>
-                          
-                          {breakdown.extra_services.length > 0 && (
-                            <div>
-                              <strong>Serviços Extras Aprovados:</strong>
-                              {breakdown.extra_services.map((extra, idx) => (
-                                <div key={idx} className="ms-2 mt-1">
-                                  <div>{extra.name}</div>
-                                  {extra.labor_cost > 0 && (
-                                    <div className="ms-2">
-                                      • Mão de Obra: €{extra.labor_cost.toFixed(2)}
-                                    </div>
-                                  )}
-                                  {extra.parts.length > 0 && (
-                                    <div className="ms-2">
-                                      • Peças ({extra.parts.length}): €
-                                      {extra.parts.reduce((sum, p) => sum + p.total, 0).toFixed(2)}
-                                    </div>
-                                  )}
-                                  <div className="ms-2">
-                                    <strong>Subtotal: €{extra.subtotal.toFixed(2)}</strong>
-                                  </div>
+                          )}
+
+                          {breakdown.base_service.parts.length > 0 && (
+                            <div className="mb-2">
+                              <div className="fw-semibold mb-1">
+                                • Peças Utilizadas:
+                              </div>
+                              {breakdown.base_service.parts.map((part, idx) => (
+                                <div
+                                  key={idx}
+                                  className="d-flex justify-content-between ms-3 small"
+                                >
+                                  <span
+                                    className="text-truncate"
+                                    style={{ maxWidth: "70%" }}
+                                  >
+                                    {part.name} (x{part.quantity})
+                                  </span>
+                                  <span>€{part.total.toFixed(2)}</span>
                                 </div>
                               ))}
                             </div>
                           )}
+
+                          <div className="d-flex justify-content-between border-top pt-2 mt-2">
+                            <strong>Subtotal:</strong>
+                            <strong className="text-primary">
+                              €{breakdown.base_service.subtotal.toFixed(2)}
+                            </strong>
+                          </div>
+                        </div>
+
+                        {/* Serviços Extras */}
+                        {breakdown.extra_services.length > 0 && (
+                          <div className="mb-3">
+                            <h6 className="fw-bold mb-2 text-success">
+                              <i className="bi bi-plus-circle me-2"></i>
+                              Serviços Extras Aprovados
+                            </h6>
+                            {breakdown.extra_services.map((extra, idx) => (
+                              <div
+                                key={idx}
+                                className="border rounded p-3 mb-2 bg-light"
+                              >
+                                <div className="fw-semibold mb-2">
+                                  {extra.name}
+                                </div>
+
+                                {extra.labor_cost > 0 && (
+                                  <div className="d-flex justify-content-between mb-1">
+                                    <span>• Mão de Obra</span>
+                                    <span className="fw-semibold">
+                                      €{extra.labor_cost.toFixed(2)}
+                                    </span>
+                                  </div>
+                                )}
+
+                                {extra.parts.length > 0 && (
+                                  <div className="mb-2">
+                                    <div className="fw-semibold mb-1">
+                                      • Peças Utilizadas:
+                                    </div>
+                                    {extra.parts.map((part, pidx) => (
+                                      <div
+                                        key={pidx}
+                                        className="d-flex justify-content-between ms-3 small"
+                                      >
+                                        <span
+                                          className="text-truncate"
+                                          style={{ maxWidth: "70%" }}
+                                        >
+                                          {part.name} (x{part.quantity})
+                                        </span>
+                                        <span>€{part.total.toFixed(2)}</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+
+                                <div className="d-flex justify-content-between border-top pt-2 mt-2">
+                                  <strong>Subtotal:</strong>
+                                  <strong className="text-success">
+                                    €{extra.subtotal.toFixed(2)}
+                                  </strong>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Total Final */}
+                        <div className="border-top border-2 pt-3 mt-3">
+                          <div className="d-flex justify-content-between align-items-center">
+                            <h5 className="mb-0 fw-bold">Total a Pagar:</h5>
+                            <h4 className="mb-0 fw-bold text-danger">
+                              €{breakdown.total.toFixed(2)}
+                            </h4>
+                          </div>
                         </div>
                       </>
                     ) : (
@@ -392,20 +477,29 @@ export function AppointmentStatusModal({
                     <div className="flex-grow-1 border-bottom"></div>
                   </div>
 
-                  {/* Alerta informativo sobre serviços adicionais */}
-                  <div
-                    className="alert alert-danger d-flex align-items-start mb-3"
-                    role="alert"
-                  >
-                    <i className="bi bi-exclamation-circle-fill me-2 mt-1"></i>
-                    <div>
-                      <div className="fw-bold">Novos Serviços Recomendados</div>
-                      <div className="small">
-                        O mecânico identificou {extraServices.length} serviços
-                        adicionais que requerem atenção.
+                  {/* Alerta informativo sobre serviços adicionais pendentes */}
+                  {extraServices.filter((s) => s.status === "pending").length >
+                    0 && (
+                    <div
+                      className="alert alert-warning d-flex align-items-start mb-3"
+                      role="alert"
+                    >
+                      <i className="bi bi-exclamation-triangle-fill me-2 mt-1"></i>
+                      <div>
+                        <div className="fw-bold">
+                          Novos Serviços Recomendados
+                        </div>
+                        <div className="small">
+                          O mecânico identificou{" "}
+                          {
+                            extraServices.filter((s) => s.status === "pending")
+                              .length
+                          }{" "}
+                          serviços adicionais que requerem atenção.
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
 
                   {/* Lista de serviços extras com opções de aceitar/recusar */}
                   <div className="d-flex flex-column gap-3">

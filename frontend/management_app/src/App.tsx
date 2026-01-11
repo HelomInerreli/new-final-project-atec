@@ -20,6 +20,7 @@ import Ferias from "./pages/Users/Ferias";
 import Finance from "./pages/Finance";
 import Settings from "./pages/Settings";
 import Login from "./pages/login/login";
+import FirstPasswordChange from "./pages/FirstPasswordChange/FirstPasswordChange";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { isAuthenticated } from "./utils/auth";
 import { AuthProvider } from "./contexts/AuthContext";
@@ -34,153 +35,167 @@ function App() {
     <>
       <BrowserRouter>
         <AuthProvider>
-          <Layout>
-            <Routes>
-              <Route
-                path="/"
-                element={
-                  <ProtectedRoute>
-                    <Home />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/dashboard"
-                element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/examples"
-                element={
-                  <ProtectedRoute>
-                    <Examples />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/stock"
-                element={
-                  <ProtectedRoute>
-                    <MainStock />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/appointments"
-                element={
-                  <ProtectedRoute>
-                    <Appointments />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/servicesOrders"
-                element={
-                  <ProtectedRoute>
-                    <ServiceOrders />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/servicesOrders/:id"
-                element={
-                  <ProtectedRoute>
-                    <ServiceOrderDetail />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/customers"
-                element={
-                  <ProtectedRoute>
-                    <Customers />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/users"
-                element={
-                  <ProtectedRoute>
-                    <Users />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/folgas"
-                element={
-                  <ProtectedRoute>
-                    <Folgas />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/ferias"
-                element={
-                  <ProtectedRoute>
-                    <Ferias />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/servicesManagement"
-                element={
-                  <ProtectedRoute>
-                    <ServicesManagement />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/customers/:id"
-                element={
-                  <ProtectedRoute>
-                    <CustomerDetails />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/finance"
-                element={
-                  <ProtectedRoute>
-                    <Finance />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/vehicles"
-                element={
-                  <ProtectedRoute>
-                    <Vehicles />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/vehicles/:id"
-                element={
-                  <ProtectedRoute>
-                    <VehicleDetails />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/settings"
-                element={
-                  <ProtectedRoute>
-                    <Settings />
-                  </ProtectedRoute>
-                }
-              />
-              {/* Redirect any unknown routes to home */}
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </Layout>
+          <FirstPasswordChangeWrapper />
           <Toaster />
         </AuthProvider>
       </BrowserRouter>
       <Toaster />
     </>
+  );
+}
+
+// Component that checks password change requirement inside Router context
+function FirstPasswordChangeWrapper() {
+  const requiresPasswordChange =
+    localStorage.getItem("requires_password_change") === "true";
+
+  if (requiresPasswordChange) {
+    return <FirstPasswordChange />;
+  }
+
+  return (
+    <Layout>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/examples"
+          element={
+            <ProtectedRoute>
+              <Examples />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/stock"
+          element={
+            <ProtectedRoute>
+              <MainStock />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/appointments"
+          element={
+            <ProtectedRoute>
+              <Appointments />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/servicesOrders"
+          element={
+            <ProtectedRoute>
+              <ServiceOrders />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/servicesOrders/:id"
+          element={
+            <ProtectedRoute>
+              <ServiceOrderDetail />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/customers"
+          element={
+            <ProtectedRoute>
+              <Customers />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/users"
+          element={
+            <ProtectedRoute>
+              <Users />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/folgas"
+          element={
+            <ProtectedRoute>
+              <Folgas />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/ferias"
+          element={
+            <ProtectedRoute>
+              <Ferias />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/servicesManagement"
+          element={
+            <ProtectedRoute>
+              <ServicesManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/customers/:id"
+          element={
+            <ProtectedRoute>
+              <CustomerDetails />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/finance"
+          element={
+            <ProtectedRoute>
+              <Finance />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/vehicles"
+          element={
+            <ProtectedRoute>
+              <Vehicles />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/vehicles/:id"
+          element={
+            <ProtectedRoute>
+              <VehicleDetails />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <Settings />
+            </ProtectedRoute>
+          }
+        />
+        {/* Redirect any unknown routes to home */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Layout>
   );
 }
 

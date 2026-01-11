@@ -21,7 +21,7 @@ class EmployeeBase(BaseModel):
 
 # Schema para criar um novo funcionário
 class EmployeeCreate(EmployeeBase):
-    password: Optional[str] = None  # Senha para acesso ao sistema, se has_system_access=True
+    pass  # Senha padrão será usada automaticamente quando has_system_access=True
 
 # Schema para atualizar um funcionário (todos os campos são opcionais)
 class EmployeeUpdate(BaseModel):
@@ -36,7 +36,6 @@ class EmployeeUpdate(BaseModel):
     role_id: Optional[int] = None
     is_manager: Optional[bool] = None
     has_system_access: Optional[bool] = None
-    password: Optional[str] = None
 
 # Schema para ler/retornar um funcionário da API
 class Employee(EmployeeBase):

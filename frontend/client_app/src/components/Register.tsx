@@ -1,20 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Button, Form, Alert, Spinner } from 'react-bootstrap';
-import { useTranslation } from 'react-i18next';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { Modal, Button, Form, Alert, Spinner } from "react-bootstrap";
+import { useTranslation } from "react-i18next";
 
-import { 
-  registerWithCredentials, 
-  registerWithGoogle, 
+import {
+  registerWithCredentials,
+  registerWithGoogle,
   registerWithFacebook,
   checkEmailExists,
-  type RegisterData, 
-  type GoogleAuthData, 
-  type FacebookAuthData, 
-  useAuth 
-} from '../api/auth';
-import RegisterCustomerInfoModal from './RegisterCustomerInfoModal';
-import LoginModal from './LoginModal';
+  type RegisterData,
+  type GoogleAuthData,
+  type FacebookAuthData,
+  useAuth,
+} from "../api/auth";
+import RegisterCustomerInfoModal from "./RegisterCustomerInfoModal";
 
 /**
  * Componente de registo de novos utilizadores
@@ -29,79 +28,74 @@ const Register: React.FC = () => {
    * Tipo: string
    * Inicial: string vazia
    */
-  const [email, setEmail] = useState('');
-  
+  const [email, setEmail] = useState("");
+
   /**
    * Estado para a palavra-passe
    * Tipo: string
    * Inicial: string vazia
    */
-  const [password, setPassword] = useState('');
-  
+  const [password, setPassword] = useState("");
+
   /**
    * Estado para confirmação da palavra-passe
    * Tipo: string
    * Inicial: string vazia
    */
-  const [confirmPassword, setConfirmPassword] = useState('');
-  
+  const [confirmPassword, setConfirmPassword] = useState("");
+
   /**
    * Estado para controlar visibilidade do modal de informações adicionais
    * Tipo: boolean
    * Inicial: false
    */
   const [showModal, setShowModal] = useState(false);
-  
+
   /**
    * Estado para armazenar dados de autenticação do Google
    * Tipo: GoogleAuthData | null
    * Inicial: null
    */
   const [googleData, setGoogleData] = useState<GoogleAuthData | null>(null);
-  
+
   /**
    * Estado para armazenar dados de autenticação do Facebook
    * Tipo: FacebookAuthData | null
    * Inicial: null
    */
-  const [facebookData, setFacebookData] = useState<FacebookAuthData | null>(null);
-  
+  const [facebookData, setFacebookData] = useState<FacebookAuthData | null>(
+    null
+  );
+
   /**
    * Estado de carregamento durante processos assíncronos
    * Tipo: boolean
    * Inicial: false
    */
   const [loading, setLoading] = useState(false);
-  
+
   /**
    * Estado para mensagens de erro
    * Tipo: string
    * Inicial: string vazia
    */
-  const [error, setError] = useState('');
-  
-  /**
-   * Estado para controlar visibilidade do modal de login
-   * Tipo: boolean
-   * Inicial: false
-   */
-  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [error, setError] = useState("");
 
   /**
    * Hook de navegação do React Router
    */
   const navigate = useNavigate();
-  
+
   /**
    * Hook para ler parâmetros de URL (usado para detetar callback OAuth)
    */
   const [searchParams] = useSearchParams();
-  
+
   /**
    * Hook de autenticação para realizar login após registo bem-sucedido
    */
   const { login } = useAuth();
-  
+
   /**
    * Hook de tradução para internacionalização
    */
@@ -113,24 +107,24 @@ const Register: React.FC = () => {
    * Recupera dados do localStorage e abre modal para completar registo
    */
   useEffect(() => {
-    const isGoogleAuth = searchParams.get('google');
-    const isFacebookAuth = searchParams.get('facebook');
+    const isGoogleAuth = searchParams.get("google");
+    const isFacebookAuth = searchParams.get("facebook");
 
     if (isGoogleAuth) {
-      const storedGoogleData = localStorage.getItem('googleAuthData');
+      const storedGoogleData = localStorage.getItem("googleAuthData");
       if (storedGoogleData) {
         const googleData = JSON.parse(storedGoogleData);
         setGoogleData(googleData);
         setShowModal(true);
-        localStorage.removeItem('googleAuthData'); // Clean up
+        localStorage.removeItem("googleAuthData"); // Clean up
       }
     } else if (isFacebookAuth) {
-      const storedFacebookData = localStorage.getItem('facebookAuthData');
+      const storedFacebookData = localStorage.getItem("facebookAuthData");
       if (storedFacebookData) {
         const facebookData = JSON.parse(storedFacebookData);
         setFacebookData(facebookData);
         setShowModal(true);
-        localStorage.removeItem('facebookAuthData'); // Clean up
+        localStorage.removeItem("facebookAuthData"); // Clean up
       }
     }
   }, [searchParams]);
@@ -143,26 +137,32 @@ const Register: React.FC = () => {
    */
   const handleEmailRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (password !== confirmPassword) {
-      setError(`${t('passwords')} ${t('do')} ${t('not')} ${t('match')}`);
+      setError(`${t("passwords")} ${t("do")} ${t("not")} ${t("match")}`);
       return;
     }
-    
+
     if (password.length < 6) {
-      setError(`${t('password')} ${t('must')} ${t('be')} ${t('at')} ${t('least')} 6 ${t('characters')}`);
+      setError(
+        `${t("password")} ${t("must")} ${t("be")} ${t("at")} ${t(
+          "least"
+        )} 6 ${t("characters")}`
+      );
       return;
     }
-    
+
     // Check if email already exists
     try {
       setLoading(true);
-      setError('');
-    
+      setError("");
+
       const emailCheck = await checkEmailExists(email);
-    
+
       if (emailCheck.exists) {
-        setError(`${t('emailAlreadyRegistered')} ${t('pleaseUseAnotherEmailOrLogin')}`);
+        setError(
+          `${t("emailAlreadyRegistered")} ${t("pleaseUseAnotherEmailOrLogin")}`
+        );
         setLoading(false);
         return;
       }
@@ -171,13 +171,12 @@ const Register: React.FC = () => {
       setGoogleData(null);
       setFacebookData(null);
       setShowModal(true);
-
-      } catch (err: any) {
-      console.error('Error checking email:', err);
-      setError(`${t('errorCheckingEmail')} ${t('tryAgain')}`);
-      } finally {
+    } catch (err: any) {
+      console.error("Error checking email:", err);
+      setError(`${t("errorCheckingEmail")} ${t("tryAgain")}`);
+    } finally {
       setLoading(false);
-      }
+    }
   };
 
   /**
@@ -188,9 +187,14 @@ const Register: React.FC = () => {
     try {
       setLoading(true);
       // Redirect to backend Google OAuth
-      window.location.href = 'http://localhost:8000/api/v1/customersauth/google';
+      window.location.href =
+        "http://localhost:8000/api/v1/customersauth/google";
     } catch (err) {
-      setError(`${t('failed')} ${t('to')} initiate ${t('google')} ${t('authentication')}`);
+      setError(
+        `${t("failed")} ${t("to")} initiate ${t("google")} ${t(
+          "authentication"
+        )}`
+      );
     } finally {
       setLoading(false);
     }
@@ -204,9 +208,14 @@ const Register: React.FC = () => {
     try {
       setLoading(true);
       // Redirect to backend Facebook OAuth
-      window.location.href = 'http://localhost:8000/api/v1/customersauth/facebook';
+      window.location.href =
+        "http://localhost:8000/api/v1/customersauth/facebook";
     } catch (err) {
-      setError(`${t('failed')} ${t('to')} initiate ${t('facebook')} ${t('authentication')}`);
+      setError(
+        `${t("failed")} ${t("to")} initiate ${t("facebook")} ${t(
+          "authentication"
+        )}`
+      );
     } finally {
       setLoading(false);
     }
@@ -218,10 +227,12 @@ const Register: React.FC = () => {
    * Após sucesso, realiza login automático e redireciona para dashboard
    * @param customerData - Dados adicionais do cliente (nome, telefone, morada, etc.)
    */
-  const handleCompleteRegistration = async (customerData: Omit<RegisterData, 'email' | 'password'>) => {
+  const handleCompleteRegistration = async (
+    customerData: Omit<RegisterData, "email" | "password">
+  ) => {
     try {
       setLoading(true);
-      
+
       let response;
       if (googleData) {
         // For Google registration, merge Google data with customer data
@@ -231,7 +242,7 @@ const Register: React.FC = () => {
           token: googleData.token,
           email: googleData.email,
           name: googleData.name, // Use Google's name
-          ...restCustomerData // This will add phone, address, etc. without name
+          ...restCustomerData, // This will add phone, address, etc. without name
         });
       } else if (facebookData) {
         // For Facebook registration - use the auth.ts function
@@ -240,42 +251,57 @@ const Register: React.FC = () => {
           token: facebookData.token,
           email: facebookData.email,
           name: facebookData.name,
-          ...restCustomerData
+          ...restCustomerData,
         });
       } else {
         // Register with email/password
         response = await registerWithCredentials({
           email,
           password,
-          ...customerData
+          ...customerData,
         });
       }
-      
+
       if (response.access_token) {
         login(response.access_token);
         setTimeout(() => {
           window.location.reload();
         }, 100);
-        navigate('/my-services');
+        navigate("/my-services");
       }
     } catch (err: any) {
-      setError(err.response?.data?.detail || err.response?.data?.message || `${t('registration')} ${t('failed')}`);
+      setError(
+        err.response?.data?.detail ||
+          err.response?.data?.message ||
+          `${t("registration")} ${t("failed")}`
+      );
     } finally {
       setLoading(false);
       setShowModal(false);
     }
   };
 
-  return (
-    <div className="">
-      <div className="">
-        {/* Título do formulário de registo */}
-        <div>
-          <h2 className="text-center fw-bold">
-            {t('createAccount')}
-          </h2>
-        </div>
+  const handleClose = () => {
+    navigate("/");
+  };
 
+  /**
+   * Função para alternar para o modal de login
+   * Fecha o modal de registo e navega para home com parâmetro para abrir LoginModal
+   */
+  const handleSwitchToLogin = () => {
+    navigate("/?openLogin=true");
+  };
+
+  return (
+    <Modal show={true} onHide={handleClose} centered size="lg">
+      <Modal.Header closeButton>
+        <Modal.Title className="fw-bold w-100 text-center">
+          {t("createAccount")}
+        </Modal.Title>
+      </Modal.Header>
+
+      <Modal.Body>
         <Form onSubmit={handleEmailRegister}>
           {/* Alerta de erro (exibido apenas se houver erro) */}
           {error && (
@@ -283,26 +309,26 @@ const Register: React.FC = () => {
               {error}
             </Alert>
           )}
-          
+
           {/* Campo de email */}
           <Form.Group className="mb-2">
-            <Form.Label htmlFor='email'>{t('email')}</Form.Label>
+            <Form.Label htmlFor="email">{t("email")}</Form.Label>
             <Form.Control
               type="email"
-              placeholder={`${t('enterEmail')}`}
+              placeholder={`${t("enterEmail")}`}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
               disabled={loading}
             />
           </Form.Group>
-          
+
           {/* Campo de palavra-passe */}
           <Form.Group className="mb-2">
-            <Form.Label htmlFor="password">{t('password')}</Form.Label>
+            <Form.Label htmlFor="password">{t("password")}</Form.Label>
             <Form.Control
               type="password"
-              placeholder={`${t('enterPassword')}`}
+              placeholder={`${t("enterPassword")}`}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -312,10 +338,12 @@ const Register: React.FC = () => {
 
           {/* Campo de confirmação de palavra-passe */}
           <Form.Group className="mb-3">
-            <Form.Label htmlFor="confirmPassword">{t('confirmPassword')}</Form.Label>
+            <Form.Label htmlFor="confirmPassword">
+              {t("confirmPassword")}
+            </Form.Label>
             <Form.Control
               type="password"
-              placeholder={`${t('enterConfirmPassword')}`}
+              placeholder={`${t("enterConfirmPassword")}`}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
@@ -326,11 +354,7 @@ const Register: React.FC = () => {
           {/* Botões de ação */}
           <div className="d-grid gap-1">
             {/* Botão de registo com email/password */}
-            <Button 
-              type="submit" 
-              variant="dark" 
-              disabled={loading}
-            >
+            <Button type="submit" variant="dark" disabled={loading}>
               {loading ? (
                 <>
                   <Spinner
@@ -341,16 +365,16 @@ const Register: React.FC = () => {
                     aria-hidden="true"
                     className="me-2"
                   />
-                  {t('registering')}...
+                  {t("registering")}...
                 </>
               ) : (
-                `${t('register')} ${t('with')} ${t('email')}`
+                `${t("register")} ${t("with")} ${t("email")}`
               )}
             </Button>
 
             {/* Separador */}
             <div className="text-center">
-              <span className="text-muted">{t('or')}</span>
+              <span className="text-muted">{t("or")}</span>
             </div>
 
             {/* Botão de registo com Google */}
@@ -364,40 +388,46 @@ const Register: React.FC = () => {
               <img
                 src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
                 alt="Google logo"
-                style={{ width: '20px', height: '20px', marginRight: '8px' }}
+                style={{ width: "20px", height: "20px", marginRight: "8px" }}
               />
-              {t('register')} {t('with')} {t('google')}
+              {t("register")} {t("with")} {t("google")}
             </Button>
 
             {/* Botão de registo com Facebook */}
             <Button
               type="button"
-              variant="outline-primary"
+              variant="outline-dark"
               onClick={handleFacebookRegister}
               disabled={loading}
-              className="d-flex align-items-center justify-content-center mb-1"
+              className="d-flex align-items-center justify-content-center"
             >
               <img
                 src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg"
                 alt="Facebook logo"
-                style={{ width: '20px', height: '20px', marginRight: '8px' }}
+                style={{ width: "20px", height: "20px", marginRight: "8px" }}
               />
-              {t('register')} {t('with')} {t('facebook')}
+              {t("register")} {t("with")} {t("facebook")}
             </Button>
+          </div>
 
-            {/* Botão para abrir modal de login */}
-            <Button 
-              type="button" 
-              variant="dark" 
+          <hr className="my-3" />
+
+          {/* Link para login */}
+          <div className="text-center">
+            <span className="text-muted">
+              {t("alreadyHave")} {t("account")}?{" "}
+            </span>
+            <Button
+              variant="link"
+              onClick={handleSwitchToLogin}
+              className="text-decoration-none p-0 fw-bold"
               disabled={loading}
-              className="mb-2"
-              onClick={() => setShowLoginModal(true)}
             >
-              {t('signInToExistingAccount')}
+              {t("signIn")} {t("here")}
             </Button>
           </div>
         </Form>
-        
+
         {/* Modal para completar informações de registo */}
         {showModal && (
           <RegisterCustomerInfoModal
@@ -410,14 +440,8 @@ const Register: React.FC = () => {
             loading={loading}
           />
         )}
-        
-        {/* Modal de login */}
-        <LoginModal
-          show={showLoginModal}
-          onClose={() => setShowLoginModal(false)}
-        />
-      </div>
-    </div>
+      </Modal.Body>
+    </Modal>
   );
 };
 

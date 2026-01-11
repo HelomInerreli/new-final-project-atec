@@ -1,5 +1,5 @@
-import axios from 'axios';
-import type { Vehicle } from '../interfaces/Vehicle';
+import axios from "axios";
+import type { Vehicle } from "../interfaces/Vehicle";
 import http from "../api/http";
 
 const API_URL = "/appointments/";

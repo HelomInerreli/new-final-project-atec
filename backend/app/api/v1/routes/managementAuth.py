@@ -20,6 +20,7 @@ class LoginRequest(BaseModel):
 class LoginResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
+    requires_password_change: bool = False
 
 class VerifyRequest(BaseModel):
     tempToken: str
@@ -66,7 +67,10 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
         except Exception as e:
             print(f"Error checking low stock on login: {e}")
     
-    return LoginResponse(access_token=access_token)
+    return LoginResponse(
+        access_token=access_token,
+        requires_password_change=user.requires_password_change
+    )
 
 # 2FA endpoint removed in simplified flow
 
@@ -171,6 +175,49 @@ def change_password(
         
         if not success:
             raise HTTPException(status_code=400, detail="Current password is incorrect")
+        
+        return {"message": "Password changed successfully"}
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+class FirstPasswordChange(BaseModel):
+    new_password: str
+
+@router.post("/me/first-password-change")
+def first_password_change(
+    password_data: FirstPasswordChange,
+    authorization: str | None = Header(default=None),
+    db: Session = Depends(get_db)
+):
+    """Change password for first-time login (doesn't require current password)."""
+    from app.core.security import decode_token
+    if not authorization or not authorization.lower().startswith("bearer "):
+        raise HTTPException(status_code=401, detail="Missing bearer token")
+    token = authorization.split(" ", 1)[1]
+    try:
+        payload = decode_token(token)
+        user_id = int(payload.get("sub"))
+        
+        user: User | None = crud_user.get_user(db, user_id)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Check if user requires password change
+        if not user.requires_password_change:
+            raise HTTPException(status_code=400, detail="Password change not required")
+        
+        # Validate new password
+        if len(password_data.new_password) < 6:
+            raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+        
+        # Update password
+        from passlib.context import CryptContext
+        pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+        user.password_hash = pwd_context.hash(password_data.new_password)
+        user.requires_password_change = False
+        db.commit()
         
         return {"message": "Password changed successfully"}
     except HTTPException:

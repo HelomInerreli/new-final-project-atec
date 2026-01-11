@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Logo } from "../../components/Logo";
 import "../../i18n";
 import { useTranslation } from "react-i18next";
@@ -18,9 +18,19 @@ export function Header({ className = "" }: HeaderProps) {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const { isLoggedIn, loggedInCustomerName, logout, /*checkAuth*/ } = useAuth();
+  const { isLoggedIn, loggedInCustomerName, logout /*checkAuth*/ } = useAuth();
 
+  // Efeito para detectar parâmetro openLogin na URL e abrir o modal
+  useEffect(() => {
+    if (searchParams.get("openLogin") === "true") {
+      setShowLoginModal(true);
+      // Remover o parâmetro da URL após abrir o modal
+      searchParams.delete("openLogin");
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const handleLogout = () => {
     logout();
@@ -44,9 +54,13 @@ export function Header({ className = "" }: HeaderProps) {
   };
 
   // Função para navegação com scroll
-  const handleNavigation = (href: string, section: string | null, e: React.MouseEvent) => {
+  const handleNavigation = (
+    href: string,
+    section: string | null,
+    e: React.MouseEvent
+  ) => {
     e.preventDefault();
-    
+
     if (section && location.pathname === "/") {
       // Se já estamos na home, apenas fazer scroll
       const element = document.getElementById(section);
@@ -56,7 +70,7 @@ export function Header({ className = "" }: HeaderProps) {
         const offsetPosition = elementPosition + window.pageYOffset - offset;
         window.scrollTo({
           top: offsetPosition,
-          behavior: "smooth"
+          behavior: "smooth",
         });
       }
     } else if (section) {
@@ -70,7 +84,7 @@ export function Header({ className = "" }: HeaderProps) {
           const offsetPosition = elementPosition + window.pageYOffset - offset;
           window.scrollTo({
             top: offsetPosition,
-            behavior: "smooth"
+            behavior: "smooth",
           });
         }
       }, 100);
@@ -78,7 +92,7 @@ export function Header({ className = "" }: HeaderProps) {
       // Navegação normal para outras páginas
       navigate(href);
     }
-    
+
     setIsMenuOpen(false);
   };
 
@@ -139,12 +153,14 @@ export function Header({ className = "" }: HeaderProps) {
                         : ""
                     }`}
                     href={item.href}
-                    onClick={(e) => handleNavigation(item.href, item.section, e)}
+                    onClick={(e) =>
+                      handleNavigation(item.href, item.section, e)
+                    }
                     style={{
                       ...(isActiveRoute(item.href)
                         ? { borderBottom: "2px solid #dc3545" }
                         : {}),
-                      cursor: "pointer"
+                      cursor: "pointer",
                     }}
                   >
                     {item.label}
@@ -164,12 +180,14 @@ export function Header({ className = "" }: HeaderProps) {
                         : ""
                     }`}
                     href={item.href}
-                    onClick={(e) => handleNavigation(item.href, item.section, e)}
+                    onClick={(e) =>
+                      handleNavigation(item.href, item.section, e)
+                    }
                     style={{
                       ...(isActiveRoute(item.href)
                         ? { borderBottom: "2px solid #dc3545" }
                         : {}),
-                      cursor: "pointer"
+                      cursor: "pointer",
                     }}
                   >
                     {item.label}
@@ -316,18 +334,29 @@ export function Header({ className = "" }: HeaderProps) {
                 </Dropdown.Menu>
               </Dropdown>
 
-
               {!isLoggedIn ? (
                 <>
                   <button
-                    className="btn btn-outline-success btn-sm me-sm-2"
+                    className="btn btn-outline-danger btn-sm me-2"
                     onClick={() => setShowLoginModal(true)}
+                    style={{
+                      borderRadius: "25px",
+                      fontWeight: "500",
+                      padding: "0.375rem 1.25rem",
+                      transition: "all 0.3s ease",
+                    }}
                   >
                     {t("login")}
                   </button>
                   <button
-                    className="btn btn-secondary btn-sm"
+                    className="btn btn-danger btn-sm"
                     onClick={() => navigate("/register")}
+                    style={{
+                      borderRadius: "25px",
+                      fontWeight: "500",
+                      padding: "0.375rem 1.25rem",
+                      transition: "all 0.3s ease",
+                    }}
                   >
                     {t("register")}
                   </button>
@@ -375,10 +404,18 @@ export function Header({ className = "" }: HeaderProps) {
                     </span>
                   </Dropdown.Toggle>
 
-                  <Dropdown.Menu style={{ minWidth: "220px", border: "1px solid #e0e0e0", borderRadius: "8px" }}>
+                  <Dropdown.Menu
+                    style={{
+                      minWidth: "220px",
+                      border: "1px solid #e0e0e0",
+                      borderRadius: "8px",
+                    }}
+                  >
                     {/* User Info Header */}
                     <div className="px-3 py-2 border-bottom bg-light">
-                      <div className="fw-bold text-dark small">{loggedInCustomerName || "User"}</div>
+                      <div className="fw-bold text-dark small">
+                        {loggedInCustomerName || "User"}
+                      </div>
                     </div>
 
                     {/* Profile Section */}
@@ -389,12 +426,12 @@ export function Header({ className = "" }: HeaderProps) {
                       <i className="bi bi-person me-2 text-primary"></i>
                       {t("myProfile")}
                     </Dropdown.Item>
-                    
+
                     <Dropdown.Item
                       onClick={() => navigate("/my-services")}
                       className="d-flex align-items-center py-2"
                     >
-                    <i className="bi bi-tools me-2 text-primary"></i>
+                      <i className="bi bi-tools me-2 text-primary"></i>
                       {t("myServices")}
                     </Dropdown.Item>
 
@@ -417,7 +454,6 @@ export function Header({ className = "" }: HeaderProps) {
                       {t("notifications")}
                     </Dropdown.Item>
 
-
                     <Dropdown.Divider />
 
                     {/* Logout */}
@@ -438,14 +474,11 @@ export function Header({ className = "" }: HeaderProps) {
 
       {/* MODAL DE LOGIN */}
       {showLoginModal && (
-      <LoginModal
-        show={showLoginModal}
-        onClose={() => setShowLoginModal(false)}
-      />
-    )}
-      
-      
+        <LoginModal
+          show={showLoginModal}
+          onClose={() => setShowLoginModal(false)}
+        />
+      )}
     </>
-    
   );
 }

@@ -330,14 +330,34 @@ export default function Agendamentos() {
       lower.includes("concluída") ||
       lower.includes("concluida") ||
       lower.includes("concluído") ||
-      lower.includes("concluido")
+      lower.includes("concluido") ||
+      lower.includes("finalized")
     )
       return "Concluída";
-    if (lower.includes("em andamento") || lower.includes("em progresso"))
+    if (
+      lower.includes("em andamento") ||
+      lower.includes("em progresso") ||
+      lower.includes("in repair")
+    )
       return "Em Andamento";
-    if (lower.includes("cancelada") || lower.includes("cancelado"))
+    if (
+      lower.includes("cancelada") ||
+      lower.includes("cancelado") ||
+      lower.includes("canceled")
+    )
       return "Cancelada";
-    if (lower.includes("pendente")) return "Pendente";
+    if (
+      lower.includes("aguardando pagamento") ||
+      lower.includes("waitting payment")
+    )
+      return "Aguardando Pagamento";
+    if (
+      lower.includes("aguardando aprovação") ||
+      lower.includes("awaiting approval")
+    )
+      return "Aguardando Aprovação";
+    if (lower.includes("pendente") || lower.includes("pending"))
+      return "Pendente";
     return statusName;
   };
 
@@ -349,13 +369,32 @@ export default function Agendamentos() {
       lower.includes("concluída") ||
       lower.includes("concluida") ||
       lower.includes("concluído") ||
-      lower.includes("concluido")
+      lower.includes("concluido") ||
+      lower.includes("finalized")
     )
       return "bg-green-100 text-green-800";
-    if (lower.includes("em andamento") || lower.includes("em progresso"))
+    if (
+      lower.includes("em andamento") ||
+      lower.includes("em progresso") ||
+      lower.includes("in repair")
+    )
       return "bg-blue-100 text-blue-800";
-    if (lower.includes("cancelada") || lower.includes("cancelado"))
+    if (
+      lower.includes("cancelada") ||
+      lower.includes("cancelado") ||
+      lower.includes("canceled")
+    )
       return "bg-gray-100 text-gray-600";
+    if (
+      lower.includes("aguardando pagamento") ||
+      lower.includes("waitting payment")
+    )
+      return "bg-orange-100 text-orange-800";
+    if (
+      lower.includes("aguardando aprovação") ||
+      lower.includes("awaiting approval")
+    )
+      return "bg-purple-100 text-purple-800";
     return "bg-yellow-100 text-yellow-800"; // Pendente
   };
 

@@ -23,7 +23,6 @@ interface EmployeeFormState {
   role_id: number | null;
   is_manager: boolean;
   has_system_access: boolean;
-  password: string;
 }
 
 // Interface para função
@@ -57,7 +56,6 @@ export const useCreateEmployeeModal = (
     role_id: null,
     is_manager: false,
     has_system_access: false,
-    password: "",
   });
 
   // Estado para lista de funções
@@ -139,14 +137,6 @@ export const useCreateEmployeeModal = (
       toast.error("Data de contratação é obrigatória");
       return;
     }
-    if (form.has_system_access && !form.password.trim()) {
-      toast.error("Senha é obrigatória para acesso ao sistema");
-      return;
-    }
-    if (form.has_system_access && form.password.length < 6) {
-      toast.error("Senha deve ter no mínimo 6 caracteres");
-      return;
-    }
     if (!form.role_id) {
       toast.error("Função é obrigatória");
       return;
@@ -160,7 +150,7 @@ export const useCreateEmployeeModal = (
     try {
       // Obtém token
       const token = localStorage.getItem("access_token");
-      
+
       // Prepara dados para envio
       const employeeData: any = {
         ...form,
@@ -168,23 +158,14 @@ export const useCreateEmployeeModal = (
         is_manager: form.is_manager,
         has_system_access: form.has_system_access,
       };
-      
-      // Adiciona password apenas se has_system_access estiver ativo
-      if (form.has_system_access && form.password) {
-        employeeData.password = form.password;
-      }
-      
+
       // Faz requisição POST
-      await axios.post(
-        "http://localhost:8000/api/v1/employees",
-        employeeData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      await axios.post("http://localhost:8000/api/v1/employees", employeeData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
 
       // Mostra sucesso
       toast.success("Funcionário criado com sucesso!");
@@ -197,7 +178,8 @@ export const useCreateEmployeeModal = (
       // Log erro
       console.error("Erro ao criar funcionário:", err);
       // Define mensagem de erro
-      const errorMsg = err.response?.data?.detail || "Erro ao criar funcionário";
+      const errorMsg =
+        err.response?.data?.detail || "Erro ao criar funcionário";
       // Define erro
       setError(errorMsg);
       // Mostra toast de erro
@@ -220,6 +202,8 @@ export const useCreateEmployeeModal = (
       salary: "",
       hired_at: "",
       role_id: null,
+      is_manager: false,
+      has_system_access: false,
     });
   };
 

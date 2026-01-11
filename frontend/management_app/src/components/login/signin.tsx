@@ -22,8 +22,18 @@ export default function SignIn({
     try {
       const res = await http.post("/managementauth/login", { email, password });
       const token = res.data.access_token;
+      const requiresPasswordChange = res.data.requires_password_change || false;
+
       setAuthToken(token);
-      onLoggedIn(token);
+
+      // Se requer mudança de senha, salvar flag e redirecionar
+      if (requiresPasswordChange) {
+        localStorage.setItem("requires_password_change", "true");
+        window.location.href = "/first-password-change";
+      } else {
+        localStorage.removeItem("requires_password_change");
+        onLoggedIn(token);
+      }
     } catch (err: any) {
       // Surface more details to help diagnose environment issues
       const status = err?.response?.status;

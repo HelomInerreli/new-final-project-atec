@@ -86,17 +86,24 @@ i18next.use(initReactI18next).init({
           noUpcomingAppointments: "No upcoming appointments",
           recentActivity: "Recent Activity",
           noRecentActivity: "No recent activity",
-          noRecentActivityMessage: "You don't have any completed services yet. Schedule your first service!",
+          noRecentActivityMessage:
+            "You don't have any completed services yet. Schedule your first service!",
           scheduleService: "Schedule Service",
           table: {
             date: "Date",
             vehicle: "Vehicle",
             services: "Services",
-            status: "Status"
+            status: "Status",
           },
           status: {
-            completed: "Completed"
-          }
+            completed: "Completed",
+            pending: "Pending",
+            awaitingApproval: "Awaiting Approval",
+            inRepair: "In Repair",
+            waitingPayment: "Awaiting Payment",
+            finalized: "Finalized",
+            canceled: "Canceled",
+          },
         },
         profile: "Profile",
         settings: "Settings",
@@ -403,6 +410,7 @@ i18next.use(initReactI18next).init({
         or: "or",
         forgot: "Forgot",
         dontHave: "Don't have an",
+        alreadyHave: "Already have an",
         create: "Create",
         one: "one",
         here: "here",
@@ -600,7 +608,8 @@ i18next.use(initReactI18next).init({
           goToPayment: "Go to Payment",
           redirectingPayment: "Redirecting…",
           paymentInitFailed: "Unable to start payment.",
-          noAppointmentsDescription: "You don't have any scheduled appointments yet.",
+          noAppointmentsDescription:
+            "You don't have any scheduled appointments yet.",
         },
 
         // Invoice translations
@@ -733,17 +742,24 @@ i18next.use(initReactI18next).init({
           noUpcomingAppointments: "Nenhum agendamento",
           recentActivity: "Atividade Recente",
           noRecentActivity: "Sem atividade recente",
-          noRecentActivityMessage: "Você ainda não tem serviços concluídos. Agende seu primeiro serviço!",
+          noRecentActivityMessage:
+            "Você ainda não tem serviços concluídos. Agende seu primeiro serviço!",
           scheduleService: "Agendar Serviço",
           table: {
             date: "Data",
             vehicle: "Veículo",
             services: "Serviços",
-            status: "Estado"
+            status: "Estado",
           },
           status: {
-            completed: "Concluído"
-          }
+            completed: "Concluído",
+            pending: "Pendente",
+            awaitingApproval: "Aguardando Aprovação",
+            inRepair: "Em Reparação",
+            waitingPayment: "Aguardando Pagamento",
+            finalized: "Finalizado",
+            canceled: "Cancelado",
+          },
         },
         profile: "Perfil",
         settings: "Configurações",
@@ -1057,6 +1073,7 @@ i18next.use(initReactI18next).init({
         or: "ou",
         forgot: "Esqueceu",
         dontHave: "Não tem uma",
+        alreadyHave: "Já tem",
         create: "Criar",
         one: "uma",
         here: "aqui",
@@ -1256,7 +1273,8 @@ i18next.use(initReactI18next).init({
           goToPayment: "Ir para pagamento",
           redirectingPayment: "A redirecionar…",
           paymentInitFailed: "Não foi possível iniciar o pagamento.",
-          noAppointmentsDescription: "Você ainda não tem agendamentos marcados.",
+          noAppointmentsDescription:
+            "Você ainda não tem agendamentos marcados.",
         },
 
         // Invoice translations
@@ -1388,17 +1406,24 @@ i18next.use(initReactI18next).init({
           noUpcomingAppointments: "Ninguna cita",
           recentActivity: "Actividad Reciente",
           noRecentActivity: "Sin actividad reciente",
-          noRecentActivityMessage: "Aún no tienes servicios completados. ¡Agenda tu primer servicio!",
+          noRecentActivityMessage:
+            "Aún no tienes servicios completados. ¡Agenda tu primer servicio!",
           scheduleService: "Agendar Servicio",
           table: {
             date: "Fecha",
             vehicle: "Vehículo",
             services: "Servicios",
-            status: "Estado"
+            status: "Estado",
           },
           status: {
-            completed: "Completado"
-          }
+            completed: "Completado",
+            pending: "Pendiente",
+            awaitingApproval: "Esperando Aprobación",
+            inRepair: "En Reparación",
+            waitingPayment: "Esperando Pago",
+            finalized: "Finalizado",
+            canceled: "Cancelado",
+          },
         },
         profile: "Perfil",
         settings: "Configuraciones",
@@ -1708,6 +1733,7 @@ i18next.use(initReactI18next).init({
         or: "o",
         forgot: "Olvidé",
         dontHave: "No tienes una",
+        alreadyHave: "Ya tienes una",
         create: "Crear",
         one: "una",
         here: "aquí",
@@ -2025,17 +2051,24 @@ i18next.use(initReactI18next).init({
           noUpcomingAppointments: "Aucun rendez-vous",
           recentActivity: "Activité Récente",
           noRecentActivity: "Aucune activité récente",
-          noRecentActivityMessage: "Vous n'avez pas encore de services terminés. Planifiez votre premier service!",
+          noRecentActivityMessage:
+            "Vous n'avez pas encore de services terminés. Planifiez votre premier service!",
           scheduleService: "Planifier un Service",
           table: {
             date: "Date",
             vehicle: "Véhicule",
             services: "Services",
-            status: "Statut"
+            status: "Statut",
           },
           status: {
-            completed: "Terminé"
-          }
+            completed: "Terminé",
+            pending: "En Attente",
+            awaitingApproval: "En Attente d'Approbation",
+            inRepair: "En Réparation",
+            waitingPayment: "En Attente de Paiement",
+            finalized: "Finalisé",
+            canceled: "Annulé",
+          },
         },
         profile: "Profil",
         settings: "Paramètres",
@@ -2068,7 +2101,8 @@ i18next.use(initReactI18next).init({
           goToPayment: "Aller au Paiement",
           redirectingPayment: "Redirection…",
           paymentInitFailed: "Impossible de démarrer le paiement.",
-          noAppointmentsDescription: "Vous n'avez pas encore de rendez-vous programmés.",
+          noAppointmentsDescription:
+            "Vous n'avez pas encore de rendez-vous programmés.",
         },
         completedServicesDescription:
           "Voir l'historique complet de vos services terminés",
@@ -2316,6 +2350,7 @@ i18next.use(initReactI18next).init({
         or: "ou",
         forgot: "Oublié",
         dontHave: "Vous n'avez pas de",
+        alreadyHave: "Vous avez déjà un",
         create: "Créer",
         one: "un",
         here: "ici",

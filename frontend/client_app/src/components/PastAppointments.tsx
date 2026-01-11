@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { usePastAppointments } from "../hooks/usePastAppointments";
+import { usePaymentStatus } from "../hooks/usePaymentStatus";
 import { useTranslation } from "react-i18next";
 import { formatMonthYear } from "../utils/monthUtils";
 import { InvoiceDetail } from "./InvoiceDetail";
@@ -17,6 +18,17 @@ export function PastAppointments() {
    * Hook de tradução para internacionalização
    */
   const { t } = useTranslation();
+
+  /**
+   * Hook para detectar status de pagamento (sucesso/cancelamento) via URL
+   */
+  const {
+    showSuccess,
+    showCancelled,
+    appointmentId,
+    invoiceNumber,
+    clearStatus,
+  } = usePaymentStatus();
 
   /**
    * Hook customizado que retorna agendamentos passados agrupados por mês
@@ -48,20 +60,24 @@ export function PastAppointments() {
   useEffect(() => {
     const fetchRealTotals = async () => {
       const totals: Record<number, number> = {};
-      
+
       for (const [, appointments] of Object.entries(groupedAppointments)) {
         for (const appointment of appointments) {
           try {
             const breakdown = await getCostBreakdown(appointment.id);
             totals[appointment.id] = breakdown.total;
           } catch (error) {
-            console.error(`Erro ao buscar total do appointment ${appointment.id}:`, error);
+            console.error(
+              `Erro ao buscar total do appointment ${appointment.id}:`,
+              error
+            );
             // Em caso de erro, usa actual_budget ou estimated_budget como fallback
-            totals[appointment.id] = appointment.actual_budget || appointment.estimated_budget;
+            totals[appointment.id] =
+              appointment.actual_budget || appointment.estimated_budget;
           }
         }
       }
-      
+
       setRealTotals(totals);
     };
 
@@ -255,7 +271,12 @@ export function PastAppointments() {
                                 VALOR PAGO
                               </span>
                               <span className="past-budget-value">
-                                €{realTotals[appointment.id]?.toFixed(2) || (appointment.actual_budget || appointment.estimated_budget).toFixed(2)}
+                                €
+                                {realTotals[appointment.id]?.toFixed(2) ||
+                                  (
+                                    appointment.actual_budget ||
+                                    appointment.estimated_budget
+                                  ).toFixed(2)}
                               </span>
                             </div>
                           </div>
@@ -294,6 +315,115 @@ export function PastAppointments() {
               </div>
             )
           )}
+        </div>
+      )}
+
+      {/* Modal de sucesso de pagamento */}
+      {showSuccess && (
+        <div
+          className="modal show d-block"
+          style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+          onClick={clearStatus}
+        >
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header bg-success text-white">
+                <h5 className="modal-title">
+                  <i className="bi bi-check-circle me-2"></i>
+                  {t("payment.successTitle", {
+                    defaultValue: "Pagamento Confirmado!",
+                  })}
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close btn-close-white"
+                  onClick={clearStatus}
+                ></button>
+              </div>
+              <div className="modal-body text-center py-4">
+                <i
+                  className="bi bi-check-circle-fill text-success"
+                  style={{ fontSize: "4rem" }}
+                ></i>
+                <p className="mt-3 mb-2">
+                  {t("payment.successMessage", {
+                    defaultValue: "O seu pagamento foi processado com sucesso!",
+                  })}
+                </p>
+                {appointmentId && (
+                  <p className="text-muted">
+                    {t("payment.appointmentConfirmed", {
+                      defaultValue: "Agendamento #",
+                    })}
+                    {appointmentId}
+                  </p>
+                )}
+                {invoiceNumber && (
+                  <p className="fw-semibold mt-2">
+                    {t("payment.invoiceNumber", { defaultValue: "Fatura: " })}
+                    {invoiceNumber}
+                  </p>
+                )}
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-success w-100"
+                  onClick={clearStatus}
+                >
+                  {t("payment.continue", { defaultValue: "Continuar" })}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de pagamento cancelado */}
+      {showCancelled && (
+        <div
+          className="modal show d-block"
+          style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+          onClick={clearStatus}
+        >
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header bg-warning">
+                <h5 className="modal-title">
+                  <i className="bi bi-exclamation-triangle me-2"></i>
+                  {t("payment.cancelledTitle", {
+                    defaultValue: "Pagamento Cancelado",
+                  })}
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={clearStatus}
+                ></button>
+              </div>
+              <div className="modal-body text-center py-4">
+                <i
+                  className="bi bi-x-circle-fill text-warning"
+                  style={{ fontSize: "4rem" }}
+                ></i>
+                <p className="mt-3">
+                  {t("payment.cancelledMessage", {
+                    defaultValue:
+                      "O pagamento foi cancelado. Pode tentar novamente a qualquer momento.",
+                  })}
+                </p>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary w-100"
+                  onClick={clearStatus}
+                >
+                  {t("payment.close", { defaultValue: "Fechar" })}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

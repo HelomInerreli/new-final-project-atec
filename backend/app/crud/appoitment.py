@@ -106,7 +106,7 @@ class AppointmentRepository:
         # Serviços extras aprovados
         approved_extras = [e for e in appointment.extra_service_associations if e.status == 'approved']
         for extra in approved_extras:
-            extra_labor = extra.extra_service.labor_cost or 0.0 if extra.extra_service else 0.0
+            extra_labor = extra.price or 0.0
             extra_parts = [p for p in appointment.parts if p.extra_service_id == extra.id]
             extra_parts_total = 0.0
             extra_parts_list = []
@@ -123,7 +123,7 @@ class AppointmentRepository:
                 extra_parts_total += part_total
             
             result['extra_services'].append({
-                'name': extra.name or (extra.extra_service.name if extra.extra_service else 'Serviço Extra'),
+                'name': extra.name or 'Serviço Extra',
                 'labor_cost': extra_labor,
                 'parts': extra_parts_list,
                 'subtotal': extra_labor + extra_parts_total

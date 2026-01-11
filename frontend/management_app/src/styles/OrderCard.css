@@ -34,7 +34,6 @@
   flex-wrap: wrap;
 }
 
-
 .status-chip {
   padding: 6px 14px;
   border-radius: 12px;
@@ -64,6 +63,12 @@
   color: #842029;
 }
 
+.status-aguardando-pagamento {
+  background-color: #fff3cd;
+  color: #997404;
+  font-weight: 700;
+}
+
 /* Meta - informações do card em linha */
 .meta {
   display: grid;
@@ -76,7 +81,6 @@
 
 .meta > div {
   color: #666;
-
 }
 
 .meta strong {
@@ -101,17 +105,17 @@
     align-items: flex-start;
     gap: 15px;
   }
-  
+
   .card-actions {
     margin-left: 0;
     width: 100%;
   }
-  
+
   .btn-action {
     width: 100%;
     justify-content: center;
   }
-  
+
   .meta {
     flex-direction: column;
     gap: 8px;

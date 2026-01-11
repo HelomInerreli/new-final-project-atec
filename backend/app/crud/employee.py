@@ -31,27 +31,27 @@ class EmployeeRepository:
     
     def create(self, employee: EmployeeCreate) -> Employee:
         """Creates a new Employee and optionally creates a User account"""
-        # Extract password before creating employee
-        password = employee.password
-        employee_data = employee.model_dump(exclude={'password'})
+        employee_data = employee.model_dump()
         
         db_employee = Employee(**employee_data)
         self.db.add(db_employee)
         self.db.flush()  # Flush to get the employee ID
         
-        # If has_system_access is True, create a User account
-        if employee.has_system_access and password:
+        # If has_system_access is True, create a User account with default password
+        if employee.has_system_access:
             # Get role name from employee's role
             role_name = db_employee.role.name if db_employee.role else "user"
             
+            # Use default password "123456"
             user_create = UserCreate(
                 name=f"{employee.name} {employee.last_name}",
                 email=employee.email,
-                password=password,
+                password="123456",
                 role=role_name
             )
-            # Create user already linked to employee
+            # Create user already linked to employee with password change required
             db_user = crud_user.create_user(self.db, user_create, employee_id=db_employee.id)
+            db_user.requires_password_change = True
             
         self.db.commit()
         self.db.refresh(db_employee)
@@ -63,9 +63,7 @@ class EmployeeRepository:
         if not db_employee:
             return None
             
-        # Extract password before updating
-        password = employee_data.password
-        update_data = employee_data.model_dump(exclude_unset=True, exclude={'password'})
+        update_data = employee_data.model_dump(exclude_unset=True)
         
         # Check if has_system_access is being changed
         old_has_access = db_employee.has_system_access
@@ -78,29 +76,24 @@ class EmployeeRepository:
         # Find existing user for this employee
         existing_user = self.db.query(User).filter(User.employee_id == employee_id).first()
         
-        # If access is enabled and no user exists, create one
-        if new_has_access and not existing_user and password:
+        # If access is enabled and no user exists, create one with default password
+        if new_has_access and not existing_user:
             role_name = db_employee.role.name if db_employee.role else "user"
             user_create = UserCreate(
                 name=f"{db_employee.name} {db_employee.last_name}",
                 email=db_employee.email,
-                password=password,
+                password="123456",
                 role=role_name
             )
             db_user = crud_user.create_user(self.db, user_create)
             db_user.employee_id = db_employee.id
+            db_user.requires_password_change = True
         
         # If access is disabled and user exists, we could delete or disable it
         # For now, we'll just keep it but could add logic here
         elif not new_has_access and existing_user:
             # Optionally delete the user or mark as disabled
             pass
-        
-        # If user exists and password is provided, update password
-        elif existing_user and password:
-            from passlib.context import CryptContext
-            pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-            existing_user.password_hash = pwd_context.hash(password)
         
         self.db.commit()
         self.db.refresh(db_employee)
