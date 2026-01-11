@@ -1,73 +1,112 @@
-# React + TypeScript + Vite
+# MecaTec Client App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> Aplicação cliente para agendamento e acompanhamento de serviços automotivos.
 
-Currently, two official plugins are available:
+## 🚀 Tecnologias
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **React 19** - Framework UI
+- **TypeScript** - Type safety
+- **Vite** - Build tool
+- **React Router** - Roteamento
+- **Bootstrap 5** - UI Framework
+- **Axios** - HTTP client
+- **i18next** - Internacionalização
 
-## React Compiler
+## 📋 Pré-requisitos
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Node.js 18+
+- npm ou yarn
+- Backend API rodando em `http://localhost:8000`
 
-## Expanding the ESLint configuration
+## ⚙️ Instalação
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+```bash
+# 1. Instalar dependências
+npm install
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+# 2. Configurar variáveis de ambiente
+cp .env.example .env
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# 3. Editar .env com suas configurações
+# VITE_API_URL=http://localhost:8000/api/v1
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🎮 Executar
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Desenvolvimento
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run dev
+```
+
+Aplicação disponível em: http://localhost:3000
+
+### Build para Produção
+
+```bash
+npm run build
+npm run preview
+```
+
+## 📁 Estrutura
+
+```
+src/
+├── api/              # Configuração HTTP
+├── components/       # Componentes React
+├── context/          # Context API
+├── hooks/            # Custom hooks
+├── interfaces/       # TypeScript interfaces
+├── pages/            # Páginas/Views
+├── routes/           # Configuração de rotas
+├── services/         # Serviços de API
+├── styles/           # Estilos globais
+└── utils/            # Utilitários
+```
+
+## 🔑 Variáveis de Ambiente
+
+Veja `.env.example` para lista completa.
+
+Principais variáveis:
+
+- `VITE_API_URL` - URL da API backend
+- `VITE_GOOGLE_CLIENT_ID` - ID do Google OAuth
+- `VITE_FACEBOOK_APP_ID` - ID do Facebook OAuth
+
+## 🌐 Features
+
+- ✅ Autenticação (JWT + OAuth)
+- ✅ Agendamento de serviços
+- ✅ Histórico de serviços
+- ✅ Gestão de veículos
+- ✅ Perfil do cliente
+- ✅ Notificações
+- ✅ Multi-idioma (PT, EN)
+
+## 📝 Scripts Disponíveis
+
+```bash
+npm run dev      # Servidor de desenvolvimento
+npm run build    # Build de produção
+npm run lint     # Linting
+npm run preview  # Preview do build
+```
+
+## 🐛 Troubleshooting
+
+### Erro de conexão com API
+
+Verifique se:
+
+1. Backend está rodando
+2. `VITE_API_URL` está correto no `.env`
+3. CORS está configurado no backend
+
+### Erro de build
+
+```bash
+rm -rf node_modules package-lock.json
+npm install
+npm run build
 ```
