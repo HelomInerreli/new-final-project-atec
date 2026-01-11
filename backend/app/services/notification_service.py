@@ -7,7 +7,10 @@ from app.models.notificationBadge import Notification
 from app.models.userNotification import UserNotification
 from app.models.user import User
 from app.models.employee import Employee
+from app.core.logger import setup_logger
 from datetime import datetime
+
+logger = setup_logger(__name__)
 
 
 class NotificationService:
@@ -340,7 +343,7 @@ class NotificationService:
                     alert_type="warning"
                 )
             except Exception as e:
-                print(f"Erro ao criar notificação de stock baixo para produto {product.name}: {e}")
+                logger.error(f"Erro ao criar notificação de stock baixo para produto {product.name}: {e}", exc_info=True)
 
     @staticmethod
     def notify_new_customer(

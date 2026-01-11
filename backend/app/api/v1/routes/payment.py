@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from app.core.config import settings
 from app.database import get_db
-from app.models.appoitment import Appointment
+from app.models.appointment import Appointment
 from app.models.customerAuth import CustomerAuth
 from app.models.customer import Customer
 from app.models.vehicle import Vehicle
@@ -26,7 +26,7 @@ class CheckoutRequest(BaseModel):
 @router.get("/appointment/{appointment_id}/preview")
 async def preview_appointment_checkout(appointment_id: int, db: Session = Depends(get_db)):
     """Preview what services will be charged for an appointment"""
-    from app.crud.appoitment import AppointmentRepository
+    from app.crud.appointment import AppointmentRepository
     
     appointment = db.query(Appointment).filter(Appointment.id == appointment_id).first()
     if not appointment:
@@ -86,7 +86,7 @@ async def preview_appointment_checkout(appointment_id: int, db: Session = Depend
 @router.post("/create-checkout-session")
 async def create_checkout_session(request: CheckoutRequest, db: Session = Depends(get_db)):
     try:
-        from app.crud.appoitment import AppointmentRepository
+        from app.crud.appointment import AppointmentRepository
         
         appointment = db.query(Appointment).filter(Appointment.id == request.appointment_id).first()
         if not appointment:
@@ -285,7 +285,7 @@ def create_invoice_from_session(db: Session, appointment: Appointment, session):
     Stores a snapshot of the payment at the time it was made.
     Agora com discriminação de mão de obra e peças.
     """
-    from app.crud.appoitment import AppointmentRepository
+    from app.crud.appointment import AppointmentRepository
     
     print(f"📝 Starting invoice creation for appointment {appointment.id}")
     
@@ -462,7 +462,7 @@ async def get_invoice_by_appointment(appointment_id: int, db: Session = Depends(
         print(f"📋 Parsed {len(items)} line items")
         
         # Buscar breakdown discriminado de custos
-        from app.crud.appoitment import AppointmentRepository
+        from app.crud.appointment import AppointmentRepository
         repo = AppointmentRepository(db)
         breakdown = repo.calculate_order_total(appointment_id)
         

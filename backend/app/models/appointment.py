@@ -12,10 +12,10 @@ class Appointment(Base):
     id = Column(Integer, primary_key=True, index=True)
 
     # Data agendada (nome usado em várias partes do CRUD)
-    appointment_date = Column(DateTime, nullable=False)
+    appointment_date = Column(DateTime, nullable=False, index=True)  # Index para ordenação e filtros por data
 
     # Mantemos também service_date para compatibilidade com código que referencie esse nome
-    service_date = Column(DateTime, nullable=True)
+    service_date = Column(DateTime, nullable=True, index=True)  # Index para queries por data
 
     # Informação textual
     description = Column(Text, nullable=True)
@@ -31,16 +31,16 @@ class Appointment(Base):
     pause_time = Column(DateTime, nullable=True)
 
     # Flags e metadados
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)  # Index para ordenação
     reminder_sent = Column(Integer, default=0)  # 0 = Não enviado, 1 = Enviado
     
 
     # Foreign Keys
-    vehicle_id = Column(Integer, ForeignKey("vehicles.id"), nullable=True)
-    customer_id = Column(Integer, ForeignKey("customers.id"), nullable=False)
-    service_id = Column(Integer, ForeignKey("services.id"), nullable=True)
-    status_id = Column(Integer, ForeignKey("statuses.id"), nullable=True)
-    assigned_employee_id = Column(Integer, ForeignKey("employees.id"), nullable=True)
+    vehicle_id = Column(Integer, ForeignKey("vehicles.id"), nullable=True, index=True)  # Index para joins
+    customer_id = Column(Integer, ForeignKey("customers.id"), nullable=False, index=True)  # Index para joins
+    service_id = Column(Integer, ForeignKey("services.id"), nullable=True, index=True)  # Index para joins
+    status_id = Column(Integer, ForeignKey("statuses.id"), nullable=True, index=True)  # Index para filtros por status
+    assigned_employee_id = Column(Integer, ForeignKey("employees.id"), nullable=True, index=True)  # Index para filtros por funcionário
 
     # Relationships
     vehicle = relationship("Vehicle", back_populates="appointments")

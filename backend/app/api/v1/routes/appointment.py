@@ -3,13 +3,13 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 
 from app.database import get_db
-from app.crud.appoitment import AppointmentRepository
+from app.crud.appointment import AppointmentRepository
 from app.schemas.appointment import Appointment, AppointmentCreate, AppointmentUpdate
 from app.schemas.appointment_extra_service import AppointmentExtraService as AppointmentExtraServiceSchema, AppointmentExtraServiceCreate
 from app.email_service.email_service import EmailService
 from app.schemas.order_comment import CommentCreate, CommentOut
 from app.models.order_comment import OrderComment
-from app.models.appoitment import Appointment as AppointmentModel
+from app.models.appointment import Appointment as AppointmentModel
 from app.models.user import User
 from app.core.security import get_current_user
 from app.schemas.invoice import InvoiceBreakdown

@@ -9,9 +9,12 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 
 from app.database import SessionLocal
+from app.core.logger import setup_logger
+
+logger = setup_logger(__name__)
 from app.crud.customer import CustomerRepository
 from app.crud.vehicle import VehicleRepository
-from app.crud.appoitment import AppointmentRepository
+from app.crud.appointment import AppointmentRepository
 from app.crud.employee import EmployeeRepository
 from app.crud.service import ServiceRepository
 from app.crud import user as crud_user
@@ -31,7 +34,7 @@ from app.schemas import userNotification as user_notification_schema
 from app.models.customer import Customer
 from app.models.customerAuth import CustomerAuth
 from app.models.vehicle import Vehicle
-from app.models.appoitment import Appointment
+from app.models.appointment import Appointment
 from app.models.status import Status
 from app.models.service import Service
 from app.models.extra_service import ExtraService as ExtraServiceModel
@@ -158,21 +161,21 @@ SAMPLE_NOTIFICATIONS = []  # Notificações automáticas removidas - serão cria
 
 def seed_admin_user(db: Session):
     """Seed admin user"""
-    print("\n🔐 Seeding admin user...")
+    logger.info("🔐 Seeding admin user...")
     user = crud_user.get_by_email(db, ADMIN_EMAIL)
     if user:
-        print(f"   ✓ Admin user already exists: {ADMIN_EMAIL}")
+        logger.info(f"   ✓ Admin user already exists: {ADMIN_EMAIL}")
         return user
     
     u = UserCreate(name="Admin", email=ADMIN_EMAIL, password=ADMIN_PASSWORD, role="admin")
     created = crud_user.create_user(db, u)
-    print(f"   ✓ Created admin user: {created.email}")
+    logger.info(f"   ✓ Created admin user: {created.email}")
     return created
 
 
 def seed_products(db: Session):
     """Seed products"""
-    print("\n📦 Seeding products...")
+    logger.info("📦 Seeding products...")
     created = 0
     for pdata in PRODUCTS:
         existing = db.query(Product).filter(Product.part_number == pdata["part_number"]).first()
@@ -196,23 +199,23 @@ def seed_products(db: Session):
         created += 1
     
     db.commit()
-    print(f"   ✓ Created {created} products")
+    logger.info(f"   ✓ Created {created} products")
 
 
 def seed_notifications(db: Session):
     """Seed notifications - Removido para não criar notificações automáticas"""
-    print("\n🔔 Seeding notifications...")
-    print(f"   ✓ Notificações automáticas desativadas - serão criadas apenas por ações reais")
+    logger.info("🔔 Seeding notifications...")
+    logger.info(f"   ✓ Notificações automáticas desativadas - serão criadas apenas por ações reais")
     return []
 
 
 def seed_user_notifications(db: Session, user_id: int):
     """Link notifications to user"""
-    print(f"\n📬 Linking notifications to user {user_id}...")
+    logger.info(f"📬 Linking notifications to user {user_id}...")
     notifications = db.query(Notification).filter(Notification.deleted_at.is_(None)).all()
     
     if not notifications:
-        print("   ⚠ No notifications to link")
+        logger.warning("   ⚠ No notifications to link")
         return
     
     existing_links = {un.notification_id for un in db.query(UserNotification).filter(UserNotification.user_id == user_id).all()}
@@ -226,7 +229,7 @@ def seed_user_notifications(db: Session, user_id: int):
         created += 1
     
     db.commit()
-    print(f"   ✓ Linked {created} notifications to user")
+    logger.info(f"   ✓ Linked {created} notifications to user")
 
 
 def create_invoice_for_appointment(db: Session, appointment: Appointment, invoice_number: str):

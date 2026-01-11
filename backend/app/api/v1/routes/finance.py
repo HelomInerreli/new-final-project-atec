@@ -6,7 +6,7 @@ from datetime import datetime
 from app.database import get_db
 from app.models.invoice import Invoice
 from app.models.product import Product
-from app.models.appoitment import Appointment
+from app.models.appointment import Appointment
 from app.models.service import Service
 
 router = APIRouter()

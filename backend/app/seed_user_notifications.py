@@ -12,6 +12,9 @@ from app.database import SessionLocal
 from app.models.user import User
 from app.models.notificationBadge import Notification
 from app.models.userNotification import UserNotification
+from app.core.logger import setup_logger
+
+logger = setup_logger(__name__)
 
 
 def seed_user_notifications(email: str = "admin@mecatec.pt") -> int:
@@ -19,7 +22,7 @@ def seed_user_notifications(email: str = "admin@mecatec.pt") -> int:
     try:
         user: Optional[User] = db.query(User).filter(User.email == email).first()
         if not user:
-            print(f"✗ User with email '{email}' not found.")
+            logger.error(f"✗ User with email '{email}' not found.")
             return 0
 
         notifications = (
@@ -29,7 +32,7 @@ def seed_user_notifications(email: str = "admin@mecatec.pt") -> int:
             .all()
         )
         if not notifications:
-            print("✗ No notifications found to link. Run app.seed_notifications first.")
+            logger.warning("✗ No notifications found to link. Run app.seed_notifications first.")
             return 0
 
         # Avoid duplicating links
@@ -47,11 +50,11 @@ def seed_user_notifications(email: str = "admin@mecatec.pt") -> int:
             created += 1
 
         db.commit()
-        print(f"✓ Linked {created} notifications to user '{user.email}' (id={user.id}).")
+        logger.info(f"✓ Linked {created} notifications to user '{user.email}' (id={user.id}).")
         return created
     except Exception as e:
         db.rollback()
-        print(f"✗ Error linking notifications: {e}")
+        logger.error(f"✗ Error linking notifications: {e}", exc_info=True)
         raise
     finally:
         db.close()
@@ -77,20 +80,20 @@ from datetime import datetime, timedelta
 USER_ID = 1  # Test user ID
 
 
-def seed_user_notifications():
+def seed_user_notifications_old():
     """Create sample user notification links in the database."""
     db = SessionLocal()
     try:
         # Get all existing notifications
         notifications = notificationBadge.get_notifications(db, skip=0, limit=100)
         if not notifications:
-            print("✗ No notifications found. Please run seed_notifications.py first.")
+            logger.warning("✗ No notifications found. Please run seed_notifications.py first.")
             return
 
         # Check if user notifications already exist
         existing = userNotification.get_user_notifications(db, USER_ID, skip=0, limit=100)
         if existing:
-            print(f"✓ User already has {len(existing)} unread notifications. Skipping seed.")
+            logger.info(f"✓ User already has {len(existing)} unread notifications. Skipping seed.")
             return
 
         # Create user notification links for each notification
@@ -104,15 +107,15 @@ def seed_user_notifications():
                 db, USER_ID, notif.id
             )
             created.append(created_user_notif)
-            print(
+            logger.info(
                 f"✓ Linked notification {notif.id} ({notif.component}) to user {USER_ID}"
             )
 
-        print(f"\n✓ Successfully seeded {len(created)} user notification links!")
+        logger.info(f"✓ Successfully seeded {len(created)} user notification links!")
         return created
 
     except Exception as e:
-        print(f"✗ Error seeding user notifications: {e}")
+        logger.error(f"✗ Error seeding user notifications: {e}", exc_info=True)
         db.rollback()
         raise
     finally:
@@ -120,4 +123,7 @@ def seed_user_notifications():
 
 
 if __name__ == "__main__":
-    seed_user_notifications()
+    parser = ArgumentParser()
+    parser.add_argument("--email", default="admin@mecatec.pt")
+    args = parser.parse_args()
+    seed_user_notifications(email=args.email)

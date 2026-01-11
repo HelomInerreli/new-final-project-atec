@@ -7,18 +7,18 @@ class Employee(Base):
     __tablename__ = "employees"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(200), nullable=False)
-    last_name = Column(String(200), nullable=False)
+    name = Column(String(200), nullable=False, index=True)  # Index para busca por nome
+    last_name = Column(String(200), nullable=False, index=True)  # Index para busca por sobrenome
     email = Column(String(255), unique=True, index=True, nullable=False)
     phone = Column(String(50), nullable=False)
     address = Column(String(500), nullable=False)
     date_of_birth = Column(DateTime, nullable=False)
-    role_id = Column(Integer, ForeignKey("roles.id"), nullable=False)
-    is_manager = Column(Boolean, default=False, nullable=False)
+    role_id = Column(Integer, ForeignKey("roles.id"), nullable=False, index=True)  # Index para joins e filtros por role
+    is_manager = Column(Boolean, default=False, nullable=False, index=True)  # Index para filtrar managers
     salary = Column(Integer, nullable=False)
-    hired_at = Column(DateTime, nullable=False)
-    deleted_at = Column(DateTime, nullable=True, default=None)
-    has_system_access = Column(Boolean, default=False, nullable=False)
+    hired_at = Column(DateTime, nullable=False, index=True)  # Index para ordenação por data de contratação
+    deleted_at = Column(DateTime, nullable=True, default=None, index=True)  # Index para soft deletes
+    has_system_access = Column(Boolean, default=False, nullable=False, index=True)  # Index para filtrar acessos
 
     role = relationship("Role", back_populates="employees")
     absences = relationship("Absence", back_populates="employee", order_by="Absence.day.desc()")

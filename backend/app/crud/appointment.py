@@ -4,8 +4,8 @@ from datetime import datetime
 from sqlalchemy.orm import Session, joinedload
 from fastapi import HTTPException
 
-from backend.app.models.appointment import Appointment
-from backend.app.models.appointment_extra_service import AppointmentExtraService
+from app.models.appointment import Appointment
+from app.models.appointment_extra_service import AppointmentExtraService
 # from app.models.extra_service import ExtraService
 from app.models.status import Status
 from app.models.customer import Customer

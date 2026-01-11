@@ -4,7 +4,7 @@ from sqlalchemy import func, extract, and_, case
 from typing import Dict, List, Optional
 from datetime import datetime, timedelta
 from app.database import get_db
-from app.models.appoitment import Appointment
+from app.models.appointment import Appointment
 from app.models.status import Status
 from app.models.service import Service
 from app.models.user import User

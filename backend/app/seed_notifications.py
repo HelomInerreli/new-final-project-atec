@@ -8,6 +8,9 @@ from app.database import SessionLocal
 from app.crud import notificationBadge
 from app.schemas import notificationBadge as notification_schema
 from datetime import datetime, timedelta
+from app.core.logger import setup_logger
+
+logger = setup_logger(__name__)
 
 # Sample notifications removed - notifications will only be created by real system actions
 SAMPLE_NOTIFICATIONS = []
@@ -17,11 +20,11 @@ def seed_notifications():
     """Notifications seeding disabled - notifications will only be created by real system actions."""
     db = SessionLocal()
     try:
-        print(f"✓ Automatic notifications disabled. Notifications will be created only by real system actions.")
+        logger.info("✓ Automatic notifications disabled. Notifications will be created only by real system actions.")
         return []
 
     except Exception as e:
-        print(f"✗ Error: {e}")
+        logger.error(f"✗ Error: {e}", exc_info=True)
         db.rollback()
         raise
     finally:

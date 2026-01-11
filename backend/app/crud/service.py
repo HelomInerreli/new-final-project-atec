@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from app.models.service import Service
 from app.schemas.service import ServiceCreate, ServiceUpdate
 from typing import List, Optional
-from app.models.appoitment import Appointment
+from app.models.appointment import Appointment
 
 
 class ServiceRepository:

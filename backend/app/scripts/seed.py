@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from app.database import SessionLocal, engine, Base
 from app.crud.customer import CustomerRepository
 from app.crud.vehicle import VehicleRepository
-from app.crud.appoitment import AppointmentRepository
+from app.crud.appointment import AppointmentRepository
 from app.crud.employee import EmployeeRepository
 from app.crud.service import ServiceRepository
 from app.crud.user import pwd_context
@@ -22,7 +22,7 @@ from app.schemas.employee import EmployeeCreate
 from app.models.customer import Customer
 from app.models.customerAuth import CustomerAuth
 from app.models.vehicle import Vehicle
-from app.models.appoitment import Appointment
+from app.models.appointment import Appointment
 from app.models.status import Status
 from app.models.service import Service
 from app.models.extra_service import ExtraService as ExtraServiceModel

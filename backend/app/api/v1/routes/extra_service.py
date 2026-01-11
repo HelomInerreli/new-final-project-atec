@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from app.database import get_db
-from app.crud.appoitment import AppointmentRepository
-from app.models.appoitment_extra_service import AppointmentExtraService as AppointmentExtraServiceModel
+from app.crud.appointment import AppointmentRepository
+from app.models.appointment_extra_service import AppointmentExtraService as AppointmentExtraServiceModel
 from app.models.extra_service import ExtraService as ExtraServiceModel
 from app.schemas.appointment_extra_service import AppointmentExtraService as AppointmentExtraServiceSchema
 from app.schemas.extra_service import ExtraService as ExtraServiceSchema
@@ -41,7 +41,7 @@ def approve_extra_service_request(
     
     # Enviar notificação sobre aprovação
     try:
-        from app.models.appoitment import Appointment as AppointmentModel
+        from app.models.appointment import Appointment as AppointmentModel
         appointment = db.query(AppointmentModel).filter(AppointmentModel.id == db_req.appointment_id).first()
         
         if appointment:
@@ -73,7 +73,7 @@ def reject_extra_service_request(
     
     # Enviar notificação sobre rejeição
     try:
-        from app.models.appoitment import Appointment as AppointmentModel
+        from app.models.appointment import Appointment as AppointmentModel
         appointment = db.query(AppointmentModel).filter(AppointmentModel.id == db_req.appointment_id).first()
         
         if appointment:

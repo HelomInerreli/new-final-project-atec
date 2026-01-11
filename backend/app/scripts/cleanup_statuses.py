@@ -1,6 +1,6 @@
 from app.database import SessionLocal
 from app.models.status import Status
-from app.models.appoitment import Appointment
+from app.models.appointment import Appointment
 
 ALLOWED_STATUSES = [
     "Pendente",
