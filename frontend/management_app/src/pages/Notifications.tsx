@@ -94,7 +94,7 @@ export default function Notifications() {
       Payment: "Pagamentos",
       User: "Usuários",
       Service: "Gestão de Serviços",
-      Settings: "Configurações",
+      Settings: "Meu Perfil",
     };
     return componentMap[component] || component;
   };

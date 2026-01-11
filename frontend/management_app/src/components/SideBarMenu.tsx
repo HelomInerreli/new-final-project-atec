@@ -16,6 +16,7 @@ import {
   LogOut,
   Bell,
   X,
+  UserCircle,
 } from "lucide-react";
 import { FiMenu, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { Logo } from "./Logo";
@@ -212,7 +213,7 @@ export default function SideBarMenu() {
       Payment: "Pagamentos",
       User: "Usuários",
       Service: "Gestão de Serviços",
-      Settings: "Configurações",
+      Settings: "Meu Perfil",
     };
     return componentMap[component] || component;
   };
@@ -766,14 +767,14 @@ export default function SideBarMenu() {
             <MenuItem
               icon={
                 <IconWithBadgeSized
-                  icon={<Settings />}
+                  icon={<UserCircle />}
                   count={notificationCounts["Settings"]}
                   size={collapsed ? 25 : 27}
                 />
               }
               component={<NavLink to="/settings" />}
             >
-              {!collapsed && "Configurações"}
+              {!collapsed && "Meu Perfil"}
             </MenuItem>
 
             <MenuItem

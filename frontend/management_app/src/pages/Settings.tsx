@@ -41,14 +41,6 @@ export default function Settings() {
   // Handle profile update
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!profileData.name?.trim()) {
-      toast.error("O nome não pode estar vazio");
-      return;
-    }
-
-    if (!profileData.email?.trim()) {
-     
 
     if (!profileData.phone?.trim()) {
       toast.error("O telefone não pode estar vazio");
@@ -57,8 +49,6 @@ export default function Settings() {
 
     if (!profileData.address?.trim()) {
       toast.error("A morada não pode estar vazia");
-      return;
-    } toast.error("O email não pode estar vazio");
       return;
     }
 
@@ -136,9 +126,9 @@ export default function Settings() {
     <div className="p-6">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Configurações</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Meu Perfil</h1>
         <p className="text-gray-600 mt-1">
-          Gerencie suas informações pessoais e preferências de conta
+          Visualize e atualize suas informações pessoais
         </p>
       </div>
 
@@ -148,7 +138,9 @@ export default function Settings() {
           <div className="border-b border-gray-200 px-6 py-4">
             <div className="flex items-center gap-2">
               <User className="h-5 w-5 text-gray-500" />
-              <h2 className="text-lg font-semibold text-gray-900">Informações Pessoais</h2>
+              <h2 className="text-lg font-semibold text-gray-900">
+                Informações Pessoais
+              </h2>
             </div>
             <p className="text-sm text-gray-600 mt-1">Dados do funcionário</p>
           </div>
@@ -163,22 +155,22 @@ export default function Settings() {
                     type="text"
                     className="mb-input"
                     value={profileData.name}
-                    onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
-                    onFocus={(e) => {
-                      const label = e.target.nextElementSibling;
-                      if (label) label.classList.add("shrunken");
+                    disabled
+                    style={{
+                      minHeight: "56px",
+                      backgroundColor: "#f3f4f6",
+                      cursor: "not-allowed",
+                      color: "#6b7280",
+                      border: "1px solid #e5e7eb",
                     }}
-                    onBlur={(e) => {
-                      const label = e.target.nextElementSibling;
-                      if (!e.target.value && label) {
-                        label.classList.remove("shrunken");
-                      }
-                    }}
-                    disabled={isUpdatingProfile}
-                    style={{ minHeight: "56px" }}
                   />
-                  <label className={`mb-input-label ${profileData.name ? "shrunken" : ""}`}>
-                    Nome *
+                  <label
+                    className={`mb-input-label ${
+                      profileData.name ? "shrunken" : ""
+                    }`}
+                    style={{ color: "#9ca3af" }}
+                  >
+                    Nome (não editável)
                   </label>
                 </div>
 
@@ -189,10 +181,21 @@ export default function Settings() {
                     className="mb-input"
                     value={user.last_name || ""}
                     disabled
-                    style={{ minHeight: "56px", backgroundColor: "#f9fafb", cursor: "not-allowed" }}
+                    style={{
+                      minHeight: "56px",
+                      backgroundColor: "#f3f4f6",
+                      cursor: "not-allowed",
+                      color: "#6b7280",
+                      border: "1px solid #e5e7eb",
+                    }}
                   />
-                  <label className={`mb-input-label ${user.last_name ? "shrunken" : ""}`}>
-                    Apelido
+                  <label
+                    className={`mb-input-label ${
+                      user.last_name ? "shrunken" : ""
+                    }`}
+                    style={{ color: "#9ca3af" }}
+                  >
+                    Apelido (não editável)
                   </label>
                 </div>
               </div>
@@ -205,22 +208,22 @@ export default function Settings() {
                     type="email"
                     className="mb-input"
                     value={profileData.email}
-                    onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
-                    onFocus={(e) => {
-                      const label = e.target.nextElementSibling;
-                      if (label) label.classList.add("shrunken");
+                    disabled
+                    style={{
+                      minHeight: "56px",
+                      backgroundColor: "#f3f4f6",
+                      cursor: "not-allowed",
+                      color: "#6b7280",
+                      border: "1px solid #e5e7eb",
                     }}
-                    onBlur={(e) => {
-                      const label = e.target.nextElementSibling;
-                      if (!e.target.value && label) {
-                        label.classList.remove("shrunken");
-                      }
-                    }}
-                    disabled={isUpdatingProfile}
-                    style={{ minHeight: "56px" }}
                   />
-                  <label className={`mb-input-label ${profileData.email ? "shrunken" : ""}`}>
-                    Email *
+                  <label
+                    className={`mb-input-label ${
+                      profileData.email ? "shrunken" : ""
+                    }`}
+                    style={{ color: "#9ca3af" }}
+                  >
+                    Email (não editável)
                   </label>
                 </div>
 
@@ -230,7 +233,9 @@ export default function Settings() {
                     type="text"
                     className="mb-input"
                     value={profileData.phone}
-                    onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
+                    onChange={(e) =>
+                      setProfileData({ ...profileData, phone: e.target.value })
+                    }
                     onFocus={(e) => {
                       const label = e.target.nextElementSibling;
                       if (label) label.classList.add("shrunken");
@@ -244,7 +249,11 @@ export default function Settings() {
                     disabled={isUpdatingProfile}
                     style={{ minHeight: "56px" }}
                   />
-                  <label className={`mb-input-label ${profileData.phone ? "shrunken" : ""}`}>
+                  <label
+                    className={`mb-input-label ${
+                      profileData.phone ? "shrunken" : ""
+                    }`}
+                  >
                     Telefone *
                   </label>
                 </div>
@@ -257,7 +266,9 @@ export default function Settings() {
                   type="text"
                   className="mb-input"
                   value={profileData.address}
-                  onChange={(e) => setProfileData({ ...profileData, address: e.target.value })}
+                  onChange={(e) =>
+                    setProfileData({ ...profileData, address: e.target.value })
+                  }
                   onFocus={(e) => {
                     const label = e.target.nextElementSibling;
                     if (label) label.classList.add("shrunken");
@@ -271,7 +282,11 @@ export default function Settings() {
                   disabled={isUpdatingProfile}
                   style={{ minHeight: "56px" }}
                 />
-                <label className={`mb-input-label ${profileData.address ? "shrunken" : ""}`}>
+                <label
+                  className={`mb-input-label ${
+                    profileData.address ? "shrunken" : ""
+                  }`}
+                >
                   Morada *
                 </label>
               </div>
@@ -283,12 +298,29 @@ export default function Settings() {
                     id="date_of_birth"
                     type="date"
                     className="mb-input"
-                    value={user.date_of_birth ? new Date(user.date_of_birth).toISOString().split('T')[0] : ""}
+                    value={
+                      user.date_of_birth
+                        ? new Date(user.date_of_birth)
+                            .toISOString()
+                            .split("T")[0]
+                        : ""
+                    }
                     disabled
-                    style={{ minHeight: "56px", backgroundColor: "#f9fafb", cursor: "not-allowed" }}
+                    style={{
+                      minHeight: "56px",
+                      backgroundColor: "#f3f4f6",
+                      cursor: "not-allowed",
+                      color: "#6b7280",
+                      border: "1px solid #e5e7eb",
+                    }}
                   />
-                  <label className={`mb-input-label ${user.date_of_birth ? "shrunken" : ""}`}>
-                    Data de Nascimento
+                  <label
+                    className={`mb-input-label ${
+                      user.date_of_birth ? "shrunken" : ""
+                    }`}
+                    style={{ color: "#9ca3af" }}
+                  >
+                    Data de Nascimento (não editável)
                   </label>
                   <Calendar
                     style={{
@@ -299,7 +331,7 @@ export default function Settings() {
                       width: "20px",
                       height: "20px",
                       color: "#9ca3af",
-                      pointerEvents: "none"
+                      pointerEvents: "none",
                     }}
                   />
                 </div>
@@ -309,12 +341,27 @@ export default function Settings() {
                     id="hired_at"
                     type="date"
                     className="mb-input"
-                    value={user.hired_at ? new Date(user.hired_at).toISOString().split('T')[0] : ""}
+                    value={
+                      user.hired_at
+                        ? new Date(user.hired_at).toISOString().split("T")[0]
+                        : ""
+                    }
                     disabled
-                    style={{ minHeight: "56px", backgroundColor: "#f9fafb", cursor: "not-allowed" }}
+                    style={{
+                      minHeight: "56px",
+                      backgroundColor: "#f3f4f6",
+                      cursor: "not-allowed",
+                      color: "#6b7280",
+                      border: "1px solid #e5e7eb",
+                    }}
                   />
-                  <label className={`mb-input-label ${user.hired_at ? "shrunken" : ""}`}>
-                    Data de Contratação
+                  <label
+                    className={`mb-input-label ${
+                      user.hired_at ? "shrunken" : ""
+                    }`}
+                    style={{ color: "#9ca3af" }}
+                  >
+                    Data de Contratação (não editável)
                   </label>
                   <Calendar
                     style={{
@@ -325,7 +372,7 @@ export default function Settings() {
                       width: "20px",
                       height: "20px",
                       color: "#9ca3af",
-                      pointerEvents: "none"
+                      pointerEvents: "none",
                     }}
                   />
                 </div>
@@ -340,10 +387,21 @@ export default function Settings() {
                     className="mb-input"
                     value={user.salary ? `€ ${user.salary.toFixed(2)}` : ""}
                     disabled
-                    style={{ minHeight: "56px", backgroundColor: "#f9fafb", cursor: "not-allowed" }}
+                    style={{
+                      minHeight: "56px",
+                      backgroundColor: "#f3f4f6",
+                      cursor: "not-allowed",
+                      color: "#6b7280",
+                      border: "1px solid #e5e7eb",
+                    }}
                   />
-                  <label className={`mb-input-label ${user.salary ? "shrunken" : ""}`}>
-                    Salário
+                  <label
+                    className={`mb-input-label ${
+                      user.salary ? "shrunken" : ""
+                    }`}
+                    style={{ color: "#9ca3af" }}
+                  >
+                    Salário (não editável)
                   </label>
                 </div>
 
@@ -354,10 +412,21 @@ export default function Settings() {
                     className="mb-input"
                     value={user.employee_role?.name || ""}
                     disabled
-                    style={{ minHeight: "56px", backgroundColor: "#f9fafb", cursor: "not-allowed" }}
+                    style={{
+                      minHeight: "56px",
+                      backgroundColor: "#f3f4f6",
+                      cursor: "not-allowed",
+                      color: "#6b7280",
+                      border: "1px solid #e5e7eb",
+                    }}
                   />
-                  <label className={`mb-input-label ${user.employee_role ? "shrunken" : ""}`}>
-                    Função
+                  <label
+                    className={`mb-input-label ${
+                      user.employee_role ? "shrunken" : ""
+                    }`}
+                    style={{ color: "#9ca3af" }}
+                  >
+                    Função (não editável)
                   </label>
                 </div>
               </div>
@@ -371,10 +440,19 @@ export default function Settings() {
                     className="mb-input"
                     value={user.role}
                     disabled
-                    style={{ minHeight: "56px", backgroundColor: "#f9fafb", cursor: "not-allowed" }}
+                    style={{
+                      minHeight: "56px",
+                      backgroundColor: "#f3f4f6",
+                      cursor: "not-allowed",
+                      color: "#6b7280",
+                      border: "1px solid #e5e7eb",
+                    }}
                   />
-                  <label className="mb-input-label shrunken">
-                    Área de Acesso ao Sistema
+                  <label
+                    className="mb-input-label shrunken"
+                    style={{ color: "#9ca3af" }}
+                  >
+                    Área de Acesso ao Sistema (não editável)
                   </label>
                 </div>
 
@@ -385,16 +463,26 @@ export default function Settings() {
                     className="mb-input"
                     value={user.is_manager ? "Sim" : "Não"}
                     disabled
-                    style={{ minHeight: "56px", backgroundColor: "#f9fafb", cursor: "not-allowed" }}
+                    style={{
+                      minHeight: "56px",
+                      backgroundColor: "#f3f4f6",
+                      cursor: "not-allowed",
+                      color: "#6b7280",
+                      border: "1px solid #e5e7eb",
+                    }}
                   />
-                  <label className="mb-input-label shrunken">
-                    É Gestor
+                  <label
+                    className="mb-input-label shrunken"
+                    style={{ color: "#9ca3af" }}
+                  >
+                    É Gestor (não editável)
                   </label>
                 </div>
               </div>
-              
+
               <p className="text-xs text-gray-500 px-2">
-                Os campos desabilitados não podem ser alterados pelo próprio usuário
+                Você pode alterar apenas o telefone e a morada. Os demais campos
+                devem ser alterados por um gestor.
               </p>
 
               <div className="flex justify-end">
@@ -422,9 +510,13 @@ export default function Settings() {
           <div className="border-b border-gray-200 px-6 py-4">
             <div className="flex items-center gap-2">
               <Lock className="h-5 w-5 text-gray-500" />
-              <h2 className="text-lg font-semibold text-gray-900">Alterar Senha</h2>
+              <h2 className="text-lg font-semibold text-gray-900">
+                Alterar Senha
+              </h2>
             </div>
-            <p className="text-sm text-gray-600 mt-1">Atualize sua senha de acesso</p>
+            <p className="text-sm text-gray-600 mt-1">
+              Atualize sua senha de acesso
+            </p>
           </div>
 
           <div className="px-6 py-6">
@@ -436,7 +528,12 @@ export default function Settings() {
                   type="password"
                   className="mb-input"
                   value={passwordData.current_password}
-                  onChange={(e) => setPasswordData({ ...passwordData, current_password: e.target.value })}
+                  onChange={(e) =>
+                    setPasswordData({
+                      ...passwordData,
+                      current_password: e.target.value,
+                    })
+                  }
                   onFocus={(e) => {
                     const label = e.target.nextElementSibling;
                     if (label) label.classList.add("shrunken");
@@ -450,7 +547,11 @@ export default function Settings() {
                   disabled={isChangingPassword}
                   style={{ minHeight: "56px" }}
                 />
-                <label className={`mb-input-label ${passwordData.current_password ? "shrunken" : ""}`}>
+                <label
+                  className={`mb-input-label ${
+                    passwordData.current_password ? "shrunken" : ""
+                  }`}
+                >
                   Senha Atual *
                 </label>
               </div>
@@ -464,7 +565,12 @@ export default function Settings() {
                   type="password"
                   className="mb-input"
                   value={passwordData.new_password}
-                  onChange={(e) => setPasswordData({ ...passwordData, new_password: e.target.value })}
+                  onChange={(e) =>
+                    setPasswordData({
+                      ...passwordData,
+                      new_password: e.target.value,
+                    })
+                  }
                   onFocus={(e) => {
                     const label = e.target.nextElementSibling;
                     if (label) label.classList.add("shrunken");
@@ -478,7 +584,11 @@ export default function Settings() {
                   disabled={isChangingPassword}
                   style={{ minHeight: "56px" }}
                 />
-                <label className={`mb-input-label ${passwordData.new_password ? "shrunken" : ""}`}>
+                <label
+                  className={`mb-input-label ${
+                    passwordData.new_password ? "shrunken" : ""
+                  }`}
+                >
                   Nova Senha *
                 </label>
               </div>
@@ -507,7 +617,11 @@ export default function Settings() {
                   disabled={isChangingPassword}
                   style={{ minHeight: "56px" }}
                 />
-                <label className={`mb-input-label ${confirmPassword ? "shrunken" : ""}`}>
+                <label
+                  className={`mb-input-label ${
+                    confirmPassword ? "shrunken" : ""
+                  }`}
+                >
                   Confirmar Nova Senha *
                 </label>
               </div>
