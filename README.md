@@ -435,13 +435,13 @@ Após executar os seeds, utilize:
 
 #### Portal do Cliente
 
-- **Email:** `cliente@teste.com`
-- **Password:** `password123`
+- **Email:** `joao.silva@example.com`
+- **Password:** `Customer@2025!Test`
 
-#### Dashboard Administrativo
+#### Portal da Oficina
 
 - **Email:** `admin@mecatec.pt`
-- **Password:** `admin123`
+- **Password:** `Mecatec@2025!Strong`
 
 ---
 
