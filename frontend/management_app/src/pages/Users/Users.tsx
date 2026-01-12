@@ -343,9 +343,7 @@ export default function Users() {
                     <TableCell className="text-left">
                       <Badge
                         className={
-                          employee.role.name === "Gestor"
-                            ? "bg-purple-600 hover:bg-purple-700 text-white"
-                            : employee.role.name === "Mecanico"
+                          employee.role.name === "Mecanico"
                             ? "bg-blue-600 hover:bg-blue-700 text-white"
                             : employee.role.name === "Eletricista"
                             ? "bg-orange-600 hover:bg-orange-700 text-white"

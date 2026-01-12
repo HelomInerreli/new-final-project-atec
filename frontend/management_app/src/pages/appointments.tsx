@@ -118,9 +118,9 @@ export default function Agendamentos() {
 
   // Verificar se o usuário é gestor ou admin
   const isManager = user
-    ? ["admin", "gestor", "administrador", "gerente"].includes(
-        user.role.toLowerCase()
-      )
+    ? user.is_manager ||
+      ["admin", "manager"].includes(user.role.toLowerCase()) ||
+      (user.employee_role?.name && ["gestor", "gerente"].includes(user.employee_role.name.toLowerCase()))
     : false;
 
   // Estados para dropdowns
@@ -415,33 +415,32 @@ export default function Agendamentos() {
 
       // Filtrar por role do usuário (não-gestores só veem agendamentos da sua área)
       if (!isManager && user) {
-        const userRole = user.role.toLowerCase();
+        // Usar o cargo do employee se disponível, senão o role do sistema
+        const userRole = (user.employee_role?.name || user.role).toLowerCase();
         const normalizedArea = serviceArea.toLowerCase();
 
-        // Mecânico vê apenas "mecânica", Eletricista vê apenas "elétrica", etc.
+        // Mapear o cargo para as áreas esperadas (as áreas no banco são "Mecânica", "Elétrica", etc.)
         if (
-          !normalizedArea.includes(userRole) &&
-          userRole !== "mecânico" &&
-          userRole !== "eletricista" &&
-          userRole !== "borracheiro"
+          userRole.includes("mecânico") || userRole.includes("mecanico")
         ) {
-          // Se não for uma das roles específicas, não aplicar filtro de área
+          // Mecânico vê serviços com área "Mecânica"
+          if (!normalizedArea.includes("mecânica") && !normalizedArea.includes("mecanica")) {
+            return false;
+          }
         } else if (
-          userRole === "mecânico" &&
-          !normalizedArea.includes("mecânica")
+          userRole.includes("eletric") || userRole.includes("elétric")
         ) {
-          return false;
+          // Eletricista vê serviços com área "Elétrica"
+          if (!normalizedArea.includes("elétrica") && !normalizedArea.includes("eletrica")) {
+            return false;
+          }
         } else if (
-          userRole === "eletricista" &&
-          !normalizedArea.includes("elétrica") &&
-          !normalizedArea.includes("eletrica")
+          userRole.includes("borracheiro") || userRole.includes("pneu")
         ) {
-          return false;
-        } else if (
-          userRole === "borracheiro" &&
-          !normalizedArea.includes("pneu")
-        ) {
-          return false;
+          // Borracheiro vê serviços com área relacionada a pneus
+          if (!normalizedArea.includes("borracheiro") && !normalizedArea.includes("pneu")) {
+            return false;
+          }
         }
       }
 

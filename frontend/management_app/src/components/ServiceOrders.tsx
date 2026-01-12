@@ -27,12 +27,14 @@ const ServiceOrders: FC = () => {
   // Determinar se o usuário é gerente/admin
   const isManager = useMemo(() => {
     if (!user) return false;
-    const role = user.role.toLowerCase();
+    const systemRole = user.role.toLowerCase();
+    const employeeRole = user.employee_role?.name?.toLowerCase();
     return (
-      role === "admin" ||
-      role === "administrador" ||
-      role === "gerente" ||
-      role === "gestor"
+      user.is_manager ||
+      systemRole === "admin" ||
+      systemRole === "manager" ||
+      employeeRole === "gestor" ||
+      employeeRole === "gerente"
     );
   }, [user]);
 

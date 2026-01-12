@@ -40,9 +40,9 @@ def filter_by_user_role(query, user: Optional[User], db: Session):
     # Filtra por área do serviço
     # Mecânico vê apenas serviços de mecânica, Elétrico vê apenas elétrico, etc.
     if "mecanico" in role_name or "mecânico" in role_name:
-        query = query.join(Service).filter(Service.area.ilike("%mecânica%"))
+        query = query.join(Service).filter(Service.area.ilike("%Mecânica%"))
     elif "eletric" in role_name or "elétric" in role_name:
-        query = query.join(Service).filter(Service.area.ilike("%elétrica%"))
+        query = query.join(Service).filter(Service.area.ilike("%Elétrica%"))
     elif "chaparia" in role_name:
         query = query.join(Service).filter(Service.area.ilike("%chaparia%"))
     elif "pintura" in role_name:

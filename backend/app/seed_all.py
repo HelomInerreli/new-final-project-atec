@@ -58,7 +58,7 @@ NUM_APPOINTMENTS_2026_FUTURE = 20  # Appointments agendados até 23 de janeiro
 MIN_VEHICLES_PER_CUSTOMER = 1
 MAX_VEHICLES_PER_CUSTOMER = 2
 MAX_EXTRA_SERVICES_PER_APPOINTMENT = 2
-NUM_EMPLOYEES = 8  # Equipa realista: admin, gestor, mecânicos, elétrico, chaparia, pintura
+NUM_EMPLOYEES = 8  # Equipa realista: admin, mecânicos, eletricista, borracheiro, chaparia, pintura
 NUM_CUSTOMERS = 35  # Base de clientes de oficina local
 
 # Admin user credentials from environment variables
@@ -134,7 +134,7 @@ STATUSES = [
     "Aguardando Pagamento"
 ]
 
-ROLES_TO_CREATE = ["Admin", "Gestor", "Mecânico", "Elétrico", "Chaparia", "Pintura", "Estética", "Vidros"]
+ROLES_TO_CREATE = ["Admin", "Mecânico", "Eletricista", "Borracheiro", "Chaparia", "Pintura", "Estética", "Vidros"]
 
 # Stock típico de oficina pequena/média
 PRODUCTS = [
@@ -300,9 +300,9 @@ def get_employee_for_service_area(db: Session, service_area: str, employees: lis
     if not matching_employees:
         matching_employees = [emp for emp in employees if emp.role and emp.role.name == "Mecânico"]
     
-    # Se ainda não encontrar, retornar qualquer funcionário que não seja Admin ou Gestor
+    # Se ainda não encontrar, retornar qualquer funcionário que não seja Admin
     if not matching_employees:
-        matching_employees = [emp for emp in employees if emp.role and emp.role.name not in ["Admin", "Gestor"]]
+        matching_employees = [emp for emp in employees if emp.role and emp.role.name not in ["Admin"]]
     
     # Retornar um funcionário aleatório da lista filtrada
     return random.choice(matching_employees) if matching_employees else None
@@ -405,7 +405,7 @@ def seed_main_data(db: Session):
             date_of_birth=fake.date_time_between(start_date='-65y', end_date='-18y'),
             salary=random.randint(1200, 4500),
             hired_at=fake.date_time_between(start_date="-5y", end_date="now"),
-            role_id=role.id, is_manager=(role.name == "Gestor")
+            role_id=role.id, is_manager=False
         )
         try:
             employee = employee_repo.create(employee_in)

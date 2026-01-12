@@ -130,6 +130,35 @@ const EditServiceModal: FC<EditServiceModalProps> = ({ show, service, onClose, o
                 </div>
               </div>
 
+              {/* Área do Serviço */}
+              <div className="grid gap-2">
+                <div className="mb-input-wrapper">
+                  <select
+                    id="area"
+                    className={`mb-input ${form.area ? "filled" : ""}`}
+                    value={form.area}
+                    onChange={(e) => setForm((f) => ({ ...f, area: e.target.value }))}
+                    onFocus={(e) => e.target.nextElementSibling?.classList.add("shrunken")}
+                    onBlur={(e) => {
+                      if (!e.target.value) {
+                        e.target.nextElementSibling?.classList.remove("shrunken");
+                      }
+                    }}
+                    style={{ minHeight: "56px" }}
+                  >
+                    <option value=""></option>
+                    <option value="Mecânica">Mecânica</option>
+                    <option value="Elétrica">Elétrica</option>
+                    <option value="Estética">Estética</option>
+                    <option value="Vidros">Vidros</option>
+                    <option value="Pneus">Pneus</option>
+                  </select>
+                  <label className={`mb-input-label ${form.area ? "shrunken" : ""}`}>
+                    Área do Serviço *
+                  </label>
+                </div>
+              </div>
+
               {/* Estado */}
               <div className="grid gap-2">
                 <div className="flex items-center gap-2">

@@ -97,7 +97,6 @@ STATUSES = [
 ]
 
 ROLES_TO_CREATE = [
-    "Gestor",
     "Mecanico",
     "Eletricista",
     "Borracheiro"
@@ -315,7 +314,7 @@ def seed_data(db: Session):
             salary=random.randint(1200, 4500),
             hired_at=fake.date_time_between(start_date="-5y", end_date="now"),
             role_id=role.id,
-            is_manager=(role.name == "Gestor")
+            is_manager=False
         )
         try:
             employee = employee_repo.create(employee_in)

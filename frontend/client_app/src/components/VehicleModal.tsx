@@ -116,13 +116,13 @@ export function VehicleModal({ show, vehicle, customerId, onClose, onSave, getFr
               <Form.Group>
                 <Form.Label>{t('vehicleModal.kilometers')} *</Form.Label>
                 <Form.Control
-                  type="number"
+                  type="text"
                   name="kilometers"
                   value={formData.kilometers}
                   onChange={handleChange}
                   placeholder="0"
                   isInvalid={!!errors.kilometers}
-                  min="0"
+                  inputMode="numeric"
                 />
                 <Form.Control.Feedback type="invalid">
                   {errors.kilometers}

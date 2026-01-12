@@ -103,9 +103,9 @@ export default function Home() {
   }, []);
 
   const isManager = user
-    ? ["admin", "gestor", "administrador", "gerente"].includes(
-        user.role.toLowerCase()
-      )
+    ? user.is_manager ||
+      ["admin", "manager"].includes(user.role.toLowerCase()) ||
+      (user.employee_role?.name && ["gestor", "gerente"].includes(user.employee_role.name.toLowerCase()))
     : false;
 
   return (

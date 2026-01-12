@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FaCalendarAlt, FaCheckCircle, FaTools } from "react-icons/fa";
+import { FaCalendarAlt, FaCheckCircle, FaTools, FaTimes } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 import { useFutureAppointments } from "../hooks/useFutureAppointments";
 import { formatDate } from "../utils/dateUtils";
@@ -9,6 +9,9 @@ import { createAppointmentCheckoutSession } from "../services/payment";
 import { AppointmentStatusModal } from "./AppointmentDetailsModal";
 import type { Appointment } from "../interfaces/appointment";
 import { getCostBreakdown } from "../services/costBreakdownService";
+import { appointmentService } from "../services/service";
+import { useToast } from "../context/ToastContext";
+import { ConfirmationModal } from "./ConfirmationModal";
 
 /**
  * Traduz o nome do status para o idioma atual
@@ -49,9 +52,14 @@ export function FutureAppointments() {
   const { t } = useTranslation();
 
   /**
+   * Hook de toast para notificações
+   */
+  const { showSuccess, showError } = useToast();
+
+  /**
    * Hook customizado que retorna agendamentos agrupados por mês, estado de loading e erros
    */
-  const { groupedAppointments, loading, error } = useFutureAppointments();
+  const { groupedAppointments, loading, error, refreshAppointments } = useFutureAppointments();
 
   /**
    * Estado para controlar quais meses estão expandidos
@@ -91,6 +99,23 @@ export function FutureAppointments() {
    * Tipo: Record<appointmentId, totalValue>
    */
   const [realTotals, setRealTotals] = useState<Record<number, number>>({});
+
+  /**
+   * Estado para rastrear qual agendamento está sendo cancelado
+   * Tipo: number | null (ID do agendamento ou null)
+   * Usado para exibir loading no botão de cancelar correto
+   */
+  const [cancelLoadingId, setCancelLoadingId] = useState<number | null>(null);
+
+  /**
+   * Estado para controlar o modal de confirmação de cancelamento
+   */
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  
+  /**
+   * Estado para armazenar o ID do agendamento a ser cancelado
+   */
+  const [appointmentToCancel, setAppointmentToCancel] = useState<number | null>(null);
 
   /**
    * Busca os valores reais de todos os appointments quando eles são carregados
@@ -154,6 +179,50 @@ export function FutureAppointments() {
         })
       );
       setCheckoutLoadingId(null);
+    }
+  };
+
+  /**
+   * Cancela um agendamento
+   * Confirma ação com o utilizador antes de cancelar
+   * @param appointmentId - ID do agendamento a cancelar
+   */
+  const handleCancelAppointment = async (appointmentId: number) => {
+    setAppointmentToCancel(appointmentId);
+    setShowCancelModal(true);
+  };
+
+  /**
+   * Confirma o cancelamento do agendamento
+   */
+  const confirmCancelAppointment = async () => {
+    if (!appointmentToCancel) return;
+
+    try {
+      setCancelLoadingId(appointmentToCancel);
+      setShowCancelModal(false);
+      
+      await appointmentService.cancel(appointmentToCancel);
+      
+      // Atualiza a lista de agendamentos
+      refreshAppointments();
+      
+      // Mostra toast de sucesso
+      showSuccess(
+        t("appointmentsPage.cancelSuccess", {
+          defaultValue: "Agendamento cancelado com sucesso!",
+        })
+      );
+    } catch (err) {
+      console.error("Failed to cancel appointment", err);
+      showError(
+        t("appointmentsPage.cancelFailed", {
+          defaultValue: "Não foi possível cancelar o agendamento.",
+        })
+      );
+    } finally {
+      setCancelLoadingId(null);
+      setAppointmentToCancel(null);
     }
   };
 
@@ -238,6 +307,17 @@ export function FutureAppointments() {
                       }`;
                       const isWaitingPayment =
                         normalizedStatus === "waitting-payment";
+                      
+                      // Determinar se o agendamento pode ser cancelado
+                      // Pode cancelar se não estiver concluído, cancelado, em reparação ou finalizado
+                      const canCancel = ![
+                        "completed",
+                        "finalized",
+                        "canceled",
+                        "cancelled",
+                        "in-repair",
+                        "in-progress",
+                      ].includes(normalizedStatus);
 
                       return (
                         <div key={appointment.id} className="appointment-card">
@@ -307,6 +387,34 @@ export function FutureAppointments() {
 
                           {/* Rodapé do card com botões de ação */}
                           <div className="appointment-card-footer d-flex gap-2">
+                            {/* Botão de cancelar (apenas se pode cancelar) */}
+                            {canCancel && (
+                              <button
+                                type="button"
+                                className="btn btn-outline-danger"
+                                disabled={cancelLoadingId === appointment.id}
+                                onClick={() =>
+                                  handleCancelAppointment(appointment.id)
+                                }
+                              >
+                                {cancelLoadingId === appointment.id ? (
+                                  <>
+                                    <span className="spinner-border spinner-border-sm me-2" />
+                                    {t("appointmentsPage.cancelling", {
+                                      defaultValue: "A cancelar...",
+                                    })}
+                                  </>
+                                ) : (
+                                  <>
+                                    <FaTimes className="me-2" />
+                                    {t("appointmentsPage.cancelAppointment", {
+                                      defaultValue: "Cancelar",
+                                    })}
+                                  </>
+                                )}
+                              </button>
+                            )}
+                            
                             {/* Botão de pagamento (apenas para status "aguardando pagamento") */}
                             {isWaitingPayment && (
                               <button
@@ -330,7 +438,7 @@ export function FutureAppointments() {
                             {/* Botão para ver detalhes do agendamento */}
                             <button
                               className={`btn btn-primary ${
-                                isWaitingPayment ? "" : "w-100"
+                                isWaitingPayment || canCancel ? "" : "w-100"
                               }`}
                               onClick={() =>
                                 setSelectedAppointment(appointment)
@@ -364,6 +472,29 @@ export function FutureAppointments() {
         appointment={selectedAppointment}
         open={!!selectedAppointment}
         onOpenChange={(open: boolean) => !open && setSelectedAppointment(null)}
+      />
+
+      {/* Modal de confirmação de cancelamento */}
+      <ConfirmationModal
+        show={showCancelModal}
+        title={t("appointmentsPage.cancelTitle", {
+          defaultValue: "Cancelar Agendamento",
+        })}
+        message={t("appointmentsPage.confirmCancel", {
+          defaultValue: "Tem certeza que deseja cancelar este agendamento?",
+        })}
+        confirmText={t("appointmentsPage.confirmButton", {
+          defaultValue: "Sim, Cancelar",
+        })}
+        cancelText={t("appointmentsPage.cancelButton", {
+          defaultValue: "Não, Manter",
+        })}
+        onConfirm={confirmCancelAppointment}
+        onCancel={() => {
+          setShowCancelModal(false);
+          setAppointmentToCancel(null);
+        }}
+        variant="danger"
       />
     </div>
   );
