@@ -39,7 +39,6 @@ from app.models.vehicle import Vehicle
 from app.models.appointment import Appointment
 from app.models.status import Status
 from app.models.service import Service
-from app.models.extra_service import ExtraService as ExtraServiceModel
 from app.models.invoice import Invoice
 from app.models.product import Product
 from app.models.role import Role
@@ -105,24 +104,6 @@ MAIN_SERVICES = [
     {"name": "Substituição de Vidros", "description": "Substituição de vidros danificados", "price": 250.0, "labor_cost": 200.0, "duration_minutes": 120, "area": "Vidros"},
     {"name": "Reparação de Motor", "description": "Reparação de componentes do motor", "price": 850.0, "labor_cost": 680.0, "duration_minutes": 480, "area": "Mecânica"},
     {"name": "Mudança de Embraiagem", "description": "Substituição de kit de embraiagem completo", "price": 680.0, "labor_cost": 544.0, "duration_minutes": 360, "area": "Mecânica"},
-]
-
-EXTRA_SERVICE_CATALOG = [
-    {"name": "Pastilhas de travão dianteiras", "description": "Substituição de pastilhas dianteiras", "price": 120.0, "labor_cost": 96.0, "duration_minutes": 60},
-    {"name": "Pastilhas de travão traseiras", "description": "Substituição de pastilhas traseiras", "price": 95.0, "labor_cost": 76.0, "duration_minutes": 60},
-    {"name": "Limpeza de injetores", "description": "Limpeza profissional de injetores", "price": 110.0, "labor_cost": 88.0, "duration_minutes": 60},
-    {"name": "Carregamento de Ar Condicionado", "description": "Recarga de gás AC", "price": 75.0, "labor_cost": 60.0, "duration_minutes": 45},
-    {"name": "Troca de escovas limpa-vidros", "description": "Substituição do par de escovas", "price": 28.0, "labor_cost": 22.4, "duration_minutes": 15},
-    {"name": "Mudança de velas de ignição", "description": "Substituição de todas as velas", "price": 65.0, "labor_cost": 52.0, "duration_minutes": 45},
-    {"name": "Substituição de filtro de habitáculo", "description": "Troca de filtro do ar interior", "price": 35.0, "labor_cost": 28.0, "duration_minutes": 20},
-    {"name": "Limpeza de válvula EGR", "description": "Limpeza da válvula EGR", "price": 95.0, "labor_cost": 76.0, "duration_minutes": 90},
-    {"name": "Desinfeção do interior", "description": "Desinfeção completa com ozono", "price": 45.0, "labor_cost": 36.0, "duration_minutes": 60},
-    {"name": "Proteção de estofos", "description": "Aplicação de proteção impermeabilizante", "price": 80.0, "labor_cost": 64.0, "duration_minutes": 90},
-    {"name": "Mudança de líquido de travões", "description": "Substituição completa do líquido", "price": 55.0, "labor_cost": 44.0, "duration_minutes": 45},
-    {"name": "Substituição de amortecedores", "description": "Troca de 2 amortecedores", "price": 280.0, "labor_cost": 224.0, "duration_minutes": 120},
-    {"name": "Reparação de faróis", "description": "Polimento e restauro de faróis", "price": 90.0, "labor_cost": 72.0, "duration_minutes": 90},
-    {"name": "Instalação de GPS", "description": "Instalação de sistema GPS", "price": 150.0, "labor_cost": 120.0, "duration_minutes": 120},
-    {"name": "Aplicação de película nos vidros", "description": "Película de proteção solar", "price": 200.0, "labor_cost": 160.0, "duration_minutes": 180},
 ]
 
 STATUSES = [
@@ -352,28 +333,7 @@ def seed_main_data(db: Session):
         services.append(s)
     print(f"   ✓ {len(services)} services ready")
     
-    # 3) Extra services
-    print("   Creating extra services...")
-    catalog_extra_services = []
-    for es in EXTRA_SERVICE_CATALOG:
-        existing = db.query(ExtraServiceModel).filter(ExtraServiceModel.name == es["name"]).first()
-        if not existing:
-            new_es = ExtraServiceModel(
-                name=es["name"], 
-                description=es.get("description"), 
-                price=es["price"], 
-                labor_cost=es.get("labor_cost", es["price"] * 0.8),
-                duration_minutes=es.get("duration_minutes")
-            )
-            db.add(new_es)
-            db.commit()
-            db.refresh(new_es)
-            catalog_extra_services.append(new_es)
-        else:
-            catalog_extra_services.append(existing)
-    print(f"   ✓ {len(catalog_extra_services)} extra services ready")
-    
-    # 4) Roles
+    # 3) Roles
     print("   Creating roles...")
     role_objects = {}
     for role_name in ROLES_TO_CREATE:
@@ -697,15 +657,15 @@ def seed_main_data(db: Session):
     print(f"   ✓ Created {len(appointments) - appointments_2026_future_start} future appointments for 2026")
     print(f"   ✓ TOTAL: {len(appointments)} appointments created ({NUM_APPOINTMENTS_2025} in 2025, {len(appointments) - NUM_APPOINTMENTS_2025} in 2026)")
     
-    # 9) Extra services para alguns appointments (realista: ~30% têm extras)
+    # 9) Extra services para alguns appointments (usando services)
     print("   Adding extra services to appointments...")
     extra_count = 0
     for appointment in random.sample(appointments, min(25, len(appointments))):
-        if catalog_extra_services and random.random() < 0.5:
+        if services and random.random() < 0.5:
             num_extras = random.randint(1, MAX_EXTRA_SERVICES_PER_APPOINTMENT)
             for _ in range(num_extras):
-                chosen_catalog = random.choice(catalog_extra_services)
-                req_in = AppointmentExtraServiceCreate(extra_service_id=chosen_catalog.id)
+                chosen_service = random.choice(services)
+                req_in = AppointmentExtraServiceCreate(service_id=chosen_service.id)
                 try:
                     req = appointment_repo.add_extra_service_request(appointment.id, req_in)
                     # Status do extra service baseado no status do appointment

@@ -5,9 +5,9 @@ from typing import List
 from app.database import get_db
 from app.crud.appointment import AppointmentRepository
 from app.models.appointment_extra_service import AppointmentExtraService as AppointmentExtraServiceModel
-from app.models.extra_service import ExtraService as ExtraServiceModel
+from app.models.service import Service as ServiceModel
 from app.schemas.appointment_extra_service import AppointmentExtraService as AppointmentExtraServiceSchema
-from app.schemas.extra_service import ExtraService as ExtraServiceSchema
+from app.schemas.service import Service as ServiceSchema
 from app.services.notification_service import NotificationService
 
 router = APIRouter()
@@ -18,12 +18,12 @@ def get_appointment_repo(db: Session = Depends(get_db)) -> AppointmentRepository
     return AppointmentRepository(db)
 
 
-@router.get("/catalog", response_model=List[ExtraServiceSchema])
+@router.get("/catalog", response_model=List[ServiceSchema])
 def list_extra_services_catalog(db: Session = Depends(get_db)):
     """
-    List all available extra services from the catalog.
+    List all available services from the catalog.
     """
-    return db.query(ExtraServiceModel).all()
+    return db.query(ServiceModel).all()
 
 
 @router.patch("/requests/{request_id}/approve", response_model=AppointmentExtraServiceSchema)
@@ -48,7 +48,7 @@ def approve_extra_service_request(
             NotificationService.notify_extra_service_decision(
                 db=db,
                 appointment_id=db_req.appointment_id,
-                service_name=db_req.extra_service.name if db_req.extra_service else "Serviço extra",
+                service_name=db_req.service.name if db_req.service else "Serviço extra",
                 approved=True,
                 professional_user_id=appointment.assigned_employee_id
             )
@@ -80,7 +80,7 @@ def reject_extra_service_request(
             NotificationService.notify_extra_service_decision(
                 db=db,
                 appointment_id=db_req.appointment_id,
-                service_name=db_req.extra_service.name if db_req.extra_service else "Serviço extra",
+                service_name=db_req.service.name if db_req.service else "Serviço extra",
                 approved=False,
                 professional_user_id=appointment.assigned_employee_id
             )
