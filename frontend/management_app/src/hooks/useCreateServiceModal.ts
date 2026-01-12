@@ -17,6 +17,7 @@ interface ServiceFormState {
   price: number | "";
   duration_minutes: number;
   is_active: boolean;
+  area: string;
 }
 
 /**
@@ -38,6 +39,7 @@ export const useCreateServiceModal = (
     price: "",
     duration_minutes: 0,
     is_active: true,
+    area: "",
   });
 
   // Estado de submissão
@@ -54,6 +56,7 @@ export const useCreateServiceModal = (
         price: "",
         duration_minutes: 0,
         is_active: true,
+        area: "",
       });
       setError(null);
     }
@@ -87,6 +90,7 @@ export const useCreateServiceModal = (
         description: form.description,
         price: Number(form.price),
         duration_minutes: form.duration_minutes,
+        area: form.area,
         is_active: form.is_active,
       };
 

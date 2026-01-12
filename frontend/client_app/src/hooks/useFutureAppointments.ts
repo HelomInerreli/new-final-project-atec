@@ -46,6 +46,18 @@ export function useFutureAppointments() {
     const [error, setError] = useState<string | null>(null);
     
     /**
+     * Estado para forçar atualização dos dados
+     */
+    const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
+    
+    /**
+     * Função para forçar reload dos agendamentos
+     */
+    const refreshAppointments = () => {
+        setRefreshTrigger(prev => prev + 1);
+    };
+    
+    /**
      * Efeito para buscar agendamentos quando o usuário está logado
      */
     useEffect(() => {
@@ -71,7 +83,7 @@ export function useFutureAppointments() {
         };
 
         fetchAppointments();
-    }, [isLoggedIn, loggedInCustomerId, t]);
+    }, [isLoggedIn, loggedInCustomerId, t, refreshTrigger]);
 
     /**
      * Auto-refresh: atualiza os agendamentos a cada 10 segundos
@@ -100,5 +112,6 @@ export function useFutureAppointments() {
         loading,
         error,
         isLoggedIn,
+        refreshAppointments,
     };
 }

@@ -33,7 +33,6 @@ from app.models.vehicle import Vehicle
 from app.models.appointment import Appointment
 from app.models.status import Status
 from app.models.service import Service
-from app.models.extra_service import ExtraService as ExtraServiceModel
 from app.models.invoice import Invoice
 from app.models.product import Product
 from app.models.role import Role
@@ -82,13 +81,12 @@ MAIN_SERVICES = [
     {"name": "Inspeção Periódica Obrigatória", "description": "Inspeção completa para renovação da IPO.", "price": 55.0, "duration_minutes": 60, "area": "mecanico,eletricista"},
 ]
 
-EXTRA_SERVICE_CATALOG = [
-    {"name": "Pastilhas de travão", "description": "Substituição de pastilhas de travão", "price": 120.0, "duration_minutes": 60},
-    {"name": "Limpeza de injetores", "description": "Limpeza de injetores", "price": 90.0, "duration_minutes": 45},
-    {"name": "Carregamento de Ar Condicionado", "description": "Carregamento de Ar Condicionado", "price": 60.0, "duration_minutes": 30},
-    {"name": "Troca de escovas limpa-vidros", "description": "Troca de escovas limpa-vidros", "price": 25.0, "duration_minutes": 15},
+STATUSES = [
+    "Pendente",
+    "Em Andamento",
+    "Concluída",
+    "Cancelada",
 ]
-
 STATUSES = [
     "Pendente",
     "Em Andamento",
@@ -97,7 +95,6 @@ STATUSES = [
 ]
 
 ROLES_TO_CREATE = [
-    "Gestor",
     "Mecanico",
     "Eletricista",
     "Borracheiro"
@@ -239,26 +236,7 @@ def seed_data(db: Session):
         services.append(s)
     print(f"Created {len(services)} main services.")
 
-    # 3) Create extra service catalog
-    catalog_extra_services = []
-    for es in EXTRA_SERVICE_CATALOG:
-        existing = db.query(ExtraServiceModel).filter(ExtraServiceModel.name == es["name"]).first()
-        if not existing:
-            new_es = ExtraServiceModel(
-                name=es["name"],
-                description=es.get("description"),
-                price=es["price"],
-                duration_minutes=es.get("duration_minutes")
-            )
-            db.add(new_es)
-            db.commit()
-            db.refresh(new_es)
-            catalog_extra_services.append(new_es)
-        else:
-            catalog_extra_services.append(existing)
-    print(f"Created/verified {len(catalog_extra_services)} catalog extra services.")
-
-    # 4) Create Roles
+    # 3) Create Roles
     role_objects = {}
     for role_name in ROLES_TO_CREATE:
         db_role = db.query(Role).filter(Role.name == role_name).first()
@@ -315,7 +293,7 @@ def seed_data(db: Session):
             salary=random.randint(1200, 4500),
             hired_at=fake.date_time_between(start_date="-5y", end_date="now"),
             role_id=role.id,
-            is_manager=(role.name == "Gestor")
+            is_manager=False
         )
         try:
             employee = employee_repo.create(employee_in)
@@ -490,12 +468,12 @@ def seed_data(db: Session):
                 print(f"Failed to create appointment for customer {customer.id}: {e}")
                 continue
 
-            # Add extra services
-            if catalog_extra_services and random.choice([True, False]):
+            # Add extra services from services catalog
+            if services and random.choice([True, False]):
                 for _ in range(random.randint(1, MAX_EXTRA_SERVICES_PER_APPOINTMENT)):
-                    chosen_catalog = random.choice(catalog_extra_services)
+                    chosen_service = random.choice(services)
                     req_in = AppointmentExtraServiceCreate(
-                        extra_service_id=chosen_catalog.id
+                        service_id=chosen_service.id
                     )
                     try:
                         req = appointment_repo.add_extra_service_request(appointment.id, req_in)

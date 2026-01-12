@@ -595,6 +595,7 @@ i18next.use(initReactI18next).init({
             plateInvalid: "Invalid license plate format",
             brandRequired: "Brand is required",
             modelRequired: "Model is required",
+            kilometersRequired: "Kilometers is required",
             kilometersInvalid: "Kilometers must be a positive number",
           },
         },
@@ -610,6 +611,14 @@ i18next.use(initReactI18next).init({
           paymentInitFailed: "Unable to start payment.",
           noAppointmentsDescription:
             "You don't have any scheduled appointments yet.",
+          cancelAppointment: "Cancel",
+          cancelling: "Cancelling...",
+          cancelTitle: "Cancel Appointment",
+          confirmCancel: "Are you sure you want to cancel this appointment?",
+          confirmButton: "Yes, Cancel",
+          cancelButton: "No, Keep",
+          cancelSuccess: "Appointment cancelled successfully!",
+          cancelFailed: "Unable to cancel appointment.",
         },
 
         // Invoice translations
@@ -1261,6 +1270,7 @@ i18next.use(initReactI18next).init({
             plateInvalid: "Formato de matrícula inválido",
             brandRequired: "Marca é obrigatória",
             modelRequired: "Modelo é obrigatório",
+            kilometersRequired: "Quilómetros é obrigatório",
             kilometersInvalid: "Quilómetros deve ser um número positivo",
           },
         },
@@ -1275,6 +1285,14 @@ i18next.use(initReactI18next).init({
           paymentInitFailed: "Não foi possível iniciar o pagamento.",
           noAppointmentsDescription:
             "Você ainda não tem agendamentos marcados.",
+          cancelAppointment: "Cancelar",
+          cancelling: "A cancelar...",
+          cancelTitle: "Cancelar Agendamento",
+          confirmCancel: "Tem certeza que deseja cancelar este agendamento?",
+          confirmButton: "Sim, Cancelar",
+          cancelButton: "Não, Manter",
+          cancelSuccess: "Agendamento cancelado com sucesso!",
+          cancelFailed: "Não foi possível cancelar o agendamento.",
         },
 
         // Invoice translations
@@ -1921,6 +1939,7 @@ i18next.use(initReactI18next).init({
             plateInvalid: "Formato de matrícula inválido",
             brandRequired: "La marca es obligatoria",
             modelRequired: "El modelo es obligatorio",
+            kilometersRequired: "Los kilómetros son obligatorios",
             kilometersInvalid: "Los kilómetros deben ser un número positivo",
           },
         },
@@ -1934,6 +1953,14 @@ i18next.use(initReactI18next).init({
           redirectingPayment: "Redirigiendo…",
           paymentInitFailed: "No se pudo iniciar el pago.",
           noAppointmentsDescription: "Aún no tienes citas programadas.",
+          cancelAppointment: "Cancelar",
+          cancelling: "Cancelando...",
+          cancelTitle: "Cancelar Cita",
+          confirmCancel: "¿Está seguro de que desea cancelar esta cita?",
+          confirmButton: "Sí, Cancelar",
+          cancelButton: "No, Mantener",
+          cancelSuccess: "¡Cita cancelada con éxito!",
+          cancelFailed: "No se pudo cancelar la cita.",
         },
 
         // Invoice translations
@@ -2535,6 +2562,7 @@ i18next.use(initReactI18next).init({
             plateInvalid: "Format de plaque d'immatriculation invalide",
             brandRequired: "La marque est obligatoire",
             modelRequired: "Le modèle est obligatoire",
+            kilometersRequired: "Les kilomètres sont obligatoires",
             kilometersInvalid: "Les kilomètres doivent être un nombre positif",
           },
         },
@@ -2542,6 +2570,23 @@ i18next.use(initReactI18next).init({
         noCompletedServicesMessage:
           "Vous n'avez pas encore de services terminés. Lorsque vous terminerez un service, il apparaîtra ici.",
         myInvoices: "Mes Factures",
+        
+        appointmentsPage: {
+          title: "Mes Rendez-vous",
+          goToPayment: "Aller au paiement",
+          redirectingPayment: "Redirection…",
+          paymentInitFailed: "Impossible de démarrer le paiement.",
+          noAppointmentsDescription:
+            "Vous n'avez pas encore de rendez-vous programmés.",
+          cancelAppointment: "Annuler",
+          cancelling: "Annulation...",
+          cancelTitle: "Annuler le Rendez-vous",
+          confirmCancel: "Êtes-vous sûr de vouloir annuler ce rendez-vous?",
+          confirmButton: "Oui, Annuler",
+          cancelButton: "Non, Conserver",
+          cancelSuccess: "Rendez-vous annulé avec succès!",
+          cancelFailed: "Impossible d'annuler le rendez-vous.",
+        },
 
         appointmentModal: {
           title: "Créer un Rendez-vous",

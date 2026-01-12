@@ -171,27 +171,52 @@ class AppointmentRepository:
                 joinedload(Appointment.status)
             )
         )
-        # Admin e Gestor veem tudo; outros roles veem apenas serviços da sua área e não concluídas
-        if user and user.role.lower() not in ["gestor", "admin", "administrador", "gerente"]:
-            role_name = user.role.lower()
-            
-            # Mapear roles para áreas de serviço
-            if "mecanico" in role_name or "mecânico" in role_name:
-                query = query.join(Service).filter(Service.area.ilike("%mecânica%"))
-            elif "eletric" in role_name or "elétric" in role_name:
-                query = query.join(Service).filter(Service.area.ilike("%elétrica%"))
-            elif "borracheiro" in role_name or "pneu" in role_name:
-                query = query.join(Service).filter(Service.area.ilike("%pneu%"))
-            else:
-                # Para outras roles, filtrar genericamente pela role
-                query = query.join(Service).filter(Service.area.ilike(f"%{user.role}%"))
-            
-            # Filtrar apenas appointments não concluídas (excluir "Concluída" e "Cancelada")
-            query = query.filter(
-                ~Appointment.status.has(
-                    Status.name.in_(["Concluída", "Cancelada"])
+        
+        # Admin e Manager (sistema) veem tudo; outros roles veem apenas serviços da sua área e não concluídas
+        if user:
+            if user.role.lower() not in ["admin", "manager"]:
+                # Buscar o employee associado ao user para obter o cargo real
+                from app.models.employee import Employee
+                from app.models.role import Role
+                
+                # Eager load the role relationship
+                employee = (
+                    self.db.query(Employee)
+                    .options(joinedload(Employee.role))
+                    .filter(Employee.id == user.employee_id)
+                    .first()
                 )
-            )
+                
+                if employee:
+                    print(f"[DEBUG] Employee encontrado: ID={employee.id}, Nome={employee.name}, Role ID={employee.role_id}")
+                    if employee.role:
+                        role_name = employee.role.name.lower()
+                        
+                        # Se é Gestor (cargo), vê tudo
+                        if "gestor" not in role_name and "gerente" not in role_name:
+                            # Mapear cargos para áreas de serviço
+                            # Nota: as áreas no banco estão como "Mecânica", "Elétrica", etc.
+                            if "mecanico" in role_name or "mecânico" in role_name:
+                                query = query.join(Service).filter(Service.area.ilike("%Mecânica%"))
+                            elif "eletric" in role_name or "elétric" in role_name:
+                                query = query.join(Service).filter(Service.area.ilike("%Elétrica%"))
+                            elif "borracheiro" in role_name or "pneu" in role_name:
+                                query = query.join(Service).filter(Service.area.ilike("%pneu%"))
+                            elif "estética" in role_name or "estetica" in role_name:
+                                query = query.join(Service).filter(Service.area.ilike("%Estética%"))
+                            elif "vidro" in role_name:
+                                query = query.join(Service).filter(Service.area.ilike("%Vidros%"))
+                            else:
+                                # Para outros cargos, filtrar genericamente pela área
+                                query = query.join(Service).filter(Service.area.ilike(f"%{role_name}%"))
+                            
+                            # Filtrar apenas appointments não concluídas (excluir "Concluída" e "Cancelada")
+                            query = query.filter(
+                                ~Appointment.status.has(
+                                    Status.name.in_(["Concluída", "Cancelada"])
+                                )
+                            )
+        
         return query.order_by(Appointment.id.desc()).offset(skip).limit(limit).all()
 
     # def get_all(self, skip: int = 0, limit: int = 100) -> List[Appointment]:

@@ -103,9 +103,9 @@ export default function Home() {
   }, []);
 
   const isManager = user
-    ? ["admin", "gestor", "administrador", "gerente"].includes(
-        user.role.toLowerCase()
-      )
+    ? user.is_manager ||
+      ["admin", "manager"].includes(user.role.toLowerCase()) ||
+      (user.employee_role?.name && ["gestor", "gerente"].includes(user.employee_role.name.toLowerCase()))
     : false;
 
   return (
@@ -182,10 +182,10 @@ export default function Home() {
                 <CardTitle className="text-sm font-medium">
                   Concluídos Hoje
                 </CardTitle>
-                <CheckCircle className="h-5 w-5 text-green-600" />
+                <CheckCircle className="h-5 w-5 text-red-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-green-600">
+                <div className="text-3xl font-bold text-red-600">
                   {stats.completedToday}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
@@ -200,10 +200,10 @@ export default function Home() {
                 <CardTitle className="text-sm font-medium">
                   Agendamentos em Andamento
                 </CardTitle>
-                <TrendingUp className="h-5 w-5 text-blue-600" />
+                <TrendingUp className="h-5 w-5 text-red-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-blue-600">
+                <div className="text-3xl font-bold text-red-600">
                   {stats.inProgressAppointments}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
@@ -220,10 +220,10 @@ export default function Home() {
                     <CardTitle className="text-sm font-medium">
                       Clientes Registados
                     </CardTitle>
-                    <Users className="h-5 w-5 text-purple-600" />
+                    <Users className="h-5 w-5 text-red-600" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold text-purple-600">
+                    <div className="text-3xl font-bold text-red-600">
                       {stats.totalCustomers}
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
@@ -238,10 +238,10 @@ export default function Home() {
                     <CardTitle className="text-sm font-medium">
                       Veículos Cadastrados
                     </CardTitle>
-                    <Car className="h-5 w-5 text-orange-600" />
+                    <Car className="h-5 w-5 text-red-600" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold text-orange-600">
+                    <div className="text-3xl font-bold text-red-600">
                       {stats.totalVehicles}
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
@@ -256,10 +256,10 @@ export default function Home() {
                     <CardTitle className="text-sm font-medium">
                       Alertas de Stock
                     </CardTitle>
-                    <Package className="h-5 w-5 text-yellow-600" />
+                    <Package className="h-5 w-5 text-red-600" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold text-yellow-600">
+                    <div className="text-3xl font-bold text-red-600">
                       {stats.lowStockItems}
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">

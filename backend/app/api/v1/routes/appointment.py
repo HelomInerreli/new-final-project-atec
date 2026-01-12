@@ -282,14 +282,14 @@ def add_extra_service_request(
     
     # Enviar notificação sobre solicitação de serviço extra
     try:
-        from app.models.extra_service import ExtraService
-        extra_service = db.query(ExtraService).filter(ExtraService.id == extra_service_request_in.extra_service_id).first()
+        from app.models.service import Service
+        service = db.query(Service).filter(Service.id == extra_service_request_in.service_id).first()
         
-        if extra_service:
+        if service:
             NotificationService.notify_extra_service_requested(
                 db=db,
                 appointment_id=appointment_id,
-                service_name=extra_service.name,
+                service_name=service.name,
                 requested_by=current_user.name
             )
     except Exception as e:

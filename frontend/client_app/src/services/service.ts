@@ -32,5 +32,16 @@ export const appointmentService = {
     async create(appointmentData: CreateAppointmentData) {
         const response = await http.post("/appointments", appointmentData);
         return response.data;
+    },
+    
+    /**
+     * Cancela um agendamento existente
+     * @param appointmentId - ID do agendamento a cancelar
+     * @returns Promise com dados do agendamento cancelado
+     * @throws Erro HTTP se o agendamento não puder ser cancelado
+     */
+    async cancel(appointmentId: number) {
+        const response = await http.patch(`/appointments/${appointmentId}/cancel`);
+        return response.data;
     }
 };

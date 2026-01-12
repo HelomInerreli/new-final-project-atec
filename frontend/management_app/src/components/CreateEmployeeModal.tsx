@@ -505,7 +505,7 @@ const CreateEmployeeModal: FC<CreateEmployeeModalProps> = ({
                     </div>
                     {form.has_system_access && (
                       <p className="text-xs text-gray-500 px-2 mt-1">
-                        Uma senha padrão (123456) será definida. O funcionário
+                        Uma senha padrão (Novo123456!) será definida. O funcionário
                         deverá alterá-la no primeiro acesso.
                       </p>
                     )}

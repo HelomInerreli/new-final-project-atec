@@ -40,8 +40,9 @@ class EmployeeRepository:
         
         # If has_system_access is True, create a User account with default password
         if employee.has_system_access:
-            # Get role name from employee's role
-            role_name = db_employee.role.name if db_employee.role else "user"
+            # Map employee role to system role (user, admin, manager)
+            # If employee is_manager, assign 'manager' role, otherwise 'user'
+            system_role = "manager" if db_employee.is_manager else "user"
             
             # Get default password from environment for security
             default_password = os.getenv("DEFAULT_EMPLOYEE_PASSWORD", "Employee@2025!Change")
@@ -49,7 +50,7 @@ class EmployeeRepository:
                 name=f"{employee.name} {employee.last_name}",
                 email=employee.email,
                 password=default_password,
-                role=role_name
+                role=system_role
             )
             # Create user already linked to employee with password change required
             db_user = crud_user.create_user(self.db, user_create, employee_id=db_employee.id)
@@ -80,14 +81,16 @@ class EmployeeRepository:
         
         # If access is enabled and no user exists, create one with default password
         if new_has_access and not existing_user:
-            role_name = db_employee.role.name if db_employee.role else "user"
+            # Map employee role to system role (user, admin, manager)
+            # If employee is_manager, assign 'manager' role, otherwise 'user'
+            system_role = "manager" if db_employee.is_manager else "user"
             # Get default password from environment for security
             default_password = os.getenv("DEFAULT_EMPLOYEE_PASSWORD", "Employee@2025!Change")
             user_create = UserCreate(
                 name=f"{db_employee.name} {db_employee.last_name}",
                 email=db_employee.email,
                 password=default_password,
-                role=role_name
+                role=system_role
             )
             db_user = crud_user.create_user(self.db, user_create)
             db_user.employee_id = db_employee.id

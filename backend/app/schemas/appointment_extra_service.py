@@ -3,9 +3,9 @@ from datetime import datetime
 from typing import Optional
 
 class AppointmentExtraServiceBase(BaseModel):
-    # Se o pedido vier de um item do catálogo, usar extra_service_id.
+    # Se o pedido vier de um item do catálogo, usar service_id.
     # Se for um pedido personalizado, preencher name/description/price.
-    extra_service_id: Optional[int] = None
+    service_id: Optional[int] = None
     name: Optional[str] = None
     description: Optional[str] = None
     price: Optional[float] = None

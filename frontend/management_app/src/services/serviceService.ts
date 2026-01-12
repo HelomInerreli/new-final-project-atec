@@ -10,6 +10,7 @@ export interface Service {
   price: number;
   duration_minutes?: number;
   is_active: boolean;
+  area?: string;
 }
 
 // Interface para criação de serviço
@@ -19,6 +20,7 @@ export interface ServiceCreate {
   price: number;
   duration_minutes?: number;
   is_active?: boolean;
+  area?: string;
 }
 
 // Interface para atualização de serviço
@@ -28,6 +30,7 @@ export interface ServiceUpdate {
   price?: number;
   duration_minutes?: number;
   is_active?: boolean;
+  area?: string;
 }
 
 // Serviço para gerenciar serviços

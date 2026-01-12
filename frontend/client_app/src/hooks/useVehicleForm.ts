@@ -23,7 +23,7 @@ export function useVehicleForm(
         plate: "",
         brand: "",
         model: "",
-        kilometers: 0,
+        kilometers: "" as any,
         customer_id: customerId,
         description: "",
         color: "",
@@ -67,7 +67,7 @@ export function useVehicleForm(
                 plate: "",
                 brand: "",
                 model: "",
-                kilometers: 0,
+                kilometers: "" as any,
                 customer_id: customerId,
                 description: "",
                 color: "",
@@ -112,14 +112,26 @@ export function useVehicleForm(
      */
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]:
-                type === "checkbox" ? checked : 
-                name === "kilometers" ? parseInt(value) || 0 : 
-                name === "plate" ? formatPlate(value) : 
-                value,
-        }));
+        
+        // Para kilometers, validar que só aceita números
+        if (name === "kilometers") {
+            // Permitir vazio ou apenas números
+            if (value === "" || /^\d+$/.test(value)) {
+                setFormData((prev) => ({
+                    ...prev,
+                    [name]: value === "" ? "" : parseInt(value)
+                }));
+            }
+        } else {
+            setFormData((prev) => ({
+                ...prev,
+                [name]:
+                    type === "checkbox" ? checked : 
+                    name === "plate" ? formatPlate(value) : 
+                    value,
+            }));
+        }
+        
         if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
     };
 

@@ -62,10 +62,10 @@ export default function SideBarMenu() {
   const translateRole = (role: string): string => {
     const roleMap: Record<string, string> = {
       admin: "Admin",
-      gestor: "Gestor",
       mecanico: "Mecânico",
       mecânico: "Mecânico",
       eletricista: "Eletricista",
+      borracheiro: "Borracheiro",
       chapeiro: "Chapeiro",
       pintor: "Pintor",
       estética: "Estética",
@@ -162,10 +162,11 @@ export default function SideBarMenu() {
     http
       .get(`/managementauth/me`)
       .then((res) => {
-        const { id, name, role, is_manager } = res.data;
+        const { id, name, role, is_manager, employee_role } = res.data;
         setUserId(id);
         setUserName(name);
-        setUserRole(role || "");
+        // Se o usuário tem employee_role, usar o cargo do funcionário, senão usar role do sistema
+        setUserRole(employee_role?.name || role || "");
         setIsManager(is_manager || false);
       })
       .catch((err) => {

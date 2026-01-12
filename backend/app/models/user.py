@@ -15,4 +15,6 @@ class User(Base):
     employee_id = Column(Integer, ForeignKey("employees.id"), nullable=True, unique=True)
     requires_password_change = Column(Boolean, nullable=False, default=False)
     
+    # Relationships
     employee = relationship("Employee", back_populates="user", uselist=False)
+    notifications = relationship("UserNotification", back_populates="user", cascade="all, delete-orphan")
