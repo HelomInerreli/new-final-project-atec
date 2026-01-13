@@ -29,8 +29,8 @@ from app.schemas import user
 
 # Define status constants locally to avoid magic strings
 APPOINTMENT_STATUS_PENDING = "Pendente"
-APPOINTMENT_STATUS_CANCELED = "Canceled"
-APPOINTMENT_STATUS_FINALIZED = "Finalized"
+APPOINTMENT_STATUS_CANCELED = "Cancelado"
+APPOINTMENT_STATUS_FINALIZED = "Concluído"
 
 
 class AppointmentRepository:

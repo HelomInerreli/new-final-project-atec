@@ -20,3 +20,6 @@ from .order_part import OrderPart
 from .absenceType import AbsenceType
 from .absence_status import AbsenceStatus
 from .absence import Absence
+from .user import User
+from .notificationBadge import Notification
+from .userNotification import UserNotification

@@ -387,34 +387,6 @@ export function FutureAppointments() {
 
                           {/* Rodapé do card com botões de ação */}
                           <div className="appointment-card-footer d-flex gap-2">
-                            {/* Botão de cancelar (apenas se pode cancelar) */}
-                            {canCancel && (
-                              <button
-                                type="button"
-                                className="btn btn-outline-danger"
-                                disabled={cancelLoadingId === appointment.id}
-                                onClick={() =>
-                                  handleCancelAppointment(appointment.id)
-                                }
-                              >
-                                {cancelLoadingId === appointment.id ? (
-                                  <>
-                                    <span className="spinner-border spinner-border-sm me-2" />
-                                    {t("appointmentsPage.cancelling", {
-                                      defaultValue: "A cancelar...",
-                                    })}
-                                  </>
-                                ) : (
-                                  <>
-                                    <FaTimes className="me-2" />
-                                    {t("appointmentsPage.cancelAppointment", {
-                                      defaultValue: "Cancelar",
-                                    })}
-                                  </>
-                                )}
-                              </button>
-                            )}
-                            
                             {/* Botão de pagamento (apenas para status "aguardando pagamento") */}
                             {isWaitingPayment && (
                               <button
