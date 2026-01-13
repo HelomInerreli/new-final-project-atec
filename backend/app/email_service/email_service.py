@@ -18,10 +18,28 @@ class EmailService:
         try:
             msg = MIMEMultipart('alternative')
             msg['Subject'] = subject
-            msg['From'] = self.email_from
+            msg['From'] = f"Mecatec Oficinas <{self.email_from}>"
             msg['To'] = to_email
 
-            msg.attach(MIMEText(body, 'html'))
+            # Adicionar logo ao cabeçalho do email
+            body_with_logo = f"""
+            <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
+                <div style="background-color: #dc2626; padding: 20px; text-align: center;">
+                    <h1 style="color: white; margin: 0; font-size: 28px;">🔧 MECATEC</h1>
+                    <p style="color: white; margin: 5px 0 0 0; font-size: 14px;">Oficina Automóvel</p>
+                </div>
+                <div style="padding: 20px; background-color: #ffffff;">
+                    {body}
+                </div>
+                <div style="background-color: #f5f5f5; padding: 15px; text-align: center; font-size: 12px; color: #666;">
+                    <p style="margin: 5px 0;">Mecatec - Oficina Automóvel</p>
+                    <p style="margin: 5px 0;">📍 Avenida Mário Brito (EN107), nº 3570 - Freixieiro, 4455-491 Perafita | 📞 +351 123 456 789</p>
+                    <p style="margin: 5px 0;">✉️ geral@mecatec.pt</p>
+                </div>
+            </div>
+            """
+
+            msg.attach(MIMEText(body_with_logo, 'html'))
             
             with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
                 server.starttls()
