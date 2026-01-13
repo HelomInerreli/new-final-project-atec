@@ -170,3 +170,33 @@ class EmailService:
         """
 
         return self.send_email(customer_email, subject, html_content)
+
+    def send_payment_confirmation_email(self, customer_email: str, customer_name: str, invoice_number: str, 
+                                       amount: float, vehicle_plate: str):
+        """Envia email de confirmação de pagamento"""
+        subject = f"Pagamento Confirmado - Fatura {invoice_number}"
+    
+        html_content = f"""
+        <html>
+            <body>
+                <h2>Pagamento Confirmado</h2>
+                <p>Caro(a) {customer_name},</p>
+                <p>Confirmamos o recebimento do seu pagamento!</p>
+                
+                <div style="background-color: #e8f5e9; padding: 15px; border-left: 4px solid #4caf50; margin: 20px 0;">
+                    <p><strong>Fatura:</strong> {invoice_number}</p>
+                    <p><strong>Veículo:</strong> {vehicle_plate}</p>
+                    <p><strong>Valor Pago:</strong> &euro;{amount:.2f}</p>
+                </div>
+                
+                <p>Pode consultar e descarregar a sua fatura a qualquer momento na área de cliente em <strong>Meus Serviços > Histórico</strong>.</p>
+                <p>O seu veículo está pronto para levantamento.</p>
+                
+                <br>
+                <p>Obrigado pela sua preferência!</p>
+                <p>A Equipa da Oficina</p>
+            </body>
+        </html>
+        """
+
+        return self.send_email(customer_email, subject, html_content)

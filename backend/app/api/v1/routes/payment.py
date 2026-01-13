@@ -242,12 +242,32 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
                 print(f"✅ Invoice created successfully: {invoice.invoice_number}")
                 print(f"✅ Payment confirmed for appointment {appointment_id}")
                 
-                # Enviar notificação de pagamento recebido
+                # Enviar email de confirmação simples
                 try:
+                    from app.email_service.email_service import EmailService
+                    from app.models.vehicle import Vehicle
+                    
                     customer = db.query(Customer).filter(Customer.id == appointment.customer_id).first()
+                    vehicle = db.query(Vehicle).filter(Vehicle.id == appointment.vehicle_id).first()
                     amount = session.get('amount_total', 0) / 100  # Stripe usa centavos
                     
-                    if customer:
+                    if customer and vehicle:
+                        # Enviar email simples de confirmação
+                        email_service = EmailService()
+                        email_sent = email_service.send_payment_confirmation_email(
+                            customer_email=customer.email,
+                            customer_name=customer.name,
+                            invoice_number=invoice.invoice_number,
+                            amount=amount,
+                            vehicle_plate=vehicle.plate
+                        )
+                        
+                        if email_sent:
+                            print(f"✅ Email de confirmação enviado para {customer.email}")
+                        else:
+                            print(f"⚠️ Falha ao enviar email para {customer.email}")
+                        
+                        # Enviar notificação interna
                         NotificationService.notify_payment_received(
                             db=db,
                             appointment_id=appointment.id,
@@ -255,8 +275,11 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
                             customer_name=customer.name
                         )
                         print(f"✅ Notification sent to customer {customer.name}")
+                        
                 except Exception as e:
-                    print(f"⚠️ Erro ao enviar notificação de pagamento: {e}")
+                    print(f"⚠️ Erro ao enviar confirmação de pagamento: {e}")
+                    import traceback
+                    traceback.print_exc()
                 
                 return {
                     "status": "success",
@@ -288,6 +311,15 @@ def create_invoice_from_session(db: Session, appointment: Appointment, session):
     from app.crud.appointment import AppointmentRepository
     
     print(f"📝 Starting invoice creation for appointment {appointment.id}")
+    
+    # Verificar se já existe invoice para este appointment (proteção contra duplicação)
+    existing_invoice = db.query(Invoice).filter(
+        Invoice.appointment_id == appointment.id
+    ).first()
+    
+    if existing_invoice:
+        print(f"⚠️ Invoice já existe para appointment {appointment.id}: {existing_invoice.invoice_number}")
+        return existing_invoice
     
     # Usar o novo sistema de cálculo discriminado
     repo = AppointmentRepository(db)
@@ -398,12 +430,25 @@ def create_invoice_from_session(db: Session, appointment: Appointment, session):
         paid_at=datetime.utcnow()
     )
     
-    db.add(invoice)
-    db.flush()  # Get the ID without committing
-    
-    print(f"✅ Invoice object created with ID: {invoice.id}")
-    
-    return invoice
+    try:
+        db.add(invoice)
+        db.flush()  # Get the ID without committing
+        print(f"✅ Invoice object created with ID: {invoice.id}")
+        return invoice
+        
+    except Exception as e:
+        # Se houver erro de chave duplicada (race condition), buscar a invoice existente
+        if "UNIQUE KEY constraint" in str(e) or "Violation of UNIQUE KEY" in str(e):
+            db.rollback()
+            print(f"⚠️ Duplicate key detected, fetching existing invoice...")
+            existing_invoice = db.query(Invoice).filter(
+                Invoice.appointment_id == appointment.id
+            ).first()
+            if existing_invoice:
+                print(f"✅ Returning existing invoice: {existing_invoice.invoice_number}")
+                return existing_invoice
+        # Se for outro erro, propagar
+        raise
 
 
 # ==================== INVOICE ENDPOINTS ====================
