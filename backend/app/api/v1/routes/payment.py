@@ -242,21 +242,59 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
                 print(f"✅ Invoice created successfully: {invoice.invoice_number}")
                 print(f"✅ Payment confirmed for appointment {appointment_id}")
                 
-                # Enviar notificação de pagamento recebido
-                try:
-                    customer = db.query(Customer).filter(Customer.id == appointment.customer_id).first()
-                    amount = session.get('amount_total', 0) / 100  # Stripe usa centavos
+                # # Enviar email de confirmação simples
+                # try:
+                #     from app.email_service.email_service import EmailService
+                #     from app.models.vehicle import Vehicle
                     
-                    if customer:
-                        NotificationService.notify_payment_received(
-                            db=db,
-                            appointment_id=appointment.id,
-                            amount=amount,
-                            customer_name=customer.name
-                        )
-                        print(f"✅ Notification sent to customer {customer.name}")
-                except Exception as e:
-                    print(f"⚠️ Erro ao enviar notificação de pagamento: {e}")
+                #     customer = db.query(Customer).filter(Customer.id == appointment.customer_id).first()
+                #     vehicle = db.query(Vehicle).filter(Vehicle.id == appointment.vehicle_id).first()
+                #     amount = session.get('amount_total', 0) / 100  # Stripe usa centavos
+                    
+                #     if customer and vehicle and customer.auth and customer.auth.email:
+                #         # Obter nome do serviço para incluir no email
+                #         service_name = appointment.service.name if appointment.service else None
+                        
+                #         print(f"📧 Preparando email de pagamento para {customer.auth.email}")
+                        
+                #         # Enviar email simples de confirmação
+                #         email_service = EmailService()
+                #         email_sent = email_service.send_payment_confirmation_email(
+                #             customer_email=customer.auth.email,
+                #             customer_name=customer.name,
+                #             invoice_number=invoice.invoice_number,
+                #             amount=amount,
+                #             vehicle_plate=vehicle.plate,
+                #             service_name=service_name
+                #         )
+                        
+                #         if email_sent:
+                #             print(f"✅ Email de confirmação enviado para {customer.auth.email}")
+                #         else:
+                #             print(f"⚠️ Falha ao enviar email para {customer.auth.email}")
+                        
+                #         # Enviar notificação interna
+                #         NotificationService.notify_payment_received(
+                #             db=db,
+                #             appointment_id=appointment.id,
+                #             amount=amount,
+                #             customer_name=customer.name
+                #         )
+                #         print(f"✅ Notification sent to customer {customer.name}")
+                #     else:
+                #         if not customer:
+                #             print(f"❌ Cliente não encontrado para appointment {appointment.id}")
+                #         elif not vehicle:
+                #             print(f"❌ Veículo não encontrado para appointment {appointment.id}")
+                #         elif not customer.auth:
+                #             print(f"❌ CustomerAuth não encontrado para cliente {customer.id}")
+                #         elif not customer.auth.email:
+                #             print(f"❌ Email não encontrado no CustomerAuth para cliente {customer.id}")
+                        
+                # except Exception as e:
+                #     print(f"⚠️ Erro ao enviar confirmação de pagamento: {e}")
+                #     import traceback
+                #     traceback.print_exc()
                 
                 return {
                     "status": "success",
@@ -288,6 +326,15 @@ def create_invoice_from_session(db: Session, appointment: Appointment, session):
     from app.crud.appointment import AppointmentRepository
     
     print(f"📝 Starting invoice creation for appointment {appointment.id}")
+    
+    # Verificar se já existe invoice para este appointment (proteção contra duplicação)
+    existing_invoice = db.query(Invoice).filter(
+        Invoice.appointment_id == appointment.id
+    ).first()
+    
+    if existing_invoice:
+        print(f"⚠️ Invoice já existe para appointment {appointment.id}: {existing_invoice.invoice_number}")
+        return existing_invoice
     
     # Usar o novo sistema de cálculo discriminado
     repo = AppointmentRepository(db)
@@ -398,12 +445,25 @@ def create_invoice_from_session(db: Session, appointment: Appointment, session):
         paid_at=datetime.utcnow()
     )
     
-    db.add(invoice)
-    db.flush()  # Get the ID without committing
-    
-    print(f"✅ Invoice object created with ID: {invoice.id}")
-    
-    return invoice
+    try:
+        db.add(invoice)
+        db.flush()  # Get the ID without committing
+        print(f"✅ Invoice object created with ID: {invoice.id}")
+        return invoice
+        
+    except Exception as e:
+        # Se houver erro de chave duplicada (race condition), buscar a invoice existente
+        if "UNIQUE KEY constraint" in str(e) or "Violation of UNIQUE KEY" in str(e):
+            db.rollback()
+            print(f"⚠️ Duplicate key detected, fetching existing invoice...")
+            existing_invoice = db.query(Invoice).filter(
+                Invoice.appointment_id == appointment.id
+            ).first()
+            if existing_invoice:
+                print(f"✅ Returning existing invoice: {existing_invoice.invoice_number}")
+                return existing_invoice
+        # Se for outro erro, propagar
+        raise
 
 
 # ==================== INVOICE ENDPOINTS ====================
@@ -588,11 +648,13 @@ def confirm_payment_success(appointment_id: int, db: Session = Depends(get_db)):
         ).first()
         
         if existing_invoice:
-            print(f"✅ Pagamento já processado anteriormente")
+            print(f"✅ Pagamento já processado anteriormente. Email já foi enviado.")
+            print(f"⚠️ Evitando duplicação - retornando invoice existente: {existing_invoice.invoice_number}")
             return {
                 "status": "success",
                 "message": "Payment already processed",
-                "invoice_id": existing_invoice.id
+                "invoice_id": existing_invoice.id,
+                "invoice_number": existing_invoice.invoice_number
             }
         
         # Buscar a sessão mais recente do Stripe para este appointment
@@ -627,20 +689,55 @@ def confirm_payment_success(appointment_id: int, db: Session = Depends(get_db)):
         db.commit()
         print(f"✅ Pagamento confirmado e invoice criada: {invoice.invoice_number}")
         
-        # Enviar notificação ao cliente
+        # ✅ ENVIAR EMAIL APENAS PARA NOVO PAGAMENTO (proteção contra duplicação garantida pela verificação de existing_invoice)
         try:
-            customer = db.query(Customer).filter(Customer.id == appointment.customer_id).first()
-            amount = matching_session.amount_total / 100
+            from app.email_service.email_service import EmailService
             
-            if customer:
+            customer = db.query(Customer).filter(Customer.id == appointment.customer_id).first()
+            vehicle = db.query(Vehicle).filter(Vehicle.id == appointment.vehicle_id).first()
+            amount = matching_session.amount_total / 100  # Stripe usa centavos
+            
+            if customer and vehicle and customer.auth and customer.auth.email:
+                service_name = appointment.service.name if appointment.service else None
+                
+                print(f"📧 [NOVO PAGAMENTO] Enviando email de confirmação para {customer.auth.email}")
+                
+                email_service = EmailService()
+                email_sent = email_service.send_payment_confirmation_email(
+                    customer_email=customer.auth.email,
+                    customer_name=customer.name,
+                    invoice_number=invoice.invoice_number,
+                    amount=amount,
+                    vehicle_plate=vehicle.plate,
+                    service_name=service_name
+                )
+                
+                if email_sent:
+                    print(f"✅ Email de confirmação enviado para {customer.auth.email}")
+                else:
+                    print(f"⚠️ Falha ao enviar email de confirmação para {customer.auth.email}")
+                
+                # Enviar notificação interna
                 NotificationService.notify_payment_received(
                     db=db,
                     appointment_id=appointment.id,
                     amount=amount,
                     customer_name=customer.name
                 )
+                print(f"✅ Notificação interna enviada")
+            else:
+                if not customer:
+                    print(f"❌ Cliente não encontrado para appointment {appointment.id}")
+                elif not vehicle:
+                    print(f"❌ Veículo não encontrado para appointment {appointment.id}")
+                elif not customer.auth:
+                    print(f"❌ CustomerAuth não encontrado para cliente {customer.id}")
+                elif not customer.auth.email:
+                    print(f"❌ Email não encontrado no CustomerAuth para cliente {customer.id}")
         except Exception as e:
-            print(f"⚠️ Erro ao enviar notificação: {e}")
+            print(f"⚠️ Erro ao enviar confirmação de pagamento: {e}")
+            import traceback
+            traceback.print_exc()
         
         return {
             "status": "success",

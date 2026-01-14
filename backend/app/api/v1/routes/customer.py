@@ -62,6 +62,39 @@ def get_all_customer_profiles(
         raise HTTPException(status_code=500, detail="Failed to fetch customer profiles")
 
 
+@router.put("/profile")
+def update_customer_profile(
+    profile_data: CustomerUpdate,
+    current_user_id: str = Depends(get_current_user_id),
+    service: CustomerService = Depends(get_customer_service)
+):
+    """
+    Update authenticated customer's profile.
+    """
+    try:
+        return service.update_customer_profile(current_user_id, profile_data)
+    except CustomerNotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)
+    except CustomerValidationError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.message)
+
+
+@router.get("/me/complete-profile")
+def get_complete_customer_profile(
+    current_user_id: str = Depends(get_current_user_id),
+    service: CustomerService = Depends(get_customer_service)
+):
+    """
+    Get complete customer profile including auth info, personal details, and vehicles.
+    
+    Uses eager loading to avoid N+1 queries.
+    """
+    try:
+        return service.get_complete_profile(current_user_id)
+    except CustomerNotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)
+
+
 @router.get("/{customer_id}", response_model=Customer)
 def read_customer(
     customer_id: int,
@@ -142,34 +175,3 @@ def list_customers(
     Retrieve a list of customers with pagination.
     """
     return service.list_customers(skip=skip, limit=limit)
-
-@router.put("/profile")
-def update_customer_profile(
-    profile_data: CustomerUpdate,
-    current_user_id: str = Depends(get_current_user_id),
-    service: CustomerService = Depends(get_customer_service)
-):
-    """
-    Update authenticated customer's profile.
-    """
-    try:
-        return service.update_customer_profile(current_user_id, profile_data)
-    except CustomerNotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)
-    except CustomerValidationError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.message)
-
-@router.get("/me/complete-profile")
-def get_complete_customer_profile(
-    current_user_id: str = Depends(get_current_user_id),
-    service: CustomerService = Depends(get_customer_service)
-):
-    """
-    Get complete customer profile including auth info, personal details, and vehicles.
-    
-    Uses eager loading to avoid N+1 queries.
-    """
-    try:
-        return service.get_complete_profile(current_user_id)
-    except CustomerNotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)

@@ -451,12 +451,41 @@ const Profile: React.FC = () => {
   const handleEditSubmit = async (data: any) => {
     setEditLoading(true);
     try {
-      await updateCustomerProfile(data);
+      // Converter birthDate para birth_date para compatibilidade com o backend
+      const backendData = {
+        name: data.name,
+        phone: data.phone || null,
+        address: data.address || null,
+        city: data.city || null,
+        postal_code: data.postal_code || null,
+        country: data.country || null,
+        birth_date: data.birthDate || null,
+      };
+      
+      console.log('Sending data to backend:', backendData);
+      
+      await updateCustomerProfile(backendData);
       alert(t('profilePage.profileUpdatedSuccess'));
       await loadCustomerData();
       setShowEditModal(false);
-    } catch (error) {
-      alert(t('profilePage.profileUpdateError'));
+    } catch (error: any) {
+      console.error('Error updating profile:', error);
+      console.error('Error response:', error.response?.data);
+      console.error('Error detail:', JSON.stringify(error.response?.data?.detail, null, 2));
+      console.error('Error status:', error.response?.status);
+      
+      // Se for um array de erros de validação do Pydantic
+      let errorMessage = t('profilePage.profileUpdateError');
+      if (error.response?.data?.detail && Array.isArray(error.response.data.detail)) {
+        const validationErrors = error.response.data.detail.map((err: any) => 
+          `${err.loc?.join('.')} - ${err.msg}`
+        ).join('\n');
+        errorMessage = `Erro de validação:\n${validationErrors}`;
+      } else if (typeof error.response?.data?.detail === 'string') {
+        errorMessage = error.response.data.detail;
+      }
+      
+      alert(errorMessage);
     } finally {
       setEditLoading(false);
     }

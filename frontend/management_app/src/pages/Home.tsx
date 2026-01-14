@@ -54,9 +54,7 @@ export default function Home() {
 
         const inProgress = appointments.filter((a: any) => {
           const statusName = a.status?.name?.toLowerCase() || "";
-          return (
-            statusName.includes("andamento") || statusName.includes("pausad")
-          );
+          return statusName.includes("andamento");
         }).length;
 
         const today = new Date().toDateString();
@@ -64,7 +62,7 @@ export default function Home() {
           const appointmentDate = new Date(a.appointment_date).toDateString();
           return (
             appointmentDate === today &&
-            a.status?.name?.toLowerCase().includes("concluí")
+            a.status?.name?.toLowerCase().includes("concluída")
           );
         }).length;
 
@@ -105,7 +103,8 @@ export default function Home() {
   const isManager = user
     ? user.is_manager ||
       ["admin", "manager"].includes(user.role.toLowerCase()) ||
-      (user.employee_role?.name && ["gestor", "gerente"].includes(user.employee_role.name.toLowerCase()))
+      (user.employee_role?.name &&
+        ["gestor", "gerente"].includes(user.employee_role.name.toLowerCase()))
     : false;
 
   return (

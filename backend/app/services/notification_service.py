@@ -189,7 +189,7 @@ class NotificationService:
                 if user and user.id not in user_ids:
                     user_ids.append(user.id)
         
-        decision = "aprovado" if approved else "recusado"
+        decision = "aprovou" if approved else "recusou"
         alert_type = "success" if approved else "danger"
         text = f"Cliente {decision} o serviço extra '{service_name}' no agendamento #{appointment_id}"
         
@@ -213,6 +213,7 @@ class NotificationService:
         # Mapear área de serviço para nome de role
         area_role_map = {
             "Mecânica": ["Mecânico", "Mecanico"],
+            "Borracharia": ["Borracheiro"],
             "Elétrica": ["Eletricista"],
             "Chaparia": ["Chapeiro"],
             "Pintura": ["Pintor"],
@@ -275,7 +276,7 @@ class NotificationService:
         """Notifica sobre pagamento recebido."""
         user_ids = NotificationService.get_admin_and_manager_ids(db)
         
-        text = f"Pagamento de R$ {amount:.2f} recebido do cliente {customer_name} - Agendamento #{appointment_id}"
+        text = f"Pagamento de € {amount:.2f} recebido do cliente {customer_name} - Agendamento #{appointment_id}"
         
         NotificationService.create_notification_for_users(
             db=db,

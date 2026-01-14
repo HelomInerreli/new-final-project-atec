@@ -18,10 +18,28 @@ class EmailService:
         try:
             msg = MIMEMultipart('alternative')
             msg['Subject'] = subject
-            msg['From'] = self.email_from
+            msg['From'] = f"Mecatec Oficinas <{self.email_from}>"
             msg['To'] = to_email
 
-            msg.attach(MIMEText(body, 'html'))
+            # Adicionar logo ao cabeçalho do email
+            body_with_logo = f"""
+            <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
+                <div style="background-color: #dc2626; padding: 20px; text-align: center;">
+                    <h1 style="color: white; margin: 0; font-size: 28px;"> MECATEC</h1>
+                    <p style="color: white; margin: 5px 0 0 0; font-size: 14px;">Oficina Automóvel</p>
+                </div>
+                <div style="padding: 20px; background-color: #ffffff;">
+                    {body}
+                </div>
+                <div style="background-color: #f5f5f5; padding: 15px; text-align: center; font-size: 12px; color: #666;">
+                    <p style="margin: 5px 0;">Mecatec - Oficina Automóvel</p>
+                    <p style="margin: 5px 0;">📍 Avenida Mário Brito (EN107), nº 3570 - Freixieiro, 4455-491 Perafita | 📞 +351 123 456 789</p>
+                    <p style="margin: 5px 0;">✉️ geral@mecatec.pt</p>
+                </div>
+            </div>
+            """
+
+            msg.attach(MIMEText(body_with_logo, 'html'))
             
             with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
                 server.starttls()
@@ -165,6 +183,52 @@ class EmailService:
                 <br>
                 <p>Obrigado pela sua confiança!</p>
                 <p>A Equipa da Oficina</p>
+            </body>
+        </html>
+        """
+
+        return self.send_email(customer_email, subject, html_content)
+
+    def send_payment_confirmation_email(self, customer_email: str, customer_name: str, invoice_number: str, 
+                                       amount: float, vehicle_plate: str, service_name: str = None):
+        """Envia email de confirmação de pagamento com agradecimento"""
+        subject = f"✅ Pagamento Confirmado - Fatura {invoice_number}"
+    
+        service_info = f"<p><strong>Serviço:</strong> {service_name}</p>" if service_name else ""
+    
+        html_content = f"""
+        <html>
+            <body>
+                <h2 style="color: #4caf50;">🎉 Pagamento Confirmado com Sucesso!</h2>
+                <p>Caro(a) {customer_name},</p>
+                <p>Temos o prazer de confirmar que recebemos o seu pagamento!</p>
+                
+                <div style="background-color: #e8f5e9; padding: 20px; border-left: 4px solid #4caf50; margin: 20px 0; border-radius: 5px;">
+                    <p style="margin: 5px 0;"><strong>📄 Fatura:</strong> {invoice_number}</p>
+                    <p style="margin: 5px 0;"><strong>🚗 Veículo:</strong> {vehicle_plate}</p>
+                    {service_info}
+                    <p style="margin: 5px 0;"><strong>💰 Valor Pago:</strong> <span style="color: #4caf50; font-size: 18px; font-weight: bold;">&euro;{amount:.2f}</span></p>
+                    <p style="margin: 15px 0 5px 0; color: #4caf50; font-weight: bold;">✓ Pagamento processado com sucesso</p>
+                </div>
+                
+                <div style="background-color: #f0f8ff; padding: 15px; border-left: 4px solid #2196f3; margin: 20px 0; border-radius: 5px;">
+                    <h3 style="margin-top: 0; color: #2196f3;">📋 Próximos Passos</h3>
+                    <p>✓ O seu veículo está pronto para levantamento</p>
+                    <p>✓ Pode consultar e descarregar a sua fatura a qualquer momento na área de cliente em <strong>Meus Serviços</strong></p>
+                    <p>✓ Traga este email ou a referência da fatura no momento do levantamento</p>
+                </div>
+                
+                <div style="background-color: #fff3cd; padding: 15px; margin: 20px 0; border-radius: 5px; text-align: center;">
+                    <h3 style="color: #856404; margin-top: 0;">💛 Muito Obrigado pela sua Confiança!</h3>
+                    <p style="color: #856404;">É um prazer tê-lo(a) como nosso cliente. A equipa da <strong>Mecatec</strong> agradece a sua preferência e espera vê-lo(a) novamente em breve!</p>
+                    <p style="color: #856404; font-style: italic;">Estamos sempre ao seu dispor para cuidar do seu veículo com a qualidade e dedicação que merece.</p>
+                </div>
+                
+                <p style="margin-top: 30px;">Se tiver alguma dúvida ou precisar de assistência, não hesite em contactar-nos.</p>
+                
+                <br>
+                <p><strong>Com os melhores cumprimentos,</strong></p>
+                <p><strong>A Equipa Mecatec</strong> 🔧</p>
             </body>
         </html>
         """

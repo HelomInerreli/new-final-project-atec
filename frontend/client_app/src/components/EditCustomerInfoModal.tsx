@@ -115,7 +115,7 @@ const EditCustomerInfoModal: React.FC<EditCustomerInfoModalProps> = ({
       dateString = `${year}-${month}-${day}`;
       setFormData(prev => ({
         ...prev,
-        birth_date: dateString
+        birthDate: dateString
       }));
     }
     };

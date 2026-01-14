@@ -284,24 +284,28 @@ export const useAppointmentModal = (show: boolean, onSuccess: () => void, onClos
     };
 
     /**
-     * Efeito para carregar veículos e serviços quando o utilizador está autenticado
+     * Efeito para carregar serviços (sempre) e veículos (apenas se autenticado)
+     * Serviços são públicos e podem ser visualizados sem login
+     * Veículos só são carregados quando o utilizador está autenticado
      * Executa ao montar o componente ou quando o estado de login muda
      */
     useEffect(() => {
-        if (!isLoggedIn || !loggedInCustomerId) {
-            setLoading(false);
-            return;
-        }
-
         const fetchData = async () => {
             try {
                 setLoading(true);
-                const [vehiclesData, servicesData] = await Promise.all([
-                    vehicleService.getByCustomer(loggedInCustomerId),
-                    serviceService.getAll()
-                ]);
-                setVehicles(vehiclesData);
+                
+                // Sempre carregar serviços (públicos)
+                const servicesData = await serviceService.getAll();
                 setServices(servicesData);
+                
+                // Carregar veículos apenas se autenticado
+                if (isLoggedIn && loggedInCustomerId) {
+                    const vehiclesData = await vehicleService.getByCustomer(loggedInCustomerId);
+                    setVehicles(vehiclesData);
+                } else {
+                    setVehicles([]);
+                }
+                
                 setLoading(false);
             } catch (error) {
                 setError('Erro ao carregar dados');
