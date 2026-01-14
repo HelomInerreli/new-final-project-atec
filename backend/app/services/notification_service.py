@@ -276,7 +276,7 @@ class NotificationService:
         """Notifica sobre pagamento recebido."""
         user_ids = NotificationService.get_admin_and_manager_ids(db)
         
-        text = f"Pagamento de R$ {amount:.2f} recebido do cliente {customer_name} - Agendamento #{appointment_id}"
+        text = f"Pagamento de € {amount:.2f} recebido do cliente {customer_name} - Agendamento #{appointment_id}"
         
         NotificationService.create_notification_for_users(
             db=db,
