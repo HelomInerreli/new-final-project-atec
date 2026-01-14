@@ -25,7 +25,7 @@ class EmailService:
             body_with_logo = f"""
             <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
                 <div style="background-color: #dc2626; padding: 20px; text-align: center;">
-                    <h1 style="color: white; margin: 0; font-size: 28px;">🔧 MECATEC</h1>
+                    <h1 style="color: white; margin: 0; font-size: 28px;"> MECATEC</h1>
                     <p style="color: white; margin: 5px 0 0 0; font-size: 14px;">Oficina Automóvel</p>
                 </div>
                 <div style="padding: 20px; background-color: #ffffff;">
@@ -214,7 +214,7 @@ class EmailService:
                 <div style="background-color: #f0f8ff; padding: 15px; border-left: 4px solid #2196f3; margin: 20px 0; border-radius: 5px;">
                     <h3 style="margin-top: 0; color: #2196f3;">📋 Próximos Passos</h3>
                     <p>✓ O seu veículo está pronto para levantamento</p>
-                    <p>✓ Pode consultar e descarregar a sua fatura a qualquer momento na área de cliente em <strong>Meus Serviços > Histórico</strong></p>
+                    <p>✓ Pode consultar e descarregar a sua fatura a qualquer momento na área de cliente em <strong>Meus Serviços</strong></p>
                     <p>✓ Traga este email ou a referência da fatura no momento do levantamento</p>
                 </div>
                 

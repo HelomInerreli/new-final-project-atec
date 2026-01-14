@@ -242,59 +242,59 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
                 print(f"✅ Invoice created successfully: {invoice.invoice_number}")
                 print(f"✅ Payment confirmed for appointment {appointment_id}")
                 
-                # Enviar email de confirmação simples
-                try:
-                    from app.email_service.email_service import EmailService
-                    from app.models.vehicle import Vehicle
+                # # Enviar email de confirmação simples
+                # try:
+                #     from app.email_service.email_service import EmailService
+                #     from app.models.vehicle import Vehicle
                     
-                    customer = db.query(Customer).filter(Customer.id == appointment.customer_id).first()
-                    vehicle = db.query(Vehicle).filter(Vehicle.id == appointment.vehicle_id).first()
-                    amount = session.get('amount_total', 0) / 100  # Stripe usa centavos
+                #     customer = db.query(Customer).filter(Customer.id == appointment.customer_id).first()
+                #     vehicle = db.query(Vehicle).filter(Vehicle.id == appointment.vehicle_id).first()
+                #     amount = session.get('amount_total', 0) / 100  # Stripe usa centavos
                     
-                    if customer and vehicle and customer.auth and customer.auth.email:
-                        # Obter nome do serviço para incluir no email
-                        service_name = appointment.service.name if appointment.service else None
+                #     if customer and vehicle and customer.auth and customer.auth.email:
+                #         # Obter nome do serviço para incluir no email
+                #         service_name = appointment.service.name if appointment.service else None
                         
-                        print(f"📧 Preparando email de pagamento para {customer.auth.email}")
+                #         print(f"📧 Preparando email de pagamento para {customer.auth.email}")
                         
-                        # Enviar email simples de confirmação
-                        email_service = EmailService()
-                        email_sent = email_service.send_payment_confirmation_email(
-                            customer_email=customer.auth.email,
-                            customer_name=customer.name,
-                            invoice_number=invoice.invoice_number,
-                            amount=amount,
-                            vehicle_plate=vehicle.plate,
-                            service_name=service_name
-                        )
+                #         # Enviar email simples de confirmação
+                #         email_service = EmailService()
+                #         email_sent = email_service.send_payment_confirmation_email(
+                #             customer_email=customer.auth.email,
+                #             customer_name=customer.name,
+                #             invoice_number=invoice.invoice_number,
+                #             amount=amount,
+                #             vehicle_plate=vehicle.plate,
+                #             service_name=service_name
+                #         )
                         
-                        if email_sent:
-                            print(f"✅ Email de confirmação enviado para {customer.auth.email}")
-                        else:
-                            print(f"⚠️ Falha ao enviar email para {customer.auth.email}")
+                #         if email_sent:
+                #             print(f"✅ Email de confirmação enviado para {customer.auth.email}")
+                #         else:
+                #             print(f"⚠️ Falha ao enviar email para {customer.auth.email}")
                         
-                        # Enviar notificação interna
-                        NotificationService.notify_payment_received(
-                            db=db,
-                            appointment_id=appointment.id,
-                            amount=amount,
-                            customer_name=customer.name
-                        )
-                        print(f"✅ Notification sent to customer {customer.name}")
-                    else:
-                        if not customer:
-                            print(f"❌ Cliente não encontrado para appointment {appointment.id}")
-                        elif not vehicle:
-                            print(f"❌ Veículo não encontrado para appointment {appointment.id}")
-                        elif not customer.auth:
-                            print(f"❌ CustomerAuth não encontrado para cliente {customer.id}")
-                        elif not customer.auth.email:
-                            print(f"❌ Email não encontrado no CustomerAuth para cliente {customer.id}")
+                #         # Enviar notificação interna
+                #         NotificationService.notify_payment_received(
+                #             db=db,
+                #             appointment_id=appointment.id,
+                #             amount=amount,
+                #             customer_name=customer.name
+                #         )
+                #         print(f"✅ Notification sent to customer {customer.name}")
+                #     else:
+                #         if not customer:
+                #             print(f"❌ Cliente não encontrado para appointment {appointment.id}")
+                #         elif not vehicle:
+                #             print(f"❌ Veículo não encontrado para appointment {appointment.id}")
+                #         elif not customer.auth:
+                #             print(f"❌ CustomerAuth não encontrado para cliente {customer.id}")
+                #         elif not customer.auth.email:
+                #             print(f"❌ Email não encontrado no CustomerAuth para cliente {customer.id}")
                         
-                except Exception as e:
-                    print(f"⚠️ Erro ao enviar confirmação de pagamento: {e}")
-                    import traceback
-                    traceback.print_exc()
+                # except Exception as e:
+                #     print(f"⚠️ Erro ao enviar confirmação de pagamento: {e}")
+                #     import traceback
+                #     traceback.print_exc()
                 
                 return {
                     "status": "success",
@@ -648,11 +648,13 @@ def confirm_payment_success(appointment_id: int, db: Session = Depends(get_db)):
         ).first()
         
         if existing_invoice:
-            print(f"✅ Pagamento já processado anteriormente")
+            print(f"✅ Pagamento já processado anteriormente. Email já foi enviado.")
+            print(f"⚠️ Evitando duplicação - retornando invoice existente: {existing_invoice.invoice_number}")
             return {
                 "status": "success",
                 "message": "Payment already processed",
-                "invoice_id": existing_invoice.id
+                "invoice_id": existing_invoice.id,
+                "invoice_number": existing_invoice.invoice_number
             }
         
         # Buscar a sessão mais recente do Stripe para este appointment
@@ -687,7 +689,7 @@ def confirm_payment_success(appointment_id: int, db: Session = Depends(get_db)):
         db.commit()
         print(f"✅ Pagamento confirmado e invoice criada: {invoice.invoice_number}")
         
-        # Enviar email de confirmação e notificação ao cliente
+        # ✅ ENVIAR EMAIL APENAS PARA NOVO PAGAMENTO (proteção contra duplicação garantida pela verificação de existing_invoice)
         try:
             from app.email_service.email_service import EmailService
             
@@ -696,12 +698,10 @@ def confirm_payment_success(appointment_id: int, db: Session = Depends(get_db)):
             amount = matching_session.amount_total / 100  # Stripe usa centavos
             
             if customer and vehicle and customer.auth and customer.auth.email:
-                # Obter nome do serviço para incluir no email
                 service_name = appointment.service.name if appointment.service else None
                 
-                print(f"📧 Preparando email de confirmação de pagamento para {customer.auth.email}")
+                print(f"📧 [NOVO PAGAMENTO] Enviando email de confirmação para {customer.auth.email}")
                 
-                # Enviar email de confirmação de pagamento
                 email_service = EmailService()
                 email_sent = email_service.send_payment_confirmation_email(
                     customer_email=customer.auth.email,
@@ -713,7 +713,7 @@ def confirm_payment_success(appointment_id: int, db: Session = Depends(get_db)):
                 )
                 
                 if email_sent:
-                    print(f"✅ Email de confirmação de pagamento enviado para {customer.auth.email}")
+                    print(f"✅ Email de confirmação enviado para {customer.auth.email}")
                 else:
                     print(f"⚠️ Falha ao enviar email de confirmação para {customer.auth.email}")
                 

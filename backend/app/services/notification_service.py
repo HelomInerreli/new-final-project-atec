@@ -189,7 +189,7 @@ class NotificationService:
                 if user and user.id not in user_ids:
                     user_ids.append(user.id)
         
-        decision = "aprovado" if approved else "recusado"
+        decision = "aprovou" if approved else "recusou"
         alert_type = "success" if approved else "danger"
         text = f"Cliente {decision} o serviço extra '{service_name}' no agendamento #{appointment_id}"
         
@@ -213,6 +213,7 @@ class NotificationService:
         # Mapear área de serviço para nome de role
         area_role_map = {
             "Mecânica": ["Mecânico", "Mecanico"],
+            "Borracharia": ["Borracheiro"],
             "Elétrica": ["Eletricista"],
             "Chaparia": ["Chapeiro"],
             "Pintura": ["Pintor"],
