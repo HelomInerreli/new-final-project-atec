@@ -251,21 +251,27 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
                     vehicle = db.query(Vehicle).filter(Vehicle.id == appointment.vehicle_id).first()
                     amount = session.get('amount_total', 0) / 100  # Stripe usa centavos
                     
-                    if customer and vehicle:
+                    if customer and vehicle and customer.auth and customer.auth.email:
+                        # Obter nome do serviço para incluir no email
+                        service_name = appointment.service.name if appointment.service else None
+                        
+                        print(f"📧 Preparando email de pagamento para {customer.auth.email}")
+                        
                         # Enviar email simples de confirmação
                         email_service = EmailService()
                         email_sent = email_service.send_payment_confirmation_email(
-                            customer_email=customer.email,
+                            customer_email=customer.auth.email,
                             customer_name=customer.name,
                             invoice_number=invoice.invoice_number,
                             amount=amount,
-                            vehicle_plate=vehicle.plate
+                            vehicle_plate=vehicle.plate,
+                            service_name=service_name
                         )
                         
                         if email_sent:
-                            print(f"✅ Email de confirmação enviado para {customer.email}")
+                            print(f"✅ Email de confirmação enviado para {customer.auth.email}")
                         else:
-                            print(f"⚠️ Falha ao enviar email para {customer.email}")
+                            print(f"⚠️ Falha ao enviar email para {customer.auth.email}")
                         
                         # Enviar notificação interna
                         NotificationService.notify_payment_received(
@@ -275,6 +281,15 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
                             customer_name=customer.name
                         )
                         print(f"✅ Notification sent to customer {customer.name}")
+                    else:
+                        if not customer:
+                            print(f"❌ Cliente não encontrado para appointment {appointment.id}")
+                        elif not vehicle:
+                            print(f"❌ Veículo não encontrado para appointment {appointment.id}")
+                        elif not customer.auth:
+                            print(f"❌ CustomerAuth não encontrado para cliente {customer.id}")
+                        elif not customer.auth.email:
+                            print(f"❌ Email não encontrado no CustomerAuth para cliente {customer.id}")
                         
                 except Exception as e:
                     print(f"⚠️ Erro ao enviar confirmação de pagamento: {e}")
@@ -672,20 +687,57 @@ def confirm_payment_success(appointment_id: int, db: Session = Depends(get_db)):
         db.commit()
         print(f"✅ Pagamento confirmado e invoice criada: {invoice.invoice_number}")
         
-        # Enviar notificação ao cliente
+        # Enviar email de confirmação e notificação ao cliente
         try:
-            customer = db.query(Customer).filter(Customer.id == appointment.customer_id).first()
-            amount = matching_session.amount_total / 100
+            from app.email_service.email_service import EmailService
             
-            if customer:
+            customer = db.query(Customer).filter(Customer.id == appointment.customer_id).first()
+            vehicle = db.query(Vehicle).filter(Vehicle.id == appointment.vehicle_id).first()
+            amount = matching_session.amount_total / 100  # Stripe usa centavos
+            
+            if customer and vehicle and customer.auth and customer.auth.email:
+                # Obter nome do serviço para incluir no email
+                service_name = appointment.service.name if appointment.service else None
+                
+                print(f"📧 Preparando email de confirmação de pagamento para {customer.auth.email}")
+                
+                # Enviar email de confirmação de pagamento
+                email_service = EmailService()
+                email_sent = email_service.send_payment_confirmation_email(
+                    customer_email=customer.auth.email,
+                    customer_name=customer.name,
+                    invoice_number=invoice.invoice_number,
+                    amount=amount,
+                    vehicle_plate=vehicle.plate,
+                    service_name=service_name
+                )
+                
+                if email_sent:
+                    print(f"✅ Email de confirmação de pagamento enviado para {customer.auth.email}")
+                else:
+                    print(f"⚠️ Falha ao enviar email de confirmação para {customer.auth.email}")
+                
+                # Enviar notificação interna
                 NotificationService.notify_payment_received(
                     db=db,
                     appointment_id=appointment.id,
                     amount=amount,
                     customer_name=customer.name
                 )
+                print(f"✅ Notificação interna enviada")
+            else:
+                if not customer:
+                    print(f"❌ Cliente não encontrado para appointment {appointment.id}")
+                elif not vehicle:
+                    print(f"❌ Veículo não encontrado para appointment {appointment.id}")
+                elif not customer.auth:
+                    print(f"❌ CustomerAuth não encontrado para cliente {customer.id}")
+                elif not customer.auth.email:
+                    print(f"❌ Email não encontrado no CustomerAuth para cliente {customer.id}")
         except Exception as e:
-            print(f"⚠️ Erro ao enviar notificação: {e}")
+            print(f"⚠️ Erro ao enviar confirmação de pagamento: {e}")
+            import traceback
+            traceback.print_exc()
         
         return {
             "status": "success",

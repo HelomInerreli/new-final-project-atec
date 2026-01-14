@@ -25,17 +25,34 @@ def filter_by_user_role(query, user: Optional[User], db: Session):
         # Se não tiver user, retorna tudo
         return query
     
+    # Verificar role do sistema
+    system_role = user.role.lower()
+    is_system_admin = system_role in ["admin", "manager"]
+    
     # Busca o employee através do email do usuário
     employee = db.query(Employee).filter(Employee.email == user.email).first()
+    
+    # Verificar se é admin por qualquer critério
+    is_admin = is_system_admin
+    if employee:
+        # Verificar flag is_manager
+        if employee.is_manager:
+            is_admin = True
+        # Verificar role/cargo do employee
+        if employee.role:
+            role_name = employee.role.name.lower()
+            if any(keyword in role_name for keyword in ["admin", "gestor", "gerente"]):
+                is_admin = True
+    
+    # Se é admin por qualquer critério, retorna tudo
+    if is_admin:
+        return query
+    
+    # Se não encontrar employee ou role, retorna tudo (usuário admin sem employee)
     if not employee or not employee.role:
-        # Se não encontrar employee ou role, retorna tudo (usuário admin sem employee)
         return query
     
     role_name = employee.role.name.lower()
-    
-    # Admin vê tudo
-    if "admin" in role_name:
-        return query
     
     # Filtra por área do serviço
     # Mecânico vê apenas serviços de mecânica, Elétrico vê apenas elétrico, etc.

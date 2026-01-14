@@ -174,48 +174,70 @@ class AppointmentRepository:
         
         # Admin e Manager (sistema) veem tudo; outros roles veem apenas serviços da sua área e não concluídas
         if user:
-            if user.role.lower() not in ["admin", "manager"]:
-                # Buscar o employee associado ao user para obter o cargo real
-                from app.models.employee import Employee
-                from app.models.role import Role
-                
-                # Eager load the role relationship
+            # Primeiro, verificar se o role do sistema é admin/manager
+            system_role = user.role.lower()
+            is_system_admin = system_role in ["admin", "manager"]
+            
+            # Buscar o employee associado ao user para obter o cargo real e verificar is_manager
+            from app.models.employee import Employee
+            from app.models.role import Role
+            
+            employee = None
+            if user.employee_id:
                 employee = (
                     self.db.query(Employee)
                     .options(joinedload(Employee.role))
                     .filter(Employee.id == user.employee_id)
                     .first()
                 )
-                
-                if employee:
-                    print(f"[DEBUG] Employee encontrado: ID={employee.id}, Nome={employee.name}, Role ID={employee.role_id}")
-                    if employee.role:
-                        role_name = employee.role.name.lower()
-                        
-                        # Se é Gestor (cargo), vê tudo
-                        if "gestor" not in role_name and "gerente" not in role_name:
-                            # Mapear cargos para áreas de serviço
-                            # Nota: as áreas no banco estão como "Mecânica", "Elétrica", etc.
-                            if "mecanico" in role_name or "mecânico" in role_name:
-                                query = query.join(Service).filter(Service.area.ilike("%Mecânica%"))
-                            elif "eletric" in role_name or "elétric" in role_name:
-                                query = query.join(Service).filter(Service.area.ilike("%Elétrica%"))
-                            elif "borracheiro" in role_name or "pneu" in role_name:
-                                query = query.join(Service).filter(Service.area.ilike("%pneu%"))
-                            elif "estética" in role_name or "estetica" in role_name:
-                                query = query.join(Service).filter(Service.area.ilike("%Estética%"))
-                            elif "vidro" in role_name:
-                                query = query.join(Service).filter(Service.area.ilike("%Vidros%"))
-                            else:
-                                # Para outros cargos, filtrar genericamente pela área
-                                query = query.join(Service).filter(Service.area.ilike(f"%{role_name}%"))
-                            
-                            # Filtrar apenas appointments não concluídas (excluir "Concluída" e "Cancelada")
-                            query = query.filter(
-                                ~Appointment.status.has(
-                                    Status.name.in_(["Concluída", "Cancelada"])
-                                )
-                            )
+            
+            # Verificar se é manager/admin por qualquer critério
+            is_admin = is_system_admin
+            if employee:
+                # Verificar se tem flag is_manager
+                if employee.is_manager:
+                    is_admin = True
+                # Verificar se o cargo/role é admin ou gestor
+                if employee.role:
+                    role_name = employee.role.name.lower()
+                    if any(keyword in role_name for keyword in ["admin", "gestor", "gerente"]):
+                        is_admin = True
+            
+            print(f"[DEBUG] User ID={user.id}, Email={user.email}, System Role={user.role}, Is Admin={is_admin}")
+            if employee:
+                print(f"[DEBUG] Employee encontrado: ID={employee.id}, Nome={employee.name}, Role ID={employee.role_id}, is_manager={employee.is_manager}")
+            
+            # Se não é admin por nenhum critério, aplicar filtros por área
+            if not is_admin:
+                if employee and employee.role:
+                    role_name = employee.role.name.lower()
+            # Se não é admin por nenhum critério, aplicar filtros por área
+            if not is_admin:
+                if employee and employee.role:
+                    role_name = employee.role.name.lower()
+                    
+                    # Mapear cargos para áreas de serviço
+                    # Nota: as áreas no banco estão como "Mecânica", "Elétrica", etc.
+                    if "mecanico" in role_name or "mecânico" in role_name:
+                        query = query.join(Service).filter(Service.area.ilike("%Mecânica%"))
+                    elif "eletric" in role_name or "elétric" in role_name:
+                        query = query.join(Service).filter(Service.area.ilike("%Elétrica%"))
+                    elif "borracheiro" in role_name or "pneu" in role_name:
+                        query = query.join(Service).filter(Service.area.ilike("%pneu%"))
+                    elif "estética" in role_name or "estetica" in role_name:
+                        query = query.join(Service).filter(Service.area.ilike("%Estética%"))
+                    elif "vidro" in role_name:
+                        query = query.join(Service).filter(Service.area.ilike("%Vidros%"))
+                    else:
+                        # Para outros cargos, filtrar genericamente pela área
+                        query = query.join(Service).filter(Service.area.ilike(f"%{role_name}%"))
+                    
+                    # Filtrar apenas appointments não concluídas (excluir "Concluída" e "Cancelada")
+                    query = query.filter(
+                        ~Appointment.status.has(
+                            Status.name.in_(["Concluída", "Cancelada"])
+                        )
+                    )
         
         return query.order_by(Appointment.id.desc()).offset(skip).limit(limit).all()
 
