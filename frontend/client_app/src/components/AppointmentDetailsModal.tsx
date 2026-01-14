@@ -233,7 +233,7 @@ export function AppointmentStatusModal({
         <div className="modal-dialog" onClick={(e) => e.stopPropagation()}>
           <div className="modal-content">
             {/* Cabeçalho do modal com título e botão de fecho */}
-            <div className="modal-header">
+            <div className="modal-header d-flex justify-content-between align-items-center">
               <h5 className="modal-title fw-bold">
                 <i className="bi bi-calendar-event me-2"></i>
                 {currentAppointment.service?.name || "Detalhes do Agendamento"}
