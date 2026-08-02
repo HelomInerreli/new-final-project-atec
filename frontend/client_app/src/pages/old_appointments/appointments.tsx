@@ -1,5 +1,5 @@
 import React from "react";
-import "../../styles/Appointments.css";
+import "../../styles/appointments.css";
 
 const Appointments: React.FC = () => {
   return (

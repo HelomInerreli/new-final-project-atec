@@ -5,10 +5,7 @@ import {
   FaTachometerAlt,
   FaCalendarAlt,
   FaCar,
-  FaCalendarPlus,
   FaCheckCircle,
-  FaFileInvoice,
-  FaUser,
 } from "react-icons/fa";
 
 // Tipo para as seções do menu do cliente

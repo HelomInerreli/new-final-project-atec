@@ -35,21 +35,6 @@ export default function Home() {
     return () => observer.disconnect();
   }, []);
 
-  // Scroll suave para seções
-  const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      const offset = 80; // Altura do header
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - offset;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: "smooth"
-      });
-    }
-  };
-
   const servicesStrip = t("servicesStrip", { returnObjects: true }) as ServiceStrip;
 
   return (

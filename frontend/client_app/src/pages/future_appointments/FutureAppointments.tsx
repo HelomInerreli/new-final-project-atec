@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../api/auth';
 import { useState } from 'react';
 import { NewCreateAppModal } from '../../components/NewCreateAppModal';
-import '../../styles/Appointments.css';
+import '../../styles/appointments.css';
+// import '../../styles/Appointments.css';
 
 /**
  * Componente de página para gestão de agendamentos futuros

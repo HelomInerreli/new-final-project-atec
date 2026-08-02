@@ -20,7 +20,7 @@ export function useVehicles() {
   /**
    * Hook de toast para notificações
    */
-  const { showSuccess, showError, showWarning } = useToast();
+  const { showSuccess, showError } = useToast();
 
   /**
    * Hook de confirmação para dialogs

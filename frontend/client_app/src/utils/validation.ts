@@ -17,7 +17,7 @@ export function validateVehicleForm(formData: Vehicle, t: (key: string) => strin
         errors.model = t('vehicleModal.errors.modelRequired');
     }
     
-    if (formData.kilometers === "" || formData.kilometers === null || formData.kilometers === undefined) {
+    if (formData.kilometers === null || formData.kilometers === undefined) {
         errors.kilometers = t('vehicleModal.errors.kilometersRequired');
     } else if (typeof formData.kilometers === 'number' && formData.kilometers < 0) {
         errors.kilometers = t('vehicleModal.errors.kilometersInvalid');

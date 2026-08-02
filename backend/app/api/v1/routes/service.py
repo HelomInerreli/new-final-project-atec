@@ -13,7 +13,7 @@ def get_service_repo(db: Session = Depends(get_db)) -> ServiceRepository:
     return ServiceRepository(db)
 
 
-@router.get("/", response_model=List[Service])
+@router.get("", response_model=List[Service])
 def list_services(
     skip: int = 0,
     limit: int = 100,

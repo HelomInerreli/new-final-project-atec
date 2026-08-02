@@ -14,7 +14,7 @@ import type { Service } from '../interfaces/service';
  * @param onClose - Callback para fechar o modal
  * @returns Objeto com estados, dados e ações do modal de agendamento
  */
-export const useAppointmentModal = (show: boolean, onSuccess: () => void, onClose: () => void) => {
+export const useAppointmentModal = (_show: boolean, onSuccess: () => void, onClose: () => void) => {
     /**
      * Hook para navegação entre rotas
      */

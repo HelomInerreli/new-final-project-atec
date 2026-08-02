@@ -3,7 +3,6 @@ import type { Appointment } from '../interfaces/appointment';
 import { useAuth } from '../api/auth';
 import { useTranslation } from 'react-i18next';
 import { getGroupedAppointments } from '../services/futureAppointments';
-import { AppointmentList } from '../components/AppointmentList';
 
 /**
  * Hook para buscar e gerenciar agendamentos futuros agrupados por data

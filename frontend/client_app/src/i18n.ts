@@ -2130,6 +2130,14 @@ i18next.use(initReactI18next).init({
           paymentInitFailed: "Impossible de démarrer le paiement.",
           noAppointmentsDescription:
             "Vous n'avez pas encore de rendez-vous programmés.",
+          cancelAppointment: "Annuler",
+          cancelling: "Annulation...",
+          cancelTitle: "Annuler le Rendez-vous",
+          confirmCancel: "Êtes-vous sûr de vouloir annuler ce rendez-vous?",
+          confirmButton: "Oui, Annuler",
+          cancelButton: "Non, Conserver",
+          cancelSuccess: "Rendez-vous annulé avec succès!",
+          cancelFailed: "Impossible d'annuler le rendez-vous.",
         },
         completedServicesDescription:
           "Voir l'historique complet de vos services terminés",
@@ -2571,23 +2579,6 @@ i18next.use(initReactI18next).init({
           "Vous n'avez pas encore de services terminés. Lorsque vous terminerez un service, il apparaîtra ici.",
         myInvoices: "Mes Factures",
         
-        appointmentsPage: {
-          title: "Mes Rendez-vous",
-          goToPayment: "Aller au paiement",
-          redirectingPayment: "Redirection…",
-          paymentInitFailed: "Impossible de démarrer le paiement.",
-          noAppointmentsDescription:
-            "Vous n'avez pas encore de rendez-vous programmés.",
-          cancelAppointment: "Annuler",
-          cancelling: "Annulation...",
-          cancelTitle: "Annuler le Rendez-vous",
-          confirmCancel: "Êtes-vous sûr de vouloir annuler ce rendez-vous?",
-          confirmButton: "Oui, Annuler",
-          cancelButton: "Non, Conserver",
-          cancelSuccess: "Rendez-vous annulé avec succès!",
-          cancelFailed: "Impossible d'annuler le rendez-vous.",
-        },
-
         appointmentModal: {
           title: "Créer un Rendez-vous",
           progressAria: "Progrès {{percent}} pour cent",

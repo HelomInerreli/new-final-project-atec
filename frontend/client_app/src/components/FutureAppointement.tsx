@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FaCalendarAlt, FaCheckCircle, FaTools, FaTimes } from "react-icons/fa";
+import { FaCalendarAlt, FaCheckCircle, FaTools } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 import { useFutureAppointments } from "../hooks/useFutureAppointments";
 import { formatDate } from "../utils/dateUtils";
@@ -100,12 +100,6 @@ export function FutureAppointments() {
    */
   const [realTotals, setRealTotals] = useState<Record<number, number>>({});
 
-  /**
-   * Estado para rastrear qual agendamento está sendo cancelado
-   * Tipo: number | null (ID do agendamento ou null)
-   * Usado para exibir loading no botão de cancelar correto
-   */
-  const [cancelLoadingId, setCancelLoadingId] = useState<number | null>(null);
 
   /**
    * Estado para controlar o modal de confirmação de cancelamento
@@ -187,10 +181,6 @@ export function FutureAppointments() {
    * Confirma ação com o utilizador antes de cancelar
    * @param appointmentId - ID do agendamento a cancelar
    */
-  const handleCancelAppointment = async (appointmentId: number) => {
-    setAppointmentToCancel(appointmentId);
-    setShowCancelModal(true);
-  };
 
   /**
    * Confirma o cancelamento do agendamento
@@ -199,7 +189,6 @@ export function FutureAppointments() {
     if (!appointmentToCancel) return;
 
     try {
-      setCancelLoadingId(appointmentToCancel);
       setShowCancelModal(false);
       
       await appointmentService.cancel(appointmentToCancel);
@@ -221,7 +210,6 @@ export function FutureAppointments() {
         })
       );
     } finally {
-      setCancelLoadingId(null);
       setAppointmentToCancel(null);
     }
   };

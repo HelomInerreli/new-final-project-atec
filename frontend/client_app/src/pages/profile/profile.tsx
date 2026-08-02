@@ -104,7 +104,7 @@ const Profile: React.FC = () => {
    * Tipo: string | null
    * Inicial: null (sem erros)
    */
-  const [error, setError] = useState<string | null>(null);
+  const [, setError] = useState<string | null>(null);
   
   /**
    * Estado para controlar visibilidade do modal de password

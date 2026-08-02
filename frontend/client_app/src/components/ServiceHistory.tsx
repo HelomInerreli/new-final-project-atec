@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { getServices } from "../services/ServiceHistoryServices";
 import type { Appointment } from "../interfaces/appointment";
 import { AppointmentStatusModal } from './AppointmentDetailsModal';
-import "../i18n";
 import { useTranslation } from "react-i18next";
 
 /**
@@ -46,12 +45,6 @@ const [error, setError] = useState<string | null>(null);
  */
 const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
 
-/**
- * Estado para controlar visibilidade do modal de detalhes
- * Tipo: boolean
- * Inicial: false
- */
-const [showModal, setShowModal] = useState(false);
 
 /**
  * Efeito para carregar agendamentos concluídos ao montar o componente
@@ -103,7 +96,6 @@ const formatDate = (dateString: string) => {
  */
   const handleShowDetails = (appointment: Appointment) => {
     setSelectedAppointment(appointment);
-    setShowModal(true);
   };
 
 /**

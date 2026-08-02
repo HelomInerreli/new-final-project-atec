@@ -3,7 +3,7 @@ import { VehicleModal } from "../../components/VehicleModal";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import { FaPlus, FaCar } from "react-icons/fa";
 import { useVehicles } from "../../hooks/useVehicles";
-import "../../styles/Vehicles.css";
+import "../../styles/vehicles.css";
 import { useTranslation } from "react-i18next";
 
 /**

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ChangeEvent, type FormEvent } from "react";
 import type { Vehicle, VehicleAPIData } from "../interfaces/vehicle";
 import { validateVehicleForm } from "../utils/validation";
 
@@ -110,7 +110,7 @@ export function useVehicleForm(
      * Limpa erros do campo quando o utilizador começa a digitar
      * @param e - Evento de mudança do input
      */
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
         
         // Para kilometers, validar que só aceita números
@@ -119,7 +119,7 @@ export function useVehicleForm(
             if (value === "" || /^\d+$/.test(value)) {
                 setFormData((prev) => ({
                     ...prev,
-                    [name]: value === "" ? "" : parseInt(value)
+                    [name]: value === "" ? 0 : parseInt(value, 10)
                 }));
             }
         } else {
@@ -144,7 +144,7 @@ export function useVehicleForm(
      * @param onClose - Callback para fechar o formulário
      */
     const handleSubmit = async (
-        e: React.FormEvent,
+        e: FormEvent,
         onSave: (data: Vehicle) => Promise<void>,
         onClose: () => void
     ) => {

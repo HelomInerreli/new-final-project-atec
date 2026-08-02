@@ -1,13 +1,7 @@
-import React, {
-  useReducer,
-  useEffect,
-  useCallback,
-  useRef,
-  useMemo,
-} from "react";
+import { useReducer, useEffect, useCallback, useRef, useMemo, type CSSProperties, type FormEvent, type MouseEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { reducer } from "../reducer";
-import { WhatsappSVG, CloseSVG, CheckSVG, SendSVG } from "./icons.tsx";
+import { WhatsappSVG, CloseSVG, CheckSVG, SendSVG } from "../components/Icons";
 import css from "../styles.module.css";
 
 import darkBG from "../assets/bg-chat-tile-light.png";
@@ -17,10 +11,10 @@ import SoundBeep from "../assets/whatsapp-notification.mp3";
 
 export interface FloatingWhatsAppProps {
   /** Callback function fires on click */
-  onClick?: (event: React.MouseEvent<HTMLDivElement>) => void;
+  onClick?: (event: MouseEvent<HTMLDivElement>) => void;
   /** Callback function fires on submit with event and form input value passed */
   onSubmit?: (
-    event: React.FormEvent<HTMLFormElement>,
+    event: FormEvent<HTMLFormElement>,
     formValue: string
   ) => void;
   /** Callback function fires on close */
@@ -37,7 +31,7 @@ export interface FloatingWhatsAppProps {
   /** Set chat box height */
   chatboxHeight?: number;
   /** Inline style applied to chat box */
-  chatboxStyle?: React.CSSProperties;
+  chatboxStyle?: CSSProperties;
   /** CSS className applied to chat box */
   chatboxClassName?: string;
   /** Change user avatar using [static assets](https://create-react-app.dev/docs/adding-images-fonts-and-files/) */
@@ -60,7 +54,7 @@ export interface FloatingWhatsAppProps {
   /** Notification sound custom src */
   notificationSoundSrc?: string;
   /** Inline style applied to notification */
-  notificationStyle?: React.CSSProperties;
+  notificationStyle?: CSSProperties;
   /** CSS className applied to notification */
   notificationClassName?: string;
 
@@ -71,7 +65,7 @@ export interface FloatingWhatsAppProps {
   /** Enable / Disable dark mode */
   darkMode?: boolean;
   /** Inline style  applied to the main wrapping `Div` */
-  style?: React.CSSProperties;
+  style?: CSSProperties;
   /** CSS className applied to the main wrapping `Div` */
   className?: string;
 
@@ -91,9 +85,6 @@ export function FloatingWhatsApp({
   phoneNumber = "1234567890",
   accountName = "Mecatec",
   avatar = dummyAvatar,
-  statusMessage,
-  chatMessage,
-  placeholder,
 
   allowClickAway = false,
   allowEsc = false,
