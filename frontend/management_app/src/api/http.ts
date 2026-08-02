@@ -2,7 +2,8 @@ import axios from "axios";
 import { isTokenValid, logout } from "../utils/auth";
 
 const http = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1",
+  baseURL: import.meta.env.VITE_API_URL || "https://new-final-project-atec.onrender.com/api/v1",
+  // baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1",
 });
 
 //Set or remove auth token for requests (Nuno)
