@@ -8,6 +8,8 @@ from app.core.config import settings
 _database_url = settings.DATABASE_URL
 _url = make_url(_database_url)
 if _url.drivername in ("postgres", "postgresql"):
+    if "sslmode" not in _url.query and _url.host not in ("localhost", "127.0.0.1", ""):
+        _url = _url.set(query={**_url.query, "sslmode": "require"})
     _url = _url.set(drivername="postgresql+psycopg")
 
 engine = create_engine(
