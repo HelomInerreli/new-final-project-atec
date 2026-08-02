@@ -1,11 +1,18 @@
 from sqlalchemy import create_engine
+from sqlalchemy.engine import make_url
 from sqlalchemy.orm import sessionmaker, declarative_base
 from app.core.config import settings
 
-# Engine (detecta o banco pelo DATABASE_URL)
+# Normalize PostgreSQL URL to use psycopg when psycopg[binary] is installed.
+# Render often provides a DATABASE_URL like postgres://... which defaults to psycopg2.
+_database_url = settings.DATABASE_URL
+_url = make_url(_database_url)
+if _url.drivername in ("postgres", "postgresql"):
+    _url = _url.set(drivername="postgresql+psycopg")
+
 engine = create_engine(
-    settings.DATABASE_URL, 
-    connect_args={"check_same_thread": False} if "sqlite" in settings.DATABASE_URL else {}
+    str(_url),
+    connect_args={"check_same_thread": False} if _url.drivername.startswith("sqlite") else {}
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
