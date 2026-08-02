@@ -1,4 +1,4 @@
-import FormExample from "./formExample";
+import FormExample from "./FormExample";
 
 export default function Examples() {
   return <FormExample />;
